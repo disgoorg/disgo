@@ -14,6 +14,7 @@ func NewStickers(client Client) Stickers {
 
 type Stickers interface {
 	GetNitroStickerPacks(opts ...RequestOpt) ([]discord.StickerPack, error)
+	GetNitroStickerPack(packID snowflake.ID, opts ...RequestOpt) (*discord.StickerPack, error)
 	GetSticker(stickerID snowflake.ID, opts ...RequestOpt) (*discord.Sticker, error)
 	GetStickers(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Sticker, error)
 	CreateSticker(guildID snowflake.ID, createSticker discord.StickerCreate, opts ...RequestOpt) (*discord.Sticker, error)
@@ -31,6 +32,11 @@ func (s *stickerImpl) GetNitroStickerPacks(opts ...RequestOpt) (stickerPacks []d
 	if err == nil {
 		stickerPacks = stickerPacksRs.StickerPacks
 	}
+	return
+}
+
+func (s *stickerImpl) GetNitroStickerPack(packID snowflake.ID, opts ...RequestOpt) (pack *discord.StickerPack, err error) {
+	err = s.client.Do(GetNitroStickerPack.Compile(nil, packID), nil, &pack, opts...)
 	return
 }
 

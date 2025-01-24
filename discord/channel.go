@@ -185,6 +185,11 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		channel = v
 
+	case ChannelTypeGroupDM:
+		var v GroupDMChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
 	case ChannelTypeGuildCategory:
 		var v GuildCategoryChannel
 		err = json.Unmarshal(data, &v)
@@ -424,6 +429,91 @@ func (DMChannel) channel()        {}
 func (DMChannel) messageChannel() {}
 
 var (
+	_ Channel        = (*GroupDMChannel)(nil)
+	_ MessageChannel = (*GroupDMChannel)(nil)
+)
+
+type GroupDMChannel struct {
+	id               snowflake.ID
+	ownerID          *snowflake.ID
+	name             string
+	lastPinTimestamp *time.Time
+	lastMessageID    *snowflake.ID
+	icon             *string
+}
+
+func (c *GroupDMChannel) UnmarshalJSON(data []byte) error {
+	var v groupDMChannel
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.id = v.ID
+	c.ownerID = v.OwnerID
+	c.name = v.Name
+	c.lastPinTimestamp = v.LastPinTimestamp
+	c.lastMessageID = v.LastMessageID
+	c.icon = v.Icon
+	return nil
+}
+
+func (c GroupDMChannel) MarshalJSON() ([]byte, error) {
+	return json.Marshal(groupDMChannel{
+		ID:               c.id,
+		Type:             c.Type(),
+		OwnerID:          c.ownerID,
+		Name:             c.name,
+		LastPinTimestamp: c.lastPinTimestamp,
+		LastMessageID:    c.lastMessageID,
+		Icon:             c.icon,
+	})
+}
+
+func (c GroupDMChannel) String() string {
+	return channelString(c)
+}
+
+func (c GroupDMChannel) ID() snowflake.ID {
+	return c.id
+}
+
+func (GroupDMChannel) Type() ChannelType {
+	return ChannelTypeGroupDM
+}
+
+func (c GroupDMChannel) OwnerID() *snowflake.ID {
+	return c.ownerID
+}
+
+func (c GroupDMChannel) Name() string {
+	return c.name
+}
+
+func (c GroupDMChannel) LastPinTimestamp() *time.Time {
+	return c.lastPinTimestamp
+}
+
+func (c GroupDMChannel) LastMessageID() *snowflake.ID {
+	return c.lastMessageID
+}
+
+func (c GroupDMChannel) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
+// IconURL returns the icon URL of this group DM or nil if not set
+func (c GroupDMChannel) IconURL(opts ...CDNOpt) *string {
+	if c.icon == nil {
+		return nil
+	}
+	url := formatAssetURL(ChannelIcon, opts, c.id, *c.icon)
+	return &url
+}
+
+func (GroupDMChannel) channel()        {}
+func (GroupDMChannel) messageChannel() {}
+
+var (
 	_ Channel             = (*GuildVoiceChannel)(nil)
 	_ GuildChannel        = (*GuildVoiceChannel)(nil)
 	_ GuildAudioChannel   = (*GuildVoiceChannel)(nil)
@@ -431,22 +521,19 @@ var (
 )
 
 type GuildVoiceChannel struct {
-	id                         snowflake.ID
-	guildID                    snowflake.ID
-	position                   int
-	permissionOverwrites       []PermissionOverwrite
-	name                       string
-	bitrate                    int
-	UserLimit                  int
-	parentID                   *snowflake.ID
-	rtcRegion                  string
-	VideoQualityMode           VideoQualityMode
-	lastMessageID              *snowflake.ID
-	lastPinTimestamp           *time.Time
-	topic                      *string
-	nsfw                       bool
-	defaultAutoArchiveDuration AutoArchiveDuration
-	rateLimitPerUser           int
+	id                   snowflake.ID
+	guildID              snowflake.ID
+	position             int
+	permissionOverwrites []PermissionOverwrite
+	name                 string
+	bitrate              int
+	UserLimit            int
+	parentID             *snowflake.ID
+	rtcRegion            string
+	VideoQualityMode     VideoQualityMode
+	lastMessageID        *snowflake.ID
+	nsfw                 bool
+	rateLimitPerUser     int
 }
 
 func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
@@ -466,33 +553,27 @@ func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.rtcRegion = v.RTCRegion
 	c.VideoQualityMode = v.VideoQualityMode
 	c.lastMessageID = v.LastMessageID
-	c.lastPinTimestamp = v.LastPinTimestamp
-	c.topic = v.Topic
 	c.nsfw = v.NSFW
-	c.defaultAutoArchiveDuration = v.DefaultAutoArchiveDuration
 	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
 }
 
 func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 	return json.Marshal(guildVoiceChannel{
-		ID:                         c.id,
-		Type:                       c.Type(),
-		GuildID:                    c.guildID,
-		Position:                   c.position,
-		PermissionOverwrites:       c.permissionOverwrites,
-		Name:                       c.name,
-		Bitrate:                    c.bitrate,
-		UserLimit:                  c.UserLimit,
-		ParentID:                   c.parentID,
-		RTCRegion:                  c.rtcRegion,
-		VideoQualityMode:           c.VideoQualityMode,
-		LastMessageID:              c.lastMessageID,
-		LastPinTimestamp:           c.lastPinTimestamp,
-		Topic:                      c.topic,
-		NSFW:                       c.nsfw,
-		DefaultAutoArchiveDuration: c.defaultAutoArchiveDuration,
-		RateLimitPerUser:           c.rateLimitPerUser,
+		ID:                   c.id,
+		Type:                 c.Type(),
+		GuildID:              c.guildID,
+		Position:             c.position,
+		PermissionOverwrites: c.permissionOverwrites,
+		Name:                 c.name,
+		Bitrate:              c.bitrate,
+		UserLimit:            c.UserLimit,
+		ParentID:             c.parentID,
+		RTCRegion:            c.rtcRegion,
+		VideoQualityMode:     c.VideoQualityMode,
+		LastMessageID:        c.lastMessageID,
+		NSFW:                 c.nsfw,
+		RateLimitPerUser:     c.rateLimitPerUser,
 	})
 }
 
@@ -544,20 +625,23 @@ func (c GuildVoiceChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
+// LastPinTimestamp always returns nil for GuildVoiceChannel(s) as they cannot have pinned messages.
 func (c GuildVoiceChannel) LastPinTimestamp() *time.Time {
-	return c.lastPinTimestamp
+	return nil
 }
 
+// Topic always returns nil for GuildVoiceChannel(s) as they do not have their own topic.
 func (c GuildVoiceChannel) Topic() *string {
-	return c.topic
+	return nil
 }
 
 func (c GuildVoiceChannel) NSFW() bool {
 	return c.nsfw
 }
 
+// DefaultAutoArchiveDuration is always 0 for GuildVoiceChannel(s) as they do not have their own AutoArchiveDuration.
 func (c GuildVoiceChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
-	return c.defaultAutoArchiveDuration
+	return 0
 }
 
 func (c GuildVoiceChannel) RateLimitPerUser() int {
@@ -930,9 +1014,10 @@ func (GuildThread) messageChannel()      {}
 func (GuildThread) guildMessageChannel() {}
 
 var (
-	_ Channel           = (*GuildStageVoiceChannel)(nil)
-	_ GuildChannel      = (*GuildStageVoiceChannel)(nil)
-	_ GuildAudioChannel = (*GuildStageVoiceChannel)(nil)
+	_ Channel             = (*GuildStageVoiceChannel)(nil)
+	_ GuildChannel        = (*GuildStageVoiceChannel)(nil)
+	_ GuildAudioChannel   = (*GuildStageVoiceChannel)(nil)
+	_ GuildMessageChannel = (*GuildStageVoiceChannel)(nil)
 )
 
 type GuildStageVoiceChannel struct {
@@ -944,6 +1029,10 @@ type GuildStageVoiceChannel struct {
 	bitrate              int
 	parentID             *snowflake.ID
 	rtcRegion            string
+	VideoQualityMode     VideoQualityMode
+	lastMessageID        *snowflake.ID
+	nsfw                 bool
+	rateLimitPerUser     int
 }
 
 func (c *GuildStageVoiceChannel) UnmarshalJSON(data []byte) error {
@@ -960,6 +1049,10 @@ func (c *GuildStageVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.bitrate = v.Bitrate
 	c.parentID = v.ParentID
 	c.rtcRegion = v.RTCRegion
+	c.VideoQualityMode = v.VideoQualityMode
+	c.lastMessageID = v.LastMessageID
+	c.nsfw = v.NSFW
+	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
 }
 
@@ -974,6 +1067,10 @@ func (c GuildStageVoiceChannel) MarshalJSON() ([]byte, error) {
 		Bitrate:              c.bitrate,
 		ParentID:             c.parentID,
 		RTCRegion:            c.rtcRegion,
+		VideoQualityMode:     c.VideoQualityMode,
+		LastMessageID:        c.lastMessageID,
+		NSFW:                 c.nsfw,
+		RateLimitPerUser:     c.rateLimitPerUser,
 	})
 }
 
@@ -1021,13 +1118,42 @@ func (c GuildStageVoiceChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
+func (c GuildStageVoiceChannel) LastMessageID() *snowflake.ID {
+	return c.lastMessageID
+}
+
+// LastPinTimestamp always returns nil for GuildStageVoiceChannel(s) as they cannot have pinned messages.
+func (c GuildStageVoiceChannel) LastPinTimestamp() *time.Time {
+	return nil
+}
+
+// Topic always returns nil for GuildStageVoiceChannel(s) as they do not have their own topic.
+func (c GuildStageVoiceChannel) Topic() *string {
+	return nil
+}
+
+func (c GuildStageVoiceChannel) NSFW() bool {
+	return c.nsfw
+}
+
+// DefaultAutoArchiveDuration is always 0 for GuildStageVoiceChannel(s) as they do not have their own AutoArchiveDuration.
+func (c GuildStageVoiceChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
+	return 0
+}
+
+func (c GuildStageVoiceChannel) RateLimitPerUser() int {
+	return c.rateLimitPerUser
+}
+
 func (c GuildStageVoiceChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
-func (GuildStageVoiceChannel) channel()           {}
-func (GuildStageVoiceChannel) guildChannel()      {}
-func (GuildStageVoiceChannel) guildAudioChannel() {}
+func (GuildStageVoiceChannel) channel()             {}
+func (GuildStageVoiceChannel) messageChannel()      {}
+func (GuildStageVoiceChannel) guildChannel()        {}
+func (GuildStageVoiceChannel) guildAudioChannel()   {}
+func (GuildStageVoiceChannel) guildMessageChannel() {}
 
 var (
 	_ Channel      = (*GuildForumChannel)(nil)
@@ -1272,7 +1398,7 @@ type PartialChannel struct {
 type VideoQualityMode int
 
 const (
-	VideoQualityModeAuto = iota + 1
+	VideoQualityModeAuto VideoQualityMode = iota + 1
 	VideoQualityModeFull
 )
 
@@ -1384,9 +1510,6 @@ func ApplyLastMessageIDToChannel(channel GuildMessageChannel, lastMessageID snow
 func ApplyLastPinTimestampToChannel(channel GuildMessageChannel, lastPinTimestamp *time.Time) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
-		c.lastPinTimestamp = lastPinTimestamp
-		return c
-	case GuildVoiceChannel:
 		c.lastPinTimestamp = lastPinTimestamp
 		return c
 	case GuildNewsChannel:

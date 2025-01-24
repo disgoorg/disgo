@@ -8,12 +8,10 @@ import (
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
-// AuditLogEventGuildUpdate ...
 const (
 	AuditLogEventGuildUpdate AuditLogEvent = 1
 )
 
-// AuditLogEventChannelCreate
 const (
 	AuditLogEventChannelCreate AuditLogEvent = iota + 10
 	AuditLogEventChannelUpdate
@@ -23,7 +21,6 @@ const (
 	AuditLogEventChannelOverwriteDelete
 )
 
-// AuditLogEventMemberKick
 const (
 	AuditLogEventMemberKick AuditLogEvent = iota + 20
 	AuditLogEventMemberPrune
@@ -36,35 +33,30 @@ const (
 	AuditLogEventBotAdd
 )
 
-// AuditLogEventRoleCreate
 const (
 	AuditLogEventRoleCreate AuditLogEvent = iota + 30
 	AuditLogEventRoleUpdate
 	AuditLogEventRoleDelete
 )
 
-// AuditLogEventInviteCreate
 const (
 	AuditLogEventInviteCreate AuditLogEvent = iota + 40
 	AuditLogEventInviteUpdate
 	AuditLogEventInviteDelete
 )
 
-// AuditLogEventWebhookCreate
 const (
 	AuditLogEventWebhookCreate AuditLogEvent = iota + 50
 	AuditLogEventWebhookUpdate
 	AuditLogEventWebhookDelete
 )
 
-// AuditLogEventEmojiCreate
 const (
 	AuditLogEventEmojiCreate AuditLogEvent = iota + 60
 	AuditLogEventEmojiUpdate
 	AuditLogEventEmojiDelete
 )
 
-// AuditLogEventMessageDelete
 const (
 	AuditLogEventMessageDelete AuditLogEvent = iota + 72
 	AuditLogEventMessageBulkDelete
@@ -72,7 +64,6 @@ const (
 	AuditLogEventMessageUnpin
 )
 
-// AuditLogEventIntegrationCreate
 const (
 	AuditLogEventIntegrationCreate AuditLogEvent = iota + 80
 	AuditLogEventIntegrationUpdate
@@ -82,30 +73,32 @@ const (
 	AuditLogEventStageInstanceDelete
 )
 
-// AuditLogEventStickerCreate
 const (
 	AuditLogEventStickerCreate AuditLogEvent = iota + 90
 	AuditLogEventStickerUpdate
 	AuditLogEventStickerDelete
 )
 
-// AuditLogGuildScheduledEventCreate
 const (
 	AuditLogGuildScheduledEventCreate AuditLogEvent = iota + 100
 	AuditLogGuildScheduledEventUpdate
 	AuditLogGuildScheduledEventDelete
 )
 
-// AuditLogThreadCreate
 const (
 	AuditLogThreadCreate AuditLogEvent = iota + 110
 	AuditLogThreadUpdate
 	AuditLogThreadDelete
 )
 
-// AuditLogApplicationCommandPermissionUpdate ...
 const (
 	AuditLogApplicationCommandPermissionUpdate AuditLogEvent = 121
+)
+
+const (
+	AuditLogSoundboardSoundCreate AuditLogEvent = iota + 130
+	AuditLogSoundboardSoundUpdate
+	AuditLogSoundboardSoundDelete
 )
 
 const (
@@ -120,6 +113,118 @@ const (
 const (
 	AuditLogCreatorMonetizationRequestCreated AuditLogEvent = iota + 150
 	AuditLogCreatorMonetizationTermsAccepted
+)
+
+const (
+	AuditLogOnboardingPromptCreate AuditLogEvent = iota + 163
+	AuditLogOnboardingPromptUpdate
+	AuditLogOnboardingPromptDelete
+	AuditLogOnboardingCreate
+	AuditLogOnboardingUpdate
+)
+
+const (
+	AuditLogHomeSettingsCreate AuditLogEvent = iota + 190
+	AuditLogHomeSettingsUpdate
+)
+
+// AuditLogChangeKey is a string representing a key in the audit log change object.
+type AuditLogChangeKey string
+
+const (
+	AuditLogChangeKeyAFKChannelID AuditLogChangeKey = "afk_channel_id"
+	AuditLogChangeKeyAFKTimeout   AuditLogChangeKey = "afk_timeout"
+	// AuditLogChangeKeyAllow is sent when a role's permission overwrites changed (stringy int)
+	AuditLogChangeKeyAllow         AuditLogChangeKey = "allow"
+	AuditLogChangeKeyApplicationID AuditLogChangeKey = "application_id"
+	// AuditLogChangeKeyArchived is sent when a channel thread is archived/unarchived (bool)
+	AuditLogChangeKeyArchived AuditLogChangeKey = "archived"
+	AuditLogChangeKeyAsset    AuditLogChangeKey = "asset"
+	// AuditLogChangeKeyAutoArchiveDuration is sent when a thread's auto archive duration is changed (int)
+	AuditLogChangeKeyAutoArchiveDuration AuditLogChangeKey = "auto_archive_duration"
+	AuditLogChangeKeyAvailable           AuditLogChangeKey = "available"
+	AuditLogChangeKeyAvatarHash          AuditLogChangeKey = "avatar_hash"
+	AuditLogChangeKeyBannerHash          AuditLogChangeKey = "banner_hash"
+	AuditLogChangeKeyBitrate             AuditLogChangeKey = "bitrate"
+	AuditLogChangeKeyChannelID           AuditLogChangeKey = "channel_id"
+	AuditLogChangeKeyCode                AuditLogChangeKey = "code"
+	// AuditLogChangeKeyColor is sent when a role's color is changed (int)
+	AuditLogChangeKeyColor AuditLogChangeKey = "color"
+	// AuditLogChangeKeyCommunicationDisabledUntil is sent when a user's communication disabled until datetime is changed (stringy ISO8601 datetime)
+	AuditLogChangeKeyCommunicationDisabledUntil AuditLogChangeKey = "communication_disabled_until"
+	// AuditLogChangeKeyDeaf is sent when a user is set to be server deafened/undeafened (bool)
+	AuditLogChangeKeyDeaf                        AuditLogChangeKey = "deaf"
+	AuditLogChangeKeyDefaultAutoArchiveDuration  AuditLogChangeKey = "default_auto_archive_duration"
+	AuditLogChangeKeyDefaultMessageNotifications AuditLogChangeKey = "default_message_notifications"
+	// AuditLogChangeKeyDeny is sent when a role's permission overwrites changed (stringed int)
+	AuditLogChangeKeyDeny                  AuditLogChangeKey = "deny"
+	AuditLogChangeKeyDescription           AuditLogChangeKey = "description"
+	AuditLogChangeKeyDiscoverySplashHash   AuditLogChangeKey = "discovery_splash_hash"
+	AuditLogChangeKeyEnableEmoticons       AuditLogChangeKey = "enable_emoticons"
+	AuditLogChangeKeyEntityType            AuditLogChangeKey = "entity_type"
+	AuditLogChangeKeyExpireBehavior        AuditLogChangeKey = "expire_behavior"
+	AuditLogChangeKeyExpireGracePeriod     AuditLogChangeKey = "expire_grace_period"
+	AuditLogChangeKeyExplicitContentFilter AuditLogChangeKey = "explicit_content_filter"
+	AuditLogChangeKeyFormatType            AuditLogChangeKey = "format_type"
+	AuditLogChangeKeyGuildID               AuditLogChangeKey = "guild_id"
+	// AuditLogChangeKeyHoist is sent when a role is set to be displayed separately from online members (bool)
+	AuditLogChangeKeyHoist     AuditLogChangeKey = "hoist"
+	AuditLogChangeKeyIconHash  AuditLogChangeKey = "icon_hash"
+	AuditLogChangeKeyID        AuditLogChangeKey = "id"
+	AuditLogChangeKeyInvitable AuditLogChangeKey = "invitable"
+	AuditLogChangeKeyInviterID AuditLogChangeKey = "inviter_id"
+	AuditLogChangeKeyLocation  AuditLogChangeKey = "location"
+	// AuditLogChangeKeyLocked is sent when a channel thread is locked/unlocked (bool)
+	AuditLogChangeKeyLocked  AuditLogChangeKey = "locked"
+	AuditLogChangeKeyMaxAge  AuditLogChangeKey = "max_age"
+	AuditLogChangeKeyMaxUses AuditLogChangeKey = "max_uses"
+	// AuditLogChangeKeyMentionable is sent when a role changes its mentionable state (bool)
+	AuditLogChangeKeyMentionable AuditLogChangeKey = "mentionable"
+	AuditLogChangeKeyMFALevel    AuditLogChangeKey = "mfa_level"
+	// AuditLogChangeKeyMute is sent when a user is server muted/unmuted (bool)
+	AuditLogChangeKeyMute AuditLogChangeKey = "mute"
+	AuditLogChangeKeyName AuditLogChangeKey = "name"
+	// AuditLogChangeKeyNick is sent when a user's nickname is changed (string)
+	AuditLogChangeKeyNick AuditLogChangeKey = "nick"
+	AuditLogChangeKeyNSFW AuditLogChangeKey = "nsfw"
+	// AuditLogChangeKeyOwnerID is sent when owner id of a guild changed (snowflake.ID)
+	AuditLogChangeKeyOwnerID AuditLogChangeKey = "owner_id"
+	// AuditLogChangeKeyPermissionOverwrites is sent when a role's permission overwrites changed (string)
+	AuditLogChangeKeyPermissionOverwrites AuditLogChangeKey = "permission_overwrites"
+	// AuditLogChangeKeyPermissions is sent when a role's permissions changed (string)
+	AuditLogChangeKeyPermissions AuditLogChangeKey = "permissions"
+	// AuditLogChangeKeyPosition is sent when channel position changed (int)
+	AuditLogChangeKeyPosition               AuditLogChangeKey = "position"
+	AuditLogChangeKeyPreferredLocale        AuditLogChangeKey = "preferred_locale"
+	AuditLogChangeKeyPrivacyLevel           AuditLogChangeKey = "privacy_level"
+	AuditLogChangeKeyPruneDeleteDays        AuditLogChangeKey = "prune_delete_days"
+	AuditLogChangeKeyPublicUpdatesChannelID AuditLogChangeKey = "public_updates_channel_id"
+	AuditLogChangeKeyRateLimitPerUser       AuditLogChangeKey = "rate_limit_per_user"
+	AuditLogChangeKeyRegion                 AuditLogChangeKey = "region"
+	AuditLogChangeKeyRulesChannelID         AuditLogChangeKey = "rules_channel_id"
+	AuditLogChangeKeySplashHash             AuditLogChangeKey = "splash_hash"
+	AuditLogChangeKeyStatus                 AuditLogChangeKey = "status"
+	// AuditLogChangeKeySystemChannelID is sent when system channel id of a guild changed (snowflake.ID)
+	AuditLogChangeKeySystemChannelID AuditLogChangeKey = "system_channel_id"
+	AuditLogChangeKeyTags            AuditLogChangeKey = "tags"
+	AuditLogChangeKeyTemporary       AuditLogChangeKey = "temporary"
+	// AuditLogChangeKeyTopic is sent when channel topic changed (string)
+	AuditLogChangeKeyTopic        AuditLogChangeKey = "topic"
+	AuditLogChangeKeyType         AuditLogChangeKey = "type"
+	AuditLogChangeKeyUnicodeEmoji AuditLogChangeKey = "unicode_emoji"
+	// AuditLogChangeKeyUserLimit is sent when user limit of a voice channel changed (int)
+	AuditLogChangeKeyUserLimit     AuditLogChangeKey = "user_limit"
+	AuditLogChangeKeyUses          AuditLogChangeKey = "uses"
+	AuditLogChangeKeyVanityURLCode AuditLogChangeKey = "vanity_url_code"
+	// AuditLogChangeKeyVerificationLevel is sent when verification level of the server changed (int)
+	AuditLogChangeKeyVerificationLevel AuditLogChangeKey = "verification_level"
+	AuditLogChangeKeyWidgetChannelID   AuditLogChangeKey = "widget_channel_id"
+	// AuditLogChangeKeyWidgetEnabled is sent when a server widget is enabled/disabled (bool)
+	AuditLogChangeKeyWidgetEnabled AuditLogChangeKey = "widget_enabled"
+	// AuditLogChangeKeyRoleAdd is sent when roles are added to a user (array of discord.PartialRole JSON)
+	AuditLogChangeKeyRoleAdd AuditLogChangeKey = "$add"
+	// AuditLogChangeKeyRoleRemove is sent when roles are removed from a user (array of discord.PartialRole JSON)
+	AuditLogChangeKeyRoleRemove AuditLogChangeKey = "$remove"
 )
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
@@ -174,7 +279,7 @@ func (l *AuditLog) UnmarshalJSON(data []byte) error {
 // AuditLogEntry (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object)
 type AuditLogEntry struct {
 	TargetID   *snowflake.ID              `json:"target_id"`
-	Changes    []AuditLogChangeKey        `json:"changes"`
+	Changes    []AuditLogChange           `json:"changes"`
 	UserID     snowflake.ID               `json:"user_id"`
 	ID         snowflake.ID               `json:"id"`
 	ActionType AuditLogEvent              `json:"action_type"`
@@ -182,63 +287,25 @@ type AuditLogEntry struct {
 	Reason     *string                    `json:"reason"`
 }
 
-// AuditLogChangeKey (https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-key) is data representing changes values/settings in an audit log.
-type AuditLogChangeKey struct {
-	Name                        *string                     `json:"name"`
-	Description                 *string                     `json:"description"`
-	IconHash                    *string                     `json:"icon_hash"`
-	SplashHash                  *string                     `json:"splash_hash"`
-	DiscoverySplashHash         *string                     `json:"discovery_splash_hash"`
-	BannerHash                  *string                     `json:"banner_hash"`
-	OwnerID                     *snowflake.ID               `json:"owner_id"`
-	Region                      *string                     `json:"region"`
-	PreferredLocale             *string                     `json:"preferred_locale"`
-	AFKChannelID                *snowflake.ID               `json:"afk_channel_id"`
-	AFKTimeout                  *int                        `json:"afk_timeout"`
-	RulesChannelID              *snowflake.ID               `json:"rules_channel_id"`
-	PublicUpdatesChannelID      *snowflake.ID               `json:"public_updates_channel_id"`
-	MFALevel                    *MFALevel                   `json:"mfa_level"`
-	VerificationLevel           *VerificationLevel          `json:"verification_level"`
-	ExplicitContentFilterLevel  *ExplicitContentFilterLevel `json:"explicit_content_filter"`
-	DefaultMessageNotifications *MessageNotificationsLevel  `json:"default_message_notifications"`
-	VanityURLCode               *string                     `json:"vanity_url_code"`
-	Add                         []PartialRole               `json:"$add"`
-	Remove                      []PartialRole               `json:"$remove"`
-	PruneDeleteDays             *int                        `json:"prune_delete_days"`
-	WidgetEnabled               *bool                       `json:"widget_enabled"`
-	WidgetChannelID             *string                     `json:"widget_channel_id"`
-	SystemChannelID             *string                     `json:"system_channel_id"`
-	Position                    *int                        `json:"position"`
-	Topic                       *string                     `json:"topic"`
-	Bitrate                     *int                        `json:"bitrate"`
-	PermissionOverwrites        []PermissionOverwrite       `json:"permission_overwrites"`
-	NSFW                        *bool                       `json:"nsfw"`
-	ApplicationID               *snowflake.ID               `json:"application_id"`
-	RateLimitPerUser            *int                        `json:"ratelimit_per_user"`
-	Permissions                 *string                     `json:"permissions"`
-	Color                       *int                        `json:"color"`
-	Hoist                       *bool                       `json:"hoist"`
-	Mentionable                 *bool                       `json:"mentionable"`
-	Allow                       *Permissions                `json:"allow"`
-	Deny                        *Permissions                `json:"deny"`
-	Code                        *string                     `json:"code"`
-	ChannelID                   *snowflake.ID               `json:"channel_id"`
-	InviterID                   *snowflake.ID               `json:"inviter_id"`
-	MaxUses                     *int                        `json:"max_uses"`
-	Uses                        *int                        `json:"uses"`
-	MaxAge                      *string                     `json:"max_age"`
-	Temporary                   *bool                       `json:"temporary"`
-	Deaf                        *bool                       `json:"deaf"`
-	Mute                        *bool                       `json:"mute"`
-	Nick                        *string                     `json:"nick"`
-	AvatarHash                  *string                     `json:"avatar_hash"`
-	ID                          *snowflake.ID               `json:"id"`
-	Type                        any                         `json:"type"`
-	EnableEmoticons             *bool                       `json:"enable_emoticons"`
-	ExpireBehavior              *IntegrationExpireBehavior  `json:"expire_behavior"`
-	ExpireGracePeriod           *int                        `json:"expire_grace_period"`
-	UserLimit                   *int                        `json:"user_limit"`
-	PrivacyLevel                *StagePrivacyLevel          `json:"privacy_level"`
+// AuditLogChange (https://discord.com/developers/docs/resources/audit-log#audit-log-change-object) contains what was changed.
+// For a list of possible keys & values see the discord documentation.
+type AuditLogChange struct {
+	// NewValue is the new value of the key after the change as a json.RawMessage.
+	NewValue json.RawMessage `json:"new_value"`
+	// OldValue is the old value of the key before the change as a json.RawMessage.
+	OldValue json.RawMessage `json:"old_value"`
+	// Key is the key of the change.
+	Key AuditLogChangeKey `json:"key"`
+}
+
+// UnmarshalNewValue unmarshals the NewValue field into the provided type.
+func (c *AuditLogChange) UnmarshalNewValue(v any) error {
+	return json.Unmarshal(c.NewValue, v)
+}
+
+// UnmarshalOldValue unmarshals the OldValue field into the provided type.
+func (c *AuditLogChange) UnmarshalOldValue(v any) error {
+	return json.Unmarshal(c.OldValue, v)
 }
 
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)

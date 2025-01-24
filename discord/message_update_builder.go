@@ -177,7 +177,7 @@ func (b *MessageUpdateBuilder) RemoveFile(i int) *MessageUpdateBuilder {
 // RetainAttachments removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]AttachmentUpdate)
+		b.Attachments = &[]AttachmentUpdate{}
 	}
 	for _, attachment := range attachments {
 		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachment.ID})
@@ -188,7 +188,7 @@ func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *Mes
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.ID) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]AttachmentUpdate)
+		b.Attachments = &[]AttachmentUpdate{}
 	}
 	for _, attachmentID := range attachmentIDs {
 		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachmentID})
@@ -207,7 +207,9 @@ func (b *MessageUpdateBuilder) ClearAllowedMentions() *MessageUpdateBuilder {
 	return b.SetAllowedMentions(nil)
 }
 
-// SetFlags sets the message flags of the Message
+// SetFlags sets the MessageFlags of the Message.
+// Be careful not to override the current flags when editing messages from other users - this will result in a permission error.
+// Use SetSuppressEmbeds or AddFlags for flags like discord.MessageFlagSuppressEmbeds.
 func (b *MessageUpdateBuilder) SetFlags(flags MessageFlags) *MessageUpdateBuilder {
 	if b.Flags == nil {
 		b.Flags = new(MessageFlags)

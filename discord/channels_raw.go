@@ -15,6 +15,16 @@ type dmChannel struct {
 	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
 }
 
+type groupDMChannel struct {
+	ID               snowflake.ID  `json:"id"`
+	Type             ChannelType   `json:"type"`
+	OwnerID          *snowflake.ID `json:"owner_id"`
+	Name             string        `json:"name"`
+	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
+	LastMessageID    *snowflake.ID `json:"last_message_id"`
+	Icon             *string       `json:"icon"`
+}
+
 type guildTextChannel struct {
 	ID                         snowflake.ID          `json:"id"`
 	Type                       ChannelType           `json:"type"`
@@ -117,23 +127,20 @@ func (t *guildCategoryChannel) UnmarshalJSON(data []byte) error {
 }
 
 type guildVoiceChannel struct {
-	ID                         snowflake.ID          `json:"id"`
-	Type                       ChannelType           `json:"type"`
-	GuildID                    snowflake.ID          `json:"guild_id"`
-	Position                   int                   `json:"position"`
-	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites"`
-	Name                       string                `json:"name"`
-	Bitrate                    int                   `json:"bitrate"`
-	UserLimit                  int                   `json:"user_limit"`
-	ParentID                   *snowflake.ID         `json:"parent_id"`
-	RTCRegion                  string                `json:"rtc_region"`
-	VideoQualityMode           VideoQualityMode      `json:"video_quality_mode"`
-	LastMessageID              *snowflake.ID         `json:"last_message_id"`
-	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp"`
-	Topic                      *string               `json:"topic"`
-	NSFW                       bool                  `json:"nsfw"`
-	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
-	RateLimitPerUser           int                   `json:"rate_limit_per_user"`
+	ID                   snowflake.ID          `json:"id"`
+	Type                 ChannelType           `json:"type"`
+	GuildID              snowflake.ID          `json:"guild_id"`
+	Position             int                   `json:"position"`
+	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
+	Name                 string                `json:"name"`
+	Bitrate              int                   `json:"bitrate"`
+	UserLimit            int                   `json:"user_limit"`
+	ParentID             *snowflake.ID         `json:"parent_id"`
+	RTCRegion            string                `json:"rtc_region"`
+	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
+	LastMessageID        *snowflake.ID         `json:"last_message_id"`
+	NSFW                 bool                  `json:"nsfw"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 }
 
 func (t *guildVoiceChannel) UnmarshalJSON(data []byte) error {
@@ -157,9 +164,14 @@ type guildStageVoiceChannel struct {
 	Position             int                   `json:"position"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	Name                 string                `json:"name"`
-	Bitrate              int                   `json:"bitrate,"`
+	Bitrate              int                   `json:"bitrate"`
+	UserLimit            int                   `json:"user_limit"`
 	ParentID             *snowflake.ID         `json:"parent_id"`
 	RTCRegion            string                `json:"rtc_region"`
+	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
+	LastMessageID        *snowflake.ID         `json:"last_message_id"`
+	NSFW                 bool                  `json:"nsfw"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 }
 
 func (t *guildStageVoiceChannel) UnmarshalJSON(data []byte) error {

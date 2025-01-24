@@ -14,10 +14,8 @@ func NewUsers(client Client) Users {
 
 type Users interface {
 	GetUser(userID snowflake.ID, opts ...RequestOpt) (*discord.User, error)
-	UpdateSelfUser(selfUserUpdate discord.SelfUserUpdate, opts ...RequestOpt) (*discord.OAuth2User, error)
-	GetGuilds(before int, after int, limit int, withCounts bool, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
+	UpdateCurrentUser(userUpdate discord.UserUpdate, opts ...RequestOpt) (*discord.OAuth2User, error)
 	LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error
-	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, error)
 	CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (*discord.DMChannel, error)
 }
 
@@ -30,35 +28,13 @@ func (s *userImpl) GetUser(userID snowflake.ID, opts ...RequestOpt) (user *disco
 	return
 }
 
-func (s *userImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, opts ...RequestOpt) (selfUser *discord.OAuth2User, err error) {
-	err = s.client.Do(UpdateSelfUser.Compile(nil), updateSelfUser, &selfUser, opts...)
-	return
-}
-
-func (s *userImpl) GetGuilds(before int, after int, limit int, withCounts bool, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
-	queryParams := discord.QueryValues{
-		"with_counts": withCounts,
-	}
-	if before > 0 {
-		queryParams["before"] = before
-	}
-	if after > 0 {
-		queryParams["after"] = after
-	}
-	if limit > 0 {
-		queryParams["limit"] = limit
-	}
-	err = s.client.Do(GetCurrentUserGuilds.Compile(queryParams), nil, &guilds, opts...)
+func (s *userImpl) UpdateCurrentUser(userUpdate discord.UserUpdate, opts ...RequestOpt) (selfUser *discord.OAuth2User, err error) {
+	err = s.client.Do(UpdateCurrentUser.Compile(nil), userUpdate, &selfUser, opts...)
 	return
 }
 
 func (s *userImpl) LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(LeaveGuild.Compile(nil, guildID), nil, nil, opts...)
-}
-
-func (s *userImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel, err error) {
-	err = s.client.Do(GetDMChannels.Compile(nil), nil, &channels, opts...)
-	return
 }
 
 func (s *userImpl) CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (channel *discord.DMChannel, err error) {

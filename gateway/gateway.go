@@ -21,6 +21,30 @@ func (s Status) IsConnected() bool {
 	}
 }
 
+// String returns the string representation of the Status.
+func (s Status) String() string {
+	switch s {
+	case StatusUnconnected:
+		return "Unconnected"
+	case StatusConnecting:
+		return "Connecting"
+	case StatusWaitingForHello:
+		return "WaitingForHello"
+	case StatusIdentifying:
+		return "Identifying"
+	case StatusResuming:
+		return "Resuming"
+	case StatusWaitingForReady:
+		return "WaitingForReady"
+	case StatusReady:
+		return "Ready"
+	case StatusDisconnected:
+		return "Disconnected"
+	default:
+		return "Unknown"
+	}
+}
+
 // Indicates how far along the client is too connecting.
 const (
 	// StatusUnconnected is the initial state when a new Gateway is created.

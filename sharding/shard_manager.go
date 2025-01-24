@@ -8,6 +8,9 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
+// ShardSplitCount is the default count a shard should be split into when it needs re-sharding.
+const ShardSplitCount = 2
+
 // ShardManager manages multiple gateway.Gateway connections.
 // For more information on sharding see: https://discord.com/developers/docs/topics/gateway#sharding
 type ShardManager interface {

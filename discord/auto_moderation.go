@@ -10,6 +10,7 @@ type AutoModerationEventType int
 
 const (
 	AutoModerationEventTypeMessageSend AutoModerationEventType = iota + 1
+	AutoModerationEventTypeMemberUpdate
 )
 
 type AutoModerationTriggerType int
@@ -20,6 +21,7 @@ const (
 	AutoModerationTriggerTypeSpam
 	AutoModerationTriggerTypeKeywordPresent
 	AutoModerationTriggerTypeMentionSpam
+	AutoModerationTriggerTypeMemberProfile
 )
 
 type AutoModerationTriggerMetadata struct {
@@ -45,6 +47,7 @@ const (
 	AutoModerationActionTypeBlockMessage AutoModerationActionType = iota + 1
 	AutoModerationActionTypeSendAlertMessage
 	AutoModerationActionTypeTimeout
+	AutoModerationActionTypeBlockMemberInteraction
 )
 
 type AutoModerationAction struct {

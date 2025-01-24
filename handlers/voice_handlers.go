@@ -6,6 +6,13 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
+func gatewayHandlerVoiceChannelEffectSend(client bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceChannelEffectSend) {
+	client.EventManager().DispatchEvent(&events.GuildVoiceChannelEffectSend{
+		GenericEvent:                events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventVoiceChannelEffectSend: event,
+	})
+}
+
 func gatewayHandlerVoiceStateUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceStateUpdate) {
 	member := event.Member
 
@@ -47,7 +54,7 @@ func gatewayHandlerVoiceStateUpdate(client bot.Client, sequenceNumber int, shard
 			OldVoiceState:          oldVoiceState,
 		})
 	} else {
-		client.Logger().Warnf("could not decide which GuildVoice to fire")
+		client.Logger().Warn("could not decide which GuildVoice to fire")
 	}
 }
 

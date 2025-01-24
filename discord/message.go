@@ -1,7 +1,9 @@
 package discord
 
 import (
+	"bytes"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/disgoorg/json"
@@ -21,7 +23,7 @@ const (
 	MessageTypeCall
 	MessageTypeChannelNameChange
 	MessageTypeChannelIconChange
-	ChannelPinnedMessage
+	MessageTypeChannelPinnedMessage
 	MessageTypeUserJoin
 	MessageTypeGuildBoost
 	MessageTypeGuildBoostTier1
@@ -55,6 +57,13 @@ const (
 	MessageTypeGuildIncidentAlertModeDisabled
 	MessageTypeGuildIncidentReportRaid
 	MessageTypeGuildIncidentReportFalseAlarm
+  _
+  _
+  _
+  _
+	MessageTypePurchaseNotification
+	_
+	MessageTypePollResult
 )
 
 func (t MessageType) System() bool {
@@ -70,9 +79,7 @@ func (t MessageType) System() bool {
 func (t MessageType) Deleteable() bool {
 	switch t {
 	case MessageTypeRecipientAdd, MessageTypeRecipientRemove, MessageTypeCall,
-		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeGuildDiscoveryDisqualified,
-		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
-		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
+		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeThreadStarterMessage:
 		return false
 
 	default:
@@ -99,7 +106,7 @@ type Message struct {
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
 	MentionRoles         []snowflake.ID        `json:"mention_roles"`
-	MentionChannels      []Channel             `json:"mention_channels"`
+	MentionChannels      []MentionChannel      `json:"mention_channels"`
 	Pinned               bool                  `json:"pinned"`
 	EditedTimestamp      *time.Time            `json:"edited_timestamp"`
 	Author               User                  `json:"author"`
@@ -109,6 +116,7 @@ type Message struct {
 	Type                 MessageType           `json:"type"`
 	Flags                MessageFlags          `json:"flags"`
 	MessageReference     *MessageReference     `json:"message_reference,omitempty"`
+	MessageSnapshots     []MessageSnapshot     `json:"message_snapshots,omitempty"`
 	Interaction          *MessageInteraction   `json:"interaction,omitempty"`
 	WebhookID            *snowflake.ID         `json:"webhook_id,omitempty"`
 	Activity             *MessageActivity      `json:"activity,omitempty"`
@@ -120,6 +128,11 @@ type Message struct {
 	Thread               *MessageThread        `json:"thread,omitempty"`
 	Position             *int                  `json:"position,omitempty"`
 	RoleSubscriptionData *RoleSubscriptionData `json:"role_subscription_data,omitempty"`
+	InteractionMetadata  *InteractionMetadata  `json:"interaction_metadata,omitempty"`
+	Resolved             *ResolvedData         `json:"resolved,omitempty"`
+	Poll                 *Poll                 `json:"poll,omitempty"`
+	Call                 *MessageCall          `json:"call,omitempty"`
+	Nonce                Nonce                 `json:"nonce,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -136,10 +149,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	*m = Message(v.message)
 
 	if len(v.Components) > 0 {
-		m.Components = make([]ContainerComponent, len(v.Components))
-		for i := range v.Components {
-			m.Components[i] = v.Components[i].Component.(ContainerComponent)
-		}
+		m.Components = unmarshalComponents(v.Components)
 	}
 
 	if m.Member != nil && m.GuildID != nil {
@@ -341,6 +351,13 @@ func (m Message) JumpURL() string {
 	return fmt.Sprintf(MessageURLFmt, guildID, m.ChannelID, m.ID) // duplicate code, but there isn't a better way without sacrificing user convenience
 }
 
+type MentionChannel struct {
+	ID      snowflake.ID `json:"id"`
+	GuildID snowflake.ID `json:"guild_id"`
+	Type    ChannelType  `json:"type"`
+	Name    string       `json:"name"`
+}
+
 type MessageThread struct {
 	GuildThread
 	Member ThreadMember `json:"member"`
@@ -366,6 +383,13 @@ type ReactionCountDetails struct {
 	Burst  int `json:"burst"`
 	Normal int `json:"normal"`
 }
+
+type MessageReactionType int
+
+const (
+	MessageReactionTypeNormal MessageReactionType = iota
+	MessageReactionTypeBurst
+)
 
 // MessageActivityType is the type of MessageActivity https://com/developers/docs/resources/channel#message-object-message-activity-types
 type MessageActivityType int
@@ -396,10 +420,57 @@ type MessageApplication struct {
 
 // MessageReference is a reference to another message
 type MessageReference struct {
-	MessageID       *snowflake.ID `json:"message_id"`
-	ChannelID       *snowflake.ID `json:"channel_id,omitempty"`
-	GuildID         *snowflake.ID `json:"guild_id,omitempty"`
-	FailIfNotExists bool          `json:"fail_if_not_exists,omitempty"`
+	Type            MessageReferenceType `json:"type,omitempty"`
+	MessageID       *snowflake.ID        `json:"message_id"`
+	ChannelID       *snowflake.ID        `json:"channel_id,omitempty"`
+	GuildID         *snowflake.ID        `json:"guild_id,omitempty"`
+	FailIfNotExists bool                 `json:"fail_if_not_exists,omitempty"`
+}
+
+type MessageReferenceType int
+
+const (
+	MessageReferenceTypeDefault MessageReferenceType = iota
+	MessageReferenceTypeForward
+)
+
+type MessageSnapshot struct {
+	Message PartialMessage `json:"message"`
+}
+
+type PartialMessage struct {
+	Type            MessageType          `json:"type"`
+	Content         string               `json:"content,omitempty"`
+	Embeds          []Embed              `json:"embeds,omitempty"`
+	Attachments     []Attachment         `json:"attachments"`
+	CreatedAt       time.Time            `json:"timestamp"`
+	EditedTimestamp *time.Time           `json:"edited_timestamp"`
+	Flags           MessageFlags         `json:"flags"`
+	Mentions        []User               `json:"mentions"`
+	MentionRoles    []snowflake.ID       `json:"mention_roles"`
+	Stickers        []Sticker            `json:"stickers"`
+	StickerItems    []MessageSticker     `json:"sticker_items,omitempty"`
+	Components      []ContainerComponent `json:"components,omitempty"`
+}
+
+func (m *PartialMessage) UnmarshalJSON(data []byte) error {
+	type partialMessage PartialMessage
+	var v struct {
+		Components []UnmarshalComponent `json:"components"`
+		partialMessage
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = PartialMessage(v.partialMessage)
+
+	if len(v.Components) > 0 {
+		m.Components = unmarshalComponents(v.Components)
+	}
+
+	return nil
 }
 
 // MessageInteraction is sent on the Message object when the message is a response to an interaction
@@ -433,6 +504,7 @@ const (
 	_
 	MessageFlagSuppressNotifications
 	MessageFlagIsVoiceMessage
+	MessageFlagHasSnapshot
 	MessageFlagsNone MessageFlags = 0
 )
 
@@ -461,4 +533,60 @@ type RoleSubscriptionData struct {
 	TierName                  string       `json:"tier_name"`
 	TotalMonthsSubscribed     int          `json:"total_months_subscribed"`
 	IsRenewal                 bool         `json:"is_renewal"`
+}
+
+type InteractionMetadata struct {
+	ID                           snowflake.ID                                `json:"id"`
+	Type                         InteractionType                             `json:"type"`
+	User                         User                                        `json:"user"`
+	AuthorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
+	OriginalResponseMessageID    *snowflake.ID                               `json:"original_response_message_id"`
+	// This field will only be present for application command interactions of ApplicationCommandTypeUser.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-application-command-interaction-metadata-structure
+	TargetUser *User `json:"target_user"`
+	// This field will only be present for application command interactions of ApplicationCommandTypeMessage.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-application-command-interaction-metadata-structure
+	TargetMessageID *snowflake.ID `json:"target_message_id"`
+	// This field will only be present for InteractionTypeComponent interactions.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-message-component-interaction-metadata-structure
+	InteractedMessageID *snowflake.ID `json:"interacted_message_id"`
+	// This field will only be present for InteractionTypeModalSubmit interactions.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-modal-submit-interaction-metadata-structure
+	TriggeringInteractionMetadata *InteractionMetadata `json:"triggering_interaction_metadata"`
+}
+
+type MessageCall struct {
+	Participants   []snowflake.ID `json:"participants"`
+	EndedTimestamp *time.Time     `json:"ended_timestamp"`
+}
+
+func unmarshalComponents(components []UnmarshalComponent) []ContainerComponent {
+	containerComponents := make([]ContainerComponent, len(components))
+	for i := range components {
+		containerComponents[i] = components[i].Component.(ContainerComponent)
+	}
+	return containerComponents
+}
+
+// Nonce is a string or int used when sending a message to discord.
+type Nonce string
+
+// UnmarshalJSON unmarshals the Nonce from a string or int.
+func (n *Nonce) UnmarshalJSON(b []byte) error {
+	if bytes.Equal(b, []byte("null")) {
+		return nil
+	}
+
+	unquoted, err := strconv.Unquote(string(b))
+	if err != nil {
+		i, err := strconv.ParseInt(string(b), 10, 64)
+		if err != nil {
+			return err
+		}
+		*n = Nonce(strconv.FormatInt(i, 10))
+	} else {
+		*n = Nonce(unquoted)
+	}
+
+	return nil
 }

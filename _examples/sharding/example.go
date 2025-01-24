@@ -2,11 +2,10 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -21,10 +20,8 @@ var (
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Info("disgo version: ", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.Any("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithShardManagerConfigOpts(
@@ -39,24 +36,26 @@ func main() {
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 			OnGuildReady: func(event *events.GuildReady) {
-				log.Infof("guild %s ready", event.GuildID)
+				slog.Info("guild %s ready", event.GuildID)
 			},
 			OnGuildsReady: func(event *events.GuildsReady) {
-				log.Infof("guilds on shard %d ready", event.ShardID)
+				slog.Info("guilds on shard %d ready", event.ShardID)
 			},
 		}),
 	)
 	if err != nil {
-		log.Fatalf("error while building disgo: %s", err)
+		slog.Error("error while building disgo", slog.Any("err", err))
+		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenShardManager(context.TODO()); err != nil {
-		log.Fatal("error while connecting to gateway: ", err)
+		slog.Error("error while connecting to gateway", slog.Any("err", err))
+		return
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s

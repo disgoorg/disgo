@@ -1,13 +1,13 @@
 package voice
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
 )
 
 // DefaultConnConfig returns a ConnConfig with sensible defaults.
 func DefaultConnConfig() *ConnConfig {
 	return &ConnConfig{
-		Logger:                  log.Default(),
+		Logger:                  slog.Default(),
 		GatewayCreateFunc:       NewGateway,
 		UDPConnCreateFunc:       NewUDPConn,
 		AudioSenderCreateFunc:   NewAudioSender,
@@ -17,7 +17,7 @@ func DefaultConnConfig() *ConnConfig {
 
 // ConnConfig is used to configure a Conn.
 type ConnConfig struct {
-	Logger log.Logger
+	Logger *slog.Logger
 
 	GatewayCreateFunc GatewayCreateFunc
 	GatewayConfigOpts []GatewayConfigOpt
@@ -42,7 +42,7 @@ func (c *ConnConfig) Apply(opts []ConnConfigOpt) {
 }
 
 // WithConnLogger sets the Conn(s) used Logger.
-func WithConnLogger(logger log.Logger) ConnConfigOpt {
+func WithConnLogger(logger *slog.Logger) ConnConfigOpt {
 	return func(config *ConnConfig) {
 		config.Logger = logger
 	}

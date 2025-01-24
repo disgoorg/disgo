@@ -8,6 +8,7 @@ type WebhookMessageUpdate struct {
 	Attachments     *[]AttachmentUpdate   `json:"attachments,omitempty"`
 	Files           []*File               `json:"-"`
 	AllowedMentions *AllowedMentions      `json:"allowed_mentions,omitempty"`
+	Poll            *PollCreate           `json:"poll,omitempty"`
 }
 
 // ToBody returns the WebhookMessageUpdate ready for body

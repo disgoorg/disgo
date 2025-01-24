@@ -111,6 +111,7 @@ const (
 	GuildFeatureInvitesDisabled                       GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                          GuildFeature = "INVITE_SPLASH"
 	GuildFeatureMemberVerificationGateEnabled         GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
+	GuildFeatureMoreSoundboard                        GuildFeature = "MORE_SOUNDBOARD"
 	GuildFeatureMoreStickers                          GuildFeature = "MORE_STICKERS"
 	GuildFeatureNews                                  GuildFeature = "NEWS"
 	GuildFeaturePartnered                             GuildFeature = "PARTNERED"
@@ -119,6 +120,7 @@ const (
 	GuildFeatureRoleIcons                             GuildFeature = "ROLE_ICONS"
 	GuildFeatureRoleSubscriptionsAvailableForPurchase GuildFeature = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
 	GuildFeatureRoleSubscriptionsEnabled              GuildFeature = "ROLE_SUBSCRIPTIONS_ENABLED"
+	GuildFeatureSoundboard                            GuildFeature = "SOUNDBOARD"
 	GuildFeatureTicketedEventsEnabled                 GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                             GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                              GuildFeature = "VERIFIED"
@@ -225,6 +227,7 @@ type GatewayGuild struct {
 	Presences            []Presence            `json:"presences"`
 	StageInstances       []StageInstance       `json:"stage_instances"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
+	SoundboardSounds     []SoundboardSound     `json:"soundboard_sounds"`
 }
 
 func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
@@ -257,11 +260,28 @@ type OAuth2Guild struct {
 	ID                       snowflake.ID   `json:"id"`
 	Name                     string         `json:"name"`
 	Icon                     *string        `json:"icon"`
+	Banner                   *string        `json:"banner"`
 	Owner                    bool           `json:"owner"`
 	Permissions              Permissions    `json:"permissions"`
 	Features                 []GuildFeature `json:"features"`
 	ApproximateMemberCount   int            `json:"approximate_member_count"`
 	ApproximatePresenceCount int            `json:"approximate_presence_count"`
+}
+
+func (g OAuth2Guild) IconURL(opts ...CDNOpt) *string {
+	if g.Icon == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildIcon, opts, g.ID, *g.Icon)
+	return &url
+}
+
+func (g OAuth2Guild) BannerURL(opts ...CDNOpt) *string {
+	if g.Banner == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildBanner, opts, g.ID, *g.Banner)
+	return &url
 }
 
 // GuildWelcomeScreen is the Welcome Screen of a Guild
@@ -379,4 +399,9 @@ type GuildPrune struct {
 
 type GuildPruneResult struct {
 	Pruned *int `json:"pruned"`
+}
+
+type GuildActiveThreads struct {
+	Threads []GuildThread  `json:"threads"`
+	Members []ThreadMember `json:"members"`
 }

@@ -3,6 +3,7 @@ package rest
 import (
 	"time"
 
+	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -39,6 +40,7 @@ type Guilds interface {
 	GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.Ban, error)
 	AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDuration time.Duration, opts ...RequestOpt) error
 	DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
+	BulkBan(guildID snowflake.ID, ban discord.BulkBan, opts ...RequestOpt) (*discord.BulkBanResult, error)
 
 	GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID snowflake.ID, integrationID snowflake.ID, opts ...RequestOpt) error
@@ -211,6 +213,11 @@ func (s *guildImpl) DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ..
 	return s.client.Do(DeleteBan.Compile(nil, guildID, userID), nil, nil, opts...)
 }
 
+func (s *guildImpl) BulkBan(guildID snowflake.ID, ban discord.BulkBan, opts ...RequestOpt) (result *discord.BulkBanResult, err error) {
+	err = s.client.Do(BulkBan.Compile(nil, guildID), ban, &result, opts...)
+	return
+}
+
 func (s *guildImpl) GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) (integrations []discord.Integration, err error) {
 	err = s.client.Do(GetIntegrations.Compile(nil, guildID), nil, &integrations, opts...)
 	return
@@ -222,16 +229,9 @@ func (s *guildImpl) DeleteIntegration(guildID snowflake.ID, integrationID snowfl
 
 func (s *guildImpl) GetGuildPruneCount(guildID snowflake.ID, days int, includeRoles []snowflake.ID, opts ...RequestOpt) (result *discord.GuildPruneResult, err error) {
 	values := discord.QueryValues{
-		"days": days,
+		"days":          days,
+		"include_roles": slicehelper.JoinSnowflakes(includeRoles),
 	}
-	var joinedRoles string
-	for i, roleID := range includeRoles {
-		joinedRoles += roleID.String()
-		if i != len(includeRoles)-1 {
-			joinedRoles += ","
-		}
-	}
-	values["include_roles"] = joinedRoles
 	err = s.client.Do(GetGuildPruneCount.Compile(values, guildID), nil, &result, opts...)
 	return
 }

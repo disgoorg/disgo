@@ -1,18 +1,17 @@
 package main
 
 import (
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 
-	"github.com/disgoorg/json"
-	"github.com/disgoorg/log"
-
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/oauth2"
+	"github.com/disgoorg/json"
 )
 
 var (
@@ -25,14 +24,14 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Infof("disgo %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	var err error
 	client, err = disgo.New(token)
 	if err != nil {
-		log.Panic(err)
+		slog.Error("error creating client", slog.Any("err", err))
+		return
 	}
 
 	_, _ = client.Rest().UpdateApplicationRoleConnectionMetadata(client.ApplicationID(), []discord.ApplicationRoleConnectionMetadata{
@@ -53,7 +52,11 @@ func main() {
 }
 
 func handleVerify(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, oAuth2Client.GenerateAuthorizationURL(baseURL+"/callback", discord.PermissionsNone, 0, false, discord.OAuth2ScopeIdentify, discord.OAuth2ScopeRoleConnectionsWrite), http.StatusTemporaryRedirect)
+	params := oauth2.AuthorizationURLParams{
+		RedirectURI: baseURL + "/callback",
+		Scopes:      []discord.OAuth2Scope{discord.OAuth2ScopeIdentify, discord.OAuth2ScopeRoleConnectionsWrite},
+	}
+	http.Redirect(w, r, oAuth2Client.GenerateAuthorizationURL(params), http.StatusTemporaryRedirect)
 }
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {

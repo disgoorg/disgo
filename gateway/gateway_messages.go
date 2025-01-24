@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 
@@ -80,13 +82,18 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 
 	case OpcodeHeartbeatACK:
 
+	case OpcodeRequestSoundboardSounds:
+		var d MessageDataRequestSoundboardSounds
+		err = json.Unmarshal(v.D, &d)
+		messageData = d
+
 	default:
 		var d MessageDataUnknown
 		err = json.Unmarshal(v.D, &d)
 		messageData = d
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal message data: %s: %w", string(data), err)
 	}
 	e.Op = v.Op
 	e.S = v.S
@@ -156,6 +163,21 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeChannelPinsUpdate:
 		var d EventChannelPinsUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeEntitlementCreate:
+		var d EventEntitlementCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeEntitlementUpdate:
+		var d EventEntitlementUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeEntitlementDelete:
+		var d EventEntitlementDelete
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
@@ -294,6 +316,26 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeGuildSoundboardSoundCreate:
+		var d EventGuildSoundboardSoundCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildSoundboardSoundUpdate:
+		var d EventGuildSoundboardSoundUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildSoundboardSoundDelete:
+		var d EventGuildSoundboardSoundDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildSoundboardSoundsUpdate:
+		var d EventGuildSoundboardSoundsUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeIntegrationCreate:
 		var d EventIntegrationCreate
 		err = json.Unmarshal(data, &d)
@@ -369,6 +411,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeSoundboardSounds:
+		var d EventSoundboardSounds
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeStageInstanceCreate:
 		var d EventStageInstanceCreate
 		err = json.Unmarshal(data, &d)
@@ -384,6 +431,21 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeSubscriptionCreate:
+		var d EventSubscriptionCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeSubscriptionUpdate:
+		var d EventSubscriptionUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeSubscriptionDelete:
+		var d EventSubscriptionDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeTypingStart:
 		var d EventTypingStart
 		err = json.Unmarshal(data, &d)
@@ -391,6 +453,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeUserUpdate:
 		var d EventUserUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeVoiceChannelEffectSend:
+		var d EventVoiceChannelEffectSend
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
@@ -415,7 +482,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		eventData = d
 	}
 
-	return eventData, err
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal event data: %s: %w", string(data), err)
+	}
+
+	return eventData, nil
 }
 
 type MessageDataUnknown json.RawMessage
@@ -595,3 +666,9 @@ type MessageDataHello struct {
 }
 
 func (MessageDataHello) messageData() {}
+
+type MessageDataRequestSoundboardSounds struct {
+	GuildIDs []snowflake.ID `json:"guild_ids"`
+}
+
+func (MessageDataRequestSoundboardSounds) messageData() {}

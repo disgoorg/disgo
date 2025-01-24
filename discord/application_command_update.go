@@ -16,8 +16,11 @@ type SlashCommandUpdate struct {
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  *[]ApplicationCommandOption `json:"options,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool                       `json:"dm_permission,omitempty"`
-	NSFW                     *bool                       `json:"nsfw,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
 }
 
 func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -45,8 +48,11 @@ type UserCommandUpdate struct {
 	Name                     *string                     `json:"name,omitempty"`
 	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool                       `json:"dm_permission,omitempty"`
-	NSFW                     *bool                       `json:"nsfw,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
 }
 
 func (c UserCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -74,8 +80,11 @@ type MessageCommandUpdate struct {
 	Name                     *string                     `json:"name,omitempty"`
 	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool                       `json:"dm_permission,omitempty"`
-	NSFW                     *bool                       `json:"nsfw,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
 }
 
 func (c MessageCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -98,3 +107,36 @@ func (c MessageCommandUpdate) CommandName() *string {
 }
 
 func (MessageCommandUpdate) applicationCommandUpdate() {}
+
+type EntryPointCommandUpdate struct {
+	Name                     *string                     `json:"name,omitempty"`
+	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
+	Handler          *EntryPointCommandHandlerType `json:"handler,omitempty"`
+}
+
+func (c EntryPointCommandUpdate) MarshalJSON() ([]byte, error) {
+	type entryPointCommandUpdate EntryPointCommandUpdate
+	return json.Marshal(struct {
+		Type ApplicationCommandType `json:"type"`
+		entryPointCommandUpdate
+	}{
+		Type:                    c.Type(),
+		entryPointCommandUpdate: entryPointCommandUpdate(c),
+	})
+}
+
+func (EntryPointCommandUpdate) Type() ApplicationCommandType {
+	return ApplicationCommandTypePrimaryEntryPoint
+}
+
+func (c EntryPointCommandUpdate) CommandName() *string {
+	return c.Name
+}
+
+func (EntryPointCommandUpdate) applicationCommandUpdate() {}

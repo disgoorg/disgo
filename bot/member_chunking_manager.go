@@ -2,9 +2,10 @@ package bot
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 	"sync"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -14,14 +15,18 @@ import (
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
+var ErrNoUserIDs = errors.New("no user ids to request")
+
 // NewMemberChunkingManager returns a new MemberChunkingManager with the given MemberChunkingFilter.
-func NewMemberChunkingManager(client Client, logger log.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
+func NewMemberChunkingManager(client Client, logger *slog.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
 	if memberChunkingFilter == nil {
 		memberChunkingFilter = MemberChunkingFilterNone
 	}
 	if logger == nil {
-		logger = log.Default()
+		logger = slog.Default()
 	}
+	logger = logger.With(slog.String("name", "bot_member_chunking_manager"))
+
 	return &memberChunkingManagerImpl{
 		client:               client,
 		logger:               logger,
@@ -41,6 +46,9 @@ type MemberChunkingManager interface {
 	// RequestMembers requests members from the given guildID and userIDs.
 	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembers(guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
+	// RequestAllMembers requests all members from the given guildID.
+	// Notice: This action requires the gateway.IntentGuildMembers.
+	RequestAllMembers(guildID snowflake.ID) ([]discord.Member, error)
 	// RequestMembersWithQuery requests members from the given guildID and query.
 	// query : string the username starts with
 	// Notice: This action requires the gateway.IntentGuildMembers.
@@ -52,6 +60,9 @@ type MemberChunkingManager interface {
 	// RequestMembersCtx requests members from the given guildID and userIDs.
 	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersCtx(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
+	// RequestAllMembersCtx requests all members from the given guildID.
+	// Notice: This action requires the gateway.IntentGuildMembers.
+	RequestAllMembersCtx(ctx context.Context, guildID snowflake.ID) ([]discord.Member, error)
 	// RequestMembersWithQueryCtx requests members from the given guildID and query.
 	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersWithQueryCtx(ctx context.Context, guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
@@ -64,6 +75,11 @@ type MemberChunkingManager interface {
 	// Returns a function which can be used to cancel the request and close the channel.
 	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersChan(guildID snowflake.ID, userIDs ...snowflake.ID) (<-chan discord.Member, func(), error)
+	// RequestAllMembersChan requests all members from the given guildID.
+	// Returns a channel which will receive the members.
+	// Returns a function which can be used to cancel the request and close the channel.
+	// Notice: This action requires the gateway.IntentGuildMembers.
+	RequestAllMembersChan(guildID snowflake.ID) (<-chan discord.Member, func(), error)
 	// RequestMembersWithQueryChan requests members from the given guildID and query.
 	// Returns a channel which will receive the members.
 	// Returns a function which can be used to cancel the request and close the channel.
@@ -88,7 +104,7 @@ type chunkingRequest struct {
 
 type memberChunkingManagerImpl struct {
 	client               Client
-	logger               log.Logger
+	logger               *slog.Logger
 	memberChunkingFilter MemberChunkingFilter
 
 	chunkingRequestsMu sync.RWMutex
@@ -104,7 +120,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
 	if !ok {
-		m.logger.Debug("received unknown member chunk event: ", payload)
+		m.logger.Debug("received unknown member chunk event", slog.Any("payload", payload))
 		return
 	}
 
@@ -214,6 +230,9 @@ func (m *memberChunkingManagerImpl) RequestMembersWithFilter(guildID snowflake.I
 }
 
 func (m *memberChunkingManagerImpl) RequestMembersCtx(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error) {
+	if len(userIDs) == 0 {
+		return nil, ErrNoUserIDs
+	}
 	return m.requestGuildMembers(ctx, guildID, nil, nil, userIDs, nil)
 }
 
@@ -234,6 +253,9 @@ func (m *memberChunkingManagerImpl) RequestMembersWithFilterCtx(ctx context.Cont
 }
 
 func (m *memberChunkingManagerImpl) RequestMembersChan(guildID snowflake.ID, userIDs ...snowflake.ID) (<-chan discord.Member, func(), error) {
+	if len(userIDs) == 0 {
+		return nil, nil, ErrNoUserIDs
+	}
 	return m.requestGuildMembersChan(context.Background(), guildID, nil, nil, userIDs, nil)
 }
 

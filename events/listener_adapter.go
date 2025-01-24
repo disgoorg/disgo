@@ -1,6 +1,9 @@
 package events
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
 )
 
@@ -61,6 +64,16 @@ type ListenerAdapter struct {
 	OnEmojiUpdate  func(event *EmojiUpdate)
 	OnEmojiDelete  func(event *EmojiDelete)
 
+	// Entitlement Events
+	OnEntitlementCreate func(event *EntitlementCreate)
+	OnEntitlementUpdate func(event *EntitlementUpdate)
+	OnEntitlementDelete func(event *EntitlementDelete)
+
+	// Subscription Events
+	OnSubscriptionCreate func(event *SubscriptionCreate)
+	OnSubscriptionUpdate func(event *SubscriptionUpdate)
+	OnSubscriptionDelete func(event *SubscriptionDelete)
+
 	// Sticker Events
 	OnStickersUpdate func(event *StickersUpdate)
 	OnStickerCreate  func(event *StickerCreate)
@@ -103,12 +116,20 @@ type ListenerAdapter struct {
 	OnGuildMessageReactionRemoveEmoji func(event *GuildMessageReactionRemoveEmoji)
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAll)
 
+	// Guild Soundboard Events
+	OnGuildSoundboardSoundCreate  func(event *GuildSoundboardSoundCreate)
+	OnGuildSoundboardSoundUpdate  func(event *GuildSoundboardSoundUpdate)
+	OnGuildSoundboardSoundDelete  func(event *GuildSoundboardSoundDelete)
+	OnGuildSoundboardSoundsUpdate func(event *GuildSoundboardSoundsUpdate)
+	OnSoundboardSounds            func(event *SoundboardSounds)
+
 	// Guild Voice Events
-	OnVoiceServerUpdate     func(event *VoiceServerUpdate)
-	OnGuildVoiceStateUpdate func(event *GuildVoiceStateUpdate)
-	OnGuildVoiceJoin        func(event *GuildVoiceJoin)
-	OnGuildVoiceMove        func(event *GuildVoiceMove)
-	OnGuildVoiceLeave       func(event *GuildVoiceLeave)
+	OnVoiceServerUpdate           func(event *VoiceServerUpdate)
+	OnGuildVoiceChannelEffectSend func(event *GuildVoiceChannelEffectSend)
+	OnGuildVoiceStateUpdate       func(event *GuildVoiceStateUpdate)
+	OnGuildVoiceJoin              func(event *GuildVoiceJoin)
+	OnGuildVoiceMove              func(event *GuildVoiceMove)
+	OnGuildVoiceLeave             func(event *GuildVoiceLeave)
 
 	// Guild StageInstance Events
 	OnStageInstanceCreate func(event *StageInstanceCreate)
@@ -138,6 +159,18 @@ type ListenerAdapter struct {
 	OnMessageCreate func(event *MessageCreate)
 	OnMessageUpdate func(event *MessageUpdate)
 	OnMessageDelete func(event *MessageDelete)
+
+	// Message Poll Events
+	OnMessagePollVoteAdd    func(event *MessagePollVoteAdd)
+	OnMessagePollVoteRemove func(event *MessagePollVoteRemove)
+
+	// DM Message Poll Events
+	OnDMMessagePollVoteAdd    func(event *DMMessagePollVoteAdd)
+	OnDMMessagePollVoteRemove func(event *DMMessagePollVoteRemove)
+
+	// Guild Message Poll Events
+	OnGuildMessagePollVoteAdd    func(event *GuildMessagePollVoteAdd)
+	OnGuildMessagePollVoteRemove func(event *GuildMessagePollVoteRemove)
 
 	// Message Reaction Events
 	OnMessageReactionAdd         func(event *MessageReactionAdd)
@@ -318,6 +351,34 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	// Entitlement Events
+	case *EntitlementCreate:
+		if listener := l.OnEntitlementCreate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementUpdate:
+		if listener := l.OnEntitlementUpdate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementDelete:
+		if listener := l.OnEntitlementDelete; listener != nil {
+			listener(e)
+		}
+
+	// Subscription Events
+	case *SubscriptionCreate:
+		if listener := l.OnSubscriptionCreate; listener != nil {
+			listener(e)
+		}
+	case *SubscriptionUpdate:
+		if listener := l.OnSubscriptionUpdate; listener != nil {
+			listener(e)
+		}
+	case *SubscriptionDelete:
+		if listener := l.OnSubscriptionDelete; listener != nil {
+			listener(e)
+		}
+
 	// Sticker Events
 	case *StickersUpdate:
 		if listener := l.OnStickersUpdate; listener != nil {
@@ -444,9 +505,35 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	// Guild Soundboard Sound Events
+	case *GuildSoundboardSoundCreate:
+		if listener := l.OnGuildSoundboardSoundCreate; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundUpdate:
+		if listener := l.OnGuildSoundboardSoundUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundDelete:
+		if listener := l.OnGuildSoundboardSoundDelete; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundsUpdate:
+		if listener := l.OnGuildSoundboardSoundsUpdate; listener != nil {
+			listener(e)
+		}
+	case *SoundboardSounds:
+		if listener := l.OnSoundboardSounds; listener != nil {
+			listener(e)
+		}
+
 	// Guild Voice Events
 	case *VoiceServerUpdate:
 		if listener := l.OnVoiceServerUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceChannelEffectSend:
+		if listener := l.OnGuildVoiceChannelEffectSend; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceStateUpdate:
@@ -552,6 +639,32 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	// Message Poll Events
+	case *MessagePollVoteAdd:
+		if listener := l.OnMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *MessagePollVoteRemove:
+		if listener := l.OnMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+	case *DMMessagePollVoteAdd:
+		if listener := l.OnDMMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *DMMessagePollVoteRemove:
+		if listener := l.OnDMMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+	case *GuildMessagePollVoteAdd:
+		if listener := l.OnGuildMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *GuildMessagePollVoteRemove:
+		if listener := l.OnGuildMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+
 	// Message Reaction Events
 	case *MessageReactionAdd:
 		if listener := l.OnMessageReactionAdd; listener != nil {
@@ -647,6 +760,6 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	default:
-		e.Client().Logger().Errorf("unexpected event received: '%T', event: '%+v'", event, event)
+		e.Client().Logger().Error("unexpected event received", slog.String("type", fmt.Sprintf("%T", event)), slog.String("data", fmt.Sprintf("%+v", event)))
 	}
 }

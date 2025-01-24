@@ -2,9 +2,7 @@ package bot
 
 import (
 	"context"
-
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
+	"log/slog"
 
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
@@ -13,6 +11,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/disgo/voice"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ Client = (*clientImpl)(nil)
@@ -22,7 +21,7 @@ var _ Client = (*clientImpl)(nil)
 // Create a new client with disgo.New.
 type Client interface {
 	// Logger returns the logger for the client.
-	Logger() log.Logger
+	Logger() *slog.Logger
 
 	// Close will clean up all disgo internals and close the discord gracefully.
 	Close(ctx context.Context)
@@ -93,6 +92,9 @@ type Client interface {
 	//  limit    : The number of discord.Member(s) to return.
 	RequestMembersWithQuery(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, query string, limit int) error
 
+	// RequestSoundboardSounds a gateway.MessageDataRequestSoundboardSounds to the specific gateway.Gateway and requests the SoundboardSounds of the specified guilds.
+	RequestSoundboardSounds(ctx context.Context, guildIDs ...snowflake.ID) error
+
 	// SetPresence sends new presence data to the gateway.Gateway.
 	SetPresence(ctx context.Context, opts ...gateway.PresenceOpt) error
 
@@ -116,7 +118,7 @@ type clientImpl struct {
 	token         string
 	applicationID snowflake.ID
 
-	logger log.Logger
+	logger *slog.Logger
 
 	restServices rest.Rest
 
@@ -134,7 +136,7 @@ type clientImpl struct {
 	memberChunkingManager MemberChunkingManager
 }
 
-func (c *clientImpl) Logger() log.Logger {
+func (c *clientImpl) Logger() *slog.Logger {
 	return c.logger
 }
 
@@ -275,6 +277,15 @@ func (c *clientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowfl
 		Limit:     &limit,
 		Presences: presence,
 		Nonce:     nonce,
+	})
+}
+
+func (c *clientImpl) RequestSoundboardSounds(ctx context.Context, guildIDs ...snowflake.ID) error {
+	if !c.HasGateway() {
+		return discord.ErrNoGateway
+	}
+	return c.gateway.Send(ctx, gateway.OpcodeRequestSoundboardSounds, gateway.MessageDataRequestSoundboardSounds{
+		GuildIDs: guildIDs,
 	})
 }
 

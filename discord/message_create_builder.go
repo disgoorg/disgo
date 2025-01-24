@@ -32,6 +32,18 @@ func (b *MessageCreateBuilder) SetContentf(content string, a ...any) *MessageCre
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
+// SetNonce sets the Message nonce
+func (b *MessageCreateBuilder) SetNonce(nonce string) *MessageCreateBuilder {
+	b.Nonce = nonce
+	return b
+}
+
+// SetEnforceNonce sets whether the Message should be checked for uniqueness (use with SetNonce)
+func (b *MessageCreateBuilder) SetEnforceNonce(enforce bool) *MessageCreateBuilder {
+	b.EnforceNonce = enforce
+	return b
+}
+
 // SetTTS sets whether the Message should be text to speech
 func (b *MessageCreateBuilder) SetTTS(tts bool) *MessageCreateBuilder {
 	b.TTS = tts
@@ -236,6 +248,18 @@ func (b *MessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageCr
 	} else {
 		b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
 	}
+	return b
+}
+
+// SetPoll sets the Poll of the Message
+func (b *MessageCreateBuilder) SetPoll(poll PollCreate) *MessageCreateBuilder {
+	b.Poll = &poll
+	return b
+}
+
+// ClearPoll clears the Poll of the Message
+func (b *MessageCreateBuilder) ClearPoll() *MessageCreateBuilder {
+	b.Poll = nil
 	return b
 }
 

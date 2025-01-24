@@ -18,10 +18,10 @@ const (
 
 // Invite is a partial invite struct
 type Invite struct {
+	Type                     InviteType           `json:"type"`
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
 	Channel                  *InviteChannel       `json:"channel"`
-	ChannelID                snowflake.ID         `json:"channel_id"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
 	TargetType               InviteTargetType     `json:"target_user_type"`
@@ -34,6 +34,14 @@ type Invite struct {
 func (i Invite) URL() string {
 	return InviteURL(i.Code)
 }
+
+type InviteType int
+
+const (
+	InviteTypeGuild InviteType = iota
+	InviteTypeGroupDM
+	InviteTypeFriend
+)
 
 type ExtendedInvite struct {
 	Invite

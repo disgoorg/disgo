@@ -65,17 +65,17 @@ var _ Mentionable = (*User)(nil)
 
 // User is a struct for interacting with discord's users
 type User struct {
-	ID               snowflake.ID `json:"id"`
-	Username         string       `json:"username"`
-	Discriminator    string       `json:"discriminator"`
-	GlobalName       *string      `json:"global_name"`
-	Avatar           *string      `json:"avatar"`
-	Banner           *string      `json:"banner"`
-	AccentColor      *int         `json:"accent_color"`
-	Bot              bool         `json:"bot"`
-	System           bool         `json:"system"`
-	PublicFlags      UserFlags    `json:"public_flags"`
-	AvatarDecoration *string      `json:"avatar_decoration"`
+	ID                   snowflake.ID          `json:"id"`
+	Username             string                `json:"username"`
+	Discriminator        string                `json:"discriminator"`
+	GlobalName           *string               `json:"global_name"`
+	Avatar               *string               `json:"avatar"`
+	Banner               *string               `json:"banner"`
+	AccentColor          *int                  `json:"accent_color"`
+	Bot                  bool                  `json:"bot"`
+	System               bool                  `json:"system"`
+	PublicFlags          UserFlags             `json:"public_flags"`
+	AvatarDecorationData *AvatarDecorationData `json:"avatar_decoration_data"`
 }
 
 // String returns a mention of the user
@@ -106,10 +106,7 @@ func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(opts...)
 	}
-	if avatar := u.AvatarURL(opts...); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(UserAvatar, opts, u.ID, *u.Avatar)
 }
 
 // AvatarURL returns the avatar URL of the user if set or nil
@@ -145,10 +142,10 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 
 // AvatarDecorationURL returns the avatar decoration URL if set or nil
 func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
-	if u.AvatarDecoration == nil {
+	if u.AvatarDecorationData == nil {
 		return nil
 	}
-	url := formatAssetURL(UserAvatarDecoration, opts, u.ID, *u.AvatarDecoration)
+	url := formatAssetURL(AvatarDecoration, opts, u.AvatarDecorationData.Asset)
 	return &url
 }
 
@@ -181,10 +178,11 @@ const (
 	PremiumTypeNitroBasic
 )
 
-// SelfUserUpdate is the payload used to update the OAuth2User
-type SelfUserUpdate struct {
+// UserUpdate is the payload used to update the OAuth2User
+type UserUpdate struct {
 	Username string               `json:"username,omitempty"`
 	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
+	Banner   *json.Nullable[Icon] `json:"banner,omitempty"`
 }
 
 type ApplicationRoleConnection struct {
@@ -197,4 +195,9 @@ type ApplicationRoleConnectionUpdate struct {
 	PlatformName     *string            `json:"platform_name,omitempty"`
 	PlatformUsername *string            `json:"platform_username,omitempty"`
 	Metadata         *map[string]string `json:"metadata,omitempty"`
+}
+
+type AvatarDecorationData struct {
+	Asset string       `json:"asset"`
+	SkuID snowflake.ID `json:"sku_id"`
 }

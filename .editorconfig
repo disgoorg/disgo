@@ -47,3 +47,6 @@ ij_go_wrap_func_result_newline_before_rparen = true
 indent_style = tab
 max_line_length = 600
 ij_smart_tabs = true
+
+[{*.yaml,*.yml}]
+indent_size = 2

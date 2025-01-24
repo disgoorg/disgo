@@ -48,6 +48,10 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelDelete, gatewayHandlerChannelDelete),
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelPinsUpdate, gatewayHandlerChannelPinsUpdate),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeEntitlementCreate, gatewayHandlerEntitlementCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeEntitlementUpdate, gatewayHandlerEntitlementUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeEntitlementDelete, gatewayHandlerEntitlementDelete),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeThreadCreate, gatewayHandlerThreadCreate),
 	bot.NewGatewayEventHandler(gateway.EventTypeThreadUpdate, gatewayHandlerThreadUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeThreadDelete, gatewayHandlerThreadDelete),
@@ -83,6 +87,12 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildScheduledEventUserAdd, gatewayHandlerGuildScheduledEventUserAdd),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildScheduledEventUserRemove, gatewayHandlerGuildScheduledEventUserRemove),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundCreate, gatewayHandlerGuildSoundboardSoundCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundUpdate, gatewayHandlerGuildSoundboardSoundUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundDelete, gatewayHandlerGuildSoundboardSoundDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundsUpdate, gatewayHandlerGuildSoundboardSoundsUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeSoundboardSounds, gatewayHandlerSoundboardSounds),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeIntegrationCreate, gatewayHandlerIntegrationCreate),
 	bot.NewGatewayEventHandler(gateway.EventTypeIntegrationUpdate, gatewayHandlerIntegrationUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeIntegrationDelete, gatewayHandlerIntegrationDelete),
@@ -97,6 +107,9 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageDelete, gatewayHandlerMessageDelete),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageDeleteBulk, gatewayHandlerMessageDeleteBulk),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeMessagePollVoteAdd, gatewayHandlerMessagePollVoteAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessagePollVoteRemove, gatewayHandlerMessagePollVoteRemove),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionAdd, gatewayHandlerMessageReactionAdd),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemove, gatewayHandlerMessageReactionRemove),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemoveAll, gatewayHandlerMessageReactionRemoveAll),
@@ -108,9 +121,14 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeStageInstanceUpdate, gatewayHandlerStageInstanceUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeStageInstanceDelete, gatewayHandlerStageInstanceDelete),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeSubscriptionCreate, gatewayHandlerSubscriptionCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeSubscriptionUpdate, gatewayHandlerSubscriptionUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeSubscriptionDelete, gatewayHandlerSubscriptionDelete),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeTypingStart, gatewayHandlerTypingStart),
 	bot.NewGatewayEventHandler(gateway.EventTypeUserUpdate, gatewayHandlerUserUpdate),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeVoiceChannelEffectSend, gatewayHandlerVoiceChannelEffectSend),
 	bot.NewGatewayEventHandler(gateway.EventTypeVoiceStateUpdate, gatewayHandlerVoiceStateUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeVoiceServerUpdate, gatewayHandlerVoiceServerUpdate),
 

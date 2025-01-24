@@ -101,6 +101,48 @@ func (EventChannelDelete) eventData()   {}
 type EventThreadCreate struct {
 	discord.GuildThread
 	ThreadMember discord.ThreadMember `json:"thread_member"`
+	NewlyCreated bool                 `json:"newly_created"`
+}
+
+func (e *EventThreadCreate) UnmarshalJSON(data []byte) error {
+	var guildThread discord.GuildThread
+	if err := json.Unmarshal(data, &guildThread); err != nil {
+		return err
+	}
+
+	e.GuildThread = guildThread
+
+	var v struct {
+		ThreadMember discord.ThreadMember `json:"thread_member"`
+		NewlyCreated bool                 `json:"newly_created"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	e.ThreadMember = v.ThreadMember
+	e.NewlyCreated = v.NewlyCreated
+	return nil
+}
+
+func (e EventThreadCreate) MarshalJSON() ([]byte, error) {
+	data1, err := json.Marshal(e.GuildThread)
+	if err != nil {
+		return nil, err
+	}
+
+	data2, err := json.Marshal(struct {
+		ThreadMember discord.ThreadMember `json:"thread_member"`
+		NewlyCreated bool                 `json:"newly_created"`
+	}{
+		ThreadMember: e.ThreadMember,
+		NewlyCreated: e.NewlyCreated,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.SimpleMerge(data1, data2)
 }
 
 func (EventThreadCreate) messageData() {}
@@ -187,15 +229,16 @@ func (EventGuildAuditLogEntryCreate) messageData() {}
 func (EventGuildAuditLogEntryCreate) eventData()   {}
 
 type EventMessageReactionAdd struct {
-	UserID          snowflake.ID         `json:"user_id"`
-	ChannelID       snowflake.ID         `json:"channel_id"`
-	MessageID       snowflake.ID         `json:"message_id"`
-	GuildID         *snowflake.ID        `json:"guild_id"`
-	Member          *discord.Member      `json:"member"`
-	Emoji           discord.PartialEmoji `json:"emoji"`
-	MessageAuthorID *snowflake.ID        `json:"message_author_id"`
-	BurstColors     []string             `json:"burst_colors"`
-	Burst           bool                 `json:"burst"`
+	UserID          snowflake.ID                `json:"user_id"`
+	ChannelID       snowflake.ID                `json:"channel_id"`
+	MessageID       snowflake.ID                `json:"message_id"`
+	GuildID         *snowflake.ID               `json:"guild_id"`
+	Member          *discord.Member             `json:"member"`
+	Emoji           discord.PartialEmoji        `json:"emoji"`
+	MessageAuthorID *snowflake.ID               `json:"message_author_id"`
+	BurstColors     []string                    `json:"burst_colors"`
+	Burst           bool                        `json:"burst"`
+	Type            discord.MessageReactionType `json:"type"`
 }
 
 func (e *EventMessageReactionAdd) UnmarshalJSON(data []byte) error {
@@ -215,13 +258,14 @@ func (EventMessageReactionAdd) messageData() {}
 func (EventMessageReactionAdd) eventData()   {}
 
 type EventMessageReactionRemove struct {
-	UserID      snowflake.ID         `json:"user_id"`
-	ChannelID   snowflake.ID         `json:"channel_id"`
-	MessageID   snowflake.ID         `json:"message_id"`
-	GuildID     *snowflake.ID        `json:"guild_id"`
-	Emoji       discord.PartialEmoji `json:"emoji"`
-	BurstColors []string             `json:"burst_colors"`
-	Burst       bool                 `json:"burst"`
+	UserID      snowflake.ID                `json:"user_id"`
+	ChannelID   snowflake.ID                `json:"channel_id"`
+	MessageID   snowflake.ID                `json:"message_id"`
+	GuildID     *snowflake.ID               `json:"guild_id"`
+	Emoji       discord.PartialEmoji        `json:"emoji"`
+	BurstColors []string                    `json:"burst_colors"`
+	Burst       bool                        `json:"burst"`
+	Type        discord.MessageReactionType `json:"type"`
 }
 
 func (EventMessageReactionRemove) messageData() {}
@@ -439,6 +483,36 @@ type EventGuildScheduledEventUserRemove struct {
 func (EventGuildScheduledEventUserRemove) messageData() {}
 func (EventGuildScheduledEventUserRemove) eventData()   {}
 
+type EventGuildSoundboardSoundCreate struct {
+	discord.SoundboardSound
+}
+
+func (EventGuildSoundboardSoundCreate) messageData() {}
+func (EventGuildSoundboardSoundCreate) eventData()   {}
+
+type EventGuildSoundboardSoundUpdate struct {
+	discord.SoundboardSound
+}
+
+func (EventGuildSoundboardSoundUpdate) messageData() {}
+func (EventGuildSoundboardSoundUpdate) eventData()   {}
+
+type EventGuildSoundboardSoundDelete struct {
+	SoundID snowflake.ID `json:"sound_id"`
+	GuildID snowflake.ID `json:"guild_id"`
+}
+
+func (EventGuildSoundboardSoundDelete) messageData() {}
+func (EventGuildSoundboardSoundDelete) eventData()   {}
+
+type EventGuildSoundboardSoundsUpdate struct {
+	SoundboardSounds []discord.SoundboardSound `json:"soundboard_sounds"`
+	GuildID          snowflake.ID              `json:"guild_id"`
+}
+
+func (EventGuildSoundboardSoundsUpdate) messageData() {}
+func (EventGuildSoundboardSoundsUpdate) eventData()   {}
+
 type EventInteractionCreate struct {
 	discord.Interaction
 }
@@ -460,7 +534,18 @@ func (EventInteractionCreate) messageData() {}
 func (EventInteractionCreate) eventData()   {}
 
 type EventInviteCreate struct {
-	discord.Invite
+	ChannelID         snowflake.ID                `json:"channel_id"`
+	Code              string                      `json:"code"`
+	CreatedAt         time.Time                   `json:"created_at"`
+	GuildID           *snowflake.ID               `json:"guild_id"`
+	Inviter           *discord.User               `json:"inviter"`
+	MaxAge            int                         `json:"max_age"`
+	MaxUses           int                         `json:"max_uses"`
+	TargetType        discord.InviteTargetType    `json:"target_type"`
+	TargetUser        *discord.User               `json:"target_user"`
+	TargetApplication *discord.PartialApplication `json:"target_application"`
+	Temporary         bool                        `json:"temporary"`
+	Uses              int                         `json:"uses"`
 }
 
 func (EventInviteCreate) messageData() {}
@@ -507,12 +592,42 @@ type EventMessageDeleteBulk struct {
 func (EventMessageDeleteBulk) messageData() {}
 func (EventMessageDeleteBulk) eventData()   {}
 
+type EventMessagePollVoteAdd struct {
+	UserID    snowflake.ID  `json:"user_id"`
+	ChannelID snowflake.ID  `json:"channel_id"`
+	MessageID snowflake.ID  `json:"message_id"`
+	GuildID   *snowflake.ID `json:"guild_id"`
+	AnswerID  int           `json:"answer_id"`
+}
+
+func (EventMessagePollVoteAdd) messageData() {}
+func (EventMessagePollVoteAdd) eventData()   {}
+
+type EventMessagePollVoteRemove struct {
+	UserID    snowflake.ID  `json:"user_id"`
+	ChannelID snowflake.ID  `json:"channel_id"`
+	MessageID snowflake.ID  `json:"message_id"`
+	GuildID   *snowflake.ID `json:"guild_id"`
+	AnswerID  int           `json:"answer_id"`
+}
+
+func (EventMessagePollVoteRemove) messageData() {}
+func (EventMessagePollVoteRemove) eventData()   {}
+
 type EventPresenceUpdate struct {
 	discord.Presence
 }
 
 func (EventPresenceUpdate) messageData() {}
 func (EventPresenceUpdate) eventData()   {}
+
+type EventSoundboardSounds struct {
+	SoundboardSounds []discord.SoundboardSound `json:"soundboard_sounds"`
+	GuildID          snowflake.ID              `json:"guild_id"`
+}
+
+func (EventSoundboardSounds) messageData() {}
+func (EventSoundboardSounds) eventData()   {}
 
 type EventStageInstanceCreate struct {
 	discord.StageInstance
@@ -568,6 +683,41 @@ type EventUserUpdate struct {
 func (EventUserUpdate) messageData() {}
 func (EventUserUpdate) eventData()   {}
 
+type EventVoiceChannelEffectSend struct {
+	ChannelID     snowflake.ID                             `json:"channel_id"`
+	GuildID       snowflake.ID                             `json:"guild_id"`
+	UserID        snowflake.ID                             `json:"user_id"`
+	Emoji         *discord.Emoji                           `json:"emoji"`
+	AnimationType *discord.VoiceChannelEffectAnimationType `json:"animation_type,omitempty"`
+	AnimationID   *int                                     `json:"animation_id,omitempty"`
+	SoundID       *int64                                   `json:"-"`
+	SoundVolume   *float64                                 `json:"sound_volume,omitempty"`
+}
+
+func (e *EventVoiceChannelEffectSend) UnmarshalJSON(data []byte) error {
+	type eventVoiceChannelEffectSend EventVoiceChannelEffectSend
+	var v struct {
+		SoundID *json.Number `json:"sound_id"`
+		eventVoiceChannelEffectSend
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventVoiceChannelEffectSend(v.eventVoiceChannelEffectSend)
+	if v.SoundID == nil {
+		return nil
+	}
+	i, err := v.SoundID.Int64()
+	if err != nil {
+		return err
+	}
+	e.SoundID = &i
+	return nil
+}
+
+func (EventVoiceChannelEffectSend) messageData() {}
+func (EventVoiceChannelEffectSend) eventData()   {}
+
 type EventVoiceStateUpdate struct {
 	discord.VoiceState
 	Member discord.Member `json:"member"`
@@ -599,20 +749,39 @@ type EventIntegrationCreate struct {
 }
 
 func (e *EventIntegrationCreate) UnmarshalJSON(data []byte) error {
-	type integrationCreateEvent EventIntegrationCreate
-	var v struct {
-		discord.UnmarshalIntegration
-		integrationCreateEvent
+	var integration discord.UnmarshalIntegration
+	if err := json.Unmarshal(data, &integration); err != nil {
+		return err
 	}
 
+	var v struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
-	*e = EventIntegrationCreate(v.integrationCreateEvent)
-
-	e.Integration = v.UnmarshalIntegration.Integration
+	e.Integration = integration.Integration
+	e.GuildID = v.GuildID
 	return nil
+}
+
+func (e EventIntegrationCreate) MarshalJSON() ([]byte, error) {
+	data1, err := json.Marshal(e.Integration)
+	if err != nil {
+		return nil, err
+	}
+
+	data2, err := json.Marshal(struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}{
+		GuildID: e.GuildID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.SimpleMerge(data1, data2)
 }
 
 func (EventIntegrationCreate) messageData() {}
@@ -624,20 +793,39 @@ type EventIntegrationUpdate struct {
 }
 
 func (e *EventIntegrationUpdate) UnmarshalJSON(data []byte) error {
-	type integrationUpdateEvent EventIntegrationUpdate
-	var v struct {
-		discord.UnmarshalIntegration
-		integrationUpdateEvent
+	var integration discord.UnmarshalIntegration
+	if err := json.Unmarshal(data, &integration); err != nil {
+		return err
 	}
 
+	var v struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
-	*e = EventIntegrationUpdate(v.integrationUpdateEvent)
-
-	e.Integration = v.UnmarshalIntegration.Integration
+	e.Integration = integration.Integration
+	e.GuildID = v.GuildID
 	return nil
+}
+
+func (e EventIntegrationUpdate) MarshalJSON() ([]byte, error) {
+	data1, err := json.Marshal(e.Integration)
+	if err != nil {
+		return nil, err
+	}
+
+	data2, err := json.Marshal(struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}{
+		GuildID: e.GuildID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.SimpleMerge(data1, data2)
 }
 
 func (EventIntegrationUpdate) messageData() {}
@@ -705,3 +893,45 @@ type EventHeartbeatAck struct {
 
 func (EventHeartbeatAck) messageData() {}
 func (EventHeartbeatAck) eventData()   {}
+
+type EventEntitlementCreate struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementCreate) messageData() {}
+func (EventEntitlementCreate) eventData()   {}
+
+type EventEntitlementUpdate struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementUpdate) messageData() {}
+func (EventEntitlementUpdate) eventData()   {}
+
+type EventEntitlementDelete struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementDelete) messageData() {}
+func (EventEntitlementDelete) eventData()   {}
+
+type EventSubscriptionCreate struct {
+	discord.Subscription
+}
+
+func (EventSubscriptionCreate) messageData() {}
+func (EventSubscriptionCreate) eventData()   {}
+
+type EventSubscriptionUpdate struct {
+	discord.Subscription
+}
+
+func (EventSubscriptionUpdate) messageData() {}
+func (EventSubscriptionUpdate) eventData()   {}
+
+type EventSubscriptionDelete struct {
+	discord.Subscription
+}
+
+func (EventSubscriptionDelete) messageData() {}
+func (EventSubscriptionDelete) eventData()   {}

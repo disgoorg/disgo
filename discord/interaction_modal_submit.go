@@ -24,6 +24,7 @@ func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.applicationID = interaction.ApplicationID
 	i.baseInteraction.token = interaction.Token
 	i.baseInteraction.version = interaction.Version
+	i.baseInteraction.guild = interaction.Guild
 	i.baseInteraction.guildID = interaction.GuildID
 	i.baseInteraction.channelID = interaction.ChannelID
 	i.baseInteraction.channel = interaction.Channel
@@ -32,6 +33,9 @@ func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.member = interaction.Member
 	i.baseInteraction.user = interaction.User
 	i.baseInteraction.appPermissions = interaction.AppPermissions
+	i.baseInteraction.entitlements = interaction.Entitlements
+	i.baseInteraction.authorizingIntegrationOwners = interaction.AuthorizingIntegrationOwners
+	i.baseInteraction.context = interaction.Context
 
 	i.Data = interaction.Data
 	return nil
@@ -43,19 +47,23 @@ func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
 		Data ModalSubmitInteractionData `json:"data"`
 	}{
 		rawInteraction: rawInteraction{
-			ID:             i.id,
-			Type:           i.Type(),
-			ApplicationID:  i.applicationID,
-			Token:          i.token,
-			Version:        i.version,
-			GuildID:        i.guildID,
-			ChannelID:      i.channelID,
-			Channel:        i.channel,
-			Locale:         i.locale,
-			GuildLocale:    i.guildLocale,
-			Member:         i.member,
-			User:           i.user,
-			AppPermissions: i.appPermissions,
+			ID:                           i.id,
+			Type:                         i.Type(),
+			ApplicationID:                i.applicationID,
+			Token:                        i.token,
+			Version:                      i.version,
+			Guild:                        i.guild,
+			GuildID:                      i.guildID,
+			ChannelID:                    i.channelID,
+			Channel:                      i.channel,
+			Locale:                       i.locale,
+			GuildLocale:                  i.guildLocale,
+			Member:                       i.member,
+			User:                         i.user,
+			AppPermissions:               i.appPermissions,
+			Entitlements:                 i.entitlements,
+			AuthorizingIntegrationOwners: i.authorizingIntegrationOwners,
+			Context:                      i.context,
 		},
 		Data: i.Data,
 	})
