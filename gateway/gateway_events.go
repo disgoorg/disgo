@@ -214,7 +214,7 @@ func (EventGuildUpdate) messageData() {}
 func (EventGuildUpdate) eventData()   {}
 
 type EventGuildDelete struct {
-	discord.GatewayGuild
+	discord.UnavailableGuild
 }
 
 func (EventGuildDelete) messageData() {}
