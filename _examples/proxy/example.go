@@ -74,7 +74,7 @@ func main() {
 		return
 	}
 
-	if err = client.OpenGateway(context.TODO()); err != nil {
+	if err = client.OpenShardManager(context.TODO()); err != nil {
 		slog.Error("error while connecting to gateway", slog.Any("err", err))
 		return
 	}
