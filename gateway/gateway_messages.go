@@ -587,7 +587,7 @@ func WithCompetingActivity(name string, opts ...ActivityOpt) PresenceOpt {
 func withActivity(activity discord.Activity, opts ...ActivityOpt) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		for _, opt := range opts {
-			opt(activity)
+			opt(&activity)
 		}
 		presence.Activities = []discord.Activity{activity}
 	}
@@ -615,11 +615,11 @@ func WithSince(since *int64) PresenceOpt {
 }
 
 // ActivityOpt is a type alias for a function that sets optional data for an Activity
-type ActivityOpt func(activity discord.Activity)
+type ActivityOpt func(activity *discord.Activity)
 
 // WithActivityState sets the Activity.State
 func WithActivityState(state string) ActivityOpt {
-	return func(activity discord.Activity) {
+	return func(activity *discord.Activity) {
 		activity.State = &state
 	}
 }
