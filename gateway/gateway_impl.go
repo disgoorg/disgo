@@ -443,17 +443,17 @@ loop:
 				g.config.Logger.Debug("ready message received")
 			}
 
-			if unknownEvent, ok := eventData.(EventUnknown); ok {
-				g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
-				continue
-			}
-
 			// push message to the command manager
 			if g.config.EnableRawEvents {
 				g.eventHandlerFunc(EventTypeRaw, message.S, g.config.ShardID, EventRaw{
 					EventType: message.T,
 					Payload:   bytes.NewReader(message.RawD),
 				})
+			}
+
+			if unknownEvent, ok := eventData.(EventUnknown); ok {
+				g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
+				continue
 			}
 			g.eventHandlerFunc(message.T, message.S, g.config.ShardID, eventData)
 			if _, ok = eventData.(EventReady); ok {
