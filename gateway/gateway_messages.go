@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -495,6 +496,13 @@ func (MessageDataUnknown) messageData() {}
 
 // MessageDataHeartbeat is used to ensure the websocket connection remains open, and disconnect if not.
 type MessageDataHeartbeat int
+
+func (m MessageDataHeartbeat) MarshalJSON() ([]byte, error) {
+	if m == 0 {
+		return json.NullBytes, nil
+	}
+	return []byte(strconv.Itoa(int(m))), nil
+}
 
 func (MessageDataHeartbeat) messageData() {}
 
