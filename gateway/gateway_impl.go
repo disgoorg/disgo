@@ -435,12 +435,18 @@ loop:
 				continue
 			}
 
-			// get session id here
 			if readyEvent, ok := eventData.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
 				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
-				g.status = StatusReady
 				g.config.Logger.Debug("ready message received")
+				g.status = StatusReady
+				readyChan <- nil
+				close(readyChan)
+			} else if _, ok = eventData.(EventResumed); ok {
+				g.config.Logger.Debug("resume message received")
+				g.status = StatusReady
+				readyChan <- nil
+				close(readyChan)
 			}
 
 			// push message to the command manager
@@ -456,20 +462,6 @@ loop:
 				continue
 			}
 			g.eventHandlerFunc(message.T, message.S, g.config.ShardID, eventData)
-			if _, ok = eventData.(EventReady); ok {
-				g.config.Logger.Debug("ready successful")
-				readyChan <- nil
-				close(readyChan)
-			} else if _, ok = eventData.(EventResumed); ok {
-				g.config.Logger.Debug("resume successful")
-				g.status = StatusReady
-				readyChan <- nil
-				close(readyChan)
-			}
-			if _, ok = eventData.(EventReady); ok {
-				readyChan <- nil
-				close(readyChan)
-			}
 
 		case OpcodeHeartbeat:
 			g.sendHeartbeat()
