@@ -1,14 +1,15 @@
 package slicehelper
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"strings"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 func JoinSnowflakes(snowflakes []snowflake.ID) string {
-	var str string
+	strs := make([]string, len(snowflakes))
 	for i, s := range snowflakes {
-		str += s.String()
-		if i != len(str)-1 {
-			str += ","
-		}
+		strs[i] = s.String()
 	}
-	return str
+	return strings.Join(strs, ",")
 }
