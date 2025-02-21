@@ -13,6 +13,13 @@ func gatewayHandlerVoiceChannelEffectSend(client bot.Client, sequenceNumber int,
 	})
 }
 
+func gatewayHandlerVoiceChannelStatusUpdate(client bot.Client, number int, id int, event gateway.EventVoiceChannelStatusUpdate) {
+	client.EventManager().DispatchEvent(&events.GuildVoiceChannelStatusUpdate{
+		GenericEvent:                  events.NewGenericEvent(client, number, id),
+		EventVoiceChannelStatusUpdate: event,
+	})
+}
+
 func gatewayHandlerVoiceStateUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceStateUpdate) {
 	member := event.Member
 

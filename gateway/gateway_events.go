@@ -718,6 +718,15 @@ func (e *EventVoiceChannelEffectSend) UnmarshalJSON(data []byte) error {
 func (EventVoiceChannelEffectSend) messageData() {}
 func (EventVoiceChannelEffectSend) eventData()   {}
 
+type EventVoiceChannelStatusUpdate struct {
+	Status  string       `json:"status,omitempty"`
+	ID      snowflake.ID `json:"id"`
+	GuildID snowflake.ID `json:"guild_id"`
+}
+
+func (EventVoiceChannelStatusUpdate) messageData() {}
+func (EventVoiceChannelStatusUpdate) eventData()   {}
+
 type EventVoiceStateUpdate struct {
 	discord.VoiceState
 	Member discord.Member `json:"member"`

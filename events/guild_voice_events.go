@@ -11,6 +11,12 @@ type GuildVoiceChannelEffectSend struct {
 	gateway.EventVoiceChannelEffectSend
 }
 
+// GuildVoiceChannelStatusUpdate indicates that a discord.GuildVoiceChannel's status has updated
+type GuildVoiceChannelStatusUpdate struct {
+	*GenericEvent
+	gateway.EventVoiceChannelStatusUpdate
+}
+
 // GenericGuildVoiceState is called upon receiving GuildVoiceJoin, GuildVoiceMove and GuildVoiceLeave
 type GenericGuildVoiceState struct {
 	*GenericEvent
