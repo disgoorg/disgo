@@ -95,13 +95,22 @@ func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflak
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID                   snowflake.ID          `json:"id"`
-	GuildID              *snowflake.ID         `json:"guild_id"`
-	Reactions            []MessageReaction     `json:"reactions"`
-	Attachments          []Attachment          `json:"attachments"`
-	TTS                  bool                  `json:"tts"`
-	Embeds               []Embed               `json:"embeds,omitempty"`
-	Components           []ContainerComponent  `json:"components,omitempty"`
+	ID          snowflake.ID      `json:"id"`
+	GuildID     *snowflake.ID     `json:"guild_id"`
+	Reactions   []MessageReaction `json:"reactions"`
+	Attachments []Attachment      `json:"attachments"`
+	TTS         bool              `json:"tts"`
+	Embeds      []Embed           `json:"embeds,omitempty"`
+	// Components can be any of:
+	// ActionRowComponent,
+	// SectionComponent,
+	// TextDisplayComponent,
+	// MediaGalleryComponent,
+	// SeparatorComponent,
+	// FileComponent,
+	// ContainerComponent,
+	// UnknownComponent
+	Components           []Component           `json:"components,omitempty"`
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
@@ -439,18 +448,18 @@ type MessageSnapshot struct {
 }
 
 type PartialMessage struct {
-	Type            MessageType          `json:"type"`
-	Content         string               `json:"content,omitempty"`
-	Embeds          []Embed              `json:"embeds,omitempty"`
-	Attachments     []Attachment         `json:"attachments"`
-	CreatedAt       time.Time            `json:"timestamp"`
-	EditedTimestamp *time.Time           `json:"edited_timestamp"`
-	Flags           MessageFlags         `json:"flags"`
-	Mentions        []User               `json:"mentions"`
-	MentionRoles    []snowflake.ID       `json:"mention_roles"`
-	Stickers        []Sticker            `json:"stickers"`
-	StickerItems    []MessageSticker     `json:"sticker_items,omitempty"`
-	Components      []ContainerComponent `json:"components,omitempty"`
+	Type            MessageType      `json:"type"`
+	Content         string           `json:"content,omitempty"`
+	Embeds          []Embed          `json:"embeds,omitempty"`
+	Attachments     []Attachment     `json:"attachments"`
+	CreatedAt       time.Time        `json:"timestamp"`
+	EditedTimestamp *time.Time       `json:"edited_timestamp"`
+	Flags           MessageFlags     `json:"flags"`
+	Mentions        []User           `json:"mentions"`
+	MentionRoles    []snowflake.ID   `json:"mention_roles"`
+	Stickers        []Sticker        `json:"stickers"`
+	StickerItems    []MessageSticker `json:"sticker_items,omitempty"`
+	Components      []Component      `json:"components,omitempty"`
 }
 
 func (m *PartialMessage) UnmarshalJSON(data []byte) error {
@@ -505,6 +514,7 @@ const (
 	MessageFlagSuppressNotifications
 	MessageFlagIsVoiceMessage
 	MessageFlagHasSnapshot
+	MessageFlagIsComponentsV2
 	MessageFlagsNone MessageFlags = 0
 )
 
@@ -560,10 +570,10 @@ type MessageCall struct {
 	EndedTimestamp *time.Time     `json:"ended_timestamp"`
 }
 
-func unmarshalComponents(components []UnmarshalComponent) []ContainerComponent {
-	containerComponents := make([]ContainerComponent, len(components))
+func unmarshalComponents(components []UnmarshalComponent) []Component {
+	containerComponents := make([]Component, len(components))
 	for i := range components {
-		containerComponents[i] = components[i].Component.(ContainerComponent)
+		containerComponents[i] = components[i].Component
 	}
 	return containerComponents
 }
