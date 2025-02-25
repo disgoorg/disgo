@@ -18,6 +18,7 @@ type RateLimiter interface {
 	WaitBucket(ctx context.Context, shardID int) error
 
 	// UnlockBucket unlocks the given shardID bucket.
+	// If WaitBucket fails, UnlockBucket should not be called.
 	UnlockBucket(shardID int)
 }
 

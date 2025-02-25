@@ -9,6 +9,9 @@ import (
 	"github.com/sasha-s/go-csync"
 )
 
+// identifyWait is the duration to wait in between identifying shards.
+var identifyWait = 5 * time.Second
+
 var _ RateLimiter = (*rateLimiterImpl)(nil)
 
 // NewRateLimiter creates a new default RateLimiter with the given RateLimiterConfigOpt(s).
@@ -18,7 +21,7 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	config.Logger = config.Logger.With(slog.String("name", "sharding_rate_limiter"))
 
 	return &rateLimiterImpl{
-		buckets: map[int]*bucket{},
+		buckets: make(map[int]*bucket),
 		config:  *config,
 	}
 }
@@ -31,6 +34,7 @@ type rateLimiterImpl struct {
 }
 
 func (r *rateLimiterImpl) Close(ctx context.Context) {
+	r.config.Logger.Debug("closing shard rate limiter")
 	var wg sync.WaitGroup
 	r.mu.Lock()
 
@@ -45,74 +49,63 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 			b.mu.Unlock()
 		}()
 	}
+	wg.Wait()
 }
 
-func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
+func (r *rateLimiterImpl) getBucket(shardID int) *bucket {
 	r.config.Logger.Debug("locking shard rate limiter")
 	r.mu.Lock()
-	defer func() {
-		r.config.Logger.Debug("unlocking shard rate limiter")
-		r.mu.Unlock()
-	}()
-	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
-	b, ok := r.buckets[key]
-	if !ok {
-		if !create {
-			return nil
-		}
+	defer r.mu.Unlock()
 
-		b = &bucket{
-			Key: key,
-		}
-		r.buckets[key] = b
+	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
+	if b, ok := r.buckets[key]; ok {
+		return b
 	}
+
+	b := &bucket{
+		key: key,
+	}
+	r.buckets[key] = b
 	return b
 }
 
 func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
-	b := r.getBucket(shardID, true)
-	r.config.Logger.Debug("locking shard bucket", slog.Int("key", b.Key), slog.Time("reset", b.Reset))
+	b := r.getBucket(shardID)
+	r.config.Logger.Debug("locking shard bucket", slog.Int("key", b.key))
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
 
-	var until time.Time
 	now := time.Now()
-
-	if b.Reset.After(now) {
-		until = b.Reset
+	if b.reset.Before(now) {
+		return nil
 	}
 
-	if until.After(now) {
-		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
-			return context.DeadlineExceeded
-		}
-
-		select {
-		case <-ctx.Done():
-			b.mu.Unlock()
-			return ctx.Err()
-		case <-time.After(until.Sub(now)):
-		}
+	if deadline, ok := ctx.Deadline(); ok && b.reset.After(deadline) {
+		b.mu.Unlock()
+		return context.DeadlineExceeded
 	}
-	return nil
+
+	select {
+	case <-ctx.Done():
+		b.mu.Unlock()
+		return ctx.Err()
+	case <-time.After(b.reset.Sub(now)):
+		return nil
+	}
 }
 
 func (r *rateLimiterImpl) UnlockBucket(shardID int) {
-	b := r.getBucket(shardID, false)
-	if b == nil {
-		return
-	}
-	defer func() {
-		r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.Key), slog.Time("reset", b.Reset))
-		b.mu.Unlock()
-	}()
+	b := r.getBucket(shardID)
 
-	b.Reset = time.Now().Add(5 * time.Second)
+	b.reset = time.Now().Add(identifyWait)
+	r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.key), slog.Time("reset", b.reset))
+	b.mu.Unlock()
 }
 
+// bucket represents a rate-limiting bucket for a shard group.
 type bucket struct {
 	mu    csync.Mutex
-	Key   int
-	Reset time.Time
+	key   int
+	reset time.Time
 }
