@@ -87,6 +87,22 @@ type InviteGuild struct {
 	VanityURLCode     *string           `json:"vanity_url_code"`
 }
 
+func (g InviteGuild) IconURL(opts ...CDNOpt) *string {
+	if g.Icon == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildIcon, opts, g.ID, *g.Icon)
+	return &url
+}
+
+func (g InviteGuild) SplashURL(opts ...CDNOpt) *string {
+	if g.Splash == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildSplash, opts, g.ID, *g.Splash)
+	return &url
+}
+
 type InviteCreate struct {
 	MaxAge              *int             `json:"max_age,omitempty"`
 	MaxUses             *int             `json:"max_uses,omitempty"`
