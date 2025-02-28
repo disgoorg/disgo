@@ -32,18 +32,32 @@ const (
 type Component interface {
 	json.Marshaler
 	Type() ComponentType
-}
-
-type LayoutComponent interface {
-	Component
-	Components() []Component
-	containerComponent()
+	GetID() int
+	component()
 }
 
 type InteractiveComponent interface {
 	Component
-	ComponentCustomID() string
+	GetCustomID() string
 	interactiveComponent()
+}
+
+// LayoutComponent is an interface for all components that can be present as a top level component in a [Message].
+// [ActionRowComponent]
+// [SectionComponent]
+// [TextDisplayComponent]
+// [MediaGalleryComponent]
+// [FileComponent]
+// [SeparatorComponent]
+// [ContainerComponent]
+type LayoutComponent interface {
+	Component
+	layoutComponent()
+}
+
+type MessageComponent interface {
+	Component
+	messageComponent()
 }
 
 type UnmarshalComponent struct {
@@ -186,6 +200,17 @@ func (c ActionRowComponent) MarshalJSON() ([]byte, error) {
 func (ActionRowComponent) Type() ComponentType {
 	return ComponentTypeActionRow
 }
+
+func (c ActionRowComponent) GetID() int {
+	return c.ID
+}
+
+func (c ActionRowComponent) GetComponents() []Component {
+	return c.Components
+}
+
+func (ActionRowComponent) component()       {}
+func (ActionRowComponent) layoutComponent() {}
 
 // Buttons returns all ButtonComponent(s) in the ActionRowComponent
 func (c ActionRowComponent) Buttons() []ButtonComponent {
@@ -353,6 +378,17 @@ func (ButtonComponent) Type() ComponentType {
 	return ComponentTypeButton
 }
 
+func (c ButtonComponent) GetID() int {
+	return c.ID
+}
+
+func (c ButtonComponent) GetCustomID() string {
+	return c.CustomID
+}
+
+func (ButtonComponent) component()            {}
+func (ButtonComponent) interactiveComponent() {}
+
 // WithStyle returns a new ButtonComponent with the provided style
 func (c ButtonComponent) WithStyle(style ButtonStyle) ButtonComponent {
 	c.Style = style
@@ -454,6 +490,17 @@ func (TextInputComponent) Type() ComponentType {
 	return ComponentTypeTextInput
 }
 
+func (c TextInputComponent) GetID() int {
+	return c.ID
+}
+
+func (c TextInputComponent) GetCustomID() string {
+	return c.CustomID
+}
+
+func (TextInputComponent) component()            {}
+func (TextInputComponent) interactiveComponent() {}
+
 // WithCustomID returns a new SelectMenuComponent with the provided customID
 func (c TextInputComponent) WithCustomID(customID string) TextInputComponent {
 	c.CustomID = customID
@@ -509,10 +556,12 @@ type UnfurledMediaItem struct {
 }
 
 var (
-	_ Component = (*SectionComponent)(nil)
+	_ Component       = (*SectionComponent)(nil)
+	_ LayoutComponent = (*SectionComponent)(nil)
 )
 
 type SectionComponent struct {
+	ID         int         `json:"id,omitempty"`
 	Components []Component `json:"components"`
 	Accessory  Component   `json:"accessory"`
 }
@@ -532,11 +581,23 @@ func (SectionComponent) Type() ComponentType {
 	return ComponentTypeSection
 }
 
+func (c SectionComponent) GetID() int {
+	return c.ID
+}
+
+func (c SectionComponent) GetComponents() []Component {
+	return c.Components
+}
+
+func (SectionComponent) component()       {}
+func (SectionComponent) layoutComponent() {}
+
 var (
 	_ Component = (*TextDisplayComponent)(nil)
 )
 
 type TextDisplayComponent struct {
+	ID      int    `json:"id,omitempty"`
 	Content string `json:"content"`
 }
 
@@ -555,11 +616,18 @@ func (TextDisplayComponent) Type() ComponentType {
 	return ComponentTypeTextDisplay
 }
 
+func (c TextDisplayComponent) GetID() int {
+	return c.ID
+}
+
+func (TextDisplayComponent) component() {}
+
 var (
 	_ Component = (*ThumbnailComponent)(nil)
 )
 
 type ThumbnailComponent struct {
+	ID          int               `json:"id,omitempty"`
 	Media       UnfurledMediaItem `json:"media"`
 	Description string            `json:"description,omitempty"`
 	Spoiler     bool              `json:"spoiler,omitempty"`
@@ -580,6 +648,12 @@ func (ThumbnailComponent) Type() ComponentType {
 	return ComponentTypeThumbnail
 }
 
+func (c ThumbnailComponent) GetID() int {
+	return c.ID
+}
+
+func (ThumbnailComponent) component() {}
+
 type MediaGalleryItem struct {
 	Media       UnfurledMediaItem `json:"media"`
 	Description string            `json:"description,omitempty"`
@@ -591,6 +665,7 @@ var (
 )
 
 type MediaGalleryComponent struct {
+	ID    int                `json:"id,omitempty"`
 	Items []MediaGalleryItem `json:"items"`
 }
 
@@ -609,6 +684,12 @@ func (MediaGalleryComponent) Type() ComponentType {
 	return ComponentTypeMediaGallery
 }
 
+func (c MediaGalleryComponent) GetID() int {
+	return c.ID
+}
+
+func (MediaGalleryComponent) component() {}
+
 type SeparatorSpacingSize int
 
 const (
@@ -622,6 +703,7 @@ var (
 )
 
 type SeparatorComponent struct {
+	ID      int                  `json:"id,omitempty"`
 	Divider bool                 `json:"divider,omitempty"`
 	Spacing SeparatorSpacingSize `json:"spacing,omitempty"`
 }
@@ -641,11 +723,18 @@ func (SeparatorComponent) Type() ComponentType {
 	return ComponentTypeSeparator
 }
 
+func (c SeparatorComponent) GetID() int {
+	return c.ID
+}
+
+func (SeparatorComponent) component() {}
+
 var (
 	_ Component = (*FileComponent)(nil)
 )
 
 type FileComponent struct {
+	ID int `json:"id,omitempty"`
 	// File only supports attachment://<filename> references
 	File    UnfurledMediaItem `json:"file"`
 	Spoiler bool              `json:"spoiler,omitempty"`
@@ -666,11 +755,19 @@ func (FileComponent) Type() ComponentType {
 	return ComponentTypeFile
 }
 
+func (c FileComponent) GetID() int {
+	return c.ID
+}
+
+func (FileComponent) component() {}
+
 var (
-	_ Component = (*ContainerComponent)(nil)
+	_ Component       = (*ContainerComponent)(nil)
+	_ LayoutComponent = (*ContainerComponent)(nil)
 )
 
 type ContainerComponent struct {
+	ID          int         `json:"id,omitempty"`
 	AccentColor *int        `json:"accent_color,omitempty"`
 	Spoiler     bool        `json:"spoiler,omitempty"`
 	Components  []Component `json:"components"`
@@ -691,14 +788,28 @@ func (ContainerComponent) Type() ComponentType {
 	return ComponentTypeContainer
 }
 
+func (c ContainerComponent) GetID() int {
+	return c.ID
+}
+
+func (c ContainerComponent) GetComponents() []Component {
+	return c.Components
+}
+
+func (ContainerComponent) component()       {}
+func (ContainerComponent) layoutComponent() {}
+
 var (
-	_ Component = (*UnknownComponent)(nil)
+	_ Component            = (*UnknownComponent)(nil)
+	_ InteractiveComponent = (*UnknownComponent)(nil)
+	_ LayoutComponent      = (*UnknownComponent)(nil)
+	_ SelectMenuComponent  = (*UnknownComponent)(nil)
 )
 
 type UnknownComponent struct {
-	type_ ComponentType
-	id    int
-	Data  json.RawMessage
+	ComponentType ComponentType
+	ID            int
+	Data          json.RawMessage
 }
 
 func (c UnknownComponent) MarshalJSON() ([]byte, error) {
@@ -706,8 +817,8 @@ func (c UnknownComponent) MarshalJSON() ([]byte, error) {
 		Type ComponentType `json:"type"`
 		ID   int           `json:"id,omitempty"`
 	}{
-		Type: c.type_,
-		ID:   c.id,
+		Type: c.ComponentType,
+		ID:   c.ID,
 	})
 	if err != nil {
 		return nil, err
@@ -725,12 +836,47 @@ func (c *UnknownComponent) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	c.type_ = unknownComponent.Type
-	c.id = unknownComponent.ID
+	c.ComponentType = unknownComponent.Type
+	c.ID = unknownComponent.ID
 	c.Data = data
 	return nil
 }
 
 func (c UnknownComponent) Type() ComponentType {
-	return c.type_
+	return c.ComponentType
 }
+
+func (c UnknownComponent) GetID() int {
+	return c.ID
+}
+
+func (c UnknownComponent) GetCustomID() string {
+	var data struct {
+		CustomID string `json:"custom_id"`
+	}
+	if err := json.Unmarshal(c.Data, &data); err != nil {
+		return ""
+	}
+
+	return data.CustomID
+}
+
+func (c UnknownComponent) GetComponents() []Component {
+	var data struct {
+		Components []UnmarshalComponent `json:"components"`
+	}
+	if err := json.Unmarshal(c.Data, &data); err != nil {
+		return nil
+	}
+
+	var components []Component
+	for _, component := range data.Components {
+		components = append(components, component.Component)
+	}
+	return components
+}
+
+func (UnknownComponent) component()            {}
+func (UnknownComponent) interactiveComponent() {}
+func (UnknownComponent) layoutComponent()      {}
+func (UnknownComponent) selectMenuComponent()  {}
