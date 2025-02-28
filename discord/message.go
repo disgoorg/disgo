@@ -95,22 +95,13 @@ func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflak
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID          snowflake.ID      `json:"id"`
-	GuildID     *snowflake.ID     `json:"guild_id"`
-	Reactions   []MessageReaction `json:"reactions"`
-	Attachments []Attachment      `json:"attachments"`
-	TTS         bool              `json:"tts"`
-	Embeds      []Embed           `json:"embeds,omitempty"`
-	// Components can be any of:
-	// ActionRowComponent,
-	// SectionComponent,
-	// TextDisplayComponent,
-	// MediaGalleryComponent,
-	// SeparatorComponent,
-	// FileComponent,
-	// ContainerComponent,
-	// UnknownComponent
-	Components           []Component           `json:"components,omitempty"`
+	ID                   snowflake.ID          `json:"id"`
+	GuildID              *snowflake.ID         `json:"guild_id"`
+	Reactions            []MessageReaction     `json:"reactions"`
+	Attachments          []Attachment          `json:"attachments"`
+	TTS                  bool                  `json:"tts"`
+	Embeds               []Embed               `json:"embeds,omitempty"`
+	Components           []LayoutComponent     `json:"components,omitempty"`
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
@@ -570,12 +561,12 @@ type MessageCall struct {
 	EndedTimestamp *time.Time     `json:"ended_timestamp"`
 }
 
-func unmarshalComponents(components []UnmarshalComponent) []Component {
-	containerComponents := make([]Component, len(components))
+func unmarshalComponents(components []UnmarshalComponent) []LayoutComponent {
+	c := make([]LayoutComponent, len(components))
 	for i := range components {
-		containerComponents[i] = components[i].Component
+		c[i] = components[i].Component.(LayoutComponent)
 	}
-	return containerComponents
+	return c
 }
 
 // Nonce is a string or int used when sending a message to discord.
