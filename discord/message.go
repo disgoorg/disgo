@@ -101,7 +101,7 @@ type Message struct {
 	Attachments          []Attachment          `json:"attachments"`
 	TTS                  bool                  `json:"tts"`
 	Embeds               []Embed               `json:"embeds,omitempty"`
-	Components           []ContainerComponent  `json:"components,omitempty"`
+	Components           []LayoutComponent     `json:"components,omitempty"`
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
@@ -439,18 +439,18 @@ type MessageSnapshot struct {
 }
 
 type PartialMessage struct {
-	Type            MessageType          `json:"type"`
-	Content         string               `json:"content,omitempty"`
-	Embeds          []Embed              `json:"embeds,omitempty"`
-	Attachments     []Attachment         `json:"attachments"`
-	CreatedAt       time.Time            `json:"timestamp"`
-	EditedTimestamp *time.Time           `json:"edited_timestamp"`
-	Flags           MessageFlags         `json:"flags"`
-	Mentions        []User               `json:"mentions"`
-	MentionRoles    []snowflake.ID       `json:"mention_roles"`
-	Stickers        []Sticker            `json:"stickers"`
-	StickerItems    []MessageSticker     `json:"sticker_items,omitempty"`
-	Components      []ContainerComponent `json:"components,omitempty"`
+	Type            MessageType      `json:"type"`
+	Content         string           `json:"content,omitempty"`
+	Embeds          []Embed          `json:"embeds,omitempty"`
+	Attachments     []Attachment     `json:"attachments"`
+	CreatedAt       time.Time        `json:"timestamp"`
+	EditedTimestamp *time.Time       `json:"edited_timestamp"`
+	Flags           MessageFlags     `json:"flags"`
+	Mentions        []User           `json:"mentions"`
+	MentionRoles    []snowflake.ID   `json:"mention_roles"`
+	Stickers        []Sticker        `json:"stickers"`
+	StickerItems    []MessageSticker `json:"sticker_items,omitempty"`
+	Components      []Component      `json:"components,omitempty"`
 }
 
 func (m *PartialMessage) UnmarshalJSON(data []byte) error {
@@ -505,6 +505,7 @@ const (
 	MessageFlagSuppressNotifications
 	MessageFlagIsVoiceMessage
 	MessageFlagHasSnapshot
+	MessageFlagIsComponentsV2
 	MessageFlagsNone MessageFlags = 0
 )
 
@@ -560,12 +561,12 @@ type MessageCall struct {
 	EndedTimestamp *time.Time     `json:"ended_timestamp"`
 }
 
-func unmarshalComponents(components []UnmarshalComponent) []ContainerComponent {
-	containerComponents := make([]ContainerComponent, len(components))
+func unmarshalComponents(components []UnmarshalComponent) []LayoutComponent {
+	c := make([]LayoutComponent, len(components))
 	for i := range components {
-		containerComponents[i] = components[i].Component.(ContainerComponent)
+		c[i] = components[i].Component.(LayoutComponent)
 	}
-	return containerComponents
+	return c
 }
 
 // Nonce is a string or int used when sending a message to discord.
