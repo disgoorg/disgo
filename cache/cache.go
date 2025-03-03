@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"iter"
 	"sync"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -27,8 +28,8 @@ type Cache[T any] interface {
 	// Len returns the number of entities in the cache.
 	Len() int
 
-	// ForEach calls the given function for each entity in the cache.
-	ForEach(func(entity T))
+	// All returns an [iter.Seq] of all entities in the cache.
+	All() iter.Seq[T]
 }
 
 var _ Cache[any] = (*DefaultCache[any])(nil)
@@ -99,11 +100,14 @@ func (c *DefaultCache[T]) Len() int {
 	return len(c.cache)
 }
 
-func (c *DefaultCache[T]) ForEach(forEachFunc func(entity T)) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	for _, entity := range c.cache {
-		forEachFunc(entity)
+func (c *DefaultCache[T]) All() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		c.mu.RLock()
+		defer c.mu.RUnlock()
+		for _, entity := range c.cache {
+			if !yield(entity) {
+				break
+			}
+		}
 	}
 }
