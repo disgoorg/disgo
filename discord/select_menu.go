@@ -142,6 +142,11 @@ func (c StringSelectMenuComponent) RemoveOption(index int) StringSelectMenuCompo
 	return c
 }
 
+func (c StringSelectMenuComponent) WithID(i int) InteractiveComponent {
+	c.ID = i
+	return c
+}
+
 // NewStringSelectMenuOption builds a new StringSelectMenuOption
 func NewStringSelectMenuOption(label string, value string) StringSelectMenuOption {
 	return StringSelectMenuOption{

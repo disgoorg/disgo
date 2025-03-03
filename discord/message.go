@@ -3,6 +3,7 @@ package discord
 import (
 	"bytes"
 	"fmt"
+	"iter"
 	"strconv"
 	"time"
 
@@ -159,6 +160,11 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// AllComponents returns an [iter.Seq] of all components in the message.
+func (m Message) AllComponents() iter.Seq[Component] {
+	return componentIter(m.Components)
+}
+
 // JumpURL returns the URL which can be used to jump to the message in the discord client.
 func (m Message) JumpURL() string {
 	guildID := "@me"
@@ -288,6 +294,10 @@ func (m *PartialMessage) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+func (m PartialMessage) AllComponents() iter.Seq[Component] {
+	return componentIter(m.Components)
 }
 
 // MessageInteraction is sent on the Message object when the message is a response to an interaction

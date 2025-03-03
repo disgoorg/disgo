@@ -76,7 +76,8 @@ func (ModalSubmitInteraction) Type() InteractionType {
 func (ModalSubmitInteraction) interaction() {}
 
 type ModalSubmitInteractionData struct {
-	CustomID   string                          `json:"custom_id"`
+	CustomID string `json:"custom_id"`
+	// TODO: rethink this since you might want to access other components.
 	Components map[string]InteractiveComponent `json:"components"`
 }
 
@@ -93,15 +94,19 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 
 	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
 
-	// TODO: implement component iterator once we bumped go version to 1.24
-	//if len(iData.Components) > 0 {
-	//	d.Components = make(map[string]InteractiveComponent, len(iData.Components))
-	//	for _, containerComponent := range iData.Components {
-	//		for _, component := range containerComponent.Component.(ContainerComponent).Components() {
-	//			d.Components[component.ID()] = component
-	//		}
-	//	}
-	//}
+	if len(iData.Components) > 0 {
+		d.Components = make(map[string]InteractiveComponent)
+
+		var layoutComponents []LayoutComponent
+		for _, containerComponent := range iData.Components {
+			layoutComponents = append(layoutComponents, containerComponent.Component.(LayoutComponent))
+		}
+		for component := range componentIter(layoutComponents) {
+			if ic, ok := component.(InteractiveComponent); ok {
+				d.Components[ic.GetCustomID()] = ic
+			}
+		}
+	}
 	return nil
 }
 
