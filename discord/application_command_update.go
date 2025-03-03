@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/disgoorg/json"
+import (
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
+)
 
 type ApplicationCommandUpdate interface {
 	json.Marshaler
@@ -15,7 +18,7 @@ type SlashCommandUpdate struct {
 	Description              *string                     `json:"description,omitempty"`
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  *[]ApplicationCommandOption `json:"options,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions]     `json:"default_member_permissions,omitzero"`
 	// Deprecated: Use Contexts instead
 	DMPermission     *bool                         `json:"dm_permission,omitempty"`
 	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
@@ -45,9 +48,9 @@ func (c SlashCommandUpdate) CommandName() *string {
 func (SlashCommandUpdate) applicationCommandUpdate() {}
 
 type UserCommandUpdate struct {
-	Name                     *string                     `json:"name,omitempty"`
-	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	Name                     *string                 `json:"name,omitempty"`
+	NameLocalizations        *map[Locale]string      `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions] `json:"default_member_permissions,omitzero"`
 	// Deprecated: Use Contexts instead
 	DMPermission     *bool                         `json:"dm_permission,omitempty"`
 	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
@@ -77,9 +80,9 @@ func (c UserCommandUpdate) CommandName() *string {
 func (UserCommandUpdate) applicationCommandUpdate() {}
 
 type MessageCommandUpdate struct {
-	Name                     *string                     `json:"name,omitempty"`
-	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	Name                     *string                 `json:"name,omitempty"`
+	NameLocalizations        *map[Locale]string      `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions] `json:"default_member_permissions,omitzero"`
 	// Deprecated: Use Contexts instead
 	DMPermission     *bool                         `json:"dm_permission,omitempty"`
 	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
@@ -109,9 +112,9 @@ func (c MessageCommandUpdate) CommandName() *string {
 func (MessageCommandUpdate) applicationCommandUpdate() {}
 
 type EntryPointCommandUpdate struct {
-	Name                     *string                     `json:"name,omitempty"`
-	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	Name                     *string                 `json:"name,omitempty"`
+	NameLocalizations        *map[Locale]string      `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions] `json:"default_member_permissions,omitzero"`
 	// Deprecated: Use Contexts instead
 	DMPermission     *bool                         `json:"dm_permission,omitempty"`
 	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`

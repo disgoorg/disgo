@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -77,13 +77,13 @@ type RoleCreate struct {
 
 // RoleUpdate is the payload to update a Role
 type RoleUpdate struct {
-	Name        *string              `json:"name,omitempty"`
-	Permissions *Permissions         `json:"permissions,omitempty"`
-	Color       *int                 `json:"color,omitempty"`
-	Hoist       *bool                `json:"hoist,omitempty"`
-	Icon        *json.Nullable[Icon] `json:"icon,omitempty"`
-	Emoji       *string              `json:"unicode_emoji,omitempty"`
-	Mentionable *bool                `json:"mentionable,omitempty"`
+	Name        *string          `json:"name,omitempty"`
+	Permissions *Permissions     `json:"permissions,omitempty"`
+	Color       *int             `json:"color,omitempty"`
+	Hoist       *bool            `json:"hoist,omitempty"`
+	Icon        omit.Omit[*Icon] `json:"icon,omitzero"`
+	Emoji       *string          `json:"unicode_emoji,omitempty"`
+	Mentionable *bool            `json:"mentionable,omitempty"`
 }
 
 // RolePositionUpdate is the payload to update a Role(s) position

@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 
 	"github.com/disgoorg/disgo/discord"
 )
