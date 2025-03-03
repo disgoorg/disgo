@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/disgoorg/json"
+import "github.com/disgoorg/json/v2"
 
 var (
 	_ Interaction = (*ModalSubmitInteraction)(nil)

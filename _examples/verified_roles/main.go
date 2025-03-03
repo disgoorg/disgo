@@ -11,7 +11,8 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/oauth2"
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
 )
 
 var (
@@ -79,8 +80,8 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 
 		_, err = oAuth2Client.UpdateApplicationRoleConnection(session, client.ApplicationID(), discord.ApplicationRoleConnectionUpdate{
-			PlatformName:     json.Ptr("Cookie Monster " + user.Username),
-			PlatformUsername: json.Ptr("Cookie Monster " + user.Tag()),
+			PlatformName:     omit.Ptr("Cookie Monster " + user.Username),
+			PlatformUsername: omit.Ptr("Cookie Monster " + user.Tag()),
 			Metadata: &map[string]string{
 				"cookies_eaten": strconv.Itoa(rand.Intn(100)),
 			},

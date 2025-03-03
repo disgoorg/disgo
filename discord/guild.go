@@ -3,7 +3,8 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -328,8 +329,8 @@ type GuildIncidentsData struct {
 }
 
 type GuildIncidentActionsUpdate struct {
-	InvitesDisabledUntil *json.Nullable[time.Time] `json:"invites_disabled_until,omitempty"`
-	DMsDisabledUntil     *json.Nullable[time.Time] `json:"dms_disabled_until,omitempty"`
+	InvitesDisabledUntil omit.Omit[*time.Time] `json:"invites_disabled_until,omitzero"`
+	DMsDisabledUntil     omit.Omit[*time.Time] `json:"dms_disabled_until,omitzero"`
 }
 
 // GuildCreate is the payload used to create a Guild
@@ -349,26 +350,26 @@ type GuildCreate struct {
 
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
-	Name                            *string                                    `json:"name,omitempty"`
-	VerificationLevel               *json.Nullable[VerificationLevel]          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel *json.Nullable[MessageNotificationsLevel]  `json:"default_message_notification_level,omitempty"`
-	ExplicitContentFilterLevel      *json.Nullable[ExplicitContentFilterLevel] `json:"explicit_content_filter_level,omitempty"`
-	AFKChannelID                    *snowflake.ID                              `json:"afk_channel_id,omitempty"`
-	AFKTimeout                      *int                                       `json:"afk_timeout,omitempty"`
-	Icon                            *json.Nullable[Icon]                       `json:"icon,omitempty"`
-	OwnerID                         *snowflake.ID                              `json:"owner_id,omitempty"`
-	Splash                          *json.Nullable[Icon]                       `json:"splash,omitempty"`
-	DiscoverySplash                 *json.Nullable[Icon]                       `json:"discovery_splash,omitempty"`
-	Banner                          *json.Nullable[Icon]                       `json:"banner,omitempty"`
-	SystemChannelID                 *snowflake.ID                              `json:"system_channel_id,omitempty"`
-	SystemChannelFlags              *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
-	RulesChannelID                  *snowflake.ID                              `json:"rules_channel_id,omitempty"`
-	PublicUpdatesChannelID          *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
-	SafetyAlertsChannelID           *snowflake.ID                              `json:"safety_alerts_channel_id,omitempty"`
-	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
-	Features                        *[]GuildFeature                            `json:"features,omitempty"`
-	Description                     *string                                    `json:"description,omitempty"`
-	PremiumProgressBarEnabled       *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
+	Name                            *string                                `json:"name,omitempty"`
+	VerificationLevel               omit.Omit[*VerificationLevel]          `json:"verification_level,omitzero"`
+	DefaultMessageNotificationLevel omit.Omit[*MessageNotificationsLevel]  `json:"default_message_notification_level,omitzero"`
+	ExplicitContentFilterLevel      omit.Omit[*ExplicitContentFilterLevel] `json:"explicit_content_filter_level,omitzero"`
+	AFKChannelID                    *snowflake.ID                          `json:"afk_channel_id,omitempty"`
+	AFKTimeout                      *int                                   `json:"afk_timeout,omitempty"`
+	Icon                            omit.Omit[*Icon]                       `json:"icon,omitzero"`
+	OwnerID                         *snowflake.ID                          `json:"owner_id,omitempty"`
+	Splash                          omit.Omit[*Icon]                       `json:"splash,omitzero"`
+	DiscoverySplash                 omit.Omit[*Icon]                       `json:"discovery_splash,omitzero"`
+	Banner                          omit.Omit[*Icon]                       `json:"banner,omitzero"`
+	SystemChannelID                 *snowflake.ID                          `json:"system_channel_id,omitempty"`
+	SystemChannelFlags              *SystemChannelFlags                    `json:"system_channel_flags,omitempty"`
+	RulesChannelID                  *snowflake.ID                          `json:"rules_channel_id,omitempty"`
+	PublicUpdatesChannelID          *snowflake.ID                          `json:"public_updates_channel_id,omitempty"`
+	SafetyAlertsChannelID           *snowflake.ID                          `json:"safety_alerts_channel_id,omitempty"`
+	PreferredLocale                 *string                                `json:"preferred_locale,omitempty"`
+	Features                        *[]GuildFeature                        `json:"features,omitempty"`
+	Description                     *string                                `json:"description,omitempty"`
+	PremiumProgressBarEnabled       *bool                                  `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int
