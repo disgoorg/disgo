@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"iter"
 	"sync"
 	"time"
 
@@ -52,7 +53,7 @@ type GuildCache interface {
 	UnavailableGuildIDs() []snowflake.ID
 
 	Guild(guildID snowflake.ID) (discord.Guild, bool)
-	GuildsForEach(fn func(guild discord.Guild))
+	Guilds() iter.Seq[discord.Guild]
 	GuildsLen() int
 	AddGuild(guild discord.Guild)
 	RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
@@ -110,9 +111,9 @@ func (c *guildCacheImpl) SetGuildUnavailable(guildID snowflake.ID, unavailable b
 
 func (c *guildCacheImpl) UnavailableGuildIDs() []snowflake.ID {
 	var guilds []snowflake.ID
-	c.unavailableGuilds.ForEach(func(guildID snowflake.ID) {
-		guilds = append(guilds, guildID)
-	})
+	for guildId := range c.unavailableGuilds.All() {
+		guilds = append(guilds, guildId)
+	}
 	return guilds
 }
 
@@ -120,8 +121,8 @@ func (c *guildCacheImpl) Guild(guildID snowflake.ID) (discord.Guild, bool) {
 	return c.cache.Get(guildID)
 }
 
-func (c *guildCacheImpl) GuildsForEach(fn func(guild discord.Guild)) {
-	c.cache.ForEach(fn)
+func (c *guildCacheImpl) Guilds() iter.Seq[discord.Guild] {
+	return c.cache.All()
 }
 
 func (c *guildCacheImpl) GuildsLen() int {
@@ -217,10 +218,8 @@ func (c *stageInstanceCacheImpl) StageInstance(guildID snowflake.ID, stageInstan
 	return c.cache.Get(guildID, stageInstanceID)
 }
 
-func (c *stageInstanceCacheImpl) StageInstanceForEach(guildID snowflake.ID, fn func(stageInstance discord.StageInstance)) {
-	c.cache.GroupForEach(guildID, func(stageInstance discord.StageInstance) {
-		fn(stageInstance)
-	})
+func (c *stageInstanceCacheImpl) StageInstanceForEach(guildID snowflake.ID) iter.Seq[discord.StageInstance] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *stageInstanceCacheImpl) StageInstancesAllLen() int {
