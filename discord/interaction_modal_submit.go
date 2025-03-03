@@ -93,14 +93,15 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 
 	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
 
-	if len(iData.Components) > 0 {
-		d.Components = make(map[string]InteractiveComponent, len(iData.Components))
-		for _, containerComponent := range iData.Components {
-			for _, component := range containerComponent.Component.(ContainerComponent).Components() {
-				d.Components[component.ID()] = component
-			}
-		}
-	}
+	// TODO: implement component iterator once we bumped go version to 1.24
+	//if len(iData.Components) > 0 {
+	//	d.Components = make(map[string]InteractiveComponent, len(iData.Components))
+	//	for _, containerComponent := range iData.Components {
+	//		for _, component := range containerComponent.Component.(ContainerComponent).Components() {
+	//			d.Components[component.ID()] = component
+	//		}
+	//	}
+	//}
 	return nil
 }
 

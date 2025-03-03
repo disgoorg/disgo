@@ -5,6 +5,13 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// SelectMenuComponent is an interface for all components that are select menus.
+// [StringSelectMenuComponent]
+// [UserSelectMenuComponent]
+// [RoleSelectMenuComponent]
+// [MentionableSelectMenuComponent]
+// [ChannelSelectMenuComponent]
+// [UnknownComponent]
 type SelectMenuComponent interface {
 	InteractiveComponent
 	selectMenuComponent()

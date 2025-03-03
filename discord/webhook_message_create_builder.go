@@ -80,14 +80,14 @@ func (b *WebhookMessageCreateBuilder) RemoveEmbed(i int) *WebhookMessageCreateBu
 	return b
 }
 
-// SetContainerComponents sets the discord.ContainerComponent(s) of the Message
-func (b *WebhookMessageCreateBuilder) SetContainerComponents(containerComponents ...ContainerComponent) *WebhookMessageCreateBuilder {
-	b.Components = containerComponents
+// SetLayoutComponents sets the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageCreateBuilder) SetLayoutComponents(LayoutComponents ...LayoutComponent) *WebhookMessageCreateBuilder {
+	b.Components = LayoutComponents
 	return b
 }
 
-// SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *WebhookMessageCreateBuilder) SetContainerComponent(i int, container ContainerComponent) *WebhookMessageCreateBuilder {
+// SetLayoutComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+func (b *WebhookMessageCreateBuilder) SetLayoutComponent(i int, container LayoutComponent) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
 	}
@@ -96,27 +96,27 @@ func (b *WebhookMessageCreateBuilder) SetContainerComponent(i int, container Con
 
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the Message
 func (b *WebhookMessageCreateBuilder) AddActionRow(components ...InteractiveComponent) *WebhookMessageCreateBuilder {
-	b.Components = append(b.Components, ActionRowComponent(components))
+	b.Components = append(b.Components, ActionRowComponent{Components: components})
 	return b
 }
 
-// AddContainerComponents adds the discord.ContainerComponent(s) to the Message
-func (b *WebhookMessageCreateBuilder) AddContainerComponents(containers ...ContainerComponent) *WebhookMessageCreateBuilder {
+// AddLayoutComponents adds the discord.LayoutComponent(s) to the Message
+func (b *WebhookMessageCreateBuilder) AddLayoutComponents(containers ...LayoutComponent) *WebhookMessageCreateBuilder {
 	b.Components = append(b.Components, containers...)
 	return b
 }
 
-// RemoveContainerComponent removes a discord.ActionRowComponent from the Message
-func (b *WebhookMessageCreateBuilder) RemoveContainerComponent(i int) *WebhookMessageCreateBuilder {
+// RemoveLayoutComponent removes a discord.ActionRowComponent from the Message
+func (b *WebhookMessageCreateBuilder) RemoveLayoutComponent(i int) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// ClearContainerComponents removes all the discord.ContainerComponent(s) of the Message
-func (b *WebhookMessageCreateBuilder) ClearContainerComponents() *WebhookMessageCreateBuilder {
-	b.Components = []ContainerComponent{}
+// ClearLayoutComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageCreateBuilder) ClearLayoutComponents() *WebhookMessageCreateBuilder {
+	b.Components = []LayoutComponent{}
 	return b
 }
 

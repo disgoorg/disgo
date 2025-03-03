@@ -84,14 +84,14 @@ func (b *MessageCreateBuilder) RemoveEmbed(i int) *MessageCreateBuilder {
 	return b
 }
 
-// SetContainerComponents sets the discord.ContainerComponent(s) of the Message
-func (b *MessageCreateBuilder) SetContainerComponents(containerComponents ...ContainerComponent) *MessageCreateBuilder {
-	b.Components = containerComponents
+// SetLayoutComponents sets the discord.LayoutComponent(s) of the Message
+func (b *MessageCreateBuilder) SetLayoutComponents(LayoutComponents ...LayoutComponent) *MessageCreateBuilder {
+	b.Components = LayoutComponents
 	return b
 }
 
-// SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *MessageCreateBuilder) SetContainerComponent(i int, container ContainerComponent) *MessageCreateBuilder {
+// SetLayoutComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+func (b *MessageCreateBuilder) SetLayoutComponent(i int, container LayoutComponent) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
 	}
@@ -100,27 +100,27 @@ func (b *MessageCreateBuilder) SetContainerComponent(i int, container ContainerC
 
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the Message
 func (b *MessageCreateBuilder) AddActionRow(components ...InteractiveComponent) *MessageCreateBuilder {
-	b.Components = append(b.Components, ActionRowComponent(components))
+	b.Components = append(b.Components, ActionRowComponent{Components: components})
 	return b
 }
 
-// AddContainerComponents adds the discord.ContainerComponent(s) to the Message
-func (b *MessageCreateBuilder) AddContainerComponents(containers ...ContainerComponent) *MessageCreateBuilder {
+// AddLayoutComponents adds the discord.LayoutComponent(s) to the Message
+func (b *MessageCreateBuilder) AddLayoutComponents(containers ...LayoutComponent) *MessageCreateBuilder {
 	b.Components = append(b.Components, containers...)
 	return b
 }
 
-// RemoveContainerComponent removes a discord.ActionRowComponent from the Message
-func (b *MessageCreateBuilder) RemoveContainerComponent(i int) *MessageCreateBuilder {
+// RemoveLayoutComponent removes a discord.ActionRowComponent from the Message
+func (b *MessageCreateBuilder) RemoveLayoutComponent(i int) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// ClearContainerComponents removes all the discord.ContainerComponent(s) of the Message
-func (b *MessageCreateBuilder) ClearContainerComponents() *MessageCreateBuilder {
-	b.Components = []ContainerComponent{}
+// ClearLayoutComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *MessageCreateBuilder) ClearLayoutComponents() *MessageCreateBuilder {
+	b.Components = []LayoutComponent{}
 	return b
 }
 

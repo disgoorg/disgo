@@ -12,10 +12,12 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
-	token = os.Getenv("disgo_token")
+	token   = os.Getenv("disgo_token")
+	guildID = snowflake.GetEnv("disgo_guild_id")
 )
 
 func main() {
