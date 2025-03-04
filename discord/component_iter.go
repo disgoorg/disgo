@@ -14,7 +14,7 @@ func componentIter(components []LayoutComponent) iter.Seq[Component] {
 				continue
 			}
 
-			for cc := range ic.Children() {
+			for cc := range ic.SubComponents() {
 				if !yield(cc) {
 					return
 				}

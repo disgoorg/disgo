@@ -79,8 +79,8 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// SetLayoutComponents sets the discord.LayoutComponent(s) of the Message
-func (b *MessageUpdateBuilder) SetLayoutComponents(LayoutComponents ...LayoutComponent) *MessageUpdateBuilder {
+// SetComponents sets the discord.LayoutComponent(s) of the Message
+func (b *MessageUpdateBuilder) SetComponents(LayoutComponents ...LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)
 	}
@@ -88,8 +88,8 @@ func (b *MessageUpdateBuilder) SetLayoutComponents(LayoutComponents ...LayoutCom
 	return b
 }
 
-// SetLayoutComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *MessageUpdateBuilder) SetLayoutComponent(i int, container LayoutComponent) *MessageUpdateBuilder {
+// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+func (b *MessageUpdateBuilder) SetComponent(i int, container LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)
 	}
@@ -108,8 +108,8 @@ func (b *MessageUpdateBuilder) AddActionRow(components ...InteractiveComponent) 
 	return b
 }
 
-// AddLayoutComponents adds the discord.LayoutComponent(s) to the Message
-func (b *MessageUpdateBuilder) AddLayoutComponents(containers ...LayoutComponent) *MessageUpdateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the Message
+func (b *MessageUpdateBuilder) AddComponents(containers ...LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)
 	}
@@ -117,8 +117,8 @@ func (b *MessageUpdateBuilder) AddLayoutComponents(containers ...LayoutComponent
 	return b
 }
 
-// RemoveLayoutComponent removes a discord.LayoutComponent from the Message
-func (b *MessageUpdateBuilder) RemoveLayoutComponent(i int) *MessageUpdateBuilder {
+// RemoveComponent removes a discord.LayoutComponent from the Message
+func (b *MessageUpdateBuilder) RemoveComponent(i int) *MessageUpdateBuilder {
 	if b.Components == nil {
 		return b
 	}
@@ -128,8 +128,8 @@ func (b *MessageUpdateBuilder) RemoveLayoutComponent(i int) *MessageUpdateBuilde
 	return b
 }
 
-// ClearLayoutComponents removes all the discord.LayoutComponent(s) of the Message
-func (b *MessageUpdateBuilder) ClearLayoutComponents() *MessageUpdateBuilder {
+// ClearComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *MessageUpdateBuilder) ClearComponents() *MessageUpdateBuilder {
 	b.Components = &[]LayoutComponent{}
 	return b
 }

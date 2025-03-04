@@ -27,6 +27,9 @@ const (
 	ComponentTypeMediaGallery
 	ComponentTypeFile
 	ComponentTypeSeparator
+	_
+	// ComponentTypeContentInventoryEntry cannot be used by bots.
+	ComponentTypeContentInventoryEntry
 	ComponentTypeContainer
 )
 
@@ -57,9 +60,9 @@ type Component interface {
 	component()
 }
 
-// ComponentIter is an optional interface a Component can implement to return an iterator over its children.
+// ComponentIter is an optional interface a Component can implement to return an iterator over its sub components.
 type ComponentIter interface {
-	Children() iter.Seq[Component]
+	SubComponents() iter.Seq[Component]
 }
 
 // InteractiveComponent is an interface for all components that can be present in an [ActionRowComponent].
@@ -105,6 +108,7 @@ type SectionSubComponent interface {
 }
 
 // SectionAccessoryComponent is an interface for all components that can be present as an accessory in [SectionComponent.Accessory].
+// [ButtonComponent]
 // [ThumbnailComponent]
 // [UnknownComponent]
 type SectionAccessoryComponent interface {
@@ -238,18 +242,18 @@ type ComponentEmoji struct {
 	Animated bool         `json:"animated,omitempty"`
 }
 
+func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
+	return ActionRowComponent{
+		Components: components,
+	}
+}
+
 var (
 	_ Component             = (*ActionRowComponent)(nil)
 	_ LayoutComponent       = (*ActionRowComponent)(nil)
 	_ ContainerSubComponent = (*ActionRowComponent)(nil)
 	_ ComponentIter         = (*ActionRowComponent)(nil)
 )
-
-func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
-	return ActionRowComponent{
-		Components: components,
-	}
-}
 
 type ActionRowComponent struct {
 	ID         int                    `json:"id,omitempty"`
@@ -297,7 +301,8 @@ func (ActionRowComponent) component()             {}
 func (ActionRowComponent) layoutComponent()       {}
 func (ActionRowComponent) containerSubComponent() {}
 
-func (c ActionRowComponent) Children() iter.Seq[Component] {
+// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) of the ActionRowComponent.
+func (c ActionRowComponent) SubComponents() iter.Seq[Component] {
 	return func(yield func(Component) bool) {
 		for _, cc := range c.Components {
 			if !yield(cc) {
@@ -307,8 +312,15 @@ func (c ActionRowComponent) Children() iter.Seq[Component] {
 	}
 }
 
+// WithID returns a new ActionRowComponent with the provided id
 func (c ActionRowComponent) WithID(id int) ActionRowComponent {
 	c.ID = id
+	return c
+}
+
+// WithComponents returns a new ActionRowComponent with the provided Component(s)
+func (c ActionRowComponent) WithComponents(components ...InteractiveComponent) ActionRowComponent {
+	c.Components = components
 	return c
 }
 
@@ -523,8 +535,11 @@ func (c ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
 	return c
 }
 
-var (
-	_ Component = (*TextInputComponent)(nil)
+type TextInputStyle int
+
+const (
+	TextInputStyleShort TextInputStyle = iota + 1
+	TextInputStyleParagraph
 )
 
 // NewTextInput creates a new [TextInputComponent] with the provided parameters.
@@ -545,6 +560,10 @@ func NewShortTextInput(customID string, label string) TextInputComponent {
 func NewParagraphTextInput(customID string, label string) TextInputComponent {
 	return NewTextInput(customID, TextInputStyleParagraph, label)
 }
+
+var (
+	_ Component = (*TextInputComponent)(nil)
+)
 
 // TextInputComponent is a component that allows users to input text. [Discord Docs]
 //
@@ -635,16 +654,36 @@ func (c TextInputComponent) WithValue(value string) TextInputComponent {
 	return c
 }
 
-type TextInputStyle int
+type UnfurledMediaItemLoadingState int
 
 const (
-	TextInputStyleShort TextInputStyle = iota + 1
-	TextInputStyleParagraph
+	UnfurledMediaItemLoadingStateUnknown UnfurledMediaItemLoadingState = iota
+	UnfurledMediaItemLoadingStateLoading
+	UnfurledMediaItemLoadingStateLoadedSuccess
+	UnfurledMediaItemLoadingStateLoadedNotFound
 )
 
+// UnfurledMediaItem is a media item that can be displayed in a [ThumbnailComponent] or [FileComponent].
 type UnfurledMediaItem struct {
 	// URL supports arbitrary urls and attachment://<filename> references
 	URL string `json:"url"`
+	// ProxyURL is a proxied version of the URL. This can't be set by bots.
+	ProxyURL string `json:"proxy_url,omitempty"`
+	// Height is the height of the media item in pixels. This can't be set by bots.
+	Height int `json:"height,omitempty"`
+	// Width is the width of the media item in pixels. This can't be set by bots.
+	Width int `json:"width,omitempty"`
+	// ContentType is the content type of the media item. This can't be set by bots.
+	ContentType string `json:"content_type,omitempty"`
+	// LoadingState is the loading state of the media item. This can't be set by bots.
+	LoadingState UnfurledMediaItemLoadingState `json:"loading_state,omitempty"`
+}
+
+// NewSection creates a new [SectionComponent] with the provided components.
+func NewSection(components ...SectionSubComponent) SectionComponent {
+	return SectionComponent{
+		Components: components,
+	}
 }
 
 var (
@@ -653,12 +692,7 @@ var (
 	_ ContainerSubComponent = (*SectionComponent)(nil)
 )
 
-func NewSection(components ...SectionSubComponent) SectionComponent {
-	return SectionComponent{
-		Components: components,
-	}
-}
-
+// SectionComponent is a component that can contain up to 3 TextDisplayComponent(s) and an optional SectionAccessoryComponent.
 type SectionComponent struct {
 	ID         int                       `json:"id,omitempty"`
 	Components []SectionSubComponent     `json:"components"`
@@ -710,7 +744,8 @@ func (SectionComponent) component()             {}
 func (SectionComponent) layoutComponent()       {}
 func (SectionComponent) containerSubComponent() {}
 
-func (c SectionComponent) Children() iter.Seq[Component] {
+// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) and Accessory of the SectionComponent.
+func (c SectionComponent) SubComponents() iter.Seq[Component] {
 	return func(yield func(Component) bool) {
 		for _, cc := range c.Components {
 			if !yield(cc) {
@@ -726,9 +761,57 @@ func (c SectionComponent) Children() iter.Seq[Component] {
 	}
 }
 
+// WithID returns a new SectionComponent with the provided id
 func (c SectionComponent) WithID(id int) SectionComponent {
 	c.ID = id
 	return c
+}
+
+// WithAccessory returns a new SectionComponent with the provided accessory
+func (c SectionComponent) WithAccessory(accessory SectionAccessoryComponent) SectionComponent {
+	c.Accessory = accessory
+	return c
+}
+
+// WithComponents returns a new SectionComponent with the provided components
+func (c SectionComponent) WithComponents(components ...SectionSubComponent) SectionComponent {
+	c.Components = components
+	return c
+}
+
+// UpdateComponent returns a new SectionComponent with the Component which has the id replaced with the provided Component.
+func (c SectionComponent) UpdateComponent(id int, component SectionSubComponent) SectionComponent {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components[i] = component
+			return c
+		}
+	}
+	return c
+}
+
+// AddComponents returns a new SectionComponent with the provided Component(s) added
+func (c SectionComponent) AddComponents(components ...SectionSubComponent) SectionComponent {
+	c.Components = append(c.Components, components...)
+	return c
+}
+
+// RemoveComponent returns a new SectionComponent with the provided Component which has the provided id removed.
+func (c SectionComponent) RemoveComponent(id int) SectionComponent {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components = append(c.Components[:i], c.Components[i+1:]...)
+			return c
+		}
+	}
+	return c
+}
+
+// NewTextDisplay creates a new [TextDisplayComponent] with the provided content.
+func NewTextDisplay(content string) TextDisplayComponent {
+	return TextDisplayComponent{
+		Content: content,
+	}
 }
 
 var (
@@ -736,12 +819,6 @@ var (
 	_ ContainerSubComponent = (*TextDisplayComponent)(nil)
 	_ SectionSubComponent   = (*TextDisplayComponent)(nil)
 )
-
-func NewTextDisplay(content string) TextDisplayComponent {
-	return TextDisplayComponent{
-		Content: content,
-	}
-}
 
 // TextDisplayComponent is a component that displays text.
 type TextDisplayComponent struct {
@@ -777,8 +854,22 @@ func (c TextDisplayComponent) WithID(i int) SectionSubComponent {
 	return c
 }
 
+func (c TextDisplayComponent) WithContent(content string) TextDisplayComponent {
+	c.Content = content
+	return c
+}
+
+func NewThumbnail(url string) ThumbnailComponent {
+	return ThumbnailComponent{
+		Media: UnfurledMediaItem{
+			URL: url,
+		},
+	}
+}
+
 var (
-	_ Component = (*ThumbnailComponent)(nil)
+	_ Component                 = (*ThumbnailComponent)(nil)
+	_ SectionAccessoryComponent = (*ThumbnailComponent)(nil)
 )
 
 type ThumbnailComponent struct {
@@ -807,10 +898,26 @@ func (c ThumbnailComponent) GetID() int {
 	return c.ID
 }
 
-func (ThumbnailComponent) component() {}
+func (ThumbnailComponent) component()                 {}
+func (ThumbnailComponent) sectionAccessoryComponent() {}
 
 func (c ThumbnailComponent) WithID(id int) ThumbnailComponent {
 	c.ID = id
+	return c
+}
+
+func (c ThumbnailComponent) WithMediaURL(url string) ThumbnailComponent {
+	c.Media.URL = url
+	return c
+}
+
+func (c ThumbnailComponent) WithDescription(description string) ThumbnailComponent {
+	c.Description = description
+	return c
+}
+
+func (c ThumbnailComponent) WithSpoiler(spoiler bool) ThumbnailComponent {
+	c.Spoiler = spoiler
 	return c
 }
 
@@ -820,18 +927,20 @@ type MediaGalleryItem struct {
 	Spoiler     bool              `json:"spoiler,omitempty"`
 }
 
-var (
-	_ Component             = (*MediaGalleryComponent)(nil)
-	_ LayoutComponent       = (*MediaGalleryComponent)(nil)
-	_ ContainerSubComponent = (*MediaGalleryComponent)(nil)
-)
-
+// NewMediaGallery creates a new [MediaGalleryComponent] with the provided items.
 func NewMediaGallery(items ...MediaGalleryItem) MediaGalleryComponent {
 	return MediaGalleryComponent{
 		Items: items,
 	}
 }
 
+var (
+	_ Component             = (*MediaGalleryComponent)(nil)
+	_ LayoutComponent       = (*MediaGalleryComponent)(nil)
+	_ ContainerSubComponent = (*MediaGalleryComponent)(nil)
+)
+
+// MediaGalleryComponent is a component that displays a gallery of media.
 type MediaGalleryComponent struct {
 	ID    int                `json:"id,omitempty"`
 	Items []MediaGalleryItem `json:"items"`
@@ -860,18 +969,41 @@ func (MediaGalleryComponent) component()             {}
 func (MediaGalleryComponent) layoutComponent()       {}
 func (MediaGalleryComponent) containerSubComponent() {}
 
+// WithID returns a new MediaGalleryComponent with the provided id
 func (c MediaGalleryComponent) WithID(id int) MediaGalleryComponent {
 	c.ID = id
+	return c
+}
+
+// WithItems returns a new MediaGalleryComponent with the provided items
+func (c MediaGalleryComponent) WithItems(items ...MediaGalleryItem) MediaGalleryComponent {
+	c.Items = items
 	return c
 }
 
 type SeparatorSpacingSize int
 
 const (
-	SeparatorSpacingSizeNone SeparatorSpacingSize = iota
-	SeparatorSpacingSizeSmall
+	SeparatorSpacingSizeSmall SeparatorSpacingSize = iota + 1
 	SeparatorSpacingSizeLarge
 )
+
+// NewSmallSeparator creates a new [SeparatorComponent] with the small spacing.
+func NewSmallSeparator() SeparatorComponent {
+	return NewSeparator(SeparatorSpacingSizeSmall)
+}
+
+// NewLargeSeparator creates a new [SeparatorComponent] with the large spacing.
+func NewLargeSeparator() SeparatorComponent {
+	return NewSeparator(SeparatorSpacingSizeLarge)
+}
+
+// NewSeparator creates a new [SeparatorComponent] with the provided spacing.
+func NewSeparator(spacing SeparatorSpacingSize) SeparatorComponent {
+	return SeparatorComponent{
+		Spacing: spacing,
+	}
+}
 
 var (
 	_ Component             = (*SeparatorComponent)(nil)
@@ -879,23 +1011,11 @@ var (
 	_ ContainerSubComponent = (*MediaGalleryComponent)(nil)
 )
 
-func NewSeparator(spacing SeparatorSpacingSize) SeparatorComponent {
-	return SeparatorComponent{
-		Spacing: spacing,
-	}
-}
-
-func NewSmallSeparator() SeparatorComponent {
-	return NewSeparator(SeparatorSpacingSizeSmall)
-}
-
-func NewLargeSeparator() SeparatorComponent {
-	return NewSeparator(SeparatorSpacingSizeLarge)
-}
-
+// SeparatorComponent is a component that adds a visual divider between components.
 type SeparatorComponent struct {
-	ID      int                  `json:"id,omitempty"`
-	Divider bool                 `json:"divider,omitempty"`
+	ID int `json:"id,omitempty"`
+	// Divider determines if the separator should have a divider line. (default: true)
+	Divider *bool                `json:"divider,omitempty"`
 	Spacing SeparatorSpacingSize `json:"spacing,omitempty"`
 }
 
@@ -927,19 +1047,32 @@ func (c SeparatorComponent) WithID(i int) LayoutComponent {
 	return c
 }
 
-var (
-	_ Component = (*FileComponent)(nil)
-)
+func (c SeparatorComponent) WithDivider(divider bool) SeparatorComponent {
+	c.Divider = &divider
+	return c
+}
 
-func NewFileComponent(url string, spoiler bool) FileComponent {
+func (c SeparatorComponent) WithSpacing(spacing SeparatorSpacingSize) SeparatorComponent {
+	c.Spacing = spacing
+	return c
+}
+
+// NewFileComponent creates a new [FileComponent] with the provided url.
+func NewFileComponent(url string) FileComponent {
 	return FileComponent{
 		File: UnfurledMediaItem{
 			URL: url,
 		},
-		Spoiler: spoiler,
 	}
 }
 
+var (
+	_ Component             = (*FileComponent)(nil)
+	_ ContainerSubComponent = (*FileComponent)(nil)
+	_ LayoutComponent       = (*FileComponent)(nil)
+)
+
+// FileComponent is a component that displays a file.
 type FileComponent struct {
 	ID int `json:"id,omitempty"`
 	// File only supports attachment://<filename> references
@@ -966,10 +1099,17 @@ func (c FileComponent) GetID() int {
 	return c.ID
 }
 
-func (FileComponent) component() {}
+func (FileComponent) component()             {}
+func (FileComponent) layoutComponent()       {}
+func (FileComponent) containerSubComponent() {}
 
 func (c FileComponent) WithID(id int) FileComponent {
 	c.ID = id
+	return c
+}
+
+func (c FileComponent) WithMediaURL(url string) FileComponent {
+	c.File.URL = url
 	return c
 }
 
@@ -978,20 +1118,24 @@ func (c FileComponent) WithSpoiler(spoiler bool) FileComponent {
 	return c
 }
 
-var (
-	_ Component       = (*ContainerComponent)(nil)
-	_ LayoutComponent = (*ContainerComponent)(nil)
-)
-
+// NewContainer creates a new [ContainerComponent] with the provided components.
 func NewContainer(components ...ContainerSubComponent) ContainerComponent {
 	return ContainerComponent{
 		Components: components,
 	}
 }
 
+var (
+	_ Component       = (*ContainerComponent)(nil)
+	_ LayoutComponent = (*ContainerComponent)(nil)
+)
+
+// ContainerComponent is a component which lets you group components together.
+// It looks similar to embeds and supports an accent color and spoiler state.
 type ContainerComponent struct {
-	ID          int                     `json:"id,omitempty"`
-	AccentColor *int                    `json:"accent_color,omitempty"`
+	ID int `json:"id,omitempty"`
+	// AccentColor is the color of the left border of the container. (use 0 for no color)
+	AccentColor int                     `json:"accent_color,omitempty"`
 	Spoiler     bool                    `json:"spoiler,omitempty"`
 	Components  []ContainerSubComponent `json:"components"`
 }
@@ -1010,7 +1154,7 @@ func (c ContainerComponent) MarshalJSON() ([]byte, error) {
 func (c *ContainerComponent) UnmarshalJSON(data []byte) error {
 	var containerComponent struct {
 		ID          int                  `json:"id,omitempty"`
-		AccentColor *int                 `json:"accent_color,omitempty"`
+		AccentColor int                  `json:"accent_color,omitempty"`
 		Spoiler     bool                 `json:"spoiler,omitempty"`
 		Components  []UnmarshalComponent `json:"components"`
 	}
@@ -1046,20 +1190,69 @@ func (c ContainerComponent) WithID(id int) ContainerComponent {
 	return c
 }
 
-func (c ContainerComponent) Children() iter.Seq[Component] {
+func (c ContainerComponent) WithAccentColor(accentColor int) ContainerComponent {
+	c.AccentColor = accentColor
+	return c
+}
+
+func (c ContainerComponent) WithSpoiler(spoiler bool) ContainerComponent {
+	c.Spoiler = spoiler
+	return c
+}
+
+func (c ContainerComponent) SubComponents() iter.Seq[Component] {
 	return func(yield func(Component) bool) {
 		for _, cc := range c.Components {
 			if !yield(cc) {
 				return
 			}
 			if ic, ok := cc.(ComponentIter); ok {
-				for cc := range ic.Children() {
+				for cc := range ic.SubComponents() {
 					if !yield(cc) {
 						return
 					}
 				}
 			}
 		}
+	}
+}
+
+func (c ContainerComponent) WithComponents(components ...ContainerSubComponent) ContainerComponent {
+	c.Components = components
+	return c
+}
+
+func (c ContainerComponent) UpdateComponent(id int, component ContainerSubComponent) ContainerComponent {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components[i] = component
+			return c
+		}
+	}
+	return c
+}
+
+func (c ContainerComponent) AddComponents(components ...ContainerSubComponent) ContainerComponent {
+	c.Components = append(c.Components, components...)
+	return c
+}
+
+func (c ContainerComponent) RemoveComponent(id int) ContainerComponent {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components = append(c.Components[:i], c.Components[i+1:]...)
+			return c
+		}
+	}
+	return c
+}
+
+// NewUnknownComponent creates a new [UnknownComponent] with the provided type and data.
+// This is useful for handling unknown components, but should be avoided if possible.
+func NewUnknownComponent(componentType ComponentType, data json.RawMessage) UnknownComponent {
+	return UnknownComponent{
+		ComponentType: componentType,
+		Data:          data,
 	}
 }
 
@@ -1073,6 +1266,7 @@ var (
 	_ ContainerSubComponent     = (*UnknownComponent)(nil)
 )
 
+// UnknownComponent is a component that is not recognized by the library.
 type UnknownComponent struct {
 	ComponentType ComponentType
 	ID            int

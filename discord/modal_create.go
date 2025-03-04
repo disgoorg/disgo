@@ -31,14 +31,14 @@ func (b *ModalCreateBuilder) SetTitle(title string) *ModalCreateBuilder {
 	return b
 }
 
-// SetLayoutComponents sets the discord.LayoutComponent(s) of the ModalCreate
-func (b *ModalCreateBuilder) SetLayoutComponents(LayoutComponents ...LayoutComponent) *ModalCreateBuilder {
+// SetComponents sets the discord.LayoutComponent(s) of the ModalCreate
+func (b *ModalCreateBuilder) SetComponents(LayoutComponents ...LayoutComponent) *ModalCreateBuilder {
 	b.Components = LayoutComponents
 	return b
 }
 
-// SetLayoutComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *ModalCreateBuilder) SetLayoutComponent(i int, container LayoutComponent) *ModalCreateBuilder {
+// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+func (b *ModalCreateBuilder) SetComponent(i int, container LayoutComponent) *ModalCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
 	}
@@ -51,22 +51,22 @@ func (b *ModalCreateBuilder) AddActionRow(components ...InteractiveComponent) *M
 	return b
 }
 
-// AddLayoutComponents adds the discord.LayoutComponent(s) to the ModalCreate
-func (b *ModalCreateBuilder) AddLayoutComponents(containers ...LayoutComponent) *ModalCreateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the ModalCreate
+func (b *ModalCreateBuilder) AddComponents(containers ...LayoutComponent) *ModalCreateBuilder {
 	b.Components = append(b.Components, containers...)
 	return b
 }
 
-// RemoveLayoutComponent removes a discord.ActionRowComponent from the ModalCreate
-func (b *ModalCreateBuilder) RemoveLayoutComponent(i int) *ModalCreateBuilder {
+// RemoveComponent removes a discord.ActionRowComponent from the ModalCreate
+func (b *ModalCreateBuilder) RemoveComponent(i int) *ModalCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// ClearLayoutComponents removes all the discord.LayoutComponent(s) of the ModalCreate
-func (b *ModalCreateBuilder) ClearLayoutComponents() *ModalCreateBuilder {
+// ClearComponents removes all the discord.LayoutComponent(s) of the ModalCreate
+func (b *ModalCreateBuilder) ClearComponents() *ModalCreateBuilder {
 	b.Components = []LayoutComponent{}
 	return b
 }

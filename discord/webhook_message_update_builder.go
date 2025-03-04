@@ -83,8 +83,8 @@ func (b *WebhookMessageUpdateBuilder) RemoveEmbed(i int) *WebhookMessageUpdateBu
 	return b
 }
 
-// SetLayoutComponents sets the discord.LayoutComponent(s) of the Message
-func (b *WebhookMessageUpdateBuilder) SetLayoutComponents(LayoutComponents ...LayoutComponent) *WebhookMessageUpdateBuilder {
+// SetComponents sets the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageUpdateBuilder) SetComponents(LayoutComponents ...LayoutComponent) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)
 	}
@@ -92,8 +92,8 @@ func (b *WebhookMessageUpdateBuilder) SetLayoutComponents(LayoutComponents ...La
 	return b
 }
 
-// SetLayoutComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *WebhookMessageUpdateBuilder) SetLayoutComponent(i int, container LayoutComponent) *WebhookMessageUpdateBuilder {
+// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+func (b *WebhookMessageUpdateBuilder) SetComponent(i int, container LayoutComponent) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)
 	}
@@ -112,8 +112,8 @@ func (b *WebhookMessageUpdateBuilder) AddActionRow(components ...InteractiveComp
 	return b
 }
 
-// AddLayoutComponents adds the discord.LayoutComponent(s) to the Message
-func (b *WebhookMessageUpdateBuilder) AddLayoutComponents(containers ...LayoutComponent) *WebhookMessageUpdateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the Message
+func (b *WebhookMessageUpdateBuilder) AddComponents(containers ...LayoutComponent) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)
 	}
@@ -121,8 +121,8 @@ func (b *WebhookMessageUpdateBuilder) AddLayoutComponents(containers ...LayoutCo
 	return b
 }
 
-// RemoveLayoutComponent removes a discord.LayoutComponent from the Message
-func (b *WebhookMessageUpdateBuilder) RemoveLayoutComponent(i int) *WebhookMessageUpdateBuilder {
+// RemoveComponent removes a discord.LayoutComponent from the Message
+func (b *WebhookMessageUpdateBuilder) RemoveComponent(i int) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
 		return b
 	}
@@ -132,8 +132,8 @@ func (b *WebhookMessageUpdateBuilder) RemoveLayoutComponent(i int) *WebhookMessa
 	return b
 }
 
-// ClearLayoutComponents removes all the discord.LayoutComponent(s) of the Message
-func (b *WebhookMessageUpdateBuilder) ClearLayoutComponents() *WebhookMessageUpdateBuilder {
+// ClearComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageUpdateBuilder) ClearComponents() *WebhookMessageUpdateBuilder {
 	b.Components = &[]LayoutComponent{}
 	return b
 }

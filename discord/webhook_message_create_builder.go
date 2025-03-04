@@ -80,14 +80,14 @@ func (b *WebhookMessageCreateBuilder) RemoveEmbed(i int) *WebhookMessageCreateBu
 	return b
 }
 
-// SetLayoutComponents sets the discord.LayoutComponent(s) of the Message
-func (b *WebhookMessageCreateBuilder) SetLayoutComponents(LayoutComponents ...LayoutComponent) *WebhookMessageCreateBuilder {
+// SetComponents sets the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageCreateBuilder) SetComponents(LayoutComponents ...LayoutComponent) *WebhookMessageCreateBuilder {
 	b.Components = LayoutComponents
 	return b
 }
 
-// SetLayoutComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *WebhookMessageCreateBuilder) SetLayoutComponent(i int, container LayoutComponent) *WebhookMessageCreateBuilder {
+// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+func (b *WebhookMessageCreateBuilder) SetComponent(i int, container LayoutComponent) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
 	}
@@ -100,22 +100,22 @@ func (b *WebhookMessageCreateBuilder) AddActionRow(components ...InteractiveComp
 	return b
 }
 
-// AddLayoutComponents adds the discord.LayoutComponent(s) to the Message
-func (b *WebhookMessageCreateBuilder) AddLayoutComponents(containers ...LayoutComponent) *WebhookMessageCreateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the Message
+func (b *WebhookMessageCreateBuilder) AddComponents(containers ...LayoutComponent) *WebhookMessageCreateBuilder {
 	b.Components = append(b.Components, containers...)
 	return b
 }
 
-// RemoveLayoutComponent removes a discord.ActionRowComponent from the Message
-func (b *WebhookMessageCreateBuilder) RemoveLayoutComponent(i int) *WebhookMessageCreateBuilder {
+// RemoveComponent removes a discord.ActionRowComponent from the Message
+func (b *WebhookMessageCreateBuilder) RemoveComponent(i int) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// ClearLayoutComponents removes all the discord.LayoutComponent(s) of the Message
-func (b *WebhookMessageCreateBuilder) ClearLayoutComponents() *WebhookMessageCreateBuilder {
+// ClearComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageCreateBuilder) ClearComponents() *WebhookMessageCreateBuilder {
 	b.Components = []LayoutComponent{}
 	return b
 }
@@ -192,6 +192,16 @@ func (b *WebhookMessageCreateBuilder) RemoveFlags(flags ...MessageFlags) *Webhoo
 // ClearFlags clears the discord.MessageFlags of the Message
 func (b *WebhookMessageCreateBuilder) ClearFlags() *WebhookMessageCreateBuilder {
 	return b.SetFlags(MessageFlagsNone)
+}
+
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags
+func (b *WebhookMessageCreateBuilder) SetIsComponentsV2(isComponentV2 bool) *WebhookMessageCreateBuilder {
+	if isComponentV2 {
+		b.Flags = b.Flags.Add(MessageFlagIsComponentsV2)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagIsComponentsV2)
+	}
+	return b
 }
 
 // SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags

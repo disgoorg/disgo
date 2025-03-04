@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/json"
+import (
+	"iter"
+
+	"github.com/disgoorg/json"
+)
 
 var (
 	_ Interaction = (*ModalSubmitInteraction)(nil)
@@ -76,43 +80,41 @@ func (ModalSubmitInteraction) Type() InteractionType {
 func (ModalSubmitInteraction) interaction() {}
 
 type ModalSubmitInteractionData struct {
-	CustomID string `json:"custom_id"`
-	// TODO: rethink this since you might want to access other components.
-	Components map[string]InteractiveComponent `json:"components"`
+	CustomID   string            `json:"custom_id"`
+	Components []LayoutComponent `json:"components"`
 }
 
 func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
-	type modalSubmitInteractionData ModalSubmitInteractionData
 	var iData struct {
+		CustomID   string               `json:"custom_id"`
 		Components []UnmarshalComponent `json:"components"`
-		modalSubmitInteractionData
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {
 		return err
 	}
 
-	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
+	d.CustomID = iData.CustomID
 
-	if len(iData.Components) > 0 {
-		d.Components = make(map[string]InteractiveComponent)
-
-		var layoutComponents []LayoutComponent
-		for _, containerComponent := range iData.Components {
-			layoutComponents = append(layoutComponents, containerComponent.Component.(LayoutComponent))
-		}
-		for component := range componentIter(layoutComponents) {
-			if ic, ok := component.(InteractiveComponent); ok {
-				d.Components[ic.GetCustomID()] = ic
-			}
-		}
+	components := make([]LayoutComponent, 0, len(iData.Components))
+	for _, containerComponent := range iData.Components {
+		components = append(components, containerComponent.Component.(LayoutComponent))
 	}
+	d.Components = components
 	return nil
 }
 
+func (d ModalSubmitInteractionData) AllComponents() iter.Seq[Component] {
+	return componentIter(d.Components)
+}
+
 func (d ModalSubmitInteractionData) Component(customID string) (InteractiveComponent, bool) {
-	component, ok := d.Components[customID]
-	return component, ok
+	for component := range d.AllComponents() {
+		if ic, ok := component.(InteractiveComponent); ok && ic.GetCustomID() == customID {
+			return ic, true
+		}
+	}
+	return nil, false
 }
 
 func (d ModalSubmitInteractionData) TextInputComponent(customID string) (TextInputComponent, bool) {
