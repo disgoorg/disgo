@@ -93,7 +93,7 @@ func (c *clientImpl) DeleteWebhook(opts ...rest.RequestOpt) error {
 }
 
 func (c *clientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.Rest().CreateWebhookMessage(c.id, c.token, messageCreate, true, threadID, opts...)
+	return c.Rest().CreateWebhookMessage(c.id, c.token, messageCreate, rest.CreateWebhookMessageParams{Wait: true, ThreadID: threadID}, opts...)
 }
 
 func (c *clientImpl) CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*discord.Message, error) {
@@ -113,7 +113,7 @@ func (c *clientImpl) UpdateMessage(messageID snowflake.ID, messageUpdate discord
 }
 
 func (c *clientImpl) UpdateMessageInThread(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.Rest().UpdateWebhookMessage(c.id, c.token, messageID, messageUpdate, threadID, opts...)
+	return c.Rest().UpdateWebhookMessage(c.id, c.token, messageID, messageUpdate, rest.UpdateWebhookMessageParams{ThreadID: threadID}, opts...)
 }
 
 func (c *clientImpl) UpdateContent(messageID snowflake.ID, content string, opts ...rest.RequestOpt) (*discord.Message, error) {
