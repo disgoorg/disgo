@@ -3,6 +3,7 @@ package discord
 import (
 	"bytes"
 	"fmt"
+	"iter"
 	"strconv"
 	"time"
 
@@ -101,7 +102,7 @@ type Message struct {
 	Attachments          []Attachment          `json:"attachments"`
 	TTS                  bool                  `json:"tts"`
 	Embeds               []Embed               `json:"embeds,omitempty"`
-	Components           []ContainerComponent  `json:"components,omitempty"`
+	Components           []LayoutComponent     `json:"components,omitempty"`
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
@@ -159,190 +160,12 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// ActionRows returns all ActionRowComponent(s) from this Message
-func (m Message) ActionRows() []ActionRowComponent {
-	var actionRows []ActionRowComponent
-	for i := range m.Components {
-		if actionRow, ok := m.Components[i].(ActionRowComponent); ok {
-			actionRows = append(actionRows, actionRow)
-		}
-	}
-	return actionRows
+// AllComponents returns an [iter.Seq] of all components in the message.
+func (m Message) AllComponents() iter.Seq[Component] {
+	return componentIter(m.Components)
 }
 
-// InteractiveComponents returns the InteractiveComponent(s) from this Message
-func (m Message) InteractiveComponents() []InteractiveComponent {
-	var interactiveComponents []InteractiveComponent
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			interactiveComponents = append(interactiveComponents, m.Components[i].Components()[ii])
-		}
-	}
-	return interactiveComponents
-}
-
-// ComponentByID returns the Component with the specific CustomID
-func (m Message) ComponentByID(customID string) InteractiveComponent {
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if m.Components[i].Components()[ii].ID() == customID {
-				return m.Components[i].Components()[ii]
-			}
-		}
-	}
-	return nil
-}
-
-// Buttons returns all ButtonComponent(s) from this Message
-func (m Message) Buttons() []ButtonComponent {
-	var buttons []ButtonComponent
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(ButtonComponent); ok {
-				buttons = append(buttons, button)
-			}
-		}
-	}
-	return buttons
-}
-
-// ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m Message) ButtonByID(customID string) (ButtonComponent, bool) {
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(ButtonComponent); ok && button.ID() == customID {
-				return button, true
-			}
-		}
-	}
-	return ButtonComponent{}, false
-}
-
-// SelectMenus returns all SelectMenuComponent(s) from this Message
-func (m Message) SelectMenus() []SelectMenuComponent {
-	var selectMenus []SelectMenuComponent
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
-				selectMenus = append(selectMenus, selectMenu)
-			}
-		}
-	}
-	return selectMenus
-}
-
-// SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m Message) SelectMenuByID(customID string) (SelectMenuComponent, bool) {
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok && selectMenu.ID() == customID {
-				return selectMenu, true
-			}
-		}
-	}
-	return nil, false
-}
-
-// UserSelectMenus returns all UserSelectMenuComponent(s) from this Message
-func (m Message) UserSelectMenus() []UserSelectMenuComponent {
-	var userSelectMenus []UserSelectMenuComponent
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok {
-				userSelectMenus = append(userSelectMenus, userSelectMenu)
-			}
-		}
-	}
-	return userSelectMenus
-}
-
-// UserSelectMenuByID returns a UserSelectMenuComponent with the specific customID from this Message
-func (m Message) UserSelectMenuByID(customID string) (UserSelectMenuComponent, bool) {
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok && userSelectMenu.ID() == customID {
-				return userSelectMenu, true
-			}
-		}
-	}
-	return UserSelectMenuComponent{}, false
-}
-
-// RoleSelectMenus returns all RoleSelectMenuComponent(s) from this Message
-func (m Message) RoleSelectMenus() []RoleSelectMenuComponent {
-	var roleSelectMenus []RoleSelectMenuComponent
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok {
-				roleSelectMenus = append(roleSelectMenus, roleSelectMenu)
-			}
-		}
-	}
-	return roleSelectMenus
-}
-
-// RoleSelectMenuByID returns a RoleSelectMenuComponent with the specific customID from this Message
-func (m Message) RoleSelectMenuByID(customID string) (RoleSelectMenuComponent, bool) {
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok && roleSelectMenu.ID() == customID {
-				return roleSelectMenu, true
-			}
-		}
-	}
-	return RoleSelectMenuComponent{}, false
-}
-
-// MentionableSelectMenus returns all MentionableSelectMenuComponent(s) from this Message
-func (m Message) MentionableSelectMenus() []MentionableSelectMenuComponent {
-	var mentionableSelectMenus []MentionableSelectMenuComponent
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok {
-				mentionableSelectMenus = append(mentionableSelectMenus, mentionableSelectMenu)
-			}
-		}
-	}
-	return mentionableSelectMenus
-}
-
-// MentionableSelectMenuByID returns a MentionableSelectMenuComponent with the specific customID from this Message
-func (m Message) MentionableSelectMenuByID(customID string) (MentionableSelectMenuComponent, bool) {
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok && mentionableSelectMenu.ID() == customID {
-				return mentionableSelectMenu, true
-			}
-		}
-	}
-	return MentionableSelectMenuComponent{}, false
-}
-
-// ChannelSelectMenus returns all ChannelSelectMenuComponent(s) from this Message
-func (m Message) ChannelSelectMenus() []ChannelSelectMenuComponent {
-	var channelSelectMenus []ChannelSelectMenuComponent
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok {
-				channelSelectMenus = append(channelSelectMenus, channelSelectMenu)
-			}
-		}
-	}
-	return channelSelectMenus
-}
-
-// ChannelSelectMenuByID returns a ChannelSelectMenuComponent with the specific customID from this Message
-func (m Message) ChannelSelectMenuByID(customID string) (ChannelSelectMenuComponent, bool) {
-	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok && channelSelectMenu.ID() == customID {
-				return channelSelectMenu, true
-			}
-		}
-	}
-	return ChannelSelectMenuComponent{}, false
-}
-
+// JumpURL returns the URL which can be used to jump to the message in the discord client.
 func (m Message) JumpURL() string {
 	guildID := "@me"
 	if m.GuildID != nil {
@@ -439,18 +262,18 @@ type MessageSnapshot struct {
 }
 
 type PartialMessage struct {
-	Type            MessageType          `json:"type"`
-	Content         string               `json:"content,omitempty"`
-	Embeds          []Embed              `json:"embeds,omitempty"`
-	Attachments     []Attachment         `json:"attachments"`
-	CreatedAt       time.Time            `json:"timestamp"`
-	EditedTimestamp *time.Time           `json:"edited_timestamp"`
-	Flags           MessageFlags         `json:"flags"`
-	Mentions        []User               `json:"mentions"`
-	MentionRoles    []snowflake.ID       `json:"mention_roles"`
-	Stickers        []Sticker            `json:"stickers"`
-	StickerItems    []MessageSticker     `json:"sticker_items,omitempty"`
-	Components      []ContainerComponent `json:"components,omitempty"`
+	Type            MessageType       `json:"type"`
+	Content         string            `json:"content,omitempty"`
+	Embeds          []Embed           `json:"embeds,omitempty"`
+	Attachments     []Attachment      `json:"attachments"`
+	CreatedAt       time.Time         `json:"timestamp"`
+	EditedTimestamp *time.Time        `json:"edited_timestamp"`
+	Flags           MessageFlags      `json:"flags"`
+	Mentions        []User            `json:"mentions"`
+	MentionRoles    []snowflake.ID    `json:"mention_roles"`
+	Stickers        []Sticker         `json:"stickers"`
+	StickerItems    []MessageSticker  `json:"sticker_items,omitempty"`
+	Components      []LayoutComponent `json:"components,omitempty"`
 }
 
 func (m *PartialMessage) UnmarshalJSON(data []byte) error {
@@ -471,6 +294,10 @@ func (m *PartialMessage) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+func (m PartialMessage) AllComponents() iter.Seq[Component] {
+	return componentIter(m.Components)
 }
 
 // MessageInteraction is sent on the Message object when the message is a response to an interaction
@@ -505,6 +332,7 @@ const (
 	MessageFlagSuppressNotifications
 	MessageFlagIsVoiceMessage
 	MessageFlagHasSnapshot
+	MessageFlagIsComponentsV2
 	MessageFlagsNone MessageFlags = 0
 )
 
@@ -560,12 +388,12 @@ type MessageCall struct {
 	EndedTimestamp *time.Time     `json:"ended_timestamp"`
 }
 
-func unmarshalComponents(components []UnmarshalComponent) []ContainerComponent {
-	containerComponents := make([]ContainerComponent, len(components))
+func unmarshalComponents(components []UnmarshalComponent) []LayoutComponent {
+	c := make([]LayoutComponent, len(components))
 	for i := range components {
-		containerComponents[i] = components[i].Component.(ContainerComponent)
+		c[i] = components[i].Component.(LayoutComponent)
 	}
-	return containerComponents
+	return c
 }
 
 // Nonce is a string or int used when sending a message to discord.
