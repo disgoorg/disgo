@@ -148,8 +148,8 @@ type GatewayMessageDataHeartbeat struct {
 func (GatewayMessageDataHeartbeat) voiceGatewayMessageData() {}
 
 type GatewayMessageDataSessionDescription struct {
-	Mode      string   `json:"mode"`
-	SecretKey [32]byte `json:"secret_key"`
+	Mode      EncryptionMode `json:"mode"`
+	SecretKey []byte         `json:"secret_key"`
 }
 
 func (GatewayMessageDataSessionDescription) voiceGatewayMessageData() {}
@@ -176,11 +176,22 @@ type GatewayMessageDataSelectProtocolData struct {
 // EncryptionMode is the encryption mode used for voice data.
 type EncryptionMode string
 
-// All possible EncryptionMode(s) https://discord.com/developers/docs/topics/voice-connections#establishing-a-voice-udp-connection-encryption-modes.
+// All possible EncryptionMode(s) https://discord.com/developers/docs/topics/voice-connections#transport-encryption-and-sending-voice.
 const (
-	EncryptionModeNormal EncryptionMode = "xsalsa20_poly1305"
-	EncryptionModeSuffix EncryptionMode = "xsalsa20_poly1305_suffix"
-	EncryptionModeLite   EncryptionMode = "xsalsa20_poly1305_lite"
+	// EncryptionModeAEADAES256GCMRTPSize is the preferred encryption mode.
+	EncryptionModeAEADAES256GCMRTPSize EncryptionMode = "aead_aes256_gcm_rtpsize"
+	// EncryptionModeAEADXChaCha20Poly1305RTPSize is the required encryption mode.
+	EncryptionModeAEADXChaCha20Poly1305RTPSize EncryptionMode = "aead_xchacha20_poly1305_rtpsize"
+	// Deprecated: EncryptionModeXSalsa20Poly1305LiteRTPSize is deprecated.
+	EncryptionModeXSalsa20Poly1305LiteRTPSize EncryptionMode = "xsalsa20_poly1305_lite_rtpsize"
+	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
+	EncryptionModeAEADAES256GCM EncryptionMode = "aead_aes256_gcm"
+	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
+	EncryptionModeXSalsa20Poly1305 EncryptionMode = "xsalsa20_poly1305"
+	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
+	EncryptionModeXSalsa20Poly1305Suffix EncryptionMode = "xsalsa20_poly1305_suffix"
+	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
+	EncryptionModeXSalsa20Poly1305Lite EncryptionMode = "xsalsa20_poly1305_lite"
 )
 
 type GatewayMessageDataSpeaking struct {
