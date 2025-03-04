@@ -334,41 +334,41 @@ type GuildIncidentActionsUpdate struct {
 
 // GuildCreate is the payload used to create a Guild
 type GuildCreate struct {
-	Name                            string                     `json:"name"`
-	Icon                            *Icon                      `json:"icon,omitempty"`
-	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel MessageNotificationsLevel  `json:"default_message_notification_level,omitempty"`
-	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
-	Roles                           []GuildCreateRole          `json:"roles,omitempty"`
-	Channels                        []GuildCreateChannel       `json:"channels,omitempty"`
-	AFKChannelID                    snowflake.ID               `json:"afk_channel_id,omitempty"`
-	AFKTimeout                      int                        `json:"afk_timeout,omitempty"`
-	SystemChannelID                 snowflake.ID               `json:"system_channel_id,omitempty"`
-	SystemChannelFlags              SystemChannelFlags         `json:"system_channel_flags,omitempty"`
+	Name                        string                     `json:"name"`
+	Icon                        *Icon                      `json:"icon,omitempty"`
+	VerificationLevel           VerificationLevel          `json:"verification_level,omitempty"`
+	DefaultMessageNotifications MessageNotificationsLevel  `json:"default_message_notifications,omitempty"`
+	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
+	Roles                       []GuildCreateRole          `json:"roles,omitempty"`
+	Channels                    []GuildCreateChannel       `json:"channels,omitempty"`
+	AFKChannelID                snowflake.ID               `json:"afk_channel_id,omitempty"`
+	AFKTimeout                  int                        `json:"afk_timeout,omitempty"`
+	SystemChannelID             snowflake.ID               `json:"system_channel_id,omitempty"`
+	SystemChannelFlags          SystemChannelFlags         `json:"system_channel_flags,omitempty"`
 }
 
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
-	Name                            *string                                    `json:"name,omitempty"`
-	VerificationLevel               *json.Nullable[VerificationLevel]          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel *json.Nullable[MessageNotificationsLevel]  `json:"default_message_notification_level,omitempty"`
-	ExplicitContentFilterLevel      *json.Nullable[ExplicitContentFilterLevel] `json:"explicit_content_filter_level,omitempty"`
-	AFKChannelID                    *snowflake.ID                              `json:"afk_channel_id,omitempty"`
-	AFKTimeout                      *int                                       `json:"afk_timeout,omitempty"`
-	Icon                            *json.Nullable[Icon]                       `json:"icon,omitempty"`
-	OwnerID                         *snowflake.ID                              `json:"owner_id,omitempty"`
-	Splash                          *json.Nullable[Icon]                       `json:"splash,omitempty"`
-	DiscoverySplash                 *json.Nullable[Icon]                       `json:"discovery_splash,omitempty"`
-	Banner                          *json.Nullable[Icon]                       `json:"banner,omitempty"`
-	SystemChannelID                 *snowflake.ID                              `json:"system_channel_id,omitempty"`
-	SystemChannelFlags              *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
-	RulesChannelID                  *snowflake.ID                              `json:"rules_channel_id,omitempty"`
-	PublicUpdatesChannelID          *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
-	SafetyAlertsChannelID           *snowflake.ID                              `json:"safety_alerts_channel_id,omitempty"`
-	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
-	Features                        *[]GuildFeature                            `json:"features,omitempty"`
-	Description                     *string                                    `json:"description,omitempty"`
-	PremiumProgressBarEnabled       *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
+	Name                        *string                                    `json:"name,omitempty"`
+	VerificationLevel           *json.Nullable[VerificationLevel]          `json:"verification_level,omitempty"`
+	DefaultMessageNotifications *json.Nullable[MessageNotificationsLevel]  `json:"default_message_notifications,omitempty"`
+	ExplicitContentFilter       *json.Nullable[ExplicitContentFilterLevel] `json:"explicit_content_filter,omitempty"`
+	AFKChannelID                *snowflake.ID                              `json:"afk_channel_id,omitempty"`
+	AFKTimeout                  *int                                       `json:"afk_timeout,omitempty"`
+	Icon                        *json.Nullable[Icon]                       `json:"icon,omitempty"`
+	OwnerID                     *snowflake.ID                              `json:"owner_id,omitempty"`
+	Splash                      *json.Nullable[Icon]                       `json:"splash,omitempty"`
+	DiscoverySplash             *json.Nullable[Icon]                       `json:"discovery_splash,omitempty"`
+	Banner                      *json.Nullable[Icon]                       `json:"banner,omitempty"`
+	SystemChannelID             *snowflake.ID                              `json:"system_channel_id,omitempty"`
+	SystemChannelFlags          *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
+	RulesChannelID              *snowflake.ID                              `json:"rules_channel_id,omitempty"`
+	PublicUpdatesChannelID      *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
+	SafetyAlertsChannelID       *snowflake.ID                              `json:"safety_alerts_channel_id,omitempty"`
+	PreferredLocale             *string                                    `json:"preferred_locale,omitempty"`
+	Features                    *[]GuildFeature                            `json:"features,omitempty"`
+	Description                 *string                                    `json:"description,omitempty"`
+	PremiumProgressBarEnabled   *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int
