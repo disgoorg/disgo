@@ -55,21 +55,19 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	return rateLimiter
 }
 
-type (
-	rateLimiterImpl struct {
-		config RateLimiterConfig
+type rateLimiterImpl struct {
+	config RateLimiterConfig
 
-		// global Rate Limit
-		global time.Time
+	// global Rate Limit
+	global time.Time
 
-		// APIRoute -> Hash
-		hashes   map[*Endpoint]string
-		hashesMu sync.Mutex
-		// Hash + Major Parameter -> bucket
-		buckets   map[string]*bucket
-		bucketsMu sync.Mutex
-	}
-)
+	// APIRoute -> Hash
+	hashes   map[*Endpoint]string
+	hashesMu sync.Mutex
+	// Hash + Major Parameter -> bucket
+	buckets   map[string]*bucket
+	bucketsMu sync.Mutex
+}
 
 func (l *rateLimiterImpl) MaxRetries() int {
 	return l.config.MaxRetries
@@ -104,6 +102,7 @@ func (l *rateLimiterImpl) doCleanup() {
 
 func (l *rateLimiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
+	l.bucketsMu.Lock()
 	for i := range l.buckets {
 		wg.Add(1)
 		b := l.buckets[i]
@@ -116,11 +115,15 @@ func (l *rateLimiterImpl) Close(ctx context.Context) {
 }
 
 func (l *rateLimiterImpl) Reset() {
-	l.buckets = map[string]*bucket{}
-	l.bucketsMu = sync.Mutex{}
 	l.global = time.Time{}
-	l.hashes = map[*Endpoint]string{}
-	l.hashesMu = sync.Mutex{}
+
+	l.bucketsMu.Lock()
+	clear(l.buckets)
+	l.bucketsMu.Unlock()
+
+	l.hashesMu.Lock()
+	clear(l.hashes)
+	l.hashesMu.Unlock()
 }
 
 func (l *rateLimiterImpl) getRouteHash(endpoint *CompiledEndpoint) string {
