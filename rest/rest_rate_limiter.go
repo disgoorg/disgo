@@ -184,6 +184,7 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, endpoint *CompiledEndp
 	if until.After(now) {
 		// TODO: do we want to return early when we know the rate limit bigger than ctx deadline?
 		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
+			b.mu.Unlock()
 			return context.DeadlineExceeded
 		}
 
