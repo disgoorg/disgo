@@ -55,21 +55,19 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	return rateLimiter
 }
 
-type (
-	rateLimiterImpl struct {
-		config RateLimiterConfig
+type rateLimiterImpl struct {
+	config RateLimiterConfig
 
-		// global Rate Limit
-		global time.Time
+	// global Rate Limit
+	global time.Time
 
-		// APIRoute -> Hash
-		hashes   map[*Endpoint]string
-		hashesMu sync.Mutex
-		// Hash + Major Parameter -> bucket
-		buckets   map[string]*bucket
-		bucketsMu sync.Mutex
-	}
-)
+	// APIRoute -> Hash
+	hashes   map[*Endpoint]string
+	hashesMu sync.Mutex
+	// Hash + Major Parameter -> bucket
+	buckets   map[string]*bucket
+	bucketsMu sync.Mutex
+}
 
 func (l *rateLimiterImpl) MaxRetries() int {
 	return l.config.MaxRetries
@@ -104,6 +102,7 @@ func (l *rateLimiterImpl) doCleanup() {
 
 func (l *rateLimiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
+	l.bucketsMu.Lock()
 	for i := range l.buckets {
 		wg.Add(1)
 		b := l.buckets[i]
@@ -116,11 +115,14 @@ func (l *rateLimiterImpl) Close(ctx context.Context) {
 }
 
 func (l *rateLimiterImpl) Reset() {
-	l.buckets = map[string]*bucket{}
-	l.bucketsMu = sync.Mutex{}
+	l.bucketsMu.Lock()
+	l.hashesMu.Lock()
+	defer l.bucketsMu.Unlock()
+	defer l.hashesMu.Unlock()
+
 	l.global = time.Time{}
-	l.hashes = map[*Endpoint]string{}
-	l.hashesMu = sync.Mutex{}
+	clear(l.buckets)
+	clear(l.hashes)
 }
 
 func (l *rateLimiterImpl) getRouteHash(endpoint *CompiledEndpoint) string {
@@ -182,6 +184,7 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, endpoint *CompiledEndp
 	if until.After(now) {
 		// TODO: do we want to return early when we know the rate limit bigger than ctx deadline?
 		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
+			b.mu.Unlock()
 			return context.DeadlineExceeded
 		}
 
