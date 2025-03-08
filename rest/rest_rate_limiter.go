@@ -115,15 +115,14 @@ func (l *rateLimiterImpl) Close(ctx context.Context) {
 }
 
 func (l *rateLimiterImpl) Reset() {
-	l.global = time.Time{}
-
 	l.bucketsMu.Lock()
-	clear(l.buckets)
-	l.bucketsMu.Unlock()
-
 	l.hashesMu.Lock()
+	defer l.bucketsMu.Unlock()
+	defer l.hashesMu.Unlock()
+
+	l.global = time.Time{}
+	clear(l.buckets)
 	clear(l.hashes)
-	l.hashesMu.Unlock()
 }
 
 func (l *rateLimiterImpl) getRouteHash(endpoint *CompiledEndpoint) string {
