@@ -12,7 +12,7 @@ import (
 func TestShardRateLimiterImpl(t *testing.T) {
 	t.Parallel()
 
-	r := NewRateLimiter(withIdentifyWait(100 * time.Millisecond))
+	r := NewRateLimiter(WithIdentifyWait(100 * time.Millisecond))
 
 	start := time.Now()
 
@@ -36,7 +36,7 @@ func TestShardRateLimiterImpl(t *testing.T) {
 func TestShardRateLimiterImpl_WithMaxConcurrency(t *testing.T) {
 	t.Parallel()
 
-	r := NewRateLimiter(WithMaxConcurrency(3), withIdentifyWait(100*time.Millisecond))
+	r := NewRateLimiter(WithMaxConcurrency(3), WithIdentifyWait(100*time.Millisecond))
 
 	start := time.Now()
 

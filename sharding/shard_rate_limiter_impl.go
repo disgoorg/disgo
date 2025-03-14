@@ -95,7 +95,7 @@ func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 func (r *rateLimiterImpl) UnlockBucket(shardID int) {
 	b := r.getBucket(shardID)
 
-	b.reset = time.Now().Add(r.config.identifyWait)
+	b.reset = time.Now().Add(r.config.IdentifyWait)
 	r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.key), slog.Time("reset", b.reset))
 	b.mu.Unlock()
 }
