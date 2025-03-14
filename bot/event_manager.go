@@ -154,10 +154,9 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 	}()
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
-	for _, l := range e.eventListeners {
-		listener := l
+	for _, listener := range e.eventListeners {
 		if e.asyncEventsEnabled {
-			go func() {
+			go func(listener EventListener) {
 				defer func() {
 					if r := recover(); r != nil {
 						e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
@@ -165,7 +164,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 					}
 				}()
 				listener.OnEvent(event)
-			}()
+			}(listener)
 			continue
 		}
 		listener.OnEvent(event)
