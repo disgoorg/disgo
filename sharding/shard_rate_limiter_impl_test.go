@@ -9,14 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	identifyWait = 100 * time.Millisecond
-}
-
 func TestShardRateLimiterImpl(t *testing.T) {
 	t.Parallel()
 
-	r := NewRateLimiter()
+	r := NewRateLimiter(withIdentifyWait(100 * time.Millisecond))
 
 	start := time.Now()
 
@@ -40,7 +36,7 @@ func TestShardRateLimiterImpl(t *testing.T) {
 func TestShardRateLimiterImpl_WithMaxConcurrency(t *testing.T) {
 	t.Parallel()
 
-	r := NewRateLimiter(WithMaxConcurrency(3))
+	r := NewRateLimiter(WithMaxConcurrency(3), withIdentifyWait(100*time.Millisecond))
 
 	start := time.Now()
 

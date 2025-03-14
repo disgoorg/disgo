@@ -2,6 +2,7 @@ package sharding
 
 import (
 	"log/slog"
+	"time"
 )
 
 // DefaultRateLimiterConfig returns a RateLimiterConfig with sensible defaults.
@@ -9,6 +10,7 @@ func DefaultRateLimiterConfig() *RateLimiterConfig {
 	return &RateLimiterConfig{
 		Logger:         slog.Default(),
 		MaxConcurrency: MaxConcurrency,
+		identifyWait:   5 * time.Second,
 	}
 }
 
@@ -16,6 +18,7 @@ func DefaultRateLimiterConfig() *RateLimiterConfig {
 type RateLimiterConfig struct {
 	Logger         *slog.Logger
 	MaxConcurrency int
+	identifyWait   time.Duration
 }
 
 // RateLimiterConfigOpt is a type alias for a function that takes a RateLimiterConfig and is used to configure your Server.
@@ -39,5 +42,12 @@ func WithRateLimiterLogger(logger *slog.Logger) RateLimiterConfigOpt {
 func WithMaxConcurrency(maxConcurrency int) RateLimiterConfigOpt {
 	return func(config *RateLimiterConfig) {
 		config.MaxConcurrency = maxConcurrency
+	}
+}
+
+// withIdentifyWait sets the duration to wait in between identifying shards.
+func withIdentifyWait(identifyWait time.Duration) RateLimiterConfigOpt {
+	return func(config *RateLimiterConfig) {
+		config.identifyWait = identifyWait
 	}
 }
