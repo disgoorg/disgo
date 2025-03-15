@@ -49,7 +49,7 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 	wg.Wait()
 }
 
-func (r *rateLimiterImpl) getBucket(shardID int) *bucket {
+func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
 	r.config.Logger.Debug("locking shard rate limiter")
 	r.mu.Lock()
 	defer func() {
@@ -58,19 +58,20 @@ func (r *rateLimiterImpl) getBucket(shardID int) *bucket {
 	}()
 
 	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
-	if b, ok := r.buckets[key]; ok {
-		return b
-	}
+	b, ok := r.buckets[key]
+	if !ok {
+		if !create {
+			return nil
+		}
 
-	b := &bucket{
-		key: key,
+		b = &bucket{key: key}
+		r.buckets[key] = b
 	}
-	r.buckets[key] = b
 	return b
 }
 
 func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
-	b := r.getBucket(shardID)
+	b := r.getBucket(shardID, true)
 	r.config.Logger.Debug("locking shard bucket", slog.Int("key", b.key))
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
@@ -96,12 +97,15 @@ func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 }
 
 func (r *rateLimiterImpl) UnlockBucket(shardID int) {
-	b := r.getBucket(shardID)
+	b := r.getBucket(shardID, false)
+	if b == nil {
+		return
+	}
+
 	defer func() {
 		r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.key), slog.Time("reset", b.reset))
 		b.mu.Unlock()
 	}()
-
 	b.reset = time.Now().Add(r.config.IdentifyWait)
 }
 
