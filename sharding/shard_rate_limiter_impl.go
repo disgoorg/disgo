@@ -52,7 +52,10 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 func (r *rateLimiterImpl) getBucket(shardID int) *bucket {
 	r.config.Logger.Debug("locking shard rate limiter")
 	r.mu.Lock()
-	defer r.mu.Unlock()
+	defer func() {
+		r.config.Logger.Debug("unlocking shard rate limiter")
+		r.mu.Unlock()
+	}()
 
 	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
 	if b, ok := r.buckets[key]; ok {
@@ -94,10 +97,12 @@ func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 
 func (r *rateLimiterImpl) UnlockBucket(shardID int) {
 	b := r.getBucket(shardID)
+	defer func() {
+		r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.key), slog.Time("reset", b.reset))
+		b.mu.Unlock()
+	}()
 
 	b.reset = time.Now().Add(r.config.IdentifyWait)
-	r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.key), slog.Time("reset", b.reset))
-	b.mu.Unlock()
 }
 
 // bucket represents a rate-limiting bucket for a shard group.
