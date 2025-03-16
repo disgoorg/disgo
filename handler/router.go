@@ -35,7 +35,7 @@ type Route interface {
 	Match(path string, t discord.InteractionType, t2 int) bool
 
 	// Handle handles the given interaction event.
-	Handle(path string, e *InteractionEvent) error
+	Handle(path string, e *InteractionEvent, middlewares ...Middleware) error
 
 	// Use adds the given middlewares to the current Route.
 	Use(middlewares ...Middleware)

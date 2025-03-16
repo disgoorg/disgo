@@ -72,7 +72,7 @@ func (h *handlerHolder[T]) Match(path string, t discord.InteractionType, t2 int)
 	return true
 }
 
-func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
+func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent, routerMiddlewares ...Middleware) error {
 	parseVariables(path, h.pattern, event.Vars)
 
 	handlerChain := Handler(func(event *InteractionEvent) error {
@@ -189,8 +189,11 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		return errors.New("unknown handler type")
 	})
 
-	for i := len(h.middlewares) - 1; i >= 0; i-- {
-		handlerChain = h.middlewares[i](handlerChain)
+	middlewares := routerMiddlewares
+	middlewares = append(middlewares, h.middlewares...)
+
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		handlerChain = middlewares[i](handlerChain)
 	}
 
 	return handlerChain(event)

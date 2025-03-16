@@ -107,7 +107,7 @@ func (r *Mux) Match(path string, t discord.InteractionType, t2 int) bool {
 }
 
 // Handle handles the given interaction event.
-func (r *Mux) Handle(path string, event *InteractionEvent) error {
+func (r *Mux) Handle(path string, event *InteractionEvent, _ ...Middleware) error {
 	path = parseVariables(path, r.pattern, event.Vars)
 
 	t := event.Type()
@@ -121,8 +121,7 @@ func (r *Mux) Handle(path string, event *InteractionEvent) error {
 
 	for _, route := range r.routes {
 		if route.Match(path, t, t2) {
-			route.Use(r.middlewares...)
-			return route.Handle(path, event)
+			return route.Handle(path, event, r.middlewares...)
 		}
 	}
 
