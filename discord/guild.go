@@ -98,6 +98,8 @@ type GuildFeature string
 
 // Constants for GuildFeature
 const (
+	GuildFeatureActivityFeedDisabledByUser            GuildFeature = "ACTIVITY_FEED_DISABLED_BY_USER"
+	GuildFeatureActivityFeedEnabledByUser             GuildFeature = "ACTIVITY_FEED_ENABLED_BY_USER"
 	GuildFeatureAnimatedBanner                        GuildFeature = "ANIMATED_BANNER"
 	GuildFeatureAnimatedIcon                          GuildFeature = "ANIMATED_ICON"
 	GuildFeatureAutoModeration                        GuildFeature = "AUTO_MODERATION"
