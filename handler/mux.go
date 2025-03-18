@@ -173,117 +173,107 @@ func (r *Mux) handle(route Route) {
 
 // Interaction registers the given InteractionHandler to the current Router.
 // This is a shortcut for Command, Autocomplete, Component and Modal.
-func (r *Mux) Interaction(pattern string, h InteractionHandler, middlewares ...Middleware) {
+func (r *Mux) Interaction(pattern string, h InteractionHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[InteractionHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionType(0),
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionType(0),
 	})
 }
 
 // Command registers the given CommandHandler to the current Router.
-func (r *Mux) Command(pattern string, h CommandHandler, middlewares ...Middleware) {
+func (r *Mux) Command(pattern string, h CommandHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[CommandHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeApplicationCommand,
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
 	})
 }
 
 // SlashCommand registers the given SlashCommandHandler to the current Router.
-func (r *Mux) SlashCommand(pattern string, h SlashCommandHandler, middlewares ...Middleware) {
+func (r *Mux) SlashCommand(pattern string, h SlashCommandHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[SlashCommandHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeApplicationCommand,
-		t2:          []int{int(discord.ApplicationCommandTypeSlash)},
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypeSlash)},
 	})
 }
 
 // UserCommand registers the given UserCommandHandler to the current Router.
-func (r *Mux) UserCommand(pattern string, h UserCommandHandler, middlewares ...Middleware) {
+func (r *Mux) UserCommand(pattern string, h UserCommandHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[UserCommandHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeApplicationCommand,
-		t2:          []int{int(discord.ApplicationCommandTypeUser)},
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypeUser)},
 	})
 }
 
 // MessageCommand registers the given MessageCommandHandler to the current Router.
-func (r *Mux) MessageCommand(pattern string, h MessageCommandHandler, middlewares ...Middleware) {
+func (r *Mux) MessageCommand(pattern string, h MessageCommandHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[MessageCommandHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeApplicationCommand,
-		t2:          []int{int(discord.ApplicationCommandTypeMessage)},
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypeMessage)},
 	})
 }
 
 // EntryPointCommand registers the given EntryPointCommandHandler to the current Router.
-func (r *Mux) EntryPointCommand(pattern string, h EntryPointCommandHandler, middlewares ...Middleware) {
+func (r *Mux) EntryPointCommand(pattern string, h EntryPointCommandHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[EntryPointCommandHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeApplicationCommand,
-		t2:          []int{int(discord.ApplicationCommandTypePrimaryEntryPoint)},
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypePrimaryEntryPoint)},
 	})
 }
 
 // Autocomplete registers the given AutocompleteHandler to the current Router.
-func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler, middlewares ...Middleware) {
+func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[AutocompleteHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeAutocomplete,
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeAutocomplete,
 	})
 }
 
 // Component registers the given ComponentHandler to the current Router.
-func (r *Mux) Component(pattern string, h ComponentHandler, middlewares ...Middleware) {
+func (r *Mux) Component(pattern string, h ComponentHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[ComponentHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeComponent,
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
 	})
 }
 
 // ButtonComponent registers the given ButtonComponentHandler to the current Router.
-func (r *Mux) ButtonComponent(pattern string, h ButtonComponentHandler, middlewares ...Middleware) {
+func (r *Mux) ButtonComponent(pattern string, h ButtonComponentHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[ButtonComponentHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeComponent,
-		t2:          []int{int(discord.ComponentTypeButton)},
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
+		t2:      []int{int(discord.ComponentTypeButton)},
 	})
 }
 
 // SelectMenuComponent registers the given SelectMenuComponentHandler to the current Router.
-func (r *Mux) SelectMenuComponent(pattern string, h SelectMenuComponentHandler, middlewares ...Middleware) {
+func (r *Mux) SelectMenuComponent(pattern string, h SelectMenuComponentHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[SelectMenuComponentHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeComponent,
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
 		t2: []int{
 			int(discord.ComponentTypeStringSelectMenu),
 			int(discord.ComponentTypeUserSelectMenu),
@@ -295,13 +285,12 @@ func (r *Mux) SelectMenuComponent(pattern string, h SelectMenuComponentHandler, 
 }
 
 // Modal registers the given ModalHandler to the current Router.
-func (r *Mux) Modal(pattern string, h ModalHandler, middlewares ...Middleware) {
+func (r *Mux) Modal(pattern string, h ModalHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[ModalHandler]{
-		pattern:     pattern,
-		middlewares: middlewares,
-		handler:     h,
-		t:           discord.InteractionTypeModalSubmit,
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeModalSubmit,
 	})
 }
 

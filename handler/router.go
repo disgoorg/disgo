@@ -36,9 +36,6 @@ type Route interface {
 
 	// Handle handles the given interaction event.
 	Handle(path string, e *InteractionEvent, middlewares ...Middleware) error
-
-	// Use adds the given middlewares to the current Route.
-	Use(middlewares ...Middleware)
 }
 
 // Router provides with the core routing functionality.
@@ -46,6 +43,9 @@ type Route interface {
 type Router interface {
 	bot.EventListener
 	Route
+
+	// Use adds the given middlewares to the current Router.
+	Use(middlewares ...Middleware)
 
 	// With returns a new Router with the given middlewares.
 	With(middlewares ...Middleware) Router
@@ -60,35 +60,35 @@ type Router interface {
 	Mount(pattern string, r Router)
 
 	// Interaction registers the given InteractionHandler to the current Router.
-	Interaction(pattern string, h InteractionHandler, middlewares ...Middleware)
+	Interaction(pattern string, h InteractionHandler)
 
 	// Command registers the given CommandHandler to the current Router.
-	Command(pattern string, h CommandHandler, middlewares ...Middleware)
+	Command(pattern string, h CommandHandler)
 
 	// SlashCommand registers the given SlashCommandHandler to the current Router.
-	SlashCommand(pattern string, h SlashCommandHandler, middlewares ...Middleware)
+	SlashCommand(pattern string, h SlashCommandHandler)
 
 	// UserCommand registers the given UserCommandHandler to the current Router.
-	UserCommand(pattern string, h UserCommandHandler, middlewares ...Middleware)
+	UserCommand(pattern string, h UserCommandHandler)
 
 	// MessageCommand registers the given MessageCommandHandler to the current Router.
-	MessageCommand(pattern string, h MessageCommandHandler, middlewares ...Middleware)
+	MessageCommand(pattern string, h MessageCommandHandler)
 
 	// EntryPointCommand registers the given EntryPointCommandHandler to the current Router.
-	EntryPointCommand(pattern string, h EntryPointCommandHandler, middlewares ...Middleware)
+	EntryPointCommand(pattern string, h EntryPointCommandHandler)
 
 	// Autocomplete registers the given AutocompleteHandler to the current Router.
-	Autocomplete(pattern string, h AutocompleteHandler, middlewares ...Middleware)
+	Autocomplete(pattern string, h AutocompleteHandler)
 
 	// Component registers the given ComponentHandler to the current Router.
-	Component(pattern string, h ComponentHandler, middlewares ...Middleware)
+	Component(pattern string, h ComponentHandler)
 
 	// ButtonComponent registers the given ButtonComponentHandler to the current Router.
-	ButtonComponent(pattern string, h ButtonComponentHandler, middlewares ...Middleware)
+	ButtonComponent(pattern string, h ButtonComponentHandler)
 
 	// SelectMenuComponent registers the given SelectMenuComponentHandler to the current Router.
-	SelectMenuComponent(pattern string, h SelectMenuComponentHandler, middlewares ...Middleware)
+	SelectMenuComponent(pattern string, h SelectMenuComponentHandler)
 
 	// Modal registers the given ModalHandler to the current Router.
-	Modal(pattern string, h ModalHandler, middlewares ...Middleware)
+	Modal(pattern string, h ModalHandler)
 }

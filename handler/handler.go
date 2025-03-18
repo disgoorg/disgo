@@ -46,11 +46,10 @@ func SyncCommands(client bot.Client, commands []discord.ApplicationCommandCreate
 }
 
 type handlerHolder[T any] struct {
-	pattern     string
-	middlewares []Middleware
-	handler     T
-	t           discord.InteractionType
-	t2          []int
+	pattern string
+	handler T
+	t       discord.InteractionType
+	t2      []int
 }
 
 func (h *handlerHolder[T]) Match(path string, t discord.InteractionType, t2 int) bool {
@@ -189,17 +188,9 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent, routerMi
 		return errors.New("unknown handler type")
 	})
 
-	middlewares := routerMiddlewares
-	middlewares = append(middlewares, h.middlewares...)
-
-	for i := len(middlewares) - 1; i >= 0; i-- {
-		handlerChain = middlewares[i](handlerChain)
+	for i := len(routerMiddlewares) - 1; i >= 0; i-- {
+		handlerChain = routerMiddlewares[i](handlerChain)
 	}
 
 	return handlerChain(event)
-}
-
-// Use adds the given middlewares to the current Route.
-func (h *handlerHolder[T]) Use(middlewares ...Middleware) {
-	h.middlewares = append(h.middlewares, middlewares...)
 }
