@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
+// CommandEvent allows to handle all types of application command interactions.
 type CommandEvent struct {
 	*events.ApplicationCommandInteractionCreate
 	Vars map[string]string

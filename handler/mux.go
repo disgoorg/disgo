@@ -86,6 +86,9 @@ func (r *Mux) Match(path string, t discord.InteractionType, t2 int) bool {
 	if r.pattern != "" {
 		parts := splitPath(path)
 		patternParts := splitPath(r.pattern)
+		if len(parts) < len(patternParts) {
+			return false
+		}
 
 		for i, part := range patternParts {
 			path = strings.TrimPrefix(path, "/"+parts[i])
@@ -328,7 +331,8 @@ func checkPattern(pattern string) {
 }
 
 func splitPath(path string) []string {
-	return strings.FieldsFunc(path, func(r rune) bool { return r == '/' })
+	path = strings.TrimPrefix(path, "/")
+	return strings.Split(path, "/")
 }
 
 func parseVariables(path string, pattern string, variables map[string]string) string {

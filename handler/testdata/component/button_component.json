@@ -23,7 +23,7 @@
                         "type": 2,
                         "label": "Click me!",
                         "style": 1,
-                        "custom_id": "foo"
+                        "custom_id": "/foo"
                     }
                 ]
             }
@@ -62,7 +62,7 @@
     "id": "846462639134605312",
     "guild_id": "290926798626357999",
     "data": {
-        "custom_id": "foo",
+        "custom_id": "/foo",
         "component_type": 2
     },
     "channel_id": "345626669114982999",

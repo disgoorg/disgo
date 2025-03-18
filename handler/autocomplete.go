@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
+// AutocompleteEvent allows to handle autocomplete interactions.
 type AutocompleteEvent struct {
 	*events.AutocompleteInteractionCreate
 	Vars map[string]string

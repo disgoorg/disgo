@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
+// ModalEvent allows to handle modal interactions.
 type ModalEvent struct {
 	*events.ModalSubmitInteractionCreate
 	Vars map[string]string
