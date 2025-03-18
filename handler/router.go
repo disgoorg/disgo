@@ -6,19 +6,38 @@ import (
 )
 
 type (
-	InteractionHandler         func(e *InteractionEvent) error
-	CommandHandler             func(e *CommandEvent) error
-	SlashCommandHandler        func(data discord.SlashCommandInteractionData, e *CommandEvent) error
-	UserCommandHandler         func(data discord.UserCommandInteractionData, e *CommandEvent) error
-	MessageCommandHandler      func(data discord.MessageCommandInteractionData, e *CommandEvent) error
-	EntryPointCommandHandler   func(data discord.EntryPointCommandInteractionData, e *CommandEvent) error
-	AutocompleteHandler        func(e *AutocompleteEvent) error
-	ComponentHandler           func(e *ComponentEvent) error
-	ButtonComponentHandler     func(data discord.ButtonInteractionData, e *ComponentEvent) error
+	// InteractionHandler is a function that handles all types of interactions.
+	InteractionHandler func(e *InteractionEvent) error
+
+	// CommandHandler is a function that handles all types of application command interactions.
+	CommandHandler func(e *CommandEvent) error
+	// SlashCommandHandler is a function that handles slash command interactions.
+	SlashCommandHandler func(data discord.SlashCommandInteractionData, e *CommandEvent) error
+	// UserCommandHandler is a function that handles user command interactions.
+	UserCommandHandler func(data discord.UserCommandInteractionData, e *CommandEvent) error
+	// MessageCommandHandler is a function that handles message command interactions.
+	MessageCommandHandler func(data discord.MessageCommandInteractionData, e *CommandEvent) error
+	// EntryPointCommandHandler is a function that handles entry point command interactions.
+	EntryPointCommandHandler func(data discord.EntryPointCommandInteractionData, e *CommandEvent) error
+
+	// AutocompleteHandler is a function that handles autocomplete interactions.
+	AutocompleteHandler func(e *AutocompleteEvent) error
+
+	// ComponentHandler is a function that handles all types of component interactions.
+	ComponentHandler func(e *ComponentEvent) error
+	// ButtonComponentHandler is a function that handles button component interactions.
+	ButtonComponentHandler func(data discord.ButtonInteractionData, e *ComponentEvent) error
+	// SelectMenuComponentHandler is a function that handles select menu component interactions.
 	SelectMenuComponentHandler func(data discord.SelectMenuInteractionData, e *ComponentEvent) error
-	ModalHandler               func(e *ModalEvent) error
-	NotFoundHandler            func(e *InteractionEvent) error
-	ErrorHandler               func(e *InteractionEvent, err error)
+
+	// ModalHandler is a function that handles modals.
+	ModalHandler func(e *ModalEvent) error
+
+	// NotFoundHandler is a function that is called when no route was found.
+	NotFoundHandler func(e *InteractionEvent) error
+
+	// ErrorHandler is a function that is called when an error occurs during handling an interaction.
+	ErrorHandler func(e *InteractionEvent, err error)
 )
 
 var (

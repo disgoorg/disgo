@@ -3,7 +3,7 @@
     "channel_id": "772908445358620702",
     "data": {
         "component_type":3,
-        "custom_id": "foo",
+        "custom_id": "/foo",
         "values": [
             "mage",
             "rogue"
@@ -48,7 +48,7 @@
             {
                 "components": [
                     {
-                        "custom_id": "foo",
+                        "custom_id": "/foo",
                         "max_values": 1,
                         "min_values": 1,
                         "options": [

@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
+// ComponentEvent allows to handle all types of component interactions.
 type ComponentEvent struct {
 	*events.ComponentInteractionCreate
 	Vars map[string]string

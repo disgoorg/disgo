@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
+// InteractionEvent allows to handle all types of interactions.
 type InteractionEvent struct {
 	*events.InteractionCreate
 	Vars map[string]string

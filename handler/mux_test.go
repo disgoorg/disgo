@@ -1,13 +1,15 @@
 package handler
 
 import (
+	"maps"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/stretchr/testify/assert"
 )
 
 func NewRecorder() *InteractionResponseRecorder {
@@ -171,5 +173,75 @@ func TestComponentMux(t *testing.T) {
 			Respond:      recorder.Respond,
 		})
 		assert.Equal(t, d.expected, recorder.Response)
+	}
+}
+
+func TestMiddlewareMux(t *testing.T) {
+	slashData, err := os.ReadFile("testdata/middleware/slash_command.json")
+	assert.NoError(t, err)
+
+	data := []struct {
+		data          []byte
+		expected      *discord.InteractionResponse
+		expectedVars1 map[string]string
+		expectedVars2 map[string]string
+		expectedVars3 map[string]string
+	}{
+		{
+			data: slashData,
+			expected: &discord.InteractionResponse{
+				Type: discord.InteractionResponseTypeCreateMessage,
+				Data: discord.MessageCreate{
+					Content: "bar",
+				},
+			},
+			expectedVars1: map[string]string{},
+			expectedVars2: map[string]string{"bar": "bar"},
+			expectedVars3: map[string]string{"bar": "bar"},
+		},
+	}
+
+	var (
+		dataVars1 = make(map[string]string)
+		dataVars2 = make(map[string]string)
+		dataVars3 = make(map[string]string)
+	)
+
+	mux := New()
+	mux.Use(func(next Handler) Handler {
+		return func(e *InteractionEvent) error {
+			maps.Copy(dataVars1, e.Vars)
+			return next(e)
+		}
+	})
+	mux.Route("/foo/{bar}", func(r Router) {
+		r.Use(func(next Handler) Handler {
+			return func(e *InteractionEvent) error {
+				maps.Copy(dataVars2, e.Vars)
+				return next(e)
+			}
+		})
+		r.Command("/baz", func(e *CommandEvent) error {
+			maps.Copy(dataVars3, e.Vars)
+			return e.CreateMessage(discord.MessageCreate{
+				Content: "bar",
+			})
+		})
+	})
+
+	for _, d := range data {
+		interaction, err := discord.UnmarshalInteraction(d.data)
+		assert.NoError(t, err)
+
+		recorder := NewRecorder()
+		mux.OnEvent(&events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Interaction:  interaction,
+			Respond:      recorder.Respond,
+		})
+		assert.Equal(t, d.expected, recorder.Response)
+		assert.Equal(t, d.expectedVars1, dataVars1)
+		assert.Equal(t, d.expectedVars2, dataVars2)
+		assert.Equal(t, d.expectedVars3, dataVars3)
 	}
 }

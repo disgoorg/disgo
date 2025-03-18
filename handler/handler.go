@@ -53,11 +53,14 @@ type handlerHolder[T any] struct {
 }
 
 func (h *handlerHolder[T]) Match(path string, t discord.InteractionType, t2 int) bool {
-	if h.t != t || (len(h.t2) > 0 && !slices.Contains(h.t2, t2)) {
+	if h.t > 0 && (h.t != t || (len(h.t2) > 0 && !slices.Contains(h.t2, t2))) {
 		return false
 	}
 	parts := splitPath(path)
 	patternParts := splitPath(h.pattern)
+	if len(parts) < len(patternParts) {
+		return false
+	}
 
 	for i, part := range patternParts {
 		if strings.HasPrefix(part, "{") && strings.HasSuffix(part, "}") {
