@@ -27,7 +27,7 @@ var (
 )
 
 // GatewayVersion is the version of the voice gateway we are using.
-const GatewayVersion = 4
+const GatewayVersion = 8
 
 // Status returns the current status of the gateway.
 type Status int
@@ -109,6 +109,7 @@ type gatewayImpl struct {
 
 	ssrc  uint32
 	state State
+	seq   int
 
 	conn   *websocket.Conn
 	connMu sync.Mutex
@@ -127,13 +128,12 @@ func (g *gatewayImpl) SSRC() uint32 {
 
 func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	g.config.Logger.Debug("opening voice gateway connection")
-	g.state = state
-
 	g.connMu.Lock()
 	defer g.connMu.Unlock()
 	if g.conn != nil {
 		return ErrGatewayAlreadyConnected
 	}
+	g.state = state
 	g.status = StatusConnecting
 
 	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, GatewayVersion)
@@ -181,6 +181,7 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
 			g.ssrc = 0
+			g.seq = 0
 		}
 	}
 }
@@ -200,7 +201,10 @@ func (g *gatewayImpl) sendHeartbeat() {
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
 
-	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat(g.lastNonce)); err != nil {
+	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat{
+		T:      g.lastNonce,
+		SeqAck: g.seq,
+	}); err != nil {
 		if !errors.Is(err, ErrGatewayNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
@@ -248,6 +252,10 @@ loop:
 			continue
 		}
 
+		if message.Seq > 0 {
+			g.seq = message.Seq
+		}
+
 		switch d := message.D.(type) {
 		case GatewayMessageDataHello:
 			g.status = StatusWaitingForReady
@@ -256,7 +264,7 @@ loop:
 			go g.heartbeat()
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			if g.ssrc == 0 {
+			if g.ssrc == 0 || g.seq == 0 {
 				g.status = StatusIdentifying
 				err = g.Send(ctx, OpcodeIdentify, GatewayMessageDataIdentify{
 					GuildID:   g.state.GuildID,
@@ -270,6 +278,7 @@ loop:
 					GuildID:   g.state.GuildID,
 					SessionID: g.state.SessionID,
 					Token:     g.state.Token,
+					SeqAck:    g.seq,
 				})
 			}
 			cancel()

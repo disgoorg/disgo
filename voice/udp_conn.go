@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"crypto/cipher"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
@@ -49,7 +51,7 @@ type (
 		RemoteAddr() net.Addr
 
 		// SetSecretKey sets the secret key used to encrypt packets.
-		SetSecretKey(secretKey [32]byte)
+		SetSecretKey(encryptionMode EncryptionMode, secretKey []byte)
 
 		SetDeadline(t time.Time) error
 
@@ -106,12 +108,15 @@ type udpConnImpl struct {
 	conn   net.Conn
 	connMu sync.Mutex
 
-	packet    [12]byte
-	secretKey [32]byte
+	cipher cipher.AEAD
 
-	sequence  uint16
-	timestamp uint32
-	nonce     [24]byte
+	packet [12]byte
+
+	sequence       uint16
+	i              uint32
+	timestamp      uint32
+	nonce          [24]byte
+	associatedData [12]byte
 
 	receiveNonce  [24]byte
 	receiveBuffer []byte
@@ -129,8 +134,23 @@ func (u *udpConnImpl) RemoteAddr() net.Addr {
 	return u.conn.RemoteAddr()
 }
 
-func (u *udpConnImpl) SetSecretKey(secretKey [32]byte) {
-	u.secretKey = secretKey
+func (u *udpConnImpl) SetSecretKey(encryptionMode EncryptionMode, secretKey []byte) {
+	var (
+		c   cipher.AEAD
+		err error
+	)
+	switch encryptionMode {
+	case EncryptionModeAEADXChaCha20Poly1305RTPSize:
+		c, err = chacha20poly1305.NewX(secretKey)
+	default:
+		u.config.Logger.Error("unknown encryption mode", slog.String("mode", string(encryptionMode)))
+		return
+	}
+	if err != nil {
+		u.config.Logger.Error("failed to create cipher", slog.Any("err", err))
+		return
+	}
+	u.cipher = c
 }
 
 func (u *udpConnImpl) SetDeadline(t time.Time) error {
@@ -222,6 +242,9 @@ func (u *udpConnImpl) Write(p []byte) (int, error) {
 	binary.BigEndian.PutUint16(u.packet[2:4], u.sequence)
 	u.sequence++
 
+	u.i++
+	binary.BigEndian.PutUint32(u.associatedData[:], u.i)
+
 	binary.BigEndian.PutUint32(u.packet[4:8], u.timestamp)
 	u.timestamp += 960
 
@@ -231,7 +254,9 @@ func (u *udpConnImpl) Write(p []byte) (int, error) {
 	u.connMu.Lock()
 	conn := u.conn
 	u.connMu.Unlock()
-	if _, err := conn.Write(secretbox.Seal(u.packet[:], p, &u.nonce, &u.secretKey)); err != nil {
+
+	//secretbox.Seal(u.packet[:], p, &u.nonce, &u.secretKey)
+	if _, err := conn.Write(u.cipher.Seal(u.packet[12:], u.nonce[:], p, u.associatedData[:])); err != nil {
 		return 0, fmt.Errorf("failed to write packet: %w", err)
 	}
 	return len(p), nil
@@ -261,7 +286,7 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 
 		copy(u.receiveNonce[:], u.receiveBuffer[0:OpusPacketHeaderSize])
 
-		opus, ok := secretbox.Open(nil, u.receiveBuffer[OpusPacketHeaderSize:i], &u.receiveNonce, &u.secretKey)
+		opus, ok := secretbox.Open(nil, u.receiveBuffer[OpusPacketHeaderSize:i], &u.receiveNonce, nil)
 		if !ok {
 			return nil, ErrDecryptionFailed
 		}
