@@ -304,3 +304,45 @@ func TestMux(t *testing.T) {
 		assert.Equal(t, d.expected, recorder.Response)
 	}
 }
+
+func TestMux2(t *testing.T) {
+	buttonFooData, err := os.ReadFile("testdata/mux2/button_whitelist_groups_component.json")
+	assert.NoError(t, err)
+
+	data := []struct {
+		data     []byte
+		expected *discord.InteractionResponse
+	}{
+		{
+			data: buttonFooData,
+			expected: &discord.InteractionResponse{
+				Type: discord.InteractionResponseTypeCreateMessage,
+				Data: discord.MessageCreate{
+					Content: "/whitelistGroups/{expTime}/{executorID}/open",
+				},
+			},
+		},
+	}
+
+	mux := New()
+	mux.Route("/whitelistGroups/{expTime}/{executorID}", func(r Router) {
+		r.ButtonComponent("/open", func(data discord.ButtonInteractionData, e *ComponentEvent) error {
+			return e.CreateMessage(discord.MessageCreate{
+				Content: "/whitelistGroups/{expTime}/{executorID}/open",
+			})
+		})
+	})
+
+	for _, d := range data {
+		interaction, err := discord.UnmarshalInteraction(d.data)
+		assert.NoError(t, err)
+
+		recorder := NewRecorder()
+		mux.OnEvent(&events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Interaction:  interaction,
+			Respond:      recorder.Respond,
+		})
+		assert.Equal(t, d.expected, recorder.Response)
+	}
+}
