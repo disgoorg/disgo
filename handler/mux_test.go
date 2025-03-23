@@ -245,3 +245,62 @@ func TestMiddlewareMux(t *testing.T) {
 		assert.Equal(t, d.expectedVars3, dataVars3)
 	}
 }
+
+func TestMux(t *testing.T) {
+	buttonFooData, err := os.ReadFile("testdata/mux/button_foo_component.json")
+	assert.NoError(t, err)
+
+	buttonFooBarData, err := os.ReadFile("testdata/mux/button_foo_bar_component.json")
+	assert.NoError(t, err)
+
+	data := []struct {
+		data     []byte
+		expected *discord.InteractionResponse
+	}{
+		{
+			data: buttonFooData,
+			expected: &discord.InteractionResponse{
+				Type: discord.InteractionResponseTypeCreateMessage,
+				Data: discord.MessageCreate{
+					Content: "/foo/",
+				},
+			},
+		},
+		{
+			data: buttonFooBarData,
+			expected: &discord.InteractionResponse{
+				Type: discord.InteractionResponseTypeCreateMessage,
+				Data: discord.MessageCreate{
+					Content: "/foo/bar",
+				},
+			},
+		},
+	}
+
+	mux := New()
+	mux.Route("/foo", func(r Router) {
+		r.ButtonComponent("/", func(data discord.ButtonInteractionData, e *ComponentEvent) error {
+			return e.CreateMessage(discord.MessageCreate{
+				Content: "/foo/",
+			})
+		})
+		r.ButtonComponent("/bar", func(data discord.ButtonInteractionData, e *ComponentEvent) error {
+			return e.CreateMessage(discord.MessageCreate{
+				Content: "/foo/bar",
+			})
+		})
+	})
+
+	for _, d := range data {
+		interaction, err := discord.UnmarshalInteraction(d.data)
+		assert.NoError(t, err)
+
+		recorder := NewRecorder()
+		mux.OnEvent(&events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Interaction:  interaction,
+			Respond:      recorder.Respond,
+		})
+		assert.Equal(t, d.expected, recorder.Response)
+	}
+}
