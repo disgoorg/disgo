@@ -60,6 +60,10 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
+	if !strings.HasPrefix(path, "/") {
+		return
+	}
+
 	var ctx context.Context
 	if r.defaultContext != nil {
 		ctx = r.defaultContext()
