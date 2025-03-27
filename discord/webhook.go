@@ -333,7 +333,7 @@ func (ApplicationWebhook) webhook() {}
 type WebhookSourceGuild struct {
 	ID   snowflake.ID         `json:"id"`
 	Name string               `json:"name"`
-	Icon *json.Nullable[Icon] `json:"icon"`
+	Icon *string              `json:"icon"`
 }
 
 type WebhookSourceChannel struct {
