@@ -40,6 +40,10 @@ func (i *AutocompleteInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.authorizingIntegrationOwners = interaction.AuthorizingIntegrationOwners
 	i.baseInteraction.context = interaction.Context
 
+	if i.baseInteraction.member != nil && i.baseInteraction.guildID != nil {
+		i.baseInteraction.member.GuildID = *i.baseInteraction.guildID
+	}
+
 	i.Data = interaction.Data
 	return nil
 }
