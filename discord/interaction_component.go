@@ -93,6 +93,10 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.authorizingIntegrationOwners = interaction.AuthorizingIntegrationOwners
 	i.baseInteraction.context = interaction.Context
 
+	if i.baseInteraction.member != nil && i.baseInteraction.guildID != nil {
+		i.baseInteraction.member.GuildID = *i.baseInteraction.guildID
+	}
+
 	i.Data = interactionData
 	i.Message = interaction.Message
 	i.Message.GuildID = i.baseInteraction.guildID
