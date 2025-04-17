@@ -47,6 +47,7 @@ type rawInteraction struct {
 	Entitlements                 []Entitlement                               `json:"entitlements"`
 	AuthorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
 	Context                      InteractionContextType                      `json:"context"`
+	AttachmentSizeLimit          int                                         `json:"attachment_size_limit"`
 }
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -69,6 +70,7 @@ type Interaction interface {
 	Entitlements() []Entitlement
 	AuthorizingIntegrationOwners() map[ApplicationIntegrationType]snowflake.ID
 	Context() InteractionContextType
+	AttachmentSizeLimit() int
 	CreatedAt() time.Time
 
 	interaction()

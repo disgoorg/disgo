@@ -112,4 +112,8 @@ func (PingInteraction) Context() InteractionContextType {
 	return 0
 }
 
+func (PingInteraction) AttachmentSizeLimit() int {
+	return 0
+}
+
 func (PingInteraction) interaction() {}
