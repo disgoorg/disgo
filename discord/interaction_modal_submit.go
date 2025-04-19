@@ -3,7 +3,8 @@ package discord
 import (
 	"iter"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
+
 )
 
 var (
