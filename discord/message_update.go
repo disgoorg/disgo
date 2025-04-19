@@ -2,12 +2,12 @@ package discord
 
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
-	Content         *string               `json:"content,omitempty"`
-	Embeds          *[]Embed              `json:"embeds,omitempty"`
-	Components      *[]ContainerComponent `json:"components,omitempty"`
-	Attachments     *[]AttachmentUpdate   `json:"attachments,omitempty"`
-	Files           []*File               `json:"-"`
-	AllowedMentions *AllowedMentions      `json:"allowed_mentions,omitempty"`
+	Content         *string             `json:"content,omitempty"`
+	Embeds          *[]Embed            `json:"embeds,omitempty"`
+	Components      *[]LayoutComponent  `json:"components,omitempty"`
+	Attachments     *[]AttachmentUpdate `json:"attachments,omitempty"`
+	Files           []*File             `json:"-"`
+	AllowedMentions *AllowedMentions    `json:"allowed_mentions,omitempty"`
 	// Flags are the MessageFlags of the message.
 	// Be careful not to override the current flags when editing messages from other users - this will result in a permission error.
 	// Use MessageFlags.Add for flags like discord.MessageFlagSuppressEmbeds.

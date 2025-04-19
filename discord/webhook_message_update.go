@@ -2,13 +2,13 @@ package discord
 
 // WebhookMessageUpdate is used to edit a Message
 type WebhookMessageUpdate struct {
-	Content         *string               `json:"content,omitempty"`
-	Embeds          *[]Embed              `json:"embeds,omitempty"`
-	Components      *[]ContainerComponent `json:"components,omitempty"`
-	Attachments     *[]AttachmentUpdate   `json:"attachments,omitempty"`
-	Files           []*File               `json:"-"`
-	AllowedMentions *AllowedMentions      `json:"allowed_mentions,omitempty"`
-	Poll            *PollCreate           `json:"poll,omitempty"`
+	Content         *string             `json:"content,omitempty"`
+	Embeds          *[]Embed            `json:"embeds,omitempty"`
+	Components      *[]LayoutComponent  `json:"components,omitempty"`
+	Attachments     *[]AttachmentUpdate `json:"attachments,omitempty"`
+	Files           []*File             `json:"-"`
+	AllowedMentions *AllowedMentions    `json:"allowed_mentions,omitempty"`
+	Poll            *PollCreate         `json:"poll,omitempty"`
 }
 
 // ToBody returns the WebhookMessageUpdate ready for body
