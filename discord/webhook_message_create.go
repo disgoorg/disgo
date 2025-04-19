@@ -3,19 +3,19 @@ package discord
 import "github.com/disgoorg/snowflake/v2"
 
 type WebhookMessageCreate struct {
-	Content         string               `json:"content,omitempty"`
-	Username        string               `json:"username,omitempty"`
-	AvatarURL       string               `json:"avatar_url,omitempty"`
-	TTS             bool                 `json:"tts,omitempty"`
-	Embeds          []Embed              `json:"embeds,omitempty"`
-	Components      []ContainerComponent `json:"components,omitempty"`
-	Attachments     []AttachmentCreate   `json:"attachments,omitempty"`
-	Files           []*File              `json:"-"`
-	AllowedMentions *AllowedMentions     `json:"allowed_mentions,omitempty"`
-	Flags           MessageFlags         `json:"flags,omitempty"`
-	ThreadName      string               `json:"thread_name,omitempty"`
-	AppliedTags     []snowflake.ID       `json:"applied_tags,omitempty"`
-	Poll            *PollCreate          `json:"poll,omitempty"`
+	Content         string             `json:"content,omitempty"`
+	Username        string             `json:"username,omitempty"`
+	AvatarURL       string             `json:"avatar_url,omitempty"`
+	TTS             bool               `json:"tts,omitempty"`
+	Embeds          []Embed            `json:"embeds,omitempty"`
+	Components      []LayoutComponent  `json:"components,omitempty"`
+	Attachments     []AttachmentCreate `json:"attachments,omitempty"`
+	Files           []*File            `json:"-"`
+	AllowedMentions *AllowedMentions   `json:"allowed_mentions,omitempty"`
+	Flags           MessageFlags       `json:"flags,omitempty"`
+	ThreadName      string             `json:"thread_name,omitempty"`
+	AppliedTags     []snowflake.ID     `json:"applied_tags,omitempty"`
+	Poll            *PollCreate        `json:"poll,omitempty"`
 }
 
 // ToBody returns the MessageCreate ready for body
