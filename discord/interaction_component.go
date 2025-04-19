@@ -40,32 +40,32 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	)
 	switch cType.Type {
 	case ComponentTypeButton:
-		v := ButtonInteractionData{}
+		var v ButtonInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeStringSelectMenu:
-		v := StringSelectMenuInteractionData{}
+		var v StringSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeUserSelectMenu:
-		v := UserSelectMenuInteractionData{}
+		var v UserSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeRoleSelectMenu:
-		v := RoleSelectMenuInteractionData{}
+		var v RoleSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeMentionableSelectMenu:
-		v := MentionableSelectMenuInteractionData{}
+		var v MentionableSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeChannelSelectMenu:
-		v := ChannelSelectMenuInteractionData{}
+		var v ChannelSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
