@@ -332,6 +332,8 @@ const (
 	MessageFlagSuppressNotifications
 	MessageFlagIsVoiceMessage
 	MessageFlagHasSnapshot
+	// MessageFlagIsComponentsV2 should be set when you want to send v2 components.
+	// After setting this, you will not be allowed to send message content and embeds anymore.
 	MessageFlagIsComponentsV2
 	MessageFlagsNone MessageFlags = 0
 )
