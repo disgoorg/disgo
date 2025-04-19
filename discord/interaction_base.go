@@ -13,7 +13,6 @@ type baseInteraction struct {
 	version                      int
 	guild                        *InteractionGuild
 	guildID                      *snowflake.ID
-	channelID                    snowflake.ID
 	channel                      InteractionChannel
 	locale                       Locale
 	guildLocale                  *Locale
@@ -43,11 +42,6 @@ func (i baseInteraction) PartialGuild() *InteractionGuild {
 }
 func (i baseInteraction) GuildID() *snowflake.ID {
 	return i.guildID
-}
-
-// Deprecated: Use Channel() instead
-func (i baseInteraction) ChannelID() snowflake.ID {
-	return i.channelID
 }
 func (i baseInteraction) Channel() InteractionChannel {
 	return i.channel

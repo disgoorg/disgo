@@ -29,15 +29,13 @@ const (
 )
 
 type rawInteraction struct {
-	ID            snowflake.ID      `json:"id"`
-	Type          InteractionType   `json:"type"`
-	ApplicationID snowflake.ID      `json:"application_id"`
-	Token         string            `json:"token"`
-	Version       int               `json:"version"`
-	Guild         *InteractionGuild `json:"guild,omitempty"`
-	GuildID       *snowflake.ID     `json:"guild_id,omitempty"`
-	// Deprecated: Use Channel instead
-	ChannelID                    snowflake.ID                                `json:"channel_id,omitempty"`
+	ID                           snowflake.ID                                `json:"id"`
+	Type                         InteractionType                             `json:"type"`
+	ApplicationID                snowflake.ID                                `json:"application_id"`
+	Token                        string                                      `json:"token"`
+	Version                      int                                         `json:"version"`
+	Guild                        *InteractionGuild                           `json:"guild,omitempty"`
+	GuildID                      *snowflake.ID                               `json:"guild_id,omitempty"`
 	Channel                      InteractionChannel                          `json:"channel,omitempty"`
 	Locale                       Locale                                      `json:"locale,omitempty"`
 	GuildLocale                  *Locale                                     `json:"guild_locale,omitempty"`
@@ -59,8 +57,6 @@ type Interaction interface {
 	Version() int
 	PartialGuild() *InteractionGuild
 	GuildID() *snowflake.ID
-	// Deprecated: Use Interaction.Channel instead
-	ChannelID() snowflake.ID
 	Channel() InteractionChannel
 	Locale() Locale
 	GuildLocale() *Locale

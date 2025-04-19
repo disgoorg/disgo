@@ -4,7 +4,6 @@ import (
 	"iter"
 
 	"github.com/disgoorg/json/v2"
-
 )
 
 var (
@@ -34,7 +33,6 @@ func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.version = interaction.Version
 	i.baseInteraction.guild = interaction.Guild
 	i.baseInteraction.guildID = interaction.GuildID
-	i.baseInteraction.channelID = interaction.ChannelID
 	i.baseInteraction.channel = interaction.Channel
 	i.baseInteraction.locale = interaction.Locale
 	i.baseInteraction.guildLocale = interaction.GuildLocale
@@ -73,7 +71,6 @@ func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
 			Version:                      i.version,
 			Guild:                        i.guild,
 			GuildID:                      i.guildID,
-			ChannelID:                    i.channelID,
 			Channel:                      i.channel,
 			Locale:                       i.locale,
 			GuildLocale:                  i.guildLocale,
