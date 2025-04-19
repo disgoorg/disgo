@@ -80,12 +80,6 @@ func (e *ApplicationCommandInteractionCreate) Modal(modalCreate discord.ModalCre
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
-// Deprecated: Respond with a discord.ButtonStylePremium button instead.
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *ApplicationCommandInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
-}
-
 // LaunchActivity responds to the interaction by launching activity associated with the app.
 func (e *ApplicationCommandInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
@@ -154,12 +148,6 @@ func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt)
 // Modal responds to the interaction with a new modal.
 func (e *ComponentInteractionCreate) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
-}
-
-// Deprecated: Respond with a discord.ButtonStylePremium button instead.
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *ComponentInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
 // LaunchActivity responds to the interaction by launching activity associated with the app.
@@ -266,12 +254,6 @@ func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.Messa
 // DeferUpdateMessage responds to the interaction with nothing.
 func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
-}
-
-// Deprecated: Respond with a discord.ButtonStylePremium button instead.
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *ModalSubmitInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
 // LaunchActivity responds to the interaction by launching activity associated with the app.
