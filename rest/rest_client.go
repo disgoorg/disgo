@@ -121,7 +121,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 	if err != nil {
 		return fmt.Errorf("error locking bucket in rest client: %w", err)
 	}
-	rq = rq.WithContext(config.Ctx)
+	rq = config.Request.WithContext(config.Ctx)
 
 	for _, check := range config.Checks {
 		if !check() {
@@ -130,7 +130,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		}
 	}
 
-	rs, err := c.HTTPClient().Do(config.Request)
+	rs, err := c.HTTPClient().Do(rq)
 	if err != nil {
 		_ = c.RateLimiter().UnlockBucket(endpoint, nil)
 		return fmt.Errorf("error doing request in rest client: %w", err)
