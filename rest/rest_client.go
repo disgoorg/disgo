@@ -121,7 +121,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 	if err != nil {
 		return fmt.Errorf("error locking bucket in rest client: %w", err)
 	}
-	config.Request = config.Request.WithContext(config.Ctx)
+	rq = config.Request.WithContext(config.Ctx)
 
 	for _, check := range config.Checks {
 		if !check() {
@@ -130,7 +130,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		}
 	}
 
-	rs, err := c.HTTPClient().Do(config.Request)
+	rs, err := c.HTTPClient().Do(rq)
 	if err != nil {
 		_ = c.RateLimiter().UnlockBucket(endpoint, nil)
 		return fmt.Errorf("error doing request in rest client: %w", err)
@@ -160,12 +160,12 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 
 	case http.StatusTooManyRequests:
 		if tries >= c.RateLimiter().MaxRetries() {
-			return NewError(config.Request, rawRqBody, rs, rawRsBody)
+			return NewError(rq, rawRqBody, rs, rawRsBody)
 		}
 		return c.retry(endpoint, rqBody, rsBody, tries+1, opts)
 
 	default:
-		return NewError(config.Request, rawRqBody, rs, rawRsBody)
+		return NewError(rq, rawRqBody, rs, rawRsBody)
 	}
 }
 
