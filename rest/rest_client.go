@@ -121,7 +121,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 	if err != nil {
 		return fmt.Errorf("error locking bucket in rest client: %w", err)
 	}
-	rq = rq.WithContext(config.Ctx)
+	config.Request = config.Request.WithContext(config.Ctx)
 
 	for _, check := range config.Checks {
 		if !check() {
@@ -160,12 +160,12 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 
 	case http.StatusTooManyRequests:
 		if tries >= c.RateLimiter().MaxRetries() {
-			return NewError(rq, rawRqBody, rs, rawRsBody)
+			return NewError(config.Request, rawRqBody, rs, rawRsBody)
 		}
 		return c.retry(endpoint, rqBody, rsBody, tries+1, opts)
 
 	default:
-		return NewError(rq, rawRqBody, rs, rawRsBody)
+		return NewError(config.Request, rawRqBody, rs, rawRsBody)
 	}
 }
 
