@@ -23,6 +23,7 @@ type baseInteraction struct {
 	entitlements                 []Entitlement
 	authorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID
 	context                      InteractionContextType
+	attachmentSizeLimit          int
 }
 
 func (i baseInteraction) ID() snowflake.ID {
@@ -81,6 +82,10 @@ func (i baseInteraction) AuthorizingIntegrationOwners() map[ApplicationIntegrati
 
 func (i baseInteraction) Context() InteractionContextType {
 	return i.context
+}
+
+func (i baseInteraction) AttachmentSizeLimit() int {
+	return i.attachmentSizeLimit
 }
 
 func (i baseInteraction) CreatedAt() time.Time {
