@@ -7,12 +7,13 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/oauth2"
-	"github.com/disgoorg/json/v2"
-	"github.com/disgoorg/omit"
 )
 
 var (
