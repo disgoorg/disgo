@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"iter"
 	"sync"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -36,11 +37,11 @@ type GroupedCache[T any] interface {
 	// GroupLen returns the number of entities in the cache within the groupID.
 	GroupLen(groupID snowflake.ID) int
 
-	// ForEach calls the given function for each entity in the cache.
-	ForEach(func(groupID snowflake.ID, entity T))
+	// All returns an [iter.Seq2] of all entities in the cache.
+	All() iter.Seq2[snowflake.ID, T]
 
-	// GroupForEach calls the given function for each entity in the cache within the groupID.
-	GroupForEach(groupID snowflake.ID, forEachFunc func(entity T))
+	// GroupAll returns an [iter.Seq] of all entities in the cache within the groupID.
+	GroupAll(groupID snowflake.ID) iter.Seq[T]
 }
 
 var _ GroupedCache[any] = (*defaultGroupedCache[any])(nil)
@@ -166,21 +167,32 @@ func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID) int {
 	return 0
 }
 
-func (c *defaultGroupedCache[T]) ForEach(forEachFunc func(groupID snowflake.ID, entity T)) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+func (c *defaultGroupedCache[T]) All() iter.Seq2[snowflake.ID, T] {
+	return func(yield func(snowflake.ID, T) bool) {
+		c.mu.RLock()
+		defer c.mu.RUnlock()
 
-	for groupID, groupEntities := range c.cache {
-		for _, entity := range groupEntities {
-			forEachFunc(groupID, entity)
+		for groupID, groupEntities := range c.cache {
+			for _, entity := range groupEntities {
+				if !yield(groupID, entity) {
+					return
+				}
+			}
 		}
 	}
 }
-func (c *defaultGroupedCache[T]) GroupForEach(groupID snowflake.ID, forEachFunc func(entity T)) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
 
-	for _, entity := range c.cache[groupID] {
-		forEachFunc(entity)
+func (c *defaultGroupedCache[T]) GroupAll(groupID snowflake.ID) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		c.mu.RLock()
+		defer c.mu.RUnlock()
+
+		if groupEntities, ok := c.cache[groupID]; ok {
+			for _, entity := range groupEntities {
+				if !yield(entity) {
+					return
+				}
+			}
+		}
 	}
 }
