@@ -210,14 +210,14 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
 				Port:    ourPort,
-				Mode:    EncryptionModeNormal,
+				Mode:    EncryptionModeAEADXChaCha20Poly1305RTPSize,
 			},
 		}); err != nil {
 			c.config.Logger.Error("voice: failed to send select protocol", slog.Any("err", err))
 		}
 
 	case GatewayMessageDataSessionDescription:
-		c.udp.SetSecretKey(d.SecretKey)
+		c.udp.SetSecretKey(d.Mode, d.SecretKey)
 		c.openedChan <- struct{}{}
 
 	case GatewayMessageDataSpeaking:
