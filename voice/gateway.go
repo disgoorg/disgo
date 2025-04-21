@@ -142,7 +142,9 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close()
-		defer rs.Body.Close()
+		if rs != nil {
+			defer rs.Body.Close()
+		}
 		return fmt.Errorf("error connecting to voice gateway: %w", err)
 	}
 
