@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -349,13 +350,13 @@ type WebhookCreate struct {
 
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
-	Name      *string              `json:"name,omitempty"`
-	Avatar    *json.Nullable[Icon] `json:"avatar,omitempty"`
-	ChannelID *snowflake.ID        `json:"channel_id,omitempty"`
+	Name      *string          `json:"name,omitempty"`
+	Avatar    omit.Omit[*Icon] `json:"avatar,omitzero"`
+	ChannelID *snowflake.ID    `json:"channel_id,omitempty"`
 }
 
 // WebhookUpdateWithToken is used to update a Webhook with the token
 type WebhookUpdateWithToken struct {
-	Name   *string              `json:"name,omitempty"`
-	Avatar *json.Nullable[Icon] `json:"avatar,omitempty"`
+	Name   *string          `json:"name,omitempty"`
+	Avatar omit.Omit[*Icon] `json:"avatar,omitzero"`
 }

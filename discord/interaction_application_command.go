@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
