@@ -31,9 +31,9 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	deletedEmojis := map[snowflake.ID]discord.Emoji{}
 	updatedEmojis := map[snowflake.ID]updatedEmoji{}
 
-	client.Caches().EmojisForEach(event.GuildID, func(emoji discord.Emoji) {
+	for emoji := range client.Caches().Emojis(event.GuildID) {
 		deletedEmojis[emoji.ID] = emoji
-	})
+	}
 
 	for _, newEmoji := range event.Emojis {
 		oldEmoji, ok := deletedEmojis[newEmoji.ID]
