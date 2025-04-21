@@ -332,9 +332,9 @@ func (w ApplicationWebhook) CreatedAt() time.Time {
 func (ApplicationWebhook) webhook() {}
 
 type WebhookSourceGuild struct {
-	ID   snowflake.ID         `json:"id"`
-	Name string               `json:"name"`
-	Icon *string              `json:"icon"`
+	ID   snowflake.ID `json:"id"`
+	Name string       `json:"name"`
+	Icon *string      `json:"icon"`
 }
 
 type WebhookSourceChannel struct {
