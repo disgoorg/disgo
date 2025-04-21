@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/disgoorg/json/v2"
-
 	"github.com/stretchr/testify/assert"
 )
 
