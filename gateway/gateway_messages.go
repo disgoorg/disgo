@@ -120,7 +120,7 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		eventData = d
 
 	case EventTypeResumed:
-		// no data
+		eventData = EventResumed{}
 
 	case EventTypeApplicationCommandPermissionsUpdate:
 		var d EventApplicationCommandPermissionsUpdate
