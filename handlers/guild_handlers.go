@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
@@ -85,7 +86,7 @@ func gatewayHandlerGuildCreate(client bot.Client, sequenceNumber int, shardID in
 		}
 		if client.MemberChunkingManager().MemberChunkingFilter()(event.ID) {
 			go func() {
-				if _, err := client.MemberChunkingManager().RequestMembersWithQuery(event.ID, "", 0); err != nil {
+				if _, err := client.MemberChunkingManager().RequestMembersWithQuery(context.Background(), event.ID, "", 0); err != nil {
 					client.Logger().Error("failed to chunk guild on guild_create", slog.Any("err", err))
 				}
 			}()
@@ -130,11 +131,11 @@ func gatewayHandlerGuildDelete(client bot.Client, sequenceNumber int, shardID in
 	client.Caches().RemoveVoiceStatesByGuildID(event.ID)
 	client.Caches().RemovePresencesByGuildID(event.ID)
 	// TODO: figure out a better way to remove thread members from cache via guild id without requiring cached GuildThreads
-	client.Caches().ChannelsForEach(func(channel discord.GuildChannel) {
+	for channel := range client.Caches().Channels() {
 		if guildThread, ok := channel.(discord.GuildThread); ok && guildThread.GuildID() == event.ID {
 			client.Caches().RemoveThreadMembersByThreadID(guildThread.ID())
 		}
-	})
+	}
 	client.Caches().RemoveChannelsByGuildID(event.ID)
 	client.Caches().RemoveEmojisByGuildID(event.ID)
 	client.Caches().RemoveStickersByGuildID(event.ID)

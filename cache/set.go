@@ -1,6 +1,9 @@
 package cache
 
-import "sync"
+import (
+	"iter"
+	"sync"
+)
 
 // Set is a collection of unique items. It should be thread-safe.
 type Set[T comparable] interface {
@@ -14,8 +17,8 @@ type Set[T comparable] interface {
 	Len() int
 	// Clear removes all items from the set.
 	Clear()
-	// ForEach iterates over the items in the set.
-	ForEach(f func(item T))
+	// All returns an iterator over all items in the set.
+	All() iter.Seq[T]
 }
 
 type set[T comparable] struct {
@@ -61,10 +64,14 @@ func (s *set[T]) Clear() {
 	s.items = make(map[T]struct{})
 }
 
-func (s *set[T]) ForEach(f func(item T)) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	for item := range s.items {
-		f(item)
+func (s *set[T]) All() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		s.mu.RLock()
+		defer s.mu.RUnlock()
+		for item := range s.items {
+			if !yield(item) {
+				return
+			}
+		}
 	}
 }
