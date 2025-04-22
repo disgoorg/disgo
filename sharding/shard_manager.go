@@ -128,8 +128,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 
 	m.shardsMu.Lock()
 	defer m.shardsMu.Unlock()
-	for shardInt := range m.config.ShardIDs {
-		shardID := shardInt
+	for shardID := range m.config.ShardIDs {
 		if _, ok := m.shards[shardID]; ok {
 			continue
 		}
