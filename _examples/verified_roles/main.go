@@ -2,7 +2,7 @@ package main
 
 import (
 	"log/slog"
-	"math/rand"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,7 +17,6 @@ import (
 )
 
 var (
-	letters      = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	token        = os.Getenv("disgo_token")
 	clientSecret = os.Getenv("disgo_client_secret")
 	baseURL      = os.Getenv("disgo_base_url")
@@ -84,7 +83,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 			PlatformName:     omit.Ptr("Cookie Monster " + user.Username),
 			PlatformUsername: omit.Ptr("Cookie Monster " + user.Tag()),
 			Metadata: &map[string]string{
-				"cookies_eaten": strconv.Itoa(rand.Intn(100)),
+				"cookies_eaten": strconv.Itoa(rand.IntN(100)),
 			},
 		})
 		if err != nil {

@@ -2,21 +2,16 @@
 package insecurerandstr
 
 import (
-	"math/rand"
-	"time"
+	"math/rand/v2"
 )
 
-var (
-	letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-	randStr = rand.New(rand.NewSource(time.Now().UnixNano()))
-)
+var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 // RandStr returns a random string of the given length.
 func RandStr(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[randStr.Intn(len(letters))]
+	b := make([]byte, n)
+	for i := range n {
+		b[i] = letters[rand.IntN(len(letters))]
 	}
 	return string(b)
 }
