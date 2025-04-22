@@ -6,7 +6,6 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
@@ -116,10 +115,9 @@ func writeError(w http.ResponseWriter, text string, err error) {
 }
 
 func randStr(n int) string {
-	var b strings.Builder
-	b.Grow(n)
-	for range n {
-		b.WriteByte(letters[rand.IntN(len(letters))])
+	b := make([]byte, n)
+	for i := range n {
+		b[i] = letters[rand.IntN(len(letters))]
 	}
-	return b.String()
+	return string(b)
 }
