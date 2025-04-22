@@ -807,7 +807,7 @@ func (c SectionComponent) RemoveComponent(id int) SectionComponent {
 	return c
 }
 
-// NewTextDisplayf creates a new [TextDisplayComponent] with the provided content with format.
+// NewTextDisplayf creates a new [TextDisplayComponent] with the provided content and format.
 func NewTextDisplayf(content string, a ...any) TextDisplayComponent {
 	return NewTextDisplay(fmt.Sprintf(content, a...))
 }
