@@ -25,6 +25,7 @@ func TestComponentIter(t *testing.T) {
 			).WithID(11),
 			NewSection(
 				NewTextDisplay("text3").WithID(14),
+				NewTextDisplayf("text%d", 4).WithID(15),
 			).WithID(13),
 		).WithID(10),
 	}
