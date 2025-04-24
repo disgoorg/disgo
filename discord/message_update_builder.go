@@ -80,11 +80,11 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 }
 
 // SetComponents sets the discord.LayoutComponent(s) of the Message
-func (b *MessageUpdateBuilder) SetComponents(LayoutComponents ...LayoutComponent) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetComponents(components ...LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)
 	}
-	*b.Components = LayoutComponents
+	*b.Components = components
 	return b
 }
 

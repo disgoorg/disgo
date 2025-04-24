@@ -81,8 +81,8 @@ func (b *WebhookMessageCreateBuilder) RemoveEmbed(i int) *WebhookMessageCreateBu
 }
 
 // SetComponents sets the discord.LayoutComponent(s) of the Message
-func (b *WebhookMessageCreateBuilder) SetComponents(LayoutComponents ...LayoutComponent) *WebhookMessageCreateBuilder {
-	b.Components = LayoutComponents
+func (b *WebhookMessageCreateBuilder) SetComponents(components ...LayoutComponent) *WebhookMessageCreateBuilder {
+	b.Components = components
 	return b
 }
 
