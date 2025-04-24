@@ -215,6 +215,16 @@ func (b *WebhookMessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *We
 	return b
 }
 
+// SetSuppressNotifications adds/removes discord.MessageFlagSuppressNotifications to the Message flags
+func (b *WebhookMessageCreateBuilder) SetSuppressNotifications(suppressNotifications bool) *WebhookMessageCreateBuilder {
+	if suppressNotifications {
+		b.Flags = b.Flags.Add(MessageFlagSuppressNotifications)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagSuppressNotifications)
+	}
+	return b
+}
+
 // SetThreadName sets the thread name the new webhook message should create.
 func (b *WebhookMessageCreateBuilder) SetThreadName(threadName string) *WebhookMessageCreateBuilder {
 	b.ThreadName = threadName

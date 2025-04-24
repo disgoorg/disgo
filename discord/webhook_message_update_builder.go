@@ -257,6 +257,19 @@ func (b *WebhookMessageUpdateBuilder) ClearFlags() *WebhookMessageUpdateBuilder 
 	return b.SetFlags(MessageFlagsNone)
 }
 
+// SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags
+func (b *WebhookMessageUpdateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	if suppressEmbeds {
+		*b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
+	} else {
+		*b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
 // SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags.
 // Once a message with the flag has been sent, it cannot be removed by editing the message.
 func (b *WebhookMessageUpdateBuilder) SetIsComponentsV2(isComponentV2 bool) *WebhookMessageUpdateBuilder {

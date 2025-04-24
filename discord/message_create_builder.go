@@ -262,6 +262,16 @@ func (b *MessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageCr
 	return b
 }
 
+// SetSuppressNotifications adds/removes discord.MessageFlagSuppressNotifications to the Message flags
+func (b *MessageCreateBuilder) SetSuppressNotifications(suppressNotifications bool) *MessageCreateBuilder {
+	if suppressNotifications {
+		b.Flags = b.Flags.Add(MessageFlagSuppressNotifications)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagSuppressNotifications)
+	}
+	return b
+}
+
 // SetPoll sets the Poll of the Message
 func (b *MessageCreateBuilder) SetPoll(poll PollCreate) *MessageCreateBuilder {
 	b.Poll = &poll
