@@ -37,7 +37,7 @@ func (b *ModalCreateBuilder) SetComponents(LayoutComponents ...LayoutComponent) 
 	return b
 }
 
-// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
 func (b *ModalCreateBuilder) SetComponent(i int, container LayoutComponent) *ModalCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
@@ -57,7 +57,7 @@ func (b *ModalCreateBuilder) AddComponents(containers ...LayoutComponent) *Modal
 	return b
 }
 
-// RemoveComponent removes a discord.ActionRowComponent from the ModalCreate
+// RemoveComponent removes a discord.LayoutComponent from the ModalCreate
 func (b *ModalCreateBuilder) RemoveComponent(i int) *ModalCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
