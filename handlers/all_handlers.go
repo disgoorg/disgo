@@ -3,22 +3,11 @@ package handlers
 import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
 )
-
-// DefaultHTTPServerEventHandlerFunc is the default handler for the httpserver.Server and sends payloads to the bot.EventManager.
-func DefaultHTTPServerEventHandlerFunc(client bot.Client) httpserver.EventHandlerFunc {
-	return client.EventManager().HandleHTTPEvent
-}
 
 // GetHTTPServerHandler returns the default httpserver.Server event handler for processing the raw payload which gets passed into the bot.EventManager
 func GetHTTPServerHandler() bot.HTTPServerEventHandler {
 	return &httpserverHandlerInteractionCreate{}
-}
-
-// DefaultGatewayEventHandlerFunc is the default handler for the gateway.Gateway and sends payloads to the bot.EventManager.
-func DefaultGatewayEventHandlerFunc(client bot.Client) gateway.EventHandlerFunc {
-	return client.EventManager().HandleGatewayEvent
 }
 
 // GetGatewayHandlers returns the default gateway.Gateway event handlers for processing the raw payload which gets passed into the bot.EventManager

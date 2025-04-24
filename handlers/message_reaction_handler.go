@@ -7,10 +7,10 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionAdd) {
+func gatewayHandlerMessageReactionAdd(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionAdd) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	client.EventManager().DispatchEvent(&events.MessageReactionAdd{
+	client.EventManager.DispatchEvent(&events.MessageReactionAdd{
 		GenericReaction: &events.GenericReaction{
 			GenericEvent: genericEvent,
 			MessageID:    event.MessageID,
@@ -25,7 +25,7 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 	})
 
 	if event.GuildID == nil {
-		client.EventManager().DispatchEvent(&events.DMMessageReactionAdd{
+		client.EventManager.DispatchEvent(&events.DMMessageReactionAdd{
 			GenericDMMessageReaction: &events.GenericDMMessageReaction{
 				GenericEvent: genericEvent,
 				MessageID:    event.MessageID,
@@ -43,7 +43,7 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 		if event.Member != nil {
 			member = *event.Member
 		}
-		client.EventManager().DispatchEvent(&events.GuildMessageReactionAdd{
+		client.EventManager.DispatchEvent(&events.GuildMessageReactionAdd{
 			GenericGuildMessageReaction: &events.GenericGuildMessageReaction{
 				GenericEvent: genericEvent,
 				MessageID:    event.MessageID,
@@ -60,10 +60,10 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 	}
 }
 
-func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionRemove) {
+func gatewayHandlerMessageReactionRemove(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionRemove) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	client.EventManager().DispatchEvent(&events.MessageReactionRemove{
+	client.EventManager.DispatchEvent(&events.MessageReactionRemove{
 		GenericReaction: &events.GenericReaction{
 			GenericEvent: genericEvent,
 			MessageID:    event.MessageID,
@@ -77,7 +77,7 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 	})
 
 	if event.GuildID == nil {
-		client.EventManager().DispatchEvent(&events.DMMessageReactionRemove{
+		client.EventManager.DispatchEvent(&events.DMMessageReactionRemove{
 			GenericDMMessageReaction: &events.GenericDMMessageReaction{
 				GenericEvent: genericEvent,
 				MessageID:    event.MessageID,
@@ -89,7 +89,7 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 			},
 		})
 	} else {
-		client.EventManager().DispatchEvent(&events.GuildMessageReactionRemove{
+		client.EventManager.DispatchEvent(&events.GuildMessageReactionRemove{
 			GenericGuildMessageReaction: &events.GenericGuildMessageReaction{
 				GenericEvent: genericEvent,
 				MessageID:    event.MessageID,
@@ -104,10 +104,10 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 	}
 }
 
-func gatewayHandlerMessageReactionRemoveAll(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionRemoveAll) {
+func gatewayHandlerMessageReactionRemoveAll(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionRemoveAll) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	client.EventManager().DispatchEvent(&events.MessageReactionRemoveAll{
+	client.EventManager.DispatchEvent(&events.MessageReactionRemoveAll{
 		GenericEvent: genericEvent,
 		MessageID:    event.MessageID,
 		ChannelID:    event.ChannelID,
@@ -115,13 +115,13 @@ func gatewayHandlerMessageReactionRemoveAll(client bot.Client, sequenceNumber in
 	})
 
 	if event.GuildID == nil {
-		client.EventManager().DispatchEvent(&events.DMMessageReactionRemoveAll{
+		client.EventManager.DispatchEvent(&events.DMMessageReactionRemoveAll{
 			GenericEvent: genericEvent,
 			MessageID:    event.MessageID,
 			ChannelID:    event.ChannelID,
 		})
 	} else {
-		client.EventManager().DispatchEvent(&events.GuildMessageReactionRemoveAll{
+		client.EventManager.DispatchEvent(&events.GuildMessageReactionRemoveAll{
 			GenericEvent: genericEvent,
 			MessageID:    event.MessageID,
 			ChannelID:    event.ChannelID,
@@ -130,10 +130,10 @@ func gatewayHandlerMessageReactionRemoveAll(client bot.Client, sequenceNumber in
 	}
 }
 
-func gatewayHandlerMessageReactionRemoveEmoji(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionRemoveEmoji) {
+func gatewayHandlerMessageReactionRemoveEmoji(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionRemoveEmoji) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	client.EventManager().DispatchEvent(&events.MessageReactionRemoveEmoji{
+	client.EventManager.DispatchEvent(&events.MessageReactionRemoveEmoji{
 		GenericEvent: genericEvent,
 		MessageID:    event.MessageID,
 		ChannelID:    event.ChannelID,
@@ -142,14 +142,14 @@ func gatewayHandlerMessageReactionRemoveEmoji(client bot.Client, sequenceNumber 
 	})
 
 	if event.GuildID == nil {
-		client.EventManager().DispatchEvent(&events.DMMessageReactionRemoveEmoji{
+		client.EventManager.DispatchEvent(&events.DMMessageReactionRemoveEmoji{
 			GenericEvent: genericEvent,
 			MessageID:    event.MessageID,
 			ChannelID:    event.ChannelID,
 			Emoji:        event.Emoji,
 		})
 	} else {
-		client.EventManager().DispatchEvent(&events.GuildMessageReactionRemoveEmoji{
+		client.EventManager.DispatchEvent(&events.GuildMessageReactionRemoveEmoji{
 			GenericEvent: genericEvent,
 			MessageID:    event.MessageID,
 			ChannelID:    event.ChannelID,

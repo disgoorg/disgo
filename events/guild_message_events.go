@@ -18,12 +18,12 @@ type GenericGuildMessage struct {
 // Guild returns the discord.Guild the GenericGuildMessage happened in.
 // This will only check cached guilds!
 func (e *GenericGuildMessage) Guild() (discord.Guild, bool) {
-	return e.Client().Caches().Guild(e.GuildID)
+	return e.Client().Caches.Guild(e.GuildID)
 }
 
 // Channel returns the discord.GuildMessageChannel where the GenericGuildMessage happened
 func (e *GenericGuildMessage) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
+	return e.Client().Caches.GuildMessageChannel(e.ChannelID)
 }
 
 // GuildMessageCreate is called upon receiving a discord.Message in a Channel

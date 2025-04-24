@@ -15,13 +15,13 @@ type updatedSticker struct {
 	new discord.Sticker
 }
 
-func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildStickersUpdate) {
-	client.EventManager().DispatchEvent(&events.StickersUpdate{
+func gatewayHandlerGuildStickersUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildStickersUpdate) {
+	client.EventManager.DispatchEvent(&events.StickersUpdate{
 		GenericEvent:             events.NewGenericEvent(client, sequenceNumber, shardID),
 		EventGuildStickersUpdate: event,
 	})
 
-	if client.Caches().CacheFlags().Missing(cache.FlagStickers) {
+	if client.Caches.CacheFlags().Missing(cache.FlagStickers) {
 		return
 	}
 
@@ -29,7 +29,7 @@ func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, sh
 	deletedStickers := map[snowflake.ID]discord.Sticker{}
 	updatedStickers := map[snowflake.ID]updatedSticker{}
 
-	for sticker := range client.Caches().Stickers(event.GuildID) {
+	for sticker := range client.Caches.Stickers(event.GuildID) {
 		deletedStickers[sticker.ID] = sticker
 	}
 
@@ -46,7 +46,7 @@ func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, sh
 	}
 
 	for _, emoji := range createdStickers {
-		client.EventManager().DispatchEvent(&events.StickerCreate{
+		client.EventManager.DispatchEvent(&events.StickerCreate{
 			GenericSticker: &events.GenericSticker{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      event.GuildID,
@@ -56,7 +56,7 @@ func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, sh
 	}
 
 	for _, emoji := range updatedStickers {
-		client.EventManager().DispatchEvent(&events.StickerUpdate{
+		client.EventManager.DispatchEvent(&events.StickerUpdate{
 			GenericSticker: &events.GenericSticker{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      event.GuildID,
@@ -67,7 +67,7 @@ func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, sh
 	}
 
 	for _, emoji := range deletedStickers {
-		client.EventManager().DispatchEvent(&events.StickerDelete{
+		client.EventManager.DispatchEvent(&events.StickerDelete{
 			GenericSticker: &events.GenericSticker{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      event.GuildID,

@@ -16,14 +16,14 @@ type InviteCreate struct {
 
 // Channel returns the discord.GuildChannel the GenericInvite happened in.
 func (e *InviteCreate) Channel() (discord.GuildChannel, bool) {
-	return e.Client().Caches().Channel(e.ChannelID)
+	return e.Client().Caches.Channel(e.ChannelID)
 }
 
 func (e *InviteCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID == nil {
 		return discord.Guild{}, false
 	}
-	return e.Client().Caches().Guild(*e.GuildID)
+	return e.Client().Caches.Guild(*e.GuildID)
 }
 
 // InviteDelete is called upon deletion of a discord.Invite (requires gateway.IntentGuildInvites)
@@ -37,12 +37,12 @@ type InviteDelete struct {
 
 // Channel returns the discord.GuildChannel the GenericInvite happened in.
 func (e *InviteDelete) Channel() (discord.GuildChannel, bool) {
-	return e.Client().Caches().Channel(e.ChannelID)
+	return e.Client().Caches.Channel(e.ChannelID)
 }
 
 func (e *InviteDelete) Guild() (discord.Guild, bool) {
 	if e.GuildID == nil {
 		return discord.Guild{}, false
 	}
-	return e.Client().Caches().Guild(*e.GuildID)
+	return e.Client().Caches.Guild(*e.GuildID)
 }

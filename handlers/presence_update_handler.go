@@ -12,15 +12,15 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventPresenceUpdate) {
+func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventPresenceUpdate) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	client.EventManager().DispatchEvent(&events.PresenceUpdate{
+	client.EventManager.DispatchEvent(&events.PresenceUpdate{
 		GenericEvent:        genericEvent,
 		EventPresenceUpdate: event,
 	})
 
-	if client.Caches().CacheFlags().Missing(cache.FlagPresences) {
+	if client.Caches.CacheFlags().Missing(cache.FlagPresences) {
 		return
 	}
 
@@ -30,16 +30,16 @@ func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID
 		oldActivities   []discord.Activity
 	)
 
-	if oldPresence, ok := client.Caches().Presence(event.GuildID, event.PresenceUser.ID); ok {
+	if oldPresence, ok := client.Caches.Presence(event.GuildID, event.PresenceUser.ID); ok {
 		oldStatus = oldPresence.Status
 		oldClientStatus = oldPresence.ClientStatus
 		oldActivities = oldPresence.Activities
 	}
 
-	client.Caches().AddPresence(event.Presence)
+	client.Caches.AddPresence(event.Presence)
 
 	if oldStatus != event.Status {
-		client.EventManager().DispatchEvent(&events.UserStatusUpdate{
+		client.EventManager.DispatchEvent(&events.UserStatusUpdate{
 			GenericEvent: genericEvent,
 			UserID:       event.PresenceUser.ID,
 			OldStatus:    oldStatus,
@@ -48,7 +48,7 @@ func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID
 	}
 
 	if oldClientStatus.Desktop != event.ClientStatus.Desktop || oldClientStatus.Mobile != event.ClientStatus.Mobile || oldClientStatus.Web != event.ClientStatus.Web {
-		client.EventManager().DispatchEvent(&events.UserClientStatusUpdate{
+		client.EventManager.DispatchEvent(&events.UserClientStatusUpdate{
 			GenericEvent:    genericEvent,
 			UserID:          event.PresenceUser.ID,
 			OldClientStatus: oldClientStatus,
@@ -72,7 +72,7 @@ func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID
 		}
 		if !found {
 			genericUserActivityEvent.Activity = oldActivity
-			client.EventManager().DispatchEvent(&events.UserActivityStop{
+			client.EventManager.DispatchEvent(&events.UserActivityStop{
 				GenericUserActivity: &genericUserActivityEvent,
 			})
 		}
@@ -88,7 +88,7 @@ func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID
 		}
 		if !found {
 			genericUserActivityEvent.Activity = newActivity
-			client.EventManager().DispatchEvent(&events.UserActivityStart{
+			client.EventManager.DispatchEvent(&events.UserActivityStart{
 				GenericUserActivity: &genericUserActivityEvent,
 			})
 		}
@@ -104,7 +104,7 @@ func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID
 		}
 		if oldActivity != nil && isActivityUpdated(*oldActivity, newActivity) {
 			genericUserActivityEvent.Activity = newActivity
-			client.EventManager().DispatchEvent(&events.UserActivityUpdate{
+			client.EventManager.DispatchEvent(&events.UserActivityUpdate{
 				GenericUserActivity: &genericUserActivityEvent,
 				OldActivity:         *oldActivity,
 			})

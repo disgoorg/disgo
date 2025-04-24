@@ -6,8 +6,8 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-func gatewayHandlerIntegrationCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventIntegrationCreate) {
-	client.EventManager().DispatchEvent(&events.IntegrationCreate{
+func gatewayHandlerIntegrationCreate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventIntegrationCreate) {
+	client.EventManager.DispatchEvent(&events.IntegrationCreate{
 		GenericIntegration: &events.GenericIntegration{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			GuildID:      event.GuildID,
@@ -16,8 +16,8 @@ func gatewayHandlerIntegrationCreate(client bot.Client, sequenceNumber int, shar
 	})
 }
 
-func gatewayHandlerIntegrationUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventIntegrationUpdate) {
-	client.EventManager().DispatchEvent(&events.IntegrationUpdate{
+func gatewayHandlerIntegrationUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventIntegrationUpdate) {
+	client.EventManager.DispatchEvent(&events.IntegrationUpdate{
 		GenericIntegration: &events.GenericIntegration{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			GuildID:      event.GuildID,
@@ -26,8 +26,8 @@ func gatewayHandlerIntegrationUpdate(client bot.Client, sequenceNumber int, shar
 	})
 }
 
-func gatewayHandlerIntegrationDelete(client bot.Client, sequenceNumber int, shardID int, event gateway.EventIntegrationDelete) {
-	client.EventManager().DispatchEvent(&events.IntegrationDelete{
+func gatewayHandlerIntegrationDelete(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventIntegrationDelete) {
+	client.EventManager.DispatchEvent(&events.IntegrationDelete{
 		GenericEvent:  events.NewGenericEvent(client, sequenceNumber, shardID),
 		GuildID:       event.GuildID,
 		ID:            event.ID,

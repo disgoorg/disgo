@@ -17,13 +17,13 @@ type updatedEmoji struct {
 	new discord.Emoji
 }
 
-func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildEmojisUpdate) {
-	client.EventManager().DispatchEvent(&events.EmojisUpdate{
+func gatewayHandlerGuildEmojisUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildEmojisUpdate) {
+	client.EventManager.DispatchEvent(&events.EmojisUpdate{
 		GenericEvent:           events.NewGenericEvent(client, sequenceNumber, shardID),
 		EventGuildEmojisUpdate: event,
 	})
 
-	if client.Caches().CacheFlags().Missing(cache.FlagEmojis) {
+	if client.Caches.CacheFlags().Missing(cache.FlagEmojis) {
 		return
 	}
 
@@ -31,7 +31,7 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	deletedEmojis := map[snowflake.ID]discord.Emoji{}
 	updatedEmojis := map[snowflake.ID]updatedEmoji{}
 
-	for emoji := range client.Caches().Emojis(event.GuildID) {
+	for emoji := range client.Caches.Emojis(event.GuildID) {
 		deletedEmojis[emoji.ID] = emoji
 	}
 
@@ -48,8 +48,8 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	}
 
 	for _, emoji := range createdEmojis {
-		client.Caches().AddEmoji(emoji)
-		client.EventManager().DispatchEvent(&events.EmojiCreate{
+		client.Caches.AddEmoji(emoji)
+		client.EventManager.DispatchEvent(&events.EmojiCreate{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      event.GuildID,
@@ -59,8 +59,8 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	}
 
 	for _, emoji := range updatedEmojis {
-		client.Caches().AddEmoji(emoji.new)
-		client.EventManager().DispatchEvent(&events.EmojiUpdate{
+		client.Caches.AddEmoji(emoji.new)
+		client.EventManager.DispatchEvent(&events.EmojiUpdate{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      event.GuildID,
@@ -71,8 +71,8 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	}
 
 	for _, emoji := range deletedEmojis {
-		client.Caches().RemoveEmoji(event.GuildID, emoji.ID)
-		client.EventManager().DispatchEvent(&events.EmojiDelete{
+		client.Caches.RemoveEmoji(event.GuildID, emoji.ID)
+		client.EventManager.DispatchEvent(&events.EmojiDelete{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      event.GuildID,

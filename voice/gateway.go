@@ -91,9 +91,8 @@ type Gateway interface {
 
 // NewGateway creates a new voice Gateway.
 func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
-	config := DefaultGatewayConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "voice_conn_gateway"))
+	config := defaultGatewayConfig()
+	config.apply(opts)
 
 	return &gatewayImpl{
 		config:           *config,
@@ -103,7 +102,7 @@ func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandler
 }
 
 type gatewayImpl struct {
-	config           GatewayConfig
+	config           gatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
 

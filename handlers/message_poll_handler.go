@@ -6,10 +6,10 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-func gatewayHandlerMessagePollVoteAdd(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessagePollVoteAdd) {
+func gatewayHandlerMessagePollVoteAdd(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessagePollVoteAdd) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	client.EventManager().DispatchEvent(&events.MessagePollVoteAdd{
+	client.EventManager.DispatchEvent(&events.MessagePollVoteAdd{
 		GenericMessagePollVote: &events.GenericMessagePollVote{
 			GenericEvent: genericEvent,
 			UserID:       event.UserID,
@@ -21,7 +21,7 @@ func gatewayHandlerMessagePollVoteAdd(client bot.Client, sequenceNumber int, sha
 	})
 
 	if event.GuildID == nil {
-		client.EventManager().DispatchEvent(&events.DMMessagePollVoteAdd{
+		client.EventManager.DispatchEvent(&events.DMMessagePollVoteAdd{
 			GenericDMMessagePollVote: &events.GenericDMMessagePollVote{
 				GenericEvent: genericEvent,
 				UserID:       event.UserID,
@@ -31,7 +31,7 @@ func gatewayHandlerMessagePollVoteAdd(client bot.Client, sequenceNumber int, sha
 			},
 		})
 	} else {
-		client.EventManager().DispatchEvent(&events.GuildMessagePollVoteAdd{
+		client.EventManager.DispatchEvent(&events.GuildMessagePollVoteAdd{
 			GenericGuildMessagePollVote: &events.GenericGuildMessagePollVote{
 				GenericEvent: genericEvent,
 				UserID:       event.UserID,
@@ -44,10 +44,10 @@ func gatewayHandlerMessagePollVoteAdd(client bot.Client, sequenceNumber int, sha
 	}
 }
 
-func gatewayHandlerMessagePollVoteRemove(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessagePollVoteRemove) {
+func gatewayHandlerMessagePollVoteRemove(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessagePollVoteRemove) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	client.EventManager().DispatchEvent(&events.MessagePollVoteRemove{
+	client.EventManager.DispatchEvent(&events.MessagePollVoteRemove{
 		GenericMessagePollVote: &events.GenericMessagePollVote{
 			GenericEvent: genericEvent,
 			UserID:       event.UserID,
@@ -59,7 +59,7 @@ func gatewayHandlerMessagePollVoteRemove(client bot.Client, sequenceNumber int, 
 	})
 
 	if event.GuildID == nil {
-		client.EventManager().DispatchEvent(&events.DMMessagePollVoteRemove{
+		client.EventManager.DispatchEvent(&events.DMMessagePollVoteRemove{
 			GenericDMMessagePollVote: &events.GenericDMMessagePollVote{
 				GenericEvent: genericEvent,
 				UserID:       event.UserID,
@@ -69,7 +69,7 @@ func gatewayHandlerMessagePollVoteRemove(client bot.Client, sequenceNumber int, 
 			},
 		})
 	} else {
-		client.EventManager().DispatchEvent(&events.GuildMessagePollVoteRemove{
+		client.EventManager.DispatchEvent(&events.GuildMessagePollVoteRemove{
 			GenericGuildMessagePollVote: &events.GenericGuildMessagePollVote{
 				GenericEvent: genericEvent,
 				UserID:       event.UserID,

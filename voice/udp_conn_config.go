@@ -5,8 +5,8 @@ import (
 	"net"
 )
 
-func DefaultUDPConnConfig() UDPConnConfig {
-	return UDPConnConfig{
+func defaultUDPConnConfig() udpConnConfig {
+	return udpConnConfig{
 		Logger: slog.Default(),
 		Dialer: &net.Dialer{
 			Timeout: UDPTimeout,
@@ -14,27 +14,28 @@ func DefaultUDPConnConfig() UDPConnConfig {
 	}
 }
 
-type UDPConnConfig struct {
+type udpConnConfig struct {
 	Logger *slog.Logger
 	Dialer *net.Dialer
 }
 
-type UDPConnConfigOpt func(config *UDPConnConfig)
+// UDPConnConfigOpt is a function that modifies the udpConnConfig.
+type UDPConnConfigOpt func(config *udpConnConfig)
 
-func (c *UDPConnConfig) Apply(opts []UDPConnConfigOpt) {
+func (c *udpConnConfig) apply(opts []UDPConnConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
 }
 
 func WithUDPConnLogger(logger *slog.Logger) UDPConnConfigOpt {
-	return func(config *UDPConnConfig) {
+	return func(config *udpConnConfig) {
 		config.Logger = logger
 	}
 }
 
 func WithUDPConnDialer(dialer *net.Dialer) UDPConnConfigOpt {
-	return func(config *UDPConnConfig) {
+	return func(config *udpConnConfig) {
 		config.Dialer = dialer
 	}
 }
