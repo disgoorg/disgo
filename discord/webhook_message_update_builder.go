@@ -257,7 +257,7 @@ func (b *WebhookMessageUpdateBuilder) ClearFlags() *WebhookMessageUpdateBuilder 
 	return b.SetFlags(MessageFlagsNone)
 }
 
-// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags.
 // Once a message with the flag has been sent, it cannot be removed by editing the message.
 func (b *WebhookMessageUpdateBuilder) SetIsComponentsV2(isComponentV2 bool) *WebhookMessageUpdateBuilder {
 	if b.Flags == nil {
