@@ -86,7 +86,7 @@ func (b *WebhookMessageCreateBuilder) SetComponents(LayoutComponents ...LayoutCo
 	return b
 }
 
-// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
 func (b *WebhookMessageCreateBuilder) SetComponent(i int, container LayoutComponent) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
