@@ -32,8 +32,8 @@ func (b *ModalCreateBuilder) SetTitle(title string) *ModalCreateBuilder {
 }
 
 // SetComponents sets the discord.LayoutComponent(s) of the ModalCreate
-func (b *ModalCreateBuilder) SetComponents(LayoutComponents ...LayoutComponent) *ModalCreateBuilder {
-	b.Components = LayoutComponents
+func (b *ModalCreateBuilder) SetComponents(components ...LayoutComponent) *ModalCreateBuilder {
+	b.Components = components
 	return b
 }
 
