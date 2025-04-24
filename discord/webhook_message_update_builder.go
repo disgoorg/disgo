@@ -223,6 +223,55 @@ func (b *WebhookMessageUpdateBuilder) ClearPoll() *WebhookMessageUpdateBuilder {
 	return b
 }
 
+// SetFlags sets the MessageFlags of the Message.
+// Be careful not to override the current flags when editing messages from other users - this will result in a permission error.
+// Use SetIsComponentsV2 or AddFlags for flags like discord.MessageFlagIsComponentsV2.
+func (b *WebhookMessageUpdateBuilder) SetFlags(flags MessageFlags) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	*b.Flags = flags
+	return b
+}
+
+// AddFlags adds the MessageFlags of the Message
+func (b *WebhookMessageUpdateBuilder) AddFlags(flags ...MessageFlags) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	*b.Flags = b.Flags.Add(flags...)
+	return b
+}
+
+// RemoveFlags removes the MessageFlags of the Message
+func (b *WebhookMessageUpdateBuilder) RemoveFlags(flags ...MessageFlags) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	*b.Flags = b.Flags.Remove(flags...)
+	return b
+}
+
+// ClearFlags clears the MessageFlags of the Message
+func (b *WebhookMessageUpdateBuilder) ClearFlags() *WebhookMessageUpdateBuilder {
+	return b.SetFlags(MessageFlagsNone)
+}
+
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags
+// Once a message with the flag has been sent, it cannot be removed by editing the message.
+func (b *WebhookMessageUpdateBuilder) SetIsComponentsV2(isComponentV2 bool) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+
+	if isComponentV2 {
+		*b.Flags = b.Flags.Add(MessageFlagIsComponentsV2)
+	} else {
+		*b.Flags = b.Flags.Remove(MessageFlagIsComponentsV2)
+	}
+	return b
+}
+
 // Build builds the WebhookMessageUpdateBuilder to a MessageUpdate struct
 func (b *WebhookMessageUpdateBuilder) Build() WebhookMessageUpdate {
 	return b.WebhookMessageUpdate

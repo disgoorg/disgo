@@ -242,6 +242,7 @@ func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilde
 }
 
 // SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags
+// Once a message with the flag has been sent, it cannot be removed by editing the message.
 func (b *MessageCreateBuilder) SetIsComponentsV2(isComponentV2 bool) *MessageCreateBuilder {
 	if isComponentV2 {
 		b.Flags = b.Flags.Add(MessageFlagIsComponentsV2)
