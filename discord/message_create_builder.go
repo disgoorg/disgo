@@ -241,7 +241,8 @@ func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilde
 	return b
 }
 
-// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags.
+// Once a message with the flag has been sent, it cannot be removed by editing the message.
 func (b *MessageCreateBuilder) SetIsComponentsV2(isComponentV2 bool) *MessageCreateBuilder {
 	if isComponentV2 {
 		b.Flags = b.Flags.Add(MessageFlagIsComponentsV2)
@@ -257,6 +258,16 @@ func (b *MessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageCr
 		b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
 	} else {
 		b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
+// SetSuppressNotifications adds/removes discord.MessageFlagSuppressNotifications to the Message flags
+func (b *MessageCreateBuilder) SetSuppressNotifications(suppressNotifications bool) *MessageCreateBuilder {
+	if suppressNotifications {
+		b.Flags = b.Flags.Add(MessageFlagSuppressNotifications)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagSuppressNotifications)
 	}
 	return b
 }
