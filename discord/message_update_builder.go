@@ -88,7 +88,7 @@ func (b *MessageUpdateBuilder) SetComponents(LayoutComponents ...LayoutComponent
 	return b
 }
 
-// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
 func (b *MessageUpdateBuilder) SetComponent(i int, container LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]LayoutComponent)

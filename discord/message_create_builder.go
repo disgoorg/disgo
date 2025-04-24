@@ -90,7 +90,7 @@ func (b *MessageCreateBuilder) SetComponents(LayoutComponents ...LayoutComponent
 	return b
 }
 
-// SetComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
 func (b *MessageCreateBuilder) SetComponent(i int, container LayoutComponent) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
@@ -110,7 +110,7 @@ func (b *MessageCreateBuilder) AddComponents(containers ...LayoutComponent) *Mes
 	return b
 }
 
-// RemoveComponent removes a discord.ActionRowComponent from the Message
+// RemoveComponent removes a discord.LayoutComponent from the Message
 func (b *MessageCreateBuilder) RemoveComponent(i int) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
