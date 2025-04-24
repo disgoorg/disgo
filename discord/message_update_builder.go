@@ -254,7 +254,7 @@ func (b *MessageUpdateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageUp
 	return b
 }
 
-// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags. Once the message has been sent, the flag cannot be removed from the message when editing the message
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags. Once a message with the flag has been sent, it cannot be removed by editing the message.
 func (b *MessageUpdateBuilder) SetIsComponentsV2(isComponentV2 bool) *MessageUpdateBuilder {
 	if b.Flags == nil {
 		b.Flags = new(MessageFlags)
