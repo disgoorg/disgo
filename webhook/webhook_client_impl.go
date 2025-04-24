@@ -92,36 +92,36 @@ func (c *clientImpl) DeleteWebhook(opts ...rest.RequestOpt) error {
 	return c.Rest().DeleteWebhookWithToken(c.id, c.token, opts...)
 }
 
-func (c *clientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.Rest().CreateWebhookMessage(c.id, c.token, messageCreate, rest.CreateWebhookMessageParams{Wait: true, ThreadID: threadID}, opts...)
+func (c *clientImpl) CreateMessage(messageCreate discord.WebhookMessageCreate, params rest.CreateWebhookMessageParams, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return c.Rest().CreateWebhookMessage(c.id, c.token, messageCreate, params, opts...)
 }
 
-func (c *clientImpl) CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.CreateMessageInThread(messageCreate, 0, opts...)
+func (c *clientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return c.CreateMessage(messageCreate, rest.CreateWebhookMessageParams{Wait: true, ThreadID: threadID}, opts...)
 }
 
 func (c *clientImpl) CreateContent(content string, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.CreateMessage(discord.WebhookMessageCreate{Content: content}, opts...)
+	return c.CreateMessage(discord.WebhookMessageCreate{Content: content}, rest.CreateWebhookMessageParams{}, opts...)
 }
 
 func (c *clientImpl) CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.CreateMessage(discord.WebhookMessageCreate{Embeds: embeds}, opts...)
+	return c.CreateMessage(discord.WebhookMessageCreate{Embeds: embeds}, rest.CreateWebhookMessageParams{}, opts...)
 }
 
-func (c *clientImpl) UpdateMessage(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.UpdateMessageInThread(messageID, messageUpdate, 0, opts...)
+func (c *clientImpl) UpdateMessage(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, params rest.UpdateWebhookMessageParams, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return c.Rest().UpdateWebhookMessage(c.id, c.token, messageID, messageUpdate, params, opts...)
 }
 
 func (c *clientImpl) UpdateMessageInThread(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.Rest().UpdateWebhookMessage(c.id, c.token, messageID, messageUpdate, rest.UpdateWebhookMessageParams{ThreadID: threadID}, opts...)
+	return c.UpdateMessage(messageID, messageUpdate, rest.UpdateWebhookMessageParams{ThreadID: threadID}, opts...)
 }
 
 func (c *clientImpl) UpdateContent(messageID snowflake.ID, content string, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.UpdateMessage(messageID, discord.WebhookMessageUpdate{Content: &content}, opts...)
+	return c.UpdateMessage(messageID, discord.WebhookMessageUpdate{Content: &content}, rest.UpdateWebhookMessageParams{}, opts...)
 }
 
 func (c *clientImpl) UpdateEmbeds(messageID snowflake.ID, embeds []discord.Embed, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: &embeds}, opts...)
+	return c.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: &embeds}, rest.UpdateWebhookMessageParams{}, opts...)
 }
 
 func (c *clientImpl) DeleteMessage(messageID snowflake.ID, opts ...rest.RequestOpt) error {

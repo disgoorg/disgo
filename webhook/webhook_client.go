@@ -33,7 +33,7 @@ type Client interface {
 	DeleteWebhook(opts ...rest.RequestOpt) error
 
 	// CreateMessage creates a new Message from the discord.WebhookMessageCreate
-	CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*discord.Message, error)
+	CreateMessage(messageCreate discord.WebhookMessageCreate, params rest.CreateWebhookMessageParams, opts ...rest.RequestOpt) (*discord.Message, error)
 	// CreateMessageInThread creates a new Message from the discord.WebhookMessageCreate in the provided thread
 	CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error)
 	// CreateContent creates a new Message from the provided content
@@ -42,7 +42,7 @@ type Client interface {
 	CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (*discord.Message, error)
 
 	// UpdateMessage updates an already sent Webhook Message with the discord.WebhookMessageUpdate
-	UpdateMessage(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error)
+	UpdateMessage(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, params rest.UpdateWebhookMessageParams, opts ...rest.RequestOpt) (*discord.Message, error)
 	// UpdateMessageInThread updates an already sent Webhook Message with the discord.WebhookMessageUpdate in the provided thread
 	UpdateMessageInThread(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error)
 	// UpdateContent updates an already sent Webhook Message with the content
