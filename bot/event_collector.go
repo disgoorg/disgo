@@ -6,7 +6,7 @@ import (
 )
 
 // WaitForEvent waits for an event passing the filterFunc and then calls the actionFunc. You can cancel this function with the passed context.Context and the cancelFunc gets called then.
-func WaitForEvent[E Event](client Client, ctx context.Context, filterFunc func(e E) bool, actionFunc func(e E), cancelFunc func()) {
+func WaitForEvent[E Event](client *Client, ctx context.Context, filterFunc func(e E) bool, actionFunc func(e E), cancelFunc func()) {
 	ch, cancel := NewEventCollector(client, filterFunc)
 
 	select {
@@ -25,7 +25,7 @@ func WaitForEvent[E Event](client Client, ctx context.Context, filterFunc func(e
 
 // NewEventCollector returns a channel in which the events of type T gets sent which pass the passed filter and a function which can be used to stop the event collector.
 // The close function needs to be called to stop the event collector.
-func NewEventCollector[E Event](client Client, filterFunc func(e E) bool) (<-chan E, func()) {
+func NewEventCollector[E Event](client *Client, filterFunc func(e E) bool) (<-chan E, func()) {
 	ch := make(chan E)
 	var once sync.Once
 
@@ -35,11 +35,11 @@ func NewEventCollector[E Event](client Client, filterFunc func(e E) bool) (<-cha
 		}
 		ch <- e
 	})
-	client.EventManager().AddEventListeners(handler)
+	client.EventManager.AddEventListeners(handler)
 
 	return ch, func() {
 		once.Do(func() {
-			client.EventManager().RemoveEventListeners(handler)
+			client.EventManager.RemoveEventListeners(handler)
 			close(ch)
 		})
 	}

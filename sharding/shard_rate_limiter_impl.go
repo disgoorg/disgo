@@ -13,13 +13,13 @@ var _ RateLimiter = (*rateLimiterImpl)(nil)
 
 // NewRateLimiter creates a new default RateLimiter with the given RateLimiterConfigOpt(s).
 func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
-	config := DefaultRateLimiterConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "sharding_rate_limiter"))
+	cfg := defaultRateLimiterConfig()
+	cfg.apply(opts)
+	cfg.Logger = cfg.Logger.With(slog.String("name", "sharding_rate_limiter"))
 
 	return &rateLimiterImpl{
 		buckets: make(map[int]*bucket),
-		config:  *config,
+		config:  *cfg,
 	}
 }
 
@@ -27,7 +27,7 @@ type rateLimiterImpl struct {
 	mu sync.Mutex
 
 	buckets map[int]*bucket
-	config  RateLimiterConfig
+	config  rateLimiterConfig
 }
 
 func (r *rateLimiterImpl) Close(ctx context.Context) {

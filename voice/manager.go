@@ -42,9 +42,8 @@ type (
 
 // NewManager creates a new Manager.
 func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts ...ManagerConfigOpt) Manager {
-	config := DefaultManagerConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "voice"))
+	config := defaultManagerConfig()
+	config.apply(opts)
 
 	return &managerImpl{
 		config:               *config,
@@ -55,7 +54,7 @@ func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts 
 }
 
 type managerImpl struct {
-	config               ManagerConfig
+	config               managerConfig
 	voiceStateUpdateFunc StateUpdateFunc
 	userID               snowflake.ID
 

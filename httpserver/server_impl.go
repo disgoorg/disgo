@@ -12,24 +12,23 @@ var _ Server = (*serverImpl)(nil)
 
 // New creates a new Server with the given publicKey eventHandlerFunc and ConfigOpt(s)
 func New(publicKey string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
-	config := DefaultConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "httpserver"))
+	cfg := defaultConfig()
+	cfg.apply(opts)
 
 	hexDecodedKey, err := hex.DecodeString(publicKey)
 	if err != nil {
-		config.Logger.Debug("error while decoding hex string", slog.Any("err", err))
+		cfg.Logger.Debug("error while decoding hex string", slog.Any("err", err))
 	}
 
 	return &serverImpl{
-		config:           *config,
+		config:           *cfg,
 		publicKey:        hexDecodedKey,
 		eventHandlerFunc: eventHandlerFunc,
 	}
 }
 
 type serverImpl struct {
-	config           Config
+	config           config
 	publicKey        PublicKey
 	eventHandlerFunc EventHandlerFunc
 }

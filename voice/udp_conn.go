@@ -90,8 +90,8 @@ type (
 
 // NewUDPConn creates a new voice UDPConn with the given configuration.
 func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
-	config := DefaultUDPConnConfig()
-	config.Apply(opts)
+	config := defaultUDPConnConfig()
+	config.apply(opts)
 	config.Logger = config.Logger.With(slog.String("name", "voice_conn_udp_conn"))
 
 	return &udpConnImpl{
@@ -101,7 +101,7 @@ func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
 }
 
 type udpConnImpl struct {
-	config UDPConnConfig
+	config udpConnConfig
 
 	conn   net.Conn
 	connMu sync.Mutex

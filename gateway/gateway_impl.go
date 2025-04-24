@@ -23,12 +23,11 @@ var _ Gateway = (*gatewayImpl)(nil)
 
 // New creates a new Gateway instance with the provided token, eventHandlerFunc, closeHandlerFunc and ConfigOpt(s).
 func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
-	config := DefaultConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "gateway"), slog.Int("shard_id", config.ShardID), slog.Int("shard_count", config.ShardCount))
+	cfg := defaultConfig()
+	cfg.apply(opts)
 
 	return &gatewayImpl{
-		config:           *config,
+		config:           *cfg,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
 		token:            token,
@@ -37,7 +36,7 @@ func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc Close
 }
 
 type gatewayImpl struct {
-	config           Config
+	config           config
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
 	token            string

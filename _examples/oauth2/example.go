@@ -22,7 +22,7 @@ var (
 	clientSecret = os.Getenv("client_secret")
 	baseURL      = os.Getenv("base_url")
 	httpClient   = http.DefaultClient
-	client       oauth2.Client
+	client       *oauth2.Client
 	sessions     map[string]oauth2.Session
 )
 

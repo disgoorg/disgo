@@ -7,9 +7,8 @@ import (
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
-// DefaultStateControllerConfig is the default configuration for the StateController
-func DefaultStateControllerConfig() *StateControllerConfig {
-	return &StateControllerConfig{
+func defaultStateControllerConfig() *stateControllerConfig {
+	return &stateControllerConfig{
 		Logger:       slog.Default(),
 		States:       map[string]string{},
 		NewStateFunc: func() string { return insecurerandstr.RandStr(32) },
@@ -17,8 +16,7 @@ func DefaultStateControllerConfig() *StateControllerConfig {
 	}
 }
 
-// StateControllerConfig is the configuration for the StateController
-type StateControllerConfig struct {
+type stateControllerConfig struct {
 	Logger       *slog.Logger
 	States       map[string]string
 	NewStateFunc func() string
@@ -26,10 +24,10 @@ type StateControllerConfig struct {
 }
 
 // StateControllerConfigOpt is used to pass optional parameters to NewStateController
-type StateControllerConfigOpt func(config *StateControllerConfig)
+type StateControllerConfigOpt func(config *stateControllerConfig)
 
-// Apply applies the given StateControllerConfigOpt(s) to the StateControllerConfig
-func (c *StateControllerConfig) Apply(opts []StateControllerConfigOpt) {
+// apply applies the given StateControllerConfigOpt(s) to the StateControllerConfig
+func (c *stateControllerConfig) apply(opts []StateControllerConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -37,28 +35,28 @@ func (c *StateControllerConfig) Apply(opts []StateControllerConfigOpt) {
 
 // WithStateControllerLogger sets the logger for the StateController
 func WithStateControllerLogger(logger *slog.Logger) StateControllerConfigOpt {
-	return func(config *StateControllerConfig) {
+	return func(config *stateControllerConfig) {
 		config.Logger = logger
 	}
 }
 
 // WithStates loads states from an existing map
 func WithStates(states map[string]string) StateControllerConfigOpt {
-	return func(config *StateControllerConfig) {
+	return func(config *stateControllerConfig) {
 		config.States = states
 	}
 }
 
 // WithNewStateFunc sets the function which is used to generate a new random state
 func WithNewStateFunc(newStateFunc func() string) StateControllerConfigOpt {
-	return func(config *StateControllerConfig) {
+	return func(config *stateControllerConfig) {
 		config.NewStateFunc = newStateFunc
 	}
 }
 
 // WithMaxTTL sets the maximum time to live for a state
 func WithMaxTTL(maxTTL time.Duration) StateControllerConfigOpt {
-	return func(config *StateControllerConfig) {
+	return func(config *stateControllerConfig) {
 		config.MaxTTL = maxTTL
 	}
 }
