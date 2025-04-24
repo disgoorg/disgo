@@ -51,15 +51,14 @@ var _ ShardManager = (*shardManagerImpl)(nil)
 
 // New creates a new default ShardManager with the given token, eventHandlerFunc and ConfigOpt(s).
 func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...ConfigOpt) ShardManager {
-	config := DefaultConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "sharding"))
+	cfg := defaultConfig()
+	cfg.apply(opts)
 
 	return &shardManagerImpl{
 		shards:           map[int]gateway.Gateway{},
 		token:            token,
 		eventHandlerFunc: eventHandlerFunc,
-		config:           *config,
+		config:           *cfg,
 	}
 }
 
@@ -69,7 +68,7 @@ type shardManagerImpl struct {
 
 	token            string
 	eventHandlerFunc gateway.EventHandlerFunc
-	config           Config
+	config           config
 }
 
 func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {

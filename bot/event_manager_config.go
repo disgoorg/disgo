@@ -33,7 +33,7 @@ func (c *EventManagerConfig) Apply(opts []EventManagerConfigOpt) {
 	}
 }
 
-// WithEventManagerLogger overrides the default logger in the EventManagerConfig.
+// WithEventManagerLogger overrides the default Logger in the EventManagerConfig.
 func WithEventManagerLogger(logger *slog.Logger) EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.Logger = logger

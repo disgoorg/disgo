@@ -50,7 +50,7 @@ import (
 	"runtime/debug"
 
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/handlers"
+	"github.com/disgoorg/disgo/bot/handlers"
 )
 
 const (
@@ -82,14 +82,11 @@ func getVersion() string {
 }
 
 // New creates a new bot.Client with the provided token & bot.ConfigOpt(s)
-func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
-	config := bot.DefaultConfig(handlers.GetGatewayHandlers(), handlers.GetHTTPServerHandler())
-	config.Apply(opts)
-
+func New(token string, opts ...bot.ConfigOpt) (*bot.Client, error) {
 	return bot.BuildClient(token,
-		config,
-		handlers.DefaultGatewayEventHandlerFunc,
-		handlers.DefaultHTTPServerEventHandlerFunc,
+		opts,
+		handlers.GetGatewayHandlers(),
+		handlers.GetHTTPServerHandler(),
 		runtime.GOOS,
 		Name,
 		GitHub,

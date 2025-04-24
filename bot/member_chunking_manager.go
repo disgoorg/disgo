@@ -19,7 +19,7 @@ var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 var ErrNoUserIDs = errors.New("no user ids to request")
 
 // NewMemberChunkingManager returns a new MemberChunkingManager with the given MemberChunkingFilter.
-func NewMemberChunkingManager(client Client, logger *slog.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
+func NewMemberChunkingManager(client *Client, logger *slog.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
 	if memberChunkingFilter == nil {
 		memberChunkingFilter = MemberChunkingFilterNone
 	}
@@ -36,12 +36,12 @@ func NewMemberChunkingManager(client Client, logger *slog.Logger, memberChunking
 	}
 }
 
-// MemberChunkingManager is used to request members for guilds from the discord gateway.
+// MemberChunkingManager is used to request members for guilds from the discord Gateway.
 type MemberChunkingManager interface {
 	// MemberChunkingFilter returns the configured MemberChunkingFilter used by this MemberChunkingManager.
 	MemberChunkingFilter() MemberChunkingFilter
 
-	// HandleChunk handles the discord.EventGuildMembersChunk event payloads from the discord gateway.
+	// HandleChunk handles the discord.EventGuildMembersChunk event payloads from the discord Gateway.
 	HandleChunk(payload gateway.EventGuildMembersChunk)
 
 	// RequestMembers requests members from the given guildID and userIDs.
@@ -91,7 +91,7 @@ type chunkingRequest struct {
 }
 
 type memberChunkingManagerImpl struct {
-	client               Client
+	client               *Client
 	logger               *slog.Logger
 	memberChunkingFilter MemberChunkingFilter
 
@@ -117,7 +117,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 
 	for _, member := range payload.Members {
 		// try to cache member
-		m.client.Caches().AddMember(member)
+		m.client.Caches.AddMember(member)
 		if request.memberFilterFunc != nil && !request.memberFilterFunc(member) {
 			continue
 		}
