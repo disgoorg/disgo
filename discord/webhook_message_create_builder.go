@@ -106,7 +106,7 @@ func (b *WebhookMessageCreateBuilder) AddComponents(containers ...LayoutComponen
 	return b
 }
 
-// RemoveComponent removes a discord.ActionRowComponent from the Message
+// RemoveComponent removes a discord.LayoutComponent from the Message
 func (b *WebhookMessageCreateBuilder) RemoveComponent(i int) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
