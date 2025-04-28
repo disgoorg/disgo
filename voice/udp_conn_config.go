@@ -26,6 +26,7 @@ func (c *udpConnConfig) apply(opts []UDPConnConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.Logger = c.Logger.With(slog.String("name", "voice_conn_udp_conn"))
 }
 
 func WithUDPConnLogger(logger *slog.Logger) UDPConnConfigOpt {

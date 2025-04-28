@@ -6,16 +6,14 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() config {
+	return config{
 		Logger:          slog.Default(),
 		Dialer:          websocket.DefaultDialer,
 		LargeThreshold:  50,
 		Intents:         IntentsDefault,
 		Compress:        true,
 		URL:             "wss://gateway.discord.gg",
-		ShardID:         0,
-		ShardCount:      1,
 		AutoReconnect:   true,
 		EnableResumeURL: true,
 	}
@@ -35,10 +33,6 @@ type config struct {
 	Compress bool
 	// URL is the URL of the Gateway. Defaults to fetch from Discord.
 	URL string
-	// ShardID is the shardID of the Gateway. Defaults to 0.
-	ShardID int
-	// ShardCount is the shardCount of the Gateway. Defaults to 1.
-	ShardCount int
 	// SessionID is the last sessionID of the Gateway. Defaults to nil (no resume).
 	SessionID *string
 	// ResumeURL is the last resumeURL of the Gateway. Defaults to nil (no resume).
@@ -73,10 +67,15 @@ func (c *config) apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
-	c.Logger = c.Logger.With(slog.String("name", "gateway"), slog.Int("shard_id", c.ShardID), slog.Int("shard_count", c.ShardCount))
+	c.Logger = c.Logger.With(slog.String("name", "gateway"))
 	if c.RateLimiter == nil {
-		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(append([]RateLimiterConfigOpt{WithRateLimiterLogger(c.Logger)}, c.RateLimiterConfigOpts...)...)
 	}
+}
+
+// WithDefault is a ConfigOpt that does nothing. It is used to make sure the bot initializes a Gateway even if no options are set.
+func WithDefault() ConfigOpt {
+	return func(*config) {}
 }
 
 // WithLogger sets the Logger for the Gateway.
@@ -121,22 +120,6 @@ func WithCompress(compress bool) ConfigOpt {
 func WithURL(url string) ConfigOpt {
 	return func(config *config) {
 		config.URL = url
-	}
-}
-
-// WithShardID sets the shard ID for the Gateway.
-// See here for more information on sharding: https://discord.com/developers/docs/topics/gateway#sharding
-func WithShardID(shardID int) ConfigOpt {
-	return func(config *config) {
-		config.ShardID = shardID
-	}
-}
-
-// WithShardCount sets the shard count for the Gateway.
-// See here for more information on sharding: https://discord.com/developers/docs/topics/gateway#sharding
-func WithShardCount(shardCount int) ConfigOpt {
-	return func(config *config) {
-		config.ShardCount = shardCount
 	}
 }
 

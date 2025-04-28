@@ -6,11 +6,10 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-func defaultConfig() *config {
-	return &config{
-		Logger:            slog.Default(),
-		GatewayCreateFunc: gateway.New,
-		ShardSplitCount:   DefaultShardSplitCount,
+func defaultConfig() config {
+	return config{
+		Logger:          slog.Default(),
+		ShardSplitCount: DefaultShardSplitCount,
 	}
 }
 
@@ -45,8 +44,16 @@ func (c *config) apply(opts []ConfigOpt) {
 	}
 	c.Logger = c.Logger.With(slog.String("name", "sharding"))
 	if c.RateLimiter == nil {
-		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(append([]RateLimiterConfigOpt{WithRateLimiterLogger(c.Logger)}, c.RateLimiterConfigOpts...)...)
 	}
+	if c.GatewayCreateFunc == nil {
+		c.GatewayCreateFunc = gateway.New(c.GatewayConfigOpts...)
+	}
+}
+
+// WithDefault is a ConfigOpt that does nothing. It is used to make sure the bot initializes a shard manager even if no options are set.
+func WithDefault() ConfigOpt {
+	return func(*config) {}
 }
 
 // WithLogger sets the logger of the ShardManager.

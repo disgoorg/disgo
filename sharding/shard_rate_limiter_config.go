@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func defaultRateLimiterConfig() *rateLimiterConfig {
-	return &rateLimiterConfig{
+func defaultRateLimiterConfig() rateLimiterConfig {
+	return rateLimiterConfig{
 		Logger:         slog.Default(),
 		MaxConcurrency: MaxConcurrency,
 		IdentifyWait:   5 * time.Second,

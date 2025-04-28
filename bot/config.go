@@ -17,6 +17,8 @@ import (
 func defaultConfig(gatewayHandlers map[gateway.EventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *config {
 	return &config{
 		Logger:                 slog.Default(),
+		ShardID:                0,
+		ShardCount:             1,
 		EventManagerConfigOpts: []EventManagerConfigOpt{WithGatewayHandlers(gatewayHandlers), WithHTTPServerHandler(httpHandler)},
 		MemberChunkingFilter:   MemberChunkingFilterNone,
 	}
@@ -35,6 +37,8 @@ type config struct {
 	VoiceManager           voice.Manager
 	VoiceManagerConfigOpts []voice.ManagerConfigOpt
 
+	ShardID           int
+	ShardCount        int
 	Gateway           gateway.Gateway
 	GatewayConfigOpts []gateway.ConfigOpt
 
@@ -120,10 +124,33 @@ func WithEventListenerChan[E Event](c chan<- E) ConfigOpt {
 	return WithEventListeners(NewListenerChan(c))
 }
 
+// WithShardID lets you set the ShardID of the [gateway.Gateway].
+// If you use the [sharding.ShardManager], use [sharding.WithShardIDs] instead.
+func WithShardID(shardID int) ConfigOpt {
+	return func(config *config) {
+		config.ShardID = shardID
+	}
+}
+
+// WithShardCount lets you set the ShardCount of the [gateway.Gateway].
+// If you use the [sharding.ShardManager], use [sharding.WithShardCount] instead.
+func WithShardCount(shardCount int) ConfigOpt {
+	return func(config *config) {
+		config.ShardCount = shardCount
+	}
+}
+
 // WithGateway lets you inject your own gateway.Gateway.
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *config) {
 		config.Gateway = gateway
+	}
+}
+
+// WithDefaultGateway creates a gateway.Gateway with sensible defaults.
+func WithDefaultGateway() ConfigOpt {
+	return func(config *config) {
+		config.GatewayConfigOpts = append(config.GatewayConfigOpts, gateway.WithDefault())
 	}
 }
 
@@ -138,6 +165,13 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *config) {
 		config.ShardManager = shardManager
+	}
+}
+
+// WithDefaultShardManager creates a sharding.ShardManager with sensible defaults.
+func WithDefaultShardManager() ConfigOpt {
+	return func(config *config) {
+		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, sharding.WithDefault())
 	}
 }
 
@@ -232,10 +266,6 @@ func BuildClient(
 		cfg.RestClientConfigOpts = append([]rest.ConfigOpt{
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.Logger),
-			// TODO: make these not override the user provided config opts
-			rest.WithRateLimiterConfigOpts(
-				rest.WithRateLimiterLogger(cfg.Logger),
-			),
 		}, cfg.RestClientConfigOpts...)
 
 		cfg.RestClient = rest.NewClient(client.Token, cfg.RestClientConfigOpts...)
@@ -269,13 +299,9 @@ func BuildClient(
 			gateway.WithOS(os),
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
-			// TODO: make these not override the user provided config opts
-			gateway.WithRateLimiterConfigOpts(
-				gateway.WithRateLimiterLogger(cfg.Logger),
-			),
 		}, cfg.GatewayConfigOpts...)
 
-		cfg.Gateway = gateway.New(token, defaultGatewayEventHandlerFunc(client), nil, cfg.GatewayConfigOpts...)
+		cfg.Gateway = gateway.New(cfg.GatewayConfigOpts...)(token, cfg.ShardID, cfg.ShardCount, defaultGatewayEventHandlerFunc(client), nil)
 	}
 	client.Gateway = cfg.Gateway
 
@@ -305,7 +331,6 @@ func BuildClient(
 			// TODO: make these not override the user provided config opts
 			sharding.WithRateLimiterConfigOpt(
 				sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency),
-				sharding.WithRateLimiterLogger(cfg.Logger),
 			),
 		}, cfg.ShardManagerConfigOpts...)
 

@@ -5,8 +5,8 @@ import (
 	"net/http"
 )
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() config {
+	return config{
 		Logger:     slog.Default(),
 		HTTPServer: &http.Server{},
 		ServeMux:   http.NewServeMux(),

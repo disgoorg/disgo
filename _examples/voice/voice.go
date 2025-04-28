@@ -57,8 +57,8 @@ func main() {
 	<-s
 }
 
-func play(client bot.Client, closeChan chan os.Signal) {
-	conn := client.VoiceManager().CreateConn(guildID)
+func play(client *bot.Client, closeChan chan os.Signal) {
+	conn := client.VoiceManager.CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()

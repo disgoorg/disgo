@@ -21,7 +21,7 @@ func New(publicKey string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt)
 	}
 
 	return &serverImpl{
-		config:           *cfg,
+		config:           cfg,
 		publicKey:        hexDecodedKey,
 		eventHandlerFunc: eventHandlerFunc,
 	}

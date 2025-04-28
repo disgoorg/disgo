@@ -13,9 +13,8 @@ var _ EventManager = (*eventManagerImpl)(nil)
 
 // NewEventManager returns a new EventManager with the EventManagerConfigOpt(s) applied.
 func NewEventManager(client *Client, opts ...EventManagerConfigOpt) EventManager {
-	cfg := DefaultEventManagerConfig()
-	cfg.Apply(opts)
-	cfg.Logger = cfg.Logger.With(slog.String("name", "bot_event_manager"))
+	cfg := defaultEventManagerConfig()
+	cfg.apply(opts)
 
 	return &eventManagerImpl{
 		client:             client,

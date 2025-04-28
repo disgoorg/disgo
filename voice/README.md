@@ -12,9 +12,9 @@ const (
     channelID = 12345
 )
 
-var client bot.Client
+var client *bot.Client
 
-conn := client.VoiceManager().CreateConn(guildID)
+conn := client.VoiceManager.CreateConn(guildID)
 
 err := conn.Open(context.TODO(), channelID, false, false)
 // handle err

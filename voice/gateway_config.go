@@ -6,8 +6,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func defaultGatewayConfig() *gatewayConfig {
-	return &gatewayConfig{
+func defaultGatewayConfig() gatewayConfig {
+	return gatewayConfig{
 		Logger:        slog.Default(),
 		Dialer:        websocket.DefaultDialer,
 		AutoReconnect: true,

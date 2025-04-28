@@ -4,11 +4,9 @@ import (
 	"log/slog"
 )
 
-func defaultConnConfig() *connConfig {
-	return &connConfig{
+func defaultConnConfig() connConfig {
+	return connConfig{
 		Logger:                  slog.Default(),
-		GatewayCreateFunc:       NewGateway,
-		UDPConnCreateFunc:       NewUDPConn,
 		AudioSenderCreateFunc:   NewAudioSender,
 		AudioReceiverCreateFunc: NewAudioReceiver,
 	}
@@ -38,6 +36,12 @@ func (c *connConfig) apply(opts []ConnConfigOpt) {
 		opt(c)
 	}
 	c.Logger = c.Logger.With(slog.String("name", "voice_conn"))
+	if c.GatewayCreateFunc == nil {
+		c.GatewayCreateFunc = NewGateway(append([]GatewayConfigOpt{WithGatewayLogger(c.Logger)}, c.GatewayConfigOpts...)...)
+	}
+	if c.UDPConnCreateFunc == nil {
+		c.UDPConnCreateFunc = NewUDPConn(append([]UDPConnConfigOpt{WithUDPConnLogger(c.Logger)}, c.UDPConnConfigOpts...)...)
+	}
 }
 
 // WithConnLogger sets the Conn(s) used Logger.

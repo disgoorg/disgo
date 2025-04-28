@@ -77,7 +77,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
 		panic("error while registering commands: " + err.Error())
 	}
 
@@ -100,7 +100,7 @@ func commandListener(event *events.ApplicationCommandInteractionCreate) {
 			Build(),
 		)
 		if err != nil {
-			event.Client().Logger().Error("error on sending response", slog.Any("err", err))
+			slog.Error("error on sending response", slog.Any("err", err))
 		}
 	}
 }

@@ -2,10 +2,9 @@ package voice
 
 import "log/slog"
 
-func defaultManagerConfig() *managerConfig {
-	return &managerConfig{
-		Logger:         slog.Default(),
-		ConnCreateFunc: NewConn,
+func defaultManagerConfig() managerConfig {
+	return managerConfig{
+		Logger: slog.Default(),
 	}
 }
 
@@ -19,12 +18,14 @@ type managerConfig struct {
 // ManagerConfigOpt is used to functionally configure a managerConfig.
 type ManagerConfigOpt func(config *managerConfig)
 
-// apply applies the given ManagerConfigOpts to the managerConfig.
 func (c *managerConfig) apply(opts []ManagerConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
 	c.Logger = c.Logger.With(slog.String("name", "voice"))
+	if c.ConnCreateFunc == nil {
+		c.ConnCreateFunc = NewConn(append([]ConnConfigOpt{WithConnLogger(c.Logger)}, c.ConnOpts...)...)
+	}
 }
 
 // WithLogger sets the logger for the webhook client

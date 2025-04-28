@@ -78,7 +78,7 @@ type (
 	EventHandlerFunc func(gatewayEventType EventType, sequenceNumber int, shardID int, event EventData)
 
 	// CreateFunc is a type that is used to create a new Gateway(s).
-	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway
+	CreateFunc func(token string, shardID int, shardCount int, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc) Gateway
 
 	// CloseHandlerFunc is a function that is called when the Gateway is closed.
 	CloseHandlerFunc func(gateway Gateway, err error)

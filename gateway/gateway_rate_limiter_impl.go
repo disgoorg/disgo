@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"github.com/sasha-s/go-csync"
@@ -12,10 +11,9 @@ import (
 func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	cfg := defaultRateLimiterConfig()
 	cfg.apply(opts)
-	cfg.Logger = cfg.Logger.With(slog.String("name", "gateway_rate_limiter"))
 
 	return &rateLimiterImpl{
-		config: *cfg,
+		config: cfg,
 	}
 }
 

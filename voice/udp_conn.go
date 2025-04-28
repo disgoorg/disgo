@@ -37,7 +37,7 @@ var (
 
 type (
 	// UDPConnCreateFunc is a function that creates a UDPConn.
-	UDPConnCreateFunc func(opts ...UDPConnConfigOpt) UDPConn
+	UDPConnCreateFunc func() UDPConn
 
 	// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
 	// It implements the io.Reader, io.Writer and io.Closer interface.
@@ -89,14 +89,15 @@ type (
 )
 
 // NewUDPConn creates a new voice UDPConn with the given configuration.
-func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
-	config := defaultUDPConnConfig()
-	config.apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "voice_conn_udp_conn"))
+func NewUDPConn(opts ...UDPConnConfigOpt) UDPConnCreateFunc {
+	return func() UDPConn {
+		cfg := defaultUDPConnConfig()
+		cfg.apply(opts)
 
-	return &udpConnImpl{
-		config:        config,
-		receiveBuffer: make([]byte, 1400),
+		return &udpConnImpl{
+			config:        cfg,
+			receiveBuffer: make([]byte, 1400),
+		}
 	}
 }
 

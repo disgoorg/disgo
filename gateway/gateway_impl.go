@@ -22,16 +22,20 @@ import (
 var _ Gateway = (*gatewayImpl)(nil)
 
 // New creates a new Gateway instance with the provided token, eventHandlerFunc, closeHandlerFunc and ConfigOpt(s).
-func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
-	cfg := defaultConfig()
-	cfg.apply(opts)
+func New(opts ...ConfigOpt) CreateFunc {
+	return func(token string, shardID int, shardCount int, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc) Gateway {
+		cfg := defaultConfig()
+		cfg.apply(opts)
 
-	return &gatewayImpl{
-		config:           *cfg,
-		eventHandlerFunc: eventHandlerFunc,
-		closeHandlerFunc: closeHandlerFunc,
-		token:            token,
-		status:           StatusUnconnected,
+		cfg.Logger = cfg.Logger.With(slog.Int("shard_id", shardID), slog.Int("shard_count", shardCount))
+
+		return &gatewayImpl{
+			config:           cfg,
+			eventHandlerFunc: eventHandlerFunc,
+			closeHandlerFunc: closeHandlerFunc,
+			token:            token,
+			status:           StatusUnconnected,
+		}
 	}
 }
 
@@ -40,6 +44,8 @@ type gatewayImpl struct {
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
 	token            string
+	shardID          int
+	shardCount       int
 
 	conn            *websocket.Conn
 	connMu          sync.Mutex
@@ -52,11 +58,11 @@ type gatewayImpl struct {
 }
 
 func (g *gatewayImpl) ShardID() int {
-	return g.config.ShardID
+	return g.shardID
 }
 
 func (g *gatewayImpl) ShardCount() int {
-	return g.config.ShardCount
+	return g.shardCount
 }
 
 func (g *gatewayImpl) SessionID() *string {
@@ -455,7 +461,7 @@ loop:
 
 			// push message to the command manager
 			if g.config.EnableRawEvents {
-				g.eventHandlerFunc(EventTypeRaw, message.S, g.config.ShardID, EventRaw{
+				g.eventHandlerFunc(EventTypeRaw, message.S, g.shardID, EventRaw{
 					EventType: message.T,
 					Payload:   bytes.NewReader(message.RawD),
 				})
@@ -465,7 +471,7 @@ loop:
 				g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
 				continue
 			}
-			g.eventHandlerFunc(message.T, message.S, g.config.ShardID, eventData)
+			g.eventHandlerFunc(message.T, message.S, g.shardID, eventData)
 
 		case OpcodeHeartbeat:
 			g.sendHeartbeat()
@@ -498,7 +504,7 @@ loop:
 
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now().UTC()
-			g.eventHandlerFunc(EventTypeHeartbeatAck, message.S, g.config.ShardID, EventHeartbeatAck{
+			g.eventHandlerFunc(EventTypeHeartbeatAck, message.S, g.shardID, EventHeartbeatAck{
 				LastHeartbeat: g.lastHeartbeatReceived,
 				NewHeartbeat:  newHeartbeat,
 			})
@@ -519,7 +525,11 @@ func (g *gatewayImpl) parseMessage(mt int, r io.Reader) (Message, error) {
 		if err != nil {
 			return Message{}, fmt.Errorf("failed to decompress zlib: %w", err)
 		}
-		defer reader.Close()
+		defer func() {
+			if err := reader.Close(); err != nil {
+				g.config.Logger.Error("failed to close zlib reader", slog.Any("err", err))
+			}
+		}()
 		r = reader
 	}
 

@@ -4,8 +4,8 @@ import (
 	"log/slog"
 )
 
-func defaultRateLimiterConfig() *rateLimiterConfig {
-	return &rateLimiterConfig{
+func defaultRateLimiterConfig() rateLimiterConfig {
+	return rateLimiterConfig{
 		Logger:            slog.Default(),
 		CommandsPerMinute: CommandsPerMinute,
 	}
@@ -24,6 +24,7 @@ func (c *rateLimiterConfig) apply(opts []RateLimiterConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.Logger = c.Logger.With(slog.String("name", "gateway_rate_limiter"))
 }
 
 // WithRateLimiterLogger sets the Logger for the Gateway.

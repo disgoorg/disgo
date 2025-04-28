@@ -50,7 +50,7 @@ import (
 	"runtime/debug"
 
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/handlers"
+	"github.com/disgoorg/disgo/bot/handlers"
 )
 
 const (

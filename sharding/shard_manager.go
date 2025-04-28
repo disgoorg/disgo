@@ -58,7 +58,7 @@ func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...Config
 		shards:           map[int]gateway.Gateway{},
 		token:            token,
 		eventHandlerFunc: eventHandlerFunc,
-		config:           *cfg,
+		config:           cfg,
 	}
 }
 
@@ -104,15 +104,19 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if err := m.config.RateLimiter.WaitBucket(context.TODO(), shardID); err != nil {
+			if err = m.config.RateLimiter.WaitBucket(context.TODO(), shardID); err != nil {
 				m.config.Logger.Error("failed to wait shard bucket", slog.Any("err", err), slog.Int("shard_id", shardID))
 				return
 			}
 			defer m.config.RateLimiter.UnlockBucket(shardID)
 
-			newShard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(newShardCount))...)
+			if m.config.GatewayCreateFunc == nil {
+				m.config.GatewayCreateFunc = gateway.New(m.config.GatewayConfigOpts...)
+			}
+
+			newShard := m.config.GatewayCreateFunc(m.token, shardID, newShardCount, m.eventHandlerFunc, m.closeHandler)
 			m.shards[shardID] = newShard
-			if err := newShard.Open(context.TODO()); err != nil {
+			if err = newShard.Open(context.TODO()); err != nil {
 				m.config.Logger.Error("failed to re shard", slog.Any("err", err), slog.Int("shard_id", shardID))
 			}
 		}()
@@ -141,7 +145,11 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 			}
 			defer m.config.RateLimiter.UnlockBucket(shardID)
 
-			shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
+			if m.config.GatewayCreateFunc == nil {
+				m.config.GatewayCreateFunc = gateway.New(m.config.GatewayConfigOpts...)
+			}
+
+			shard := m.config.GatewayCreateFunc(m.token, shardID, m.config.ShardCount, m.eventHandlerFunc, m.closeHandler)
 			m.shards[shardID] = shard
 			if err := shard.Open(ctx); err != nil {
 				m.config.Logger.Error("failed to open shard", slog.Any("err", err), slog.Int("shard_id", shardID))
@@ -180,8 +188,8 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 		return err
 	}
 	defer m.config.RateLimiter.UnlockBucket(shardID)
-	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(shardCount))...)
 
+	shard := m.config.GatewayCreateFunc(m.token, shardID, shardCount, m.eventHandlerFunc, m.closeHandler)
 	m.shardsMu.Lock()
 	defer m.shardsMu.Unlock()
 	m.config.ShardIDs[shardID] = struct{}{}

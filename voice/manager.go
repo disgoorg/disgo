@@ -42,11 +42,11 @@ type (
 
 // NewManager creates a new Manager.
 func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts ...ManagerConfigOpt) Manager {
-	config := defaultManagerConfig()
-	config.apply(opts)
+	cfg := defaultManagerConfig()
+	cfg.apply(opts)
 
 	return &managerImpl{
-		config:               *config,
+		config:               cfg,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		userID:               userID,
 		conns:                map[snowflake.ID]Conn{},
@@ -94,7 +94,7 @@ func (m *managerImpl) CreateConn(guildID snowflake.ID) Conn {
 	var once sync.Once
 	removeFunc := func() { once.Do(func() { m.RemoveConn(guildID) }) }
 
-	conn := m.config.ConnCreateFunc(guildID, m.userID, m.voiceStateUpdateFunc, removeFunc, append([]ConnConfigOpt{WithConnLogger(m.config.Logger)}, m.config.ConnOpts...)...)
+	conn := m.config.ConnCreateFunc(guildID, m.userID, m.voiceStateUpdateFunc, removeFunc)
 	m.conns[guildID] = conn
 
 	return conn

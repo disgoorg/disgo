@@ -19,7 +19,7 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 
 	return &rateLimiterImpl{
 		buckets: make(map[int]*bucket),
-		config:  *cfg,
+		config:  cfg,
 	}
 }
 
