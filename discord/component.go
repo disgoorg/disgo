@@ -823,6 +823,7 @@ var (
 	_ Component             = (*TextDisplayComponent)(nil)
 	_ ContainerSubComponent = (*TextDisplayComponent)(nil)
 	_ SectionSubComponent   = (*TextDisplayComponent)(nil)
+	_ LayoutComponent       = (*TextDisplayComponent)(nil)
 )
 
 // TextDisplayComponent is a component that displays text.
@@ -853,6 +854,7 @@ func (c TextDisplayComponent) GetID() int {
 func (TextDisplayComponent) component()             {}
 func (TextDisplayComponent) sectionSubComponent()   {}
 func (TextDisplayComponent) containerSubComponent() {}
+func (TextDisplayComponent) layoutComponent()       {}
 
 func (c TextDisplayComponent) WithID(i int) SectionSubComponent {
 	c.ID = i
