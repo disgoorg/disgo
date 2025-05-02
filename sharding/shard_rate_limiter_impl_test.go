@@ -17,8 +17,7 @@ func TestShardRateLimiterImpl(t *testing.T) {
 	start := time.Now()
 
 	var wg sync.WaitGroup
-	for i := 0; i < 3; i++ {
-		shardID := i
+	for shardID := range 3 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -41,8 +40,7 @@ func TestShardRateLimiterImpl_WithMaxConcurrency(t *testing.T) {
 	start := time.Now()
 
 	var wg sync.WaitGroup
-	for i := 0; i < 6; i++ {
-		shardID := i
+	for shardID := range 6 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

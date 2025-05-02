@@ -50,8 +50,8 @@ func componentListener(event *events.ComponentInteractionCreate) {
 			_ = event.Modal(discord.ModalCreate{
 				CustomID: "test" + ids[1],
 				Title:    "Test" + ids[1] + " Modal",
-				Components: []discord.ContainerComponent{
-					discord.ActionRowComponent{
+				Components: []discord.LayoutComponent{
+					discord.NewActionRow(
 						discord.TextInputComponent{
 							CustomID:    "test_input",
 							Style:       discord.TextInputStyleShort,
@@ -60,7 +60,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 							Placeholder: "test placeholder",
 							Value:       "uwu",
 						},
-					},
+					),
 				},
 			})
 

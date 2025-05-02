@@ -6,7 +6,7 @@ end_of_line = lf
 indent_size = 4
 indent_style = space
 insert_final_newline = false
-max_line_length = 120
+max_line_length = 180
 tab_width = 4
 ij_continuation_indent_size = 8
 ij_formatter_off_tag = @formatter:off
@@ -16,11 +16,11 @@ ij_smart_tabs = false
 ij_visual_guides = none
 ij_wrap_on_typing = false
 
-[{*.go,*.go2}]
+[*.go]
 indent_style = tab
 ij_continuation_indent_size = 4
-ij_go_GROUP_CURRENT_PROJECT_IMPORTS = false
-ij_go_add_leading_space_to_comments = false
+ij_go_GROUP_CURRENT_PROJECT_IMPORTS = true
+ij_go_add_leading_space_to_comments = true
 ij_go_add_parentheses_for_single_import = false
 ij_go_call_parameters_new_line_after_left_paren = true
 ij_go_call_parameters_right_paren_on_new_line = true
@@ -42,6 +42,8 @@ ij_go_wrap_func_params_newline_before_rparen = true
 ij_go_wrap_func_result = off
 ij_go_wrap_func_result_newline_after_lparen = true
 ij_go_wrap_func_result_newline_before_rparen = true
+ij_go_local_group_mode = project
+ij_go_run_go_fmt_on_reformat = true
 
 [{*.markdown,*.md}]
 indent_style = tab

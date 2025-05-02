@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericMessagePollVote is a generic poll vote event (requires gateway.IntentGuildMessagePolls and/or gateway.IntentDirectMessagePolls)

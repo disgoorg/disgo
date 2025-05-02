@@ -41,12 +41,6 @@ func (e *InteractionEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
-// Deprecated: Respond with a discord.ButtonStylePremium button instead.
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *InteractionEvent) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
-}
-
 // LaunchActivity responds to the interaction by launching activity associated with the app.
 func (e *InteractionEvent) LaunchActivity(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)

@@ -3,12 +3,13 @@ package handlers
 import (
 	"slices"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 type updatedEmoji struct {
@@ -30,9 +31,9 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	deletedEmojis := map[snowflake.ID]discord.Emoji{}
 	updatedEmojis := map[snowflake.ID]updatedEmoji{}
 
-	client.Caches().EmojisForEach(event.GuildID, func(emoji discord.Emoji) {
+	for emoji := range client.Caches().Emojis(event.GuildID) {
 		deletedEmojis[emoji.ID] = emoji
-	})
+	}
 
 	for _, newEmoji := range event.Emojis {
 		oldEmoji, ok := deletedEmojis[newEmoji.ID]

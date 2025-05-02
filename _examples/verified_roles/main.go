@@ -2,20 +2,21 @@ package main
 
 import (
 	"log/slog"
-	"math/rand"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/oauth2"
-	"github.com/disgoorg/json"
 )
 
 var (
-	letters      = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	token        = os.Getenv("disgo_token")
 	clientSecret = os.Getenv("disgo_client_secret")
 	baseURL      = os.Getenv("disgo_base_url")
@@ -79,10 +80,10 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 
 		_, err = oAuth2Client.UpdateApplicationRoleConnection(session, client.ApplicationID(), discord.ApplicationRoleConnectionUpdate{
-			PlatformName:     json.Ptr("Cookie Monster " + user.Username),
-			PlatformUsername: json.Ptr("Cookie Monster " + user.Tag()),
+			PlatformName:     omit.Ptr("Cookie Monster " + user.Username),
+			PlatformUsername: omit.Ptr("Cookie Monster " + user.Tag()),
 			Metadata: &map[string]string{
-				"cookies_eaten": strconv.Itoa(rand.Intn(100)),
+				"cookies_eaten": strconv.Itoa(rand.IntN(100)),
 			},
 		})
 		if err != nil {

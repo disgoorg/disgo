@@ -3,9 +3,9 @@ package discord
 var _ InteractionResponseData = (*ModalCreate)(nil)
 
 type ModalCreate struct {
-	CustomID   string               `json:"custom_id"`
-	Title      string               `json:"title"`
-	Components []ContainerComponent `json:"components"`
+	CustomID   string            `json:"custom_id"`
+	Title      string            `json:"title"`
+	Components []LayoutComponent `json:"components"`
 }
 
 func (ModalCreate) interactionCallbackData() {}
@@ -31,14 +31,14 @@ func (b *ModalCreateBuilder) SetTitle(title string) *ModalCreateBuilder {
 	return b
 }
 
-// SetContainerComponents sets the discord.ContainerComponent(s) of the ModalCreate
-func (b *ModalCreateBuilder) SetContainerComponents(containerComponents ...ContainerComponent) *ModalCreateBuilder {
-	b.Components = containerComponents
+// SetComponents sets the discord.LayoutComponent(s) of the ModalCreate
+func (b *ModalCreateBuilder) SetComponents(components ...LayoutComponent) *ModalCreateBuilder {
+	b.Components = components
 	return b
 }
 
-// SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *ModalCreateBuilder) SetContainerComponent(i int, container ContainerComponent) *ModalCreateBuilder {
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
+func (b *ModalCreateBuilder) SetComponent(i int, container LayoutComponent) *ModalCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
 	}
@@ -47,27 +47,27 @@ func (b *ModalCreateBuilder) SetContainerComponent(i int, container ContainerCom
 
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the ModalCreate
 func (b *ModalCreateBuilder) AddActionRow(components ...InteractiveComponent) *ModalCreateBuilder {
-	b.Components = append(b.Components, ActionRowComponent(components))
+	b.Components = append(b.Components, ActionRowComponent{Components: components})
 	return b
 }
 
-// AddContainerComponents adds the discord.ContainerComponent(s) to the ModalCreate
-func (b *ModalCreateBuilder) AddContainerComponents(containers ...ContainerComponent) *ModalCreateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the ModalCreate
+func (b *ModalCreateBuilder) AddComponents(containers ...LayoutComponent) *ModalCreateBuilder {
 	b.Components = append(b.Components, containers...)
 	return b
 }
 
-// RemoveContainerComponent removes a discord.ActionRowComponent from the ModalCreate
-func (b *ModalCreateBuilder) RemoveContainerComponent(i int) *ModalCreateBuilder {
+// RemoveComponent removes a discord.LayoutComponent from the ModalCreate
+func (b *ModalCreateBuilder) RemoveComponent(i int) *ModalCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// ClearContainerComponents removes all the discord.ContainerComponent(s) of the ModalCreate
-func (b *ModalCreateBuilder) ClearContainerComponents() *ModalCreateBuilder {
-	b.Components = []ContainerComponent{}
+// ClearComponents removes all the discord.LayoutComponent(s) of the ModalCreate
+func (b *ModalCreateBuilder) ClearComponents() *ModalCreateBuilder {
+	b.Components = []LayoutComponent{}
 	return b
 }
 

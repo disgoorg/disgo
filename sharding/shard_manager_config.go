@@ -11,7 +11,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		Logger:            slog.Default(),
 		GatewayCreateFunc: gateway.New,
-		ShardSplitCount:   ShardSplitCount,
+		ShardSplitCount:   DefaultShardSplitCount,
 	}
 }
 

@@ -3,10 +3,10 @@ package rest
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/slicehelper"
 )
 
 var _ Guilds = (*guildImpl)(nil)

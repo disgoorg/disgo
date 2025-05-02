@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -36,10 +36,10 @@ type SoundboardSoundCreate struct {
 }
 
 type SoundboardSoundUpdate struct {
-	Name      *string                      `json:"name,omitempty"`
-	Volume    *json.Nullable[float64]      `json:"volume,omitempty"`
-	EmojiID   *json.Nullable[snowflake.ID] `json:"emoji_id,omitempty"`
-	EmojiName *json.Nullable[string]       `json:"emoji_name,omitempty"`
+	Name      *string                  `json:"name,omitempty"`
+	Volume    omit.Omit[*float64]      `json:"volume,omitzero"`
+	EmojiID   omit.Omit[*snowflake.ID] `json:"emoji_id,omitzero"`
+	EmojiName omit.Omit[*string]       `json:"emoji_name,omitzero"`
 }
 
 type SendSoundboardSound struct {

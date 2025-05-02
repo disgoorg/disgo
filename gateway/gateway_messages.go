@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -120,7 +120,7 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		eventData = d
 
 	case EventTypeResumed:
-		// no data
+		eventData = EventResumed{}
 
 	case EventTypeApplicationCommandPermissionsUpdate:
 		var d EventApplicationCommandPermissionsUpdate
@@ -499,7 +499,7 @@ type MessageDataHeartbeat int
 
 func (m MessageDataHeartbeat) MarshalJSON() ([]byte, error) {
 	if m == 0 {
-		return json.NullBytes, nil
+		return []byte("null"), nil
 	}
 	return []byte(strconv.Itoa(int(m))), nil
 }

@@ -4,7 +4,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -42,6 +42,12 @@ type EventReady struct {
 
 func (EventReady) messageData() {}
 func (EventReady) eventData()   {}
+
+// EventResumed is the event sent by discord when you successfully resume
+type EventResumed struct{}
+
+func (EventResumed) messageData() {}
+func (EventResumed) eventData()   {}
 
 type EventApplicationCommandPermissionsUpdate struct {
 	discord.ApplicationCommandPermissions
