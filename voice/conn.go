@@ -13,7 +13,7 @@ import (
 
 type (
 	// ConnCreateFunc is a type alias for a function that creates a new Conn.
-	ConnCreateFunc func(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn
+	ConnCreateFunc func(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func()) Conn
 
 	// Conn is a complete voice conn to discord. It holds the Gateway and voiceudp.UDPConn conn and combines them.
 	Conn interface {
@@ -59,32 +59,33 @@ type (
 )
 
 // NewConn returns a new default voice conn.
-func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
-	config := DefaultConnConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "voice_conn"))
+func NewConn(opts ...ConnConfigOpt) ConnCreateFunc {
+	return func(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func()) Conn {
+		cfg := defaultConnConfig()
+		cfg.apply(opts)
 
-	conn := &connImpl{
-		config:               *config,
-		voiceStateUpdateFunc: voiceStateUpdateFunc,
-		removeConnFunc:       removeConnFunc,
-		state: State{
-			GuildID: guildID,
-			UserID:  userID,
-		},
-		openedChan: make(chan struct{}, 1),
-		closedChan: make(chan struct{}, 1),
-		ssrcs:      map[uint32]snowflake.ID{},
+		conn := &connImpl{
+			config:               cfg,
+			voiceStateUpdateFunc: voiceStateUpdateFunc,
+			removeConnFunc:       removeConnFunc,
+			state: State{
+				GuildID: guildID,
+				UserID:  userID,
+			},
+			openedChan: make(chan struct{}, 1),
+			closedChan: make(chan struct{}, 1),
+			ssrcs:      map[uint32]snowflake.ID{},
+		}
+
+		conn.gateway = cfg.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose)
+		conn.udp = cfg.UDPConnCreateFunc()
+
+		return conn
 	}
-
-	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(config.Logger)}, config.GatewayConfigOpts...)...)
-	conn.udp = config.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(config.Logger)}, config.UDPConnConfigOpts...)...)
-
-	return conn
 }
 
 type connImpl struct {
-	config               ConnConfig
+	config               connConfig
 	voiceStateUpdateFunc StateUpdateFunc
 	removeConnFunc       func()
 
@@ -267,7 +268,11 @@ func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bo
 func (c *connImpl) Close(ctx context.Context) {
 	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
 	defer c.gateway.Close()
-	defer c.udp.Close()
+	defer func() {
+		if err := c.udp.Close(); err != nil {
+			c.config.Logger.ErrorContext(ctx, "error closing voice udp conn", slog.Any("err", err))
+		}
+	}()
 
 	select {
 	case _, ok := <-c.closedChan:

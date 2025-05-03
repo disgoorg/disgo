@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"iter"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -174,27 +175,35 @@ func (g *groupedCache[T]) GroupLen(groupID snowflake.ID) int {
 	return len(groupEntities)
 }
 
-func (g *groupedCache[T]) ForEach(f func(groupID snowflake.ID, entity T)) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
+func (g *groupedCache[T]) All() iter.Seq2[snowflake.ID, T] {
+	return func(yield func(snowflake.ID, T) bool) {
+		g.mu.Lock()
+		defer g.mu.Unlock()
 
-	for groupID, groupEntities := range g.cache {
-		for _, entity := range groupEntities {
-			f(groupID, entity)
+		for groupID, groupEntities := range g.cache {
+			for _, entity := range groupEntities {
+				if !yield(groupID, entity) {
+					return
+				}
+			}
 		}
 	}
 }
 
-func (g *groupedCache[T]) GroupForEach(groupID snowflake.ID, forEachFunc func(entity T)) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
+func (g *groupedCache[T]) GroupAll(groupID snowflake.ID) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		g.mu.Lock()
+		defer g.mu.Unlock()
 
-	groupEntities, ok := g.cache[groupID]
-	if !ok {
-		return
-	}
+		groupEntities, ok := g.cache[groupID]
+		if !ok {
+			return
+		}
 
-	for _, entity := range groupEntities {
-		forEachFunc(entity)
+		for _, entity := range groupEntities {
+			if !yield(entity) {
+				return
+			}
+		}
 	}
 }

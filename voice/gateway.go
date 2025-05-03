@@ -51,7 +51,7 @@ type (
 	CloseHandlerFunc func(gateway Gateway, err error)
 
 	// GatewayCreateFunc is a function that creates a new voice gateway.
-	GatewayCreateFunc func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
+	GatewayCreateFunc func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc) Gateway
 
 	// StateProviderFunc is a function that provides the current conn state of the voice gateway.
 	StateProviderFunc func() State
@@ -90,20 +90,21 @@ type Gateway interface {
 }
 
 // NewGateway creates a new voice Gateway.
-func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
-	config := DefaultGatewayConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "voice_conn_gateway"))
+func NewGateway(opts ...GatewayConfigOpt) GatewayCreateFunc {
+	return func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc) Gateway {
+		cfg := defaultGatewayConfig()
+		cfg.apply(opts)
 
-	return &gatewayImpl{
-		config:           *config,
-		eventHandlerFunc: eventHandlerFunc,
-		closeHandlerFunc: closeHandlerFunc,
+		return &gatewayImpl{
+			config:           cfg,
+			eventHandlerFunc: eventHandlerFunc,
+			closeHandlerFunc: closeHandlerFunc,
+		}
 	}
 }
 
 type gatewayImpl struct {
-	config           GatewayConfig
+	config           gatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
 
@@ -143,7 +144,11 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	if err != nil {
 		g.Close()
 		if rs != nil {
-			defer rs.Body.Close()
+			defer func() {
+				if err := rs.Body.Close(); err != nil {
+					g.config.Logger.ErrorContext(ctx, "error closing response body", slog.Any("err", err))
+				}
+			}()
 		}
 		return fmt.Errorf("error connecting to voice gateway: %w", err)
 	}

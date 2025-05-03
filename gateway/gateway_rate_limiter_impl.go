@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"github.com/sasha-s/go-csync"
@@ -10,12 +9,11 @@ import (
 
 // NewRateLimiter creates a new default RateLimiter with the given RateLimiterConfigOpt(s).
 func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
-	config := DefaultRateLimiterConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "gateway_rate_limiter"))
+	cfg := defaultRateLimiterConfig()
+	cfg.apply(opts)
 
 	return &rateLimiterImpl{
-		config: *config,
+		config: cfg,
 	}
 }
 
@@ -25,7 +23,7 @@ type rateLimiterImpl struct {
 	reset     time.Time
 	remaining int
 
-	config RateLimiterConfig
+	config rateLimiterConfig
 }
 
 func (l *rateLimiterImpl) Close(ctx context.Context) {

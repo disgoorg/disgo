@@ -20,7 +20,7 @@ type InteractionCreate struct {
 // This only returns cached guilds.
 func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -37,7 +37,7 @@ type ApplicationCommandInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -97,7 +97,7 @@ type ComponentInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -167,7 +167,7 @@ type AutocompleteInteractionCreate struct {
 // This only returns cached guilds.
 func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -208,7 +208,7 @@ type ModalSubmitInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
