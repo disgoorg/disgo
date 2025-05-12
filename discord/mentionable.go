@@ -22,6 +22,7 @@ var (
 	MentionTypeEveryone        = MentionType{regexp.MustCompile(`@everyone`)}
 	MentionTypeGuildNavigation = MentionType{regexp.MustCompile("<id:(browse|customize|guide|linked-roles)>")}
 	MentionTypeLinkedRole      = MentionType{regexp.MustCompile(`<id:linked-roles:(\d+)>`)}
+	MentionTypeSoundmoji       = MentionType{regexp.MustCompile(`<sound:(\d+):(\d+)>`)}
 )
 
 type Mentionable interface {
@@ -91,4 +92,8 @@ func NavigationLinkedRoles() string {
 
 func NavigationLinkedRole(id snowflake.ID) string {
 	return fmt.Sprintf("<id:linked-roles:%d>", id)
+}
+
+func SoundmojiMention(guildID snowflake.ID, soundID snowflake.ID) string {
+	return fmt.Sprintf("<sound:%d:%d>", guildID, soundID)
 }
