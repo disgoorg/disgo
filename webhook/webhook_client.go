@@ -32,6 +32,9 @@ type Client interface {
 	// DeleteWebhook deletes the current Webhook
 	DeleteWebhook(opts ...rest.RequestOpt) error
 
+	// GetMessage fetches a webhook Message by its id
+	GetMessage(messageID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error)
+
 	// CreateMessage creates a new Message from the discord.WebhookMessageCreate
 	CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*discord.Message, error)
 	// CreateMessageInThread creates a new Message from the discord.WebhookMessageCreate in the provided thread

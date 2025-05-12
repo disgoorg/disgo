@@ -21,6 +21,7 @@ type Webhooks interface {
 	UpdateWebhookWithToken(webhookID snowflake.ID, webhookToken string, webhookUpdate discord.WebhookUpdateWithToken, opts ...RequestOpt) (discord.Webhook, error)
 	DeleteWebhookWithToken(webhookID snowflake.ID, webhookToken string, opts ...RequestOpt) error
 
+	GetWebhookMessage(webhookID snowflake.ID, webhookToken string, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
 	CreateWebhookMessage(webhookID snowflake.ID, webhookToken string, messageCreate discord.WebhookMessageCreate, params CreateWebhookMessageParams, opts ...RequestOpt) (*discord.Message, error)
 	CreateWebhookMessageSlack(webhookID snowflake.ID, webhookToken string, messageCreate discord.Payload, params CreateWebhookMessageParams, opts ...RequestOpt) (*discord.Message, error)
 	CreateWebhookMessageGitHub(webhookID snowflake.ID, webhookToken string, messageCreate discord.Payload, params CreateWebhookMessageParams, opts ...RequestOpt) (*discord.Message, error)
@@ -110,6 +111,11 @@ func (s *webhookImpl) UpdateWebhookWithToken(webhookID snowflake.ID, webhookToke
 
 func (s *webhookImpl) DeleteWebhookWithToken(webhookID snowflake.ID, webhookToken string, opts ...RequestOpt) error {
 	return s.client.Do(DeleteWebhookWithToken.Compile(nil, webhookID, webhookToken), nil, nil, opts...)
+}
+
+func (s *webhookImpl) GetWebhookMessage(webhookID snowflake.ID, webhookToken string, messageID snowflake.ID, opts ...RequestOpt) (message *discord.Message, err error) {
+	err = s.client.Do(GetWebhookMessage.Compile(nil, webhookID, webhookToken, messageID), nil, &message, opts...)
+	return
 }
 
 func (s *webhookImpl) createWebhookMessage(webhookID snowflake.ID, webhookToken string, messageCreate discord.Payload, params CreateWebhookMessageParams, endpoint *Endpoint, opts []RequestOpt) (message *discord.Message, err error) {

@@ -92,6 +92,10 @@ func (c *clientImpl) DeleteWebhook(opts ...rest.RequestOpt) error {
 	return c.Rest().DeleteWebhookWithToken(c.id, c.token, opts...)
 }
 
+func (c *clientImpl) GetMessage(messageID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return c.Rest().GetWebhookMessage(c.id, c.token, messageID, opts...)
+}
+
 func (c *clientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
 	return c.Rest().CreateWebhookMessage(c.id, c.token, messageCreate, rest.CreateWebhookMessageParams{Wait: true, ThreadID: threadID}, opts...)
 }
