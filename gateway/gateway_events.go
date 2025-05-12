@@ -584,7 +584,7 @@ func (EventMessageDelete) messageData() {}
 func (EventMessageDelete) eventData()   {}
 
 type EventMessageDeleteBulk struct {
-	IDs       []snowflake.ID `json:"id"`
+	IDs       []snowflake.ID `json:"ids"`
 	ChannelID snowflake.ID   `json:"channel_id"`
 	GuildID   *snowflake.ID  `json:"guild_id,omitempty"`
 }
