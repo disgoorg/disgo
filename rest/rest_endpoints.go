@@ -305,7 +305,7 @@ var (
 	UpdateInteractionResponse = NewNoBotAuthEndpoint(http.MethodPatch, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 	DeleteInteractionResponse = NewNoBotAuthEndpoint(http.MethodDelete, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 
-	GetFollowupMessage    = NewNoBotAuthEndpoint(http.MethodGet, "/webhooks/{application.id}/{interaction.token}")
+	GetFollowupMessage    = NewNoBotAuthEndpoint(http.MethodGet, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 	CreateFollowupMessage = NewNoBotAuthEndpoint(http.MethodPost, "/webhooks/{application.id}/{interaction.token}")
 	UpdateFollowupMessage = NewNoBotAuthEndpoint(http.MethodPatch, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 	DeleteFollowupMessage = NewNoBotAuthEndpoint(http.MethodDelete, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
