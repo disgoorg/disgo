@@ -6,8 +6,8 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() config {
+	return config{
 		Logger: slog.Default(),
 	}
 }

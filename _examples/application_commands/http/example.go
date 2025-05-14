@@ -42,19 +42,26 @@ var (
 	}
 )
 
+type customVerifier struct{}
+
+func (customVerifier) Verify(publicKey httpserver.PublicKey, message, sig []byte) bool {
+	return ed25519.Verify(publicKey, message, sig)
+}
+
+func (customVerifier) SignatureSize() int {
+	return ed25519.SignatureSize
+}
+
 func main() {
 	slog.Info("starting example...")
 	slog.Info("disgo version", slog.String("version", disgo.Version))
-
-	// use custom ed25519 verify implementation
-	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {
-		return ed25519.Verify(publicKey, message, sig)
-	}
 
 	client, err := disgo.New(token,
 		bot.WithHTTPServerConfigOpts(publicKey,
 			httpserver.WithURL("/interactions/callback"),
 			httpserver.WithAddress(":80"),
+			// use custom ed25519 verify implementation
+			httpserver.WithVerifier(customVerifier{}),
 		),
 		bot.WithEventListenerFunc(commandListener),
 	)
@@ -64,7 +71,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
 		panic("error while registering commands: " + err.Error())
 	}
 
@@ -86,7 +93,7 @@ func commandListener(event *events.ApplicationCommandInteractionCreate) {
 			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
 		); err != nil {
-			event.Client().Logger().Error("error on sending response", slog.Any("err", err))
+			event.Client().Logger.Error("error on sending response", slog.Any("err", err))
 		}
 	}
 }

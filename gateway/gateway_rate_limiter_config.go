@@ -4,8 +4,8 @@ import (
 	"log/slog"
 )
 
-func defaultRateLimiterConfig() *rateLimiterConfig {
-	return &rateLimiterConfig{
+func defaultRateLimiterConfig() rateLimiterConfig {
+	return rateLimiterConfig{
 		Logger:            slog.Default(),
 		CommandsPerMinute: CommandsPerMinute,
 	}
@@ -19,11 +19,11 @@ type rateLimiterConfig struct {
 // RateLimiterConfigOpt is a type alias for a function that takes a rateLimiterConfig and is used to configure your Server.
 type RateLimiterConfigOpt func(config *rateLimiterConfig)
 
-// apply applies the given RateLimiterConfigOpt(s) to the rateLimiterConfig
 func (c *rateLimiterConfig) apply(opts []RateLimiterConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.Logger = c.Logger.With(slog.String("name", "gateway_rate_limiter"))
 }
 
 // WithRateLimiterLogger sets the Logger for the Gateway.

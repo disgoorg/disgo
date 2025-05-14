@@ -29,7 +29,7 @@ func main() {
 				return
 			}
 			if event.Message.Content == "test" {
-				_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
+				_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
 					AddActionRow(discord.NewDangerButton("danger", "danger")).
 					SetMessageReferenceByID(event.Message.ID).
 					Build(),

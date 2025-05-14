@@ -6,9 +6,8 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-// DefaultConfig returns a Config with sensible defaults.
-func DefaultConfig() *Config {
-	return &Config{
+func defaultConfig() config {
+	return config{
 		GuildCachePolicy:                PolicyAll[discord.Guild],
 		ChannelCachePolicy:              PolicyAll[discord.GuildChannel],
 		StageInstanceCachePolicy:        PolicyAll[discord.StageInstance],
@@ -25,8 +24,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Config lets you configure your Caches instance.
-type Config struct {
+type config struct {
 	CacheFlags Flags
 
 	SelfUserCache SelfUserCache
@@ -71,11 +69,10 @@ type Config struct {
 	StickerCachePolicy Policy[discord.Sticker]
 }
 
-// ConfigOpt is a type alias for a function that takes a Config and is used to configure your Caches.
-type ConfigOpt func(config *Config)
+// ConfigOpt is a type alias for a function that takes a config and is used to configure your Caches.
+type ConfigOpt func(config *config)
 
-// Apply applies the given ConfigOpt(s) to the Config
-func (c *Config) Apply(opts []ConfigOpt) {
+func (c *config) apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -123,184 +120,184 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
-// WithCaches sets the Flags of the Config.
+// WithCaches sets the Flags of the config.
 func WithCaches(flags ...Flags) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.CacheFlags = config.CacheFlags.Add(flags...)
 	}
 }
 
-// WithGuildCachePolicy sets the Policy[discord.Guild] of the Config.
+// WithGuildCachePolicy sets the Policy[discord.Guild] of the config.
 func WithGuildCachePolicy(policy Policy[discord.Guild]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GuildCachePolicy = policy
 	}
 }
 
-// WithGuildCache sets the GuildCache of the Config.
+// WithGuildCache sets the GuildCache of the config.
 func WithGuildCache(guildCache GuildCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GuildCache = guildCache
 	}
 }
 
-// WithChannelCachePolicy sets the Policy[discord.Channel] of the Config.
+// WithChannelCachePolicy sets the Policy[discord.Channel] of the config.
 func WithChannelCachePolicy(policy Policy[discord.GuildChannel]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ChannelCachePolicy = policy
 	}
 }
 
-// WithChannelCache sets the ChannelCache of the Config.
+// WithChannelCache sets the ChannelCache of the config.
 func WithChannelCache(channelCache ChannelCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ChannelCache = channelCache
 	}
 }
 
-// WithStageInstanceCachePolicy sets the Policy[discord.Guild] of the Config.
+// WithStageInstanceCachePolicy sets the Policy[discord.Guild] of the config.
 func WithStageInstanceCachePolicy(policy Policy[discord.StageInstance]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.StageInstanceCachePolicy = policy
 	}
 }
 
-// WithStageInstanceCache sets the StageInstanceCache of the Config.
+// WithStageInstanceCache sets the StageInstanceCache of the config.
 func WithStageInstanceCache(stageInstanceCache StageInstanceCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.StageInstanceCache = stageInstanceCache
 	}
 }
 
-// WithGuildScheduledEventCachePolicy sets the Policy[discord.GuildScheduledEvent] of the Config.
+// WithGuildScheduledEventCachePolicy sets the Policy[discord.GuildScheduledEvent] of the config.
 func WithGuildScheduledEventCachePolicy(policy Policy[discord.GuildScheduledEvent]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GuildScheduledEventCachePolicy = policy
 	}
 }
 
-// WithGuildScheduledEventCache sets the GuildScheduledEventCache of the Config.
+// WithGuildScheduledEventCache sets the GuildScheduledEventCache of the config.
 func WithGuildScheduledEventCache(guildScheduledEventCache GuildScheduledEventCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GuildScheduledEventCache = guildScheduledEventCache
 	}
 }
 
-// WithGuildSoundboardSoundCache sets the GuildSoundboardSoundCache of the Config.
+// WithGuildSoundboardSoundCache sets the GuildSoundboardSoundCache of the config.
 func WithGuildSoundboardSoundCache(guildSoundboardSoundCache GuildSoundboardSoundCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GuildSoundboardSoundCache = guildSoundboardSoundCache
 	}
 }
 
-// WithRoleCachePolicy sets the Policy[discord.Role] of the Config.
+// WithRoleCachePolicy sets the Policy[discord.Role] of the config.
 func WithRoleCachePolicy(policy Policy[discord.Role]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.RoleCachePolicy = policy
 	}
 }
 
-// WithRoleCache sets the RoleCache of the Config.
+// WithRoleCache sets the RoleCache of the config.
 func WithRoleCache(roleCache RoleCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.RoleCache = roleCache
 	}
 }
 
-// WithMemberCachePolicy sets the Policy[discord.Member] of the Config.
+// WithMemberCachePolicy sets the Policy[discord.Member] of the config.
 func WithMemberCachePolicy(policy Policy[discord.Member]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.MemberCachePolicy = policy
 	}
 }
 
-// WithMemberCache sets the MemberCache of the Config.
+// WithMemberCache sets the MemberCache of the config.
 func WithMemberCache(memberCache MemberCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.MemberCache = memberCache
 	}
 }
 
-// WithThreadMemberCachePolicy sets the Policy[discord.ThreadMember] of the Config.
+// WithThreadMemberCachePolicy sets the Policy[discord.ThreadMember] of the config.
 func WithThreadMemberCachePolicy(policy Policy[discord.ThreadMember]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ThreadMemberCachePolicy = policy
 	}
 }
 
-// WithThreadMemberCache sets the ThreadMemberCache of the Config.
+// WithThreadMemberCache sets the ThreadMemberCache of the config.
 func WithThreadMemberCache(threadMemberCache ThreadMemberCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ThreadMemberCache = threadMemberCache
 	}
 }
 
-// WithPresenceCachePolicy sets the Policy[discord.Presence] of the Config.
+// WithPresenceCachePolicy sets the Policy[discord.Presence] of the config.
 func WithPresenceCachePolicy(policy Policy[discord.Presence]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.PresenceCachePolicy = policy
 	}
 }
 
-// WithPresenceCache sets the PresenceCache of the Config.
+// WithPresenceCache sets the PresenceCache of the config.
 func WithPresenceCache(presenceCache PresenceCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.PresenceCache = presenceCache
 	}
 }
 
-// WithVoiceStateCachePolicy sets the Policy[discord.VoiceState] of the Config.
+// WithVoiceStateCachePolicy sets the Policy[discord.VoiceState] of the config.
 func WithVoiceStateCachePolicy(policy Policy[discord.VoiceState]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.VoiceStateCachePolicy = policy
 	}
 }
 
-// WithVoiceStateCache sets the VoiceStateCache of the Config.
+// WithVoiceStateCache sets the VoiceStateCache of the config.
 func WithVoiceStateCache(voiceStateCache VoiceStateCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.VoiceStateCache = voiceStateCache
 	}
 }
 
-// WithMessageCachePolicy sets the Policy[discord.Message] of the Config.
+// WithMessageCachePolicy sets the Policy[discord.Message] of the config.
 func WithMessageCachePolicy(policy Policy[discord.Message]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.MessageCachePolicy = policy
 	}
 }
 
-// WithMessageCache sets the MessageCache of the Config.
+// WithMessageCache sets the MessageCache of the config.
 func WithMessageCache(messageCache MessageCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.MessageCache = messageCache
 	}
 }
 
-// WithEmojiCachePolicy sets the Policy[discord.Emoji] of the Config.
+// WithEmojiCachePolicy sets the Policy[discord.Emoji] of the config.
 func WithEmojiCachePolicy(policy Policy[discord.Emoji]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.EmojiCachePolicy = policy
 	}
 }
 
-// WithEmojiCache sets the EmojiCache of the Config.
+// WithEmojiCache sets the EmojiCache of the config.
 func WithEmojiCache(emojiCache EmojiCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.EmojiCache = emojiCache
 	}
 }
 
-// WithStickerCachePolicy sets the Policy[discord.Sticker] of the Config.
+// WithStickerCachePolicy sets the Policy[discord.Sticker] of the config.
 func WithStickerCachePolicy(policy Policy[discord.Sticker]) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.StickerCachePolicy = policy
 	}
 }
 
-// WithStickerCache sets the StickerCache of the Config.
+// WithStickerCache sets the StickerCache of the config.
 func WithStickerCache(stickerCache StickerCache) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.StickerCache = stickerCache
 	}
 }

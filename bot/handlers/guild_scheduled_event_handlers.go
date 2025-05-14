@@ -30,8 +30,8 @@ func gatewayHandlerGuildScheduledEventUpdate(client *bot.Client, sequenceNumber 
 	})
 }
 
-func gatewayHandlerGuildScheduledEventDelete(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventDelete) {
-	client.Caches().RemoveGuildScheduledEvent(event.GuildID, event.ID)
+func gatewayHandlerGuildScheduledEventDelete(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventDelete) {
+	client.Caches.RemoveGuildScheduledEvent(event.GuildID, event.ID)
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventDelete{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{

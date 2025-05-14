@@ -91,11 +91,11 @@ type Gateway interface {
 
 // NewGateway creates a new voice Gateway.
 func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
-	config := defaultGatewayConfig()
-	config.apply(opts)
+	cfg := defaultGatewayConfig()
+	cfg.apply(opts)
 
 	return &gatewayImpl{
-		config:           *config,
+		config:           cfg,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
 	}

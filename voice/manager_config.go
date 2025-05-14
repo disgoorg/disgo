@@ -2,8 +2,8 @@ package voice
 
 import "log/slog"
 
-func defaultManagerConfig() *managerConfig {
-	return &managerConfig{
+func defaultManagerConfig() managerConfig {
+	return managerConfig{
 		Logger:         slog.Default(),
 		ConnCreateFunc: NewConn,
 	}
@@ -19,7 +19,6 @@ type managerConfig struct {
 // ManagerConfigOpt is used to functionally configure a managerConfig.
 type ManagerConfigOpt func(config *managerConfig)
 
-// apply applies the given ManagerConfigOpts to the managerConfig.
 func (c *managerConfig) apply(opts []ManagerConfigOpt) {
 	for _, opt := range opts {
 		opt(c)

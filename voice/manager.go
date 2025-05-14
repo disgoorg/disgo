@@ -42,11 +42,11 @@ type (
 
 // NewManager creates a new Manager.
 func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts ...ManagerConfigOpt) Manager {
-	config := defaultManagerConfig()
-	config.apply(opts)
+	cfg := defaultManagerConfig()
+	cfg.apply(opts)
 
 	return &managerImpl{
-		config:               *config,
+		config:               cfg,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		userID:               userID,
 		conns:                map[snowflake.ID]Conn{},

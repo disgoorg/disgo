@@ -4,8 +4,8 @@ import (
 	"log/slog"
 )
 
-func defaultConnConfig() *connConfig {
-	return &connConfig{
+func defaultConnConfig() connConfig {
+	return connConfig{
 		Logger:                  slog.Default(),
 		GatewayCreateFunc:       NewGateway,
 		UDPConnCreateFunc:       NewUDPConn,
@@ -32,7 +32,6 @@ type connConfig struct {
 // ConnConfigOpt is used to functionally configure a connConfig.
 type ConnConfigOpt func(config *connConfig)
 
-// apply applies the ConnConfigOpt(s) to the connConfig.
 func (c *connConfig) apply(opts []ConnConfigOpt) {
 	for _, opt := range opts {
 		opt(c)

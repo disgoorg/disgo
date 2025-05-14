@@ -58,7 +58,7 @@ func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...Config
 		shards:           map[int]gateway.Gateway{},
 		token:            token,
 		eventHandlerFunc: eventHandlerFunc,
-		config:           *cfg,
+		config:           cfg,
 	}
 }
 

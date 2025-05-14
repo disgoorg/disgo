@@ -17,19 +17,18 @@ type StateController interface {
 
 // NewStateController returns a new empty StateController.
 func NewStateController(opts ...StateControllerConfigOpt) StateController {
-	config := defaultStateControllerConfig()
-	config.apply(opts)
-	logger := config.Logger.With(slog.String("name", "oauth2_state_controller"))
+	cfg := defaultStateControllerConfig()
+	cfg.apply(opts)
 
-	states := newTTLMap(config.MaxTTL)
-	for state, url := range config.States {
+	states := newTTLMap(cfg.MaxTTL)
+	for state, url := range cfg.States {
 		states.put(state, url)
 	}
 
 	return &defaultStateController{
 		states:       states,
-		newStateFunc: config.NewStateFunc,
-		logger:       logger,
+		newStateFunc: cfg.NewStateFunc,
+		logger:       cfg.Logger,
 	}
 }
 

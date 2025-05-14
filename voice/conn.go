@@ -64,7 +64,7 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 	cfg.apply(opts)
 
 	conn := &connImpl{
-		config:               *cfg,
+		config:               cfg,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		removeConnFunc:       removeConnFunc,
 		state: State{

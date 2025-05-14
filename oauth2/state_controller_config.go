@@ -7,8 +7,8 @@ import (
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
-func defaultStateControllerConfig() *stateControllerConfig {
-	return &stateControllerConfig{
+func defaultStateControllerConfig() stateControllerConfig {
+	return stateControllerConfig{
 		Logger:       slog.Default(),
 		States:       map[string]string{},
 		NewStateFunc: func() string { return insecurerandstr.RandStr(32) },
@@ -26,11 +26,11 @@ type stateControllerConfig struct {
 // StateControllerConfigOpt is used to pass optional parameters to NewStateController
 type StateControllerConfigOpt func(config *stateControllerConfig)
 
-// apply applies the given StateControllerConfigOpt(s) to the StateControllerConfig
 func (c *stateControllerConfig) apply(opts []StateControllerConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.Logger = c.Logger.With(slog.String("name", "oauth2_state_controller"))
 }
 
 // WithStateControllerLogger sets the logger for the StateController

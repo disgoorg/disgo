@@ -48,7 +48,7 @@ func main() {
 }
 
 func eventListenerFunc(event *events.MessageCreate) {
-	_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.MessageCreate{
+	_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.MessageCreate{
 		Content: "pong",
 	})
 }
@@ -59,7 +59,7 @@ func eventListenerChan() chan<- *events.MessageCreate {
 		defer close(c)
 		for event := range c {
 			if event.Message.Content == "ping" {
-				_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.MessageCreate{
+				_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.MessageCreate{
 					Content: "pong",
 				})
 			}

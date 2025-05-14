@@ -5,13 +5,14 @@ import (
 	"net/http"
 )
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() config {
+	return config{
 		Logger:     slog.Default(),
 		HTTPServer: &http.Server{},
 		ServeMux:   http.NewServeMux(),
 		URL:        "/interactions/callback",
 		Address:    ":80",
+		Verifier:   DefaultVerifier{},
 	}
 }
 
@@ -23,6 +24,7 @@ type config struct {
 	Address    string
 	CertFile   string
 	KeyFile    string
+	Verifier   Verifier
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
@@ -75,5 +77,12 @@ func WithTLS(certFile string, keyFile string) ConfigOpt {
 	return func(config *config) {
 		config.CertFile = certFile
 		config.KeyFile = keyFile
+	}
+}
+
+// WithVerifier sets the Verifier of the config.
+func WithVerifier(verifier Verifier) ConfigOpt {
+	return func(config *config) {
+		config.Verifier = verifier
 	}
 }

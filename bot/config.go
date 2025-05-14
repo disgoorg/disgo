@@ -14,8 +14,8 @@ import (
 	"github.com/disgoorg/disgo/voice"
 )
 
-func defaultConfig(gatewayHandlers map[gateway.EventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *config {
-	return &config{
+func defaultConfig(gatewayHandlers map[gateway.EventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) config {
+	return config{
 		Logger:                 slog.Default(),
 		EventManagerConfigOpts: []EventManagerConfigOpt{WithGatewayHandlers(gatewayHandlers), WithHTTPServerHandler(httpHandler)},
 		MemberChunkingFilter:   MemberChunkingFilterNone,
@@ -59,6 +59,7 @@ func (c *config) apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.Logger = c.Logger.With(slog.String("name", "bot"))
 }
 
 // WithLogger lets you inject your own Logger implementing *slog.Logger.
@@ -127,6 +128,13 @@ func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	}
 }
 
+// WithDefaultGateway creates a gateway.Gateway with sensible defaults.
+func WithDefaultGateway() ConfigOpt {
+	return func(config *config) {
+		config.GatewayConfigOpts = append(config.GatewayConfigOpts, gateway.WithDefault())
+	}
+}
+
 // WithGatewayConfigOpts lets you configure the default gateway.Gateway.
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	return func(config *config) {
@@ -138,6 +146,13 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *config) {
 		config.ShardManager = shardManager
+	}
+}
+
+// WithDefaultShardManager creates a sharding.ShardManager with sensible defaults.
+func WithDefaultShardManager() ConfigOpt {
+	return func(config *config) {
+		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, sharding.WithDefault())
 	}
 }
 
@@ -233,7 +248,7 @@ func BuildClient(
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.Logger),
 			// TODO: make these not override the user provided config opts
-			rest.WithRateLimiterConfigOpts(
+			rest.WithDefaultRateLimiterConfigOpts(
 				rest.WithRateLimiterLogger(cfg.Logger),
 			),
 		}, cfg.RestClientConfigOpts...)
@@ -270,7 +285,7 @@ func BuildClient(
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
 			// TODO: make these not override the user provided config opts
-			gateway.WithRateLimiterConfigOpts(
+			gateway.WithDefaultRateLimiterConfigOpts(
 				gateway.WithRateLimiterLogger(cfg.Logger),
 			),
 		}, cfg.GatewayConfigOpts...)
@@ -303,7 +318,7 @@ func BuildClient(
 			),
 			sharding.WithLogger(cfg.Logger),
 			// TODO: make these not override the user provided config opts
-			sharding.WithRateLimiterConfigOpt(
+			sharding.WithDefaultRateLimiterConfigOpt(
 				sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency),
 				sharding.WithRateLimiterLogger(cfg.Logger),
 			),
@@ -318,7 +333,10 @@ func BuildClient(
 			httpserver.WithLogger(cfg.Logger),
 		}, cfg.HTTPServerConfigOpts...)
 
-		cfg.HTTPServer = httpserver.New(cfg.PublicKey, defaultHTTPServerEventHandlerFunc(client), cfg.HTTPServerConfigOpts...)
+		cfg.HTTPServer, err = httpserver.New(cfg.PublicKey, defaultHTTPServerEventHandlerFunc(client), cfg.HTTPServerConfigOpts...)
+		if err != nil {
+			return nil, fmt.Errorf("error while creating http server: %w", err)
+		}
 	}
 	client.HTTPServer = cfg.HTTPServer
 

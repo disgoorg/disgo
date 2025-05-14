@@ -6,8 +6,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() config {
+	return config{
 		Logger:          slog.Default(),
 		Dialer:          websocket.DefaultDialer,
 		LargeThreshold:  50,
@@ -68,7 +68,6 @@ type config struct {
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
 type ConfigOpt func(config *config)
 
-// apply applies the given ConfigOpt(s) to the config
 func (c *config) apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
@@ -77,6 +76,11 @@ func (c *config) apply(opts []ConfigOpt) {
 	if c.RateLimiter == nil {
 		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
 	}
+}
+
+// WithDefault returns a ConfigOpt that sets the default values for the Gateway.
+func WithDefault() ConfigOpt {
+	return func(config *config) {}
 }
 
 // WithLogger sets the Logger for the Gateway.
@@ -188,6 +192,13 @@ func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 func WithRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
+	}
+}
+
+// WithDefaultRateLimiterConfigOpts lets you configure the default RateLimiter and prepend the options to the existing ones.
+func WithDefaultRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
+	return func(config *config) {
+		config.RateLimiterConfigOpts = append(opts, config.RateLimiterConfigOpts...)
 	}
 }
 

@@ -149,8 +149,8 @@ func formatAssetURL(cdnRoute *CDNEndpoint, opts []CDNOpt, params ...any) string 
 		// previously, the default format was png, which would cause issues for cdn endpoints like attachments and soundboard sounds, requiring custom "overrides"
 		format = cdnRoute.Formats[0]
 	}
-	config := DefaultCDNConfig(format)
-	config.Apply(opts)
+	cfg := DefaultCDNConfig(format)
+	cfg.Apply(opts)
 
 	var lastStringParam string
 	lastParam := params[len(params)-1]
@@ -167,9 +167,9 @@ func formatAssetURL(cdnRoute *CDNEndpoint, opts []CDNOpt, params ...any) string 
 	}
 
 	// some endpoints have a_ prefix for animated images except the AvatarDecoration endpoint does not like this
-	if strings.HasPrefix(lastStringParam, "a_") && !config.Format.Animated() && cdnRoute.Route != "/avatar-decoration-presets/{user.avatar.decoration.hash}" {
-		config.Format = FileFormatGIF
+	if strings.HasPrefix(lastStringParam, "a_") && !cfg.Format.Animated() && cdnRoute.Route != "/avatar-decoration-presets/{user.avatar.decoration.hash}" {
+		cfg.Format = FileFormatGIF
 	}
 
-	return cdnRoute.URL(config.Format, config.Values, params...)
+	return cdnRoute.URL(cfg.Format, cfg.Values, params...)
 }

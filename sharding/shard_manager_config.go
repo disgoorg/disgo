@@ -6,8 +6,8 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() config {
+	return config{
 		Logger:            slog.Default(),
 		GatewayCreateFunc: gateway.New,
 		ShardSplitCount:   DefaultShardSplitCount,
@@ -38,7 +38,6 @@ type config struct {
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
 type ConfigOpt func(config *config)
 
-// apply applies the given ConfigOpt(s) to the config
 func (c *config) apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
@@ -47,6 +46,11 @@ func (c *config) apply(opts []ConfigOpt) {
 	if c.RateLimiter == nil {
 		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
 	}
+}
+
+// WithDefault returns a ConfigOpt that sets the default values for the ShardManager.
+func WithDefault() ConfigOpt {
+	return func(config *config) {}
 }
 
 // WithLogger sets the logger of the ShardManager.
@@ -115,5 +119,12 @@ func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 func WithRateLimiterConfigOpt(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
+	}
+}
+
+// WithDefaultRateLimiterConfigOpt lets you configure the default RateLimiter used by the ShardManager and prepend the options to the existing ones.
+func WithDefaultRateLimiterConfigOpt(opts ...RateLimiterConfigOpt) ConfigOpt {
+	return func(config *config) {
+		config.RateLimiterConfigOpts = append(opts, config.RateLimiterConfigOpts...)
 	}
 }
