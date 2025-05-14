@@ -15,8 +15,8 @@ import (
 	"github.com/disgoorg/disgo/voice"
 )
 
-// Client is a high level interface for interacting with Discord's API.
-// It combines the functionality of the rest, gateway/sharding, httpserver and cache into one easy to use interface.
+// Client is a high level struct for interacting with Discord's API.
+// It combines the functionality of the rest, gateway/sharding, httpserver and cache into one easy to use package.
 // Create a new client with disgo.New.
 type Client struct {
 	Token                 string
