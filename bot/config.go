@@ -247,7 +247,6 @@ func BuildClient(
 		cfg.RestClientConfigOpts = append([]rest.ConfigOpt{
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.Logger),
-			// TODO: make these not override the user provided config opts
 			rest.WithDefaultRateLimiterConfigOpts(
 				rest.WithRateLimiterLogger(cfg.Logger),
 			),
@@ -284,7 +283,6 @@ func BuildClient(
 			gateway.WithOS(os),
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
-			// TODO: make these not override the user provided config opts
 			gateway.WithDefaultRateLimiterConfigOpts(
 				gateway.WithRateLimiterLogger(cfg.Logger),
 			),
@@ -317,7 +315,6 @@ func BuildClient(
 				gateway.WithDevice(name),
 			),
 			sharding.WithLogger(cfg.Logger),
-			// TODO: make these not override the user provided config opts
 			sharding.WithDefaultRateLimiterConfigOpt(
 				sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency),
 				sharding.WithRateLimiterLogger(cfg.Logger),
