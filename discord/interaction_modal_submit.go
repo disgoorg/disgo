@@ -8,8 +8,9 @@ var (
 
 type ModalSubmitInteraction struct {
 	baseInteraction
-	Data    ModalSubmitInteractionData `json:"data"`
-	Message *Message                   `json:"message,omitempty"`
+	Data ModalSubmitInteractionData `json:"data"`
+	// Message is only present if the modal was triggered from a button
+	Message *Message `json:"message,omitempty"`
 }
 
 func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
@@ -55,8 +56,9 @@ func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		rawInteraction
-		Data    ModalSubmitInteractionData `json:"data"`
-		Message *Message                   `json:"message,omitempty"`
+		Data ModalSubmitInteractionData `json:"data"`
+		// Message is only present if the modal was triggered from a button
+		Message *Message `json:"message,omitempty"`
 	}{
 		rawInteraction: rawInteraction{
 			ID:                           i.id,
