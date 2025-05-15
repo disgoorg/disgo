@@ -8,13 +8,15 @@ var (
 
 type ModalSubmitInteraction struct {
 	baseInteraction
-	Data ModalSubmitInteractionData `json:"data"`
+	Data    ModalSubmitInteractionData `json:"data"`
+	Message *Message                   `json:"message,omitempty"`
 }
 
 func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	var interaction struct {
 		rawInteraction
-		Data ModalSubmitInteractionData `json:"data"`
+		Data    ModalSubmitInteractionData `json:"data"`
+		Message *Message                   `json:"message,omitempty"`
 	}
 	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
@@ -43,6 +45,10 @@ func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	}
 
 	i.Data = interaction.Data
+	i.Message = interaction.Message
+	if i.Message != nil {
+		i.Message.GuildID = i.baseInteraction.guildID
+	}
 	return nil
 }
 
