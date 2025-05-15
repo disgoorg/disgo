@@ -877,25 +877,25 @@ type Caches interface {
 
 // New returns a new default Caches instance with the given ConfigOpt(s) applied.
 func New(opts ...ConfigOpt) Caches {
-	config := DefaultConfig()
-	config.Apply(opts)
+	cfg := defaultConfig()
+	cfg.apply(opts)
 
 	return &cachesImpl{
-		config:                    *config,
-		selfUserCache:             config.SelfUserCache,
-		guildCache:                config.GuildCache,
-		channelCache:              config.ChannelCache,
-		stageInstanceCache:        config.StageInstanceCache,
-		guildScheduledEventCache:  config.GuildScheduledEventCache,
-		guildSoundboardSoundCache: config.GuildSoundboardSoundCache,
-		roleCache:                 config.RoleCache,
-		memberCache:               config.MemberCache,
-		threadMemberCache:         config.ThreadMemberCache,
-		presenceCache:             config.PresenceCache,
-		voiceStateCache:           config.VoiceStateCache,
-		messageCache:              config.MessageCache,
-		emojiCache:                config.EmojiCache,
-		stickerCache:              config.StickerCache,
+		config:                    cfg,
+		selfUserCache:             cfg.SelfUserCache,
+		guildCache:                cfg.GuildCache,
+		channelCache:              cfg.ChannelCache,
+		stageInstanceCache:        cfg.StageInstanceCache,
+		guildScheduledEventCache:  cfg.GuildScheduledEventCache,
+		guildSoundboardSoundCache: cfg.GuildSoundboardSoundCache,
+		roleCache:                 cfg.RoleCache,
+		memberCache:               cfg.MemberCache,
+		threadMemberCache:         cfg.ThreadMemberCache,
+		presenceCache:             cfg.PresenceCache,
+		voiceStateCache:           cfg.VoiceStateCache,
+		messageCache:              cfg.MessageCache,
+		emojiCache:                cfg.EmojiCache,
+		stickerCache:              cfg.StickerCache,
 	}
 }
 
@@ -918,7 +918,7 @@ type (
 )
 
 type cachesImpl struct {
-	config Config
+	config config
 
 	guildCache
 	channelCache

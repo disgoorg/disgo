@@ -45,7 +45,7 @@ message, err := client.CreateEmbeds(discord.NewEmbedBuilder().
 	Build(),
 )
 
-message, err := client.CreateMessage(webhook.NewWebhookMessageCreateBuilder().
+message, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().
 	SetContent("hello world!").
 	Build(),
 	rest.CreateWebhookMessageParams{},
