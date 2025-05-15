@@ -55,7 +55,8 @@ func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		rawInteraction
-		Data ModalSubmitInteractionData `json:"data"`
+		Data    ModalSubmitInteractionData `json:"data"`
+		Message *Message                   `json:"message,omitempty"`
 	}{
 		rawInteraction: rawInteraction{
 			ID:                           i.id,
@@ -77,7 +78,8 @@ func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
 			Context:                      i.context,
 			AttachmentSizeLimit:          i.attachmentSizeLimit,
 		},
-		Data: i.Data,
+		Data:    i.Data,
+		Message: i.Message,
 	})
 }
 
