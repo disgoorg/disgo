@@ -9,12 +9,15 @@ var (
 type ModalSubmitInteraction struct {
 	baseInteraction
 	Data ModalSubmitInteractionData `json:"data"`
+	// Message is only present if the modal was triggered from a button
+	Message *Message `json:"message,omitempty"`
 }
 
 func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	var interaction struct {
 		rawInteraction
-		Data ModalSubmitInteractionData `json:"data"`
+		Data    ModalSubmitInteractionData `json:"data"`
+		Message *Message                   `json:"message,omitempty"`
 	}
 	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
@@ -43,6 +46,10 @@ func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	}
 
 	i.Data = interaction.Data
+	i.Message = interaction.Message
+	if i.Message != nil {
+		i.Message.GuildID = i.baseInteraction.guildID
+	}
 	return nil
 }
 
@@ -50,6 +57,8 @@ func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		rawInteraction
 		Data ModalSubmitInteractionData `json:"data"`
+		// Message is only present if the modal was triggered from a button
+		Message *Message `json:"message,omitempty"`
 	}{
 		rawInteraction: rawInteraction{
 			ID:                           i.id,
@@ -71,7 +80,8 @@ func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
 			Context:                      i.context,
 			AttachmentSizeLimit:          i.attachmentSizeLimit,
 		},
-		Data: i.Data,
+		Data:    i.Data,
+		Message: i.Message,
 	})
 }
 
