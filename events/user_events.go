@@ -32,5 +32,5 @@ type UserTypingStart struct {
 
 // Channel returns the discord.GuildMessageChannel the discord.User started typing in
 func (e *UserTypingStart) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
+	return e.Client().Caches.GuildMessageChannel(e.ChannelID)
 }

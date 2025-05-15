@@ -80,14 +80,14 @@ func (b *WebhookMessageCreateBuilder) RemoveEmbed(i int) *WebhookMessageCreateBu
 	return b
 }
 
-// SetContainerComponents sets the discord.ContainerComponent(s) of the Message
-func (b *WebhookMessageCreateBuilder) SetContainerComponents(containerComponents ...ContainerComponent) *WebhookMessageCreateBuilder {
-	b.Components = containerComponents
+// SetComponents sets the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageCreateBuilder) SetComponents(components ...LayoutComponent) *WebhookMessageCreateBuilder {
+	b.Components = components
 	return b
 }
 
-// SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *WebhookMessageCreateBuilder) SetContainerComponent(i int, container ContainerComponent) *WebhookMessageCreateBuilder {
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
+func (b *WebhookMessageCreateBuilder) SetComponent(i int, container LayoutComponent) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = container
 	}
@@ -96,27 +96,27 @@ func (b *WebhookMessageCreateBuilder) SetContainerComponent(i int, container Con
 
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the Message
 func (b *WebhookMessageCreateBuilder) AddActionRow(components ...InteractiveComponent) *WebhookMessageCreateBuilder {
-	b.Components = append(b.Components, ActionRowComponent(components))
+	b.Components = append(b.Components, ActionRowComponent{Components: components})
 	return b
 }
 
-// AddContainerComponents adds the discord.ContainerComponent(s) to the Message
-func (b *WebhookMessageCreateBuilder) AddContainerComponents(containers ...ContainerComponent) *WebhookMessageCreateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the Message
+func (b *WebhookMessageCreateBuilder) AddComponents(containers ...LayoutComponent) *WebhookMessageCreateBuilder {
 	b.Components = append(b.Components, containers...)
 	return b
 }
 
-// RemoveContainerComponent removes a discord.ActionRowComponent from the Message
-func (b *WebhookMessageCreateBuilder) RemoveContainerComponent(i int) *WebhookMessageCreateBuilder {
+// RemoveComponent removes a discord.LayoutComponent from the Message
+func (b *WebhookMessageCreateBuilder) RemoveComponent(i int) *WebhookMessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// ClearContainerComponents removes all the discord.ContainerComponent(s) of the Message
-func (b *WebhookMessageCreateBuilder) ClearContainerComponents() *WebhookMessageCreateBuilder {
-	b.Components = []ContainerComponent{}
+// ClearComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageCreateBuilder) ClearComponents() *WebhookMessageCreateBuilder {
+	b.Components = []LayoutComponent{}
 	return b
 }
 
@@ -194,12 +194,33 @@ func (b *WebhookMessageCreateBuilder) ClearFlags() *WebhookMessageCreateBuilder 
 	return b.SetFlags(MessageFlagsNone)
 }
 
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags.
+// Once a message with the flag has been sent, it cannot be removed by editing the message.
+func (b *WebhookMessageCreateBuilder) SetIsComponentsV2(isComponentV2 bool) *WebhookMessageCreateBuilder {
+	if isComponentV2 {
+		b.Flags = b.Flags.Add(MessageFlagIsComponentsV2)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagIsComponentsV2)
+	}
+	return b
+}
+
 // SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags
 func (b *WebhookMessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *WebhookMessageCreateBuilder {
 	if suppressEmbeds {
 		b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
 	} else {
 		b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
+// SetSuppressNotifications adds/removes discord.MessageFlagSuppressNotifications to the Message flags
+func (b *WebhookMessageCreateBuilder) SetSuppressNotifications(suppressNotifications bool) *WebhookMessageCreateBuilder {
+	if suppressNotifications {
+		b.Flags = b.Flags.Add(MessageFlagSuppressNotifications)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagSuppressNotifications)
 	}
 	return b
 }

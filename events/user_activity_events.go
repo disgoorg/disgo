@@ -1,10 +1,10 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type PresenceUpdate struct {
@@ -23,13 +23,13 @@ type GenericUserActivity struct {
 // Member returns the Member that changed their Activity.
 // This will only check cached members!
 func (g *GenericUserActivity) Member() (discord.Member, bool) {
-	return g.Client().Caches().Member(g.GuildID, g.UserID)
+	return g.Client().Caches.Member(g.GuildID, g.UserID)
 }
 
 // Guild returns the Guild that changed their Activity.
 // This will only check cached guilds!
 func (g *GenericUserActivity) Guild() (discord.Guild, bool) {
-	return g.Client().Caches().Guild(g.UserID)
+	return g.Client().Caches.Guild(g.UserID)
 }
 
 // UserActivityStart indicates that a User started an Activity

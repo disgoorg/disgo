@@ -19,7 +19,7 @@ const (
 	InteractionResponseTypeUpdateMessage
 	InteractionResponseTypeAutocompleteResult
 	InteractionResponseTypeModal
-	InteractionResponseTypePremiumRequired
+	_
 	_
 	InteractionResponseTypeLaunchActivity
 )

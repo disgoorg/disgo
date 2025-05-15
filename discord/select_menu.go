@@ -1,13 +1,20 @@
 package discord
 
 import (
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// SelectMenuComponent is an interface for all components that are select menus.
+// [StringSelectMenuComponent]
+// [UserSelectMenuComponent]
+// [RoleSelectMenuComponent]
+// [MentionableSelectMenuComponent]
+// [ChannelSelectMenuComponent]
+// [UnknownComponent]
 type SelectMenuComponent interface {
 	InteractiveComponent
-	selectMenu()
+	selectMenuComponent()
 }
 
 var (
@@ -26,6 +33,7 @@ func NewStringSelectMenu(customID string, placeholder string, options ...StringS
 }
 
 type StringSelectMenuComponent struct {
+	ID          int                      `json:"id,omitempty"`
 	CustomID    string                   `json:"custom_id"`
 	Placeholder string                   `json:"placeholder,omitempty"`
 	MinValues   *int                     `json:"min_values,omitempty"`
@@ -49,13 +57,17 @@ func (StringSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeStringSelectMenu
 }
 
-func (c StringSelectMenuComponent) ID() string {
+func (c StringSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c StringSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (StringSelectMenuComponent) component()            {}
 func (StringSelectMenuComponent) interactiveComponent() {}
-func (StringSelectMenuComponent) selectMenu()           {}
+func (StringSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new StringSelectMenuComponent with the provided customID
 func (c StringSelectMenuComponent) WithCustomID(customID string) StringSelectMenuComponent {
@@ -130,6 +142,11 @@ func (c StringSelectMenuComponent) RemoveOption(index int) StringSelectMenuCompo
 	return c
 }
 
+func (c StringSelectMenuComponent) WithID(i int) InteractiveComponent {
+	c.ID = i
+	return c
+}
+
 // NewStringSelectMenuOption builds a new StringSelectMenuOption
 func NewStringSelectMenuOption(label string, value string) StringSelectMenuOption {
 	return StringSelectMenuOption{
@@ -140,6 +157,7 @@ func NewStringSelectMenuOption(label string, value string) StringSelectMenuOptio
 
 // StringSelectMenuOption represents an option in a StringSelectMenuComponent
 type StringSelectMenuOption struct {
+	ID          int             `json:"id,omitempty"`
 	Label       string          `json:"label"`
 	Value       string          `json:"value"`
 	Description string          `json:"description,omitempty"`
@@ -192,6 +210,7 @@ func NewUserSelectMenu(customID string, placeholder string) UserSelectMenuCompon
 }
 
 type UserSelectMenuComponent struct {
+	ID            int                      `json:"id,omitempty"`
 	CustomID      string                   `json:"custom_id"`
 	Placeholder   string                   `json:"placeholder,omitempty"`
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
@@ -215,13 +234,17 @@ func (UserSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeUserSelectMenu
 }
 
-func (c UserSelectMenuComponent) ID() string {
+func (c UserSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c UserSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (UserSelectMenuComponent) component()            {}
 func (UserSelectMenuComponent) interactiveComponent() {}
-func (UserSelectMenuComponent) selectMenu()           {}
+func (UserSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new UserSelectMenuComponent with the provided customID
 func (c UserSelectMenuComponent) WithCustomID(customID string) UserSelectMenuComponent {
@@ -304,6 +327,7 @@ func NewRoleSelectMenu(customID string, placeholder string) RoleSelectMenuCompon
 }
 
 type RoleSelectMenuComponent struct {
+	ID            int                      `json:"id,omitempty"`
 	CustomID      string                   `json:"custom_id"`
 	Placeholder   string                   `json:"placeholder,omitempty"`
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
@@ -327,13 +351,17 @@ func (RoleSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeRoleSelectMenu
 }
 
-func (c RoleSelectMenuComponent) ID() string {
+func (c RoleSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c RoleSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (RoleSelectMenuComponent) component()            {}
 func (RoleSelectMenuComponent) interactiveComponent() {}
-func (RoleSelectMenuComponent) selectMenu()           {}
+func (RoleSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new RoleSelectMenuComponent with the provided customID
 func (c RoleSelectMenuComponent) WithCustomID(customID string) RoleSelectMenuComponent {
@@ -416,6 +444,7 @@ func NewMentionableSelectMenu(customID string, placeholder string) MentionableSe
 }
 
 type MentionableSelectMenuComponent struct {
+	ID            int                      `json:"id,omitempty"`
 	CustomID      string                   `json:"custom_id"`
 	Placeholder   string                   `json:"placeholder,omitempty"`
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
@@ -439,13 +468,17 @@ func (MentionableSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeMentionableSelectMenu
 }
 
-func (c MentionableSelectMenuComponent) ID() string {
+func (c MentionableSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c MentionableSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (MentionableSelectMenuComponent) component()            {}
 func (MentionableSelectMenuComponent) interactiveComponent() {}
-func (MentionableSelectMenuComponent) selectMenu()           {}
+func (MentionableSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new MentionableSelectMenuComponent with the provided customID
 func (c MentionableSelectMenuComponent) WithCustomID(customID string) MentionableSelectMenuComponent {
@@ -525,6 +558,7 @@ func NewChannelSelectMenu(customID string, placeholder string) ChannelSelectMenu
 }
 
 type ChannelSelectMenuComponent struct {
+	ID            int                      `json:"id,omitempty"`
 	CustomID      string                   `json:"custom_id"`
 	Placeholder   string                   `json:"placeholder,omitempty"`
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
@@ -549,13 +583,17 @@ func (ChannelSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeChannelSelectMenu
 }
 
-func (c ChannelSelectMenuComponent) ID() string {
+func (c ChannelSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c ChannelSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (ChannelSelectMenuComponent) component()            {}
 func (ChannelSelectMenuComponent) interactiveComponent() {}
-func (ChannelSelectMenuComponent) selectMenu()           {}
+func (ChannelSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new ChannelSelectMenuComponent with the provided customID
 func (c ChannelSelectMenuComponent) WithCustomID(customID string) ChannelSelectMenuComponent {

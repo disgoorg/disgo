@@ -7,12 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -124,10 +125,10 @@ func handleVariableContent(event *handler.CommandEvent) error {
 func handlePing(event *handler.CommandEvent) error {
 	return event.CreateMessage(discord.MessageCreate{
 		Content: "pong",
-		Components: []discord.ContainerComponent{
-			discord.ActionRowComponent{
+		Components: []discord.LayoutComponent{
+			discord.NewActionRow(
 				discord.NewPrimaryButton("button1", "/button1/testData"),
-			},
+			),
 		},
 	})
 }
