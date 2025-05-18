@@ -238,10 +238,7 @@ func (d AutocompleteInteractionData) String(name string) string {
 
 func (d AutocompleteInteractionData) OptInt(name string) (int, bool) {
 	if option, ok := d.Option(name); ok {
-		var v int
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Int(), true
 	}
 	return 0, false
 }
@@ -255,10 +252,7 @@ func (d AutocompleteInteractionData) Int(name string) int {
 
 func (d AutocompleteInteractionData) OptBool(name string) (bool, bool) {
 	if option, ok := d.Option(name); ok {
-		var v bool
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Bool(), true
 	}
 	return false, false
 }
@@ -272,10 +266,7 @@ func (d AutocompleteInteractionData) Bool(name string) bool {
 
 func (d AutocompleteInteractionData) OptSnowflake(name string) (snowflake.ID, bool) {
 	if option, ok := d.Option(name); ok {
-		var v snowflake.ID
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Snowflake(), true
 	}
 	return 0, false
 }
@@ -289,10 +280,7 @@ func (d AutocompleteInteractionData) Snowflake(name string) snowflake.ID {
 
 func (d AutocompleteInteractionData) OptFloat(name string) (float64, bool) {
 	if option, ok := d.Option(name); ok {
-		var v float64
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Float(), true
 	}
 	return 0, false
 }

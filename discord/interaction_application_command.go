@@ -308,10 +308,7 @@ func (d SlashCommandInteractionData) Option(name string) (SlashCommandOption, bo
 
 func (d SlashCommandInteractionData) OptString(name string) (string, bool) {
 	if option, ok := d.Option(name); ok {
-		var v string
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.String(), true
 	}
 	return "", false
 }
@@ -325,10 +322,7 @@ func (d SlashCommandInteractionData) String(name string) string {
 
 func (d SlashCommandInteractionData) OptInt(name string) (int, bool) {
 	if option, ok := d.Option(name); ok {
-		var v int
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Int(), true
 	}
 	return 0, false
 }
@@ -342,10 +336,7 @@ func (d SlashCommandInteractionData) Int(name string) int {
 
 func (d SlashCommandInteractionData) OptBool(name string) (bool, bool) {
 	if option, ok := d.Option(name); ok {
-		var v bool
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Bool(), true
 	}
 	return false, false
 }
@@ -359,11 +350,9 @@ func (d SlashCommandInteractionData) Bool(name string) bool {
 
 func (d SlashCommandInteractionData) OptUser(name string) (User, bool) {
 	if option, ok := d.Option(name); ok {
-		var userID snowflake.ID
-		if err := json.Unmarshal(option.Value, &userID); err == nil {
-			user, ok := d.Resolved.Users[userID]
-			return user, ok
-		}
+		userID := option.Snowflake()
+		user, ok := d.Resolved.Users[userID]
+		return user, ok
 	}
 	return User{}, false
 }
@@ -377,11 +366,9 @@ func (d SlashCommandInteractionData) User(name string) User {
 
 func (d SlashCommandInteractionData) OptMember(name string) (ResolvedMember, bool) {
 	if option, ok := d.Option(name); ok {
-		var userID snowflake.ID
-		if err := json.Unmarshal(option.Value, &userID); err == nil {
-			user, ok := d.Resolved.Members[userID]
-			return user, ok
-		}
+		userID := option.Snowflake()
+		member, ok := d.Resolved.Members[userID]
+		return member, ok
 	}
 	return ResolvedMember{}, false
 }
@@ -395,11 +382,9 @@ func (d SlashCommandInteractionData) Member(name string) ResolvedMember {
 
 func (d SlashCommandInteractionData) OptChannel(name string) (ResolvedChannel, bool) {
 	if option, ok := d.Option(name); ok {
-		var channelID snowflake.ID
-		if err := json.Unmarshal(option.Value, &channelID); err == nil {
-			channel, ok := d.Resolved.Channels[channelID]
-			return channel, ok
-		}
+		channelID := option.Snowflake()
+		channel, ok := d.Resolved.Channels[channelID]
+		return channel, ok
 	}
 	return ResolvedChannel{}, false
 }
@@ -413,11 +398,9 @@ func (d SlashCommandInteractionData) Channel(name string) ResolvedChannel {
 
 func (d SlashCommandInteractionData) OptRole(name string) (Role, bool) {
 	if option, ok := d.Option(name); ok {
-		var roleID snowflake.ID
-		if err := json.Unmarshal(option.Value, &roleID); err == nil {
-			role, ok := d.Resolved.Roles[roleID]
-			return role, ok
-		}
+		roleID := option.Snowflake()
+		role, ok := d.Resolved.Roles[roleID]
+		return role, ok
 	}
 	return Role{}, false
 }
@@ -431,10 +414,7 @@ func (d SlashCommandInteractionData) Role(name string) Role {
 
 func (d SlashCommandInteractionData) OptSnowflake(name string) (snowflake.ID, bool) {
 	if option, ok := d.Option(name); ok {
-		var id snowflake.ID
-		if err := json.Unmarshal(option.Value, &id); err == nil {
-			return id, ok
-		}
+		return option.Snowflake(), true
 	}
 	return 0, false
 }
@@ -448,10 +428,7 @@ func (d SlashCommandInteractionData) Snowflake(name string) snowflake.ID {
 
 func (d SlashCommandInteractionData) OptFloat(name string) (float64, bool) {
 	if option, ok := d.Option(name); ok {
-		var v float64
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Float(), true
 	}
 	return 0, false
 }
@@ -465,11 +442,9 @@ func (d SlashCommandInteractionData) Float(name string) float64 {
 
 func (d SlashCommandInteractionData) OptAttachment(name string) (Attachment, bool) {
 	if option, ok := d.Option(name); ok {
-		var v snowflake.ID
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			attachment, ok := d.Resolved.Attachments[v]
-			return attachment, ok
-		}
+		attachmentID := option.Snowflake()
+		attachment, ok := d.Resolved.Attachments[attachmentID]
+		return attachment, ok
 	}
 	return Attachment{}, false
 }
