@@ -14,6 +14,7 @@ const (
 	IconTypeJPEG    IconType = "image/jpeg"
 	IconTypePNG     IconType = "image/png"
 	IconTypeWEBP    IconType = "image/webp"
+	IconTypeAVIF    IconType = "image/avif"
 	IconTypeGIF     IconType = "image/gif"
 	IconTypeUnknown          = IconTypeJPEG
 )

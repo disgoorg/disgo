@@ -10,7 +10,7 @@ const (
 )
 
 var (
-	CustomEmoji = NewCDN("/emojis/{emote.id}", FileFormatPNG, FileFormatGIF)
+	CustomEmoji = NewCDN("/emojis/{emote.id}", FileFormatPNG, FileFormatWebP, FileFormatAVIF, FileFormatGIF)
 
 	GuildIcon            = NewCDN("/icons/{guild.id}/{guild.icon.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
 	GuildSplash          = NewCDN("/splashes/{guild.id}/{guild.splash.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
@@ -59,6 +59,7 @@ const (
 	FileFormatPNG    FileFormat = "png"
 	FileFormatJPEG   FileFormat = "jpg"
 	FileFormatWebP   FileFormat = "webp"
+	FileFormatAVIF   FileFormat = "avif"
 	FileFormatGIF    FileFormat = "gif"
 	FileFormatLottie FileFormat = "json"
 )
@@ -71,7 +72,7 @@ func (f FileFormat) String() string {
 // Animated returns true if the FileFormat is animated
 func (f FileFormat) Animated() bool {
 	switch f {
-	case FileFormatWebP, FileFormatGIF:
+	case FileFormatWebP, FileFormatAVIF, FileFormatGIF:
 		return true
 	default:
 		return false
