@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 )
 
 // ApplicationCommandOptionType specifies the type of the arguments used in ApplicationCommand.Options

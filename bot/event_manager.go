@@ -12,10 +12,9 @@ import (
 var _ EventManager = (*eventManagerImpl)(nil)
 
 // NewEventManager returns a new EventManager with the EventManagerConfigOpt(s) applied.
-func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager {
-	cfg := DefaultEventManagerConfig()
-	cfg.Apply(opts)
-	cfg.Logger = cfg.Logger.With(slog.String("name", "bot_event_manager"))
+func NewEventManager(client *Client, opts ...EventManagerConfigOpt) EventManager {
+	cfg := defaultEventManagerConfig()
+	cfg.apply(opts)
 
 	return &eventManagerImpl{
 		client:             client,
@@ -27,7 +26,7 @@ func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager 
 	}
 }
 
-// EventManager lets you listen for specific events triggered by raw gateway events
+// EventManager lets you listen for specific events triggered by raw Gateway events
 type EventManager interface {
 	// AddEventListeners adds one or more EventListener(s) to the EventManager
 	AddEventListeners(eventListeners ...EventListener)
@@ -82,31 +81,31 @@ func (l *listenerChan[E]) OnEvent(e Event) {
 
 // Event the basic interface each event implement
 type Event interface {
-	Client() Client
+	Client() *Client
 	SequenceNumber() int
 }
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
 	EventType() gateway.EventType
-	HandleGatewayEvent(client Client, sequenceNumber int, shardID int, event gateway.EventData)
+	HandleGatewayEvent(client *Client, sequenceNumber int, shardID int, event gateway.EventData)
 }
 
 // NewGatewayEventHandler returns a new GatewayEventHandler for the given GatewayEventType and handler func
-func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
+func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client *Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
 	return &genericGatewayEventHandler[T]{eventType: eventType, handleFunc: handleFunc}
 }
 
 type genericGatewayEventHandler[T gateway.EventData] struct {
 	eventType  gateway.EventType
-	handleFunc func(client Client, sequenceNumber int, shardID int, event T)
+	handleFunc func(client *Client, sequenceNumber int, shardID int, event T)
 }
 
 func (h *genericGatewayEventHandler[T]) EventType() gateway.EventType {
 	return h.eventType
 }
 
-func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequenceNumber int, shardID int, event gateway.EventData) {
+func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client *Client, sequenceNumber int, shardID int, event gateway.EventData) {
 	if e, ok := event.(T); ok {
 		h.handleFunc(client, sequenceNumber, shardID, e)
 	}
@@ -114,13 +113,13 @@ func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequen
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
-	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
+	HandleHTTPEvent(client *Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 }
 
 type eventManagerImpl struct {
 	mu sync.Mutex
 
-	client             Client
+	client             *Client
 	logger             *slog.Logger
 	eventListenerMu    sync.Mutex
 	eventListeners     []EventListener
@@ -135,7 +134,7 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType
 	if handler, ok := e.gatewayHandlers[gatewayEventType]; ok {
 		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
 	} else {
-		e.logger.Warn("no handler for gateway event found", slog.Any("event_type", gatewayEventType))
+		e.logger.Warn("no handler for Gateway event found", slog.Any("event_type", gatewayEventType))
 	}
 }
 
@@ -156,7 +155,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer e.eventListenerMu.Unlock()
 	for _, listener := range e.eventListeners {
 		if e.asyncEventsEnabled {
-			go func(listener EventListener) {
+			go func() {
 				defer func() {
 					if r := recover(); r != nil {
 						e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
@@ -164,7 +163,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 					}
 				}()
 				listener.OnEvent(event)
-			}(listener)
+			}()
 			continue
 		}
 		listener.OnEvent(event)

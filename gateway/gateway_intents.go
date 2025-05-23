@@ -10,8 +10,7 @@ const (
 	IntentGuilds Intents = 1 << iota
 	IntentGuildMembers
 	IntentGuildModeration
-	// Deprecated: Use IntentGuildExpressions instead
-	IntentGuildEmojisAndStickers
+	IntentGuildExpressions
 	IntentGuildIntegrations
 	IntentGuildWebhooks
 	IntentGuildInvites
@@ -34,8 +33,6 @@ const (
 	_
 	IntentGuildMessagePolls
 	IntentDirectMessagePolls
-
-	IntentGuildExpressions = IntentGuildEmojisAndStickers
 
 	IntentsGuild = IntentGuilds |
 		IntentGuildMembers |

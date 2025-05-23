@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericMessagePollVote is a generic poll vote event (requires gateway.IntentGuildMessagePolls and/or gateway.IntentDirectMessagePolls)
@@ -20,7 +21,7 @@ func (e *GenericMessagePollVote) Guild() (discord.Guild, bool) {
 	if e.GuildID == nil {
 		return discord.Guild{}, false
 	}
-	return e.Client().Caches().Guild(*e.GuildID)
+	return e.Client().Caches.Guild(*e.GuildID)
 }
 
 // MessagePollVoteAdd indicates that a discord.User voted on a discord.Poll (requires gateway.IntentGuildMessagePolls and/or gateway.IntentDirectMessagePolls)

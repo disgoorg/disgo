@@ -60,12 +60,11 @@ type (
 
 // NewConn returns a new default voice conn.
 func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
-	config := DefaultConnConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "voice_conn"))
+	cfg := defaultConnConfig()
+	cfg.apply(opts)
 
 	conn := &connImpl{
-		config:               *config,
+		config:               cfg,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		removeConnFunc:       removeConnFunc,
 		state: State{
@@ -77,14 +76,14 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
-	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(config.Logger)}, config.GatewayConfigOpts...)...)
-	conn.udp = config.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(config.Logger)}, config.UDPConnConfigOpts...)...)
+	conn.gateway = cfg.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(cfg.Logger)}, cfg.GatewayConfigOpts...)...)
+	conn.udp = cfg.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(cfg.Logger)}, cfg.UDPConnConfigOpts...)...)
 
 	return conn
 }
 
 type connImpl struct {
-	config               ConnConfig
+	config               connConfig
 	voiceStateUpdateFunc StateUpdateFunc
 	removeConnFunc       func()
 

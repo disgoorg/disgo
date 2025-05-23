@@ -7,11 +7,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/webhook"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -42,12 +43,13 @@ func main() {
 }
 
 // send(s) a message to the webhook
-func send(wg *sync.WaitGroup, client webhook.Client, i int) {
+func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
 	defer wg.Done()
 
 	if _, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().
 		SetContentf("test %d", i).
 		Build(),
+		rest.CreateWebhookMessageParams{Wait: true},
 		// delay each request by 2 seconds
 		rest.WithDelay(2*time.Second),
 	); err != nil {

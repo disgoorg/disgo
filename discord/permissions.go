@@ -5,12 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
 )
-
-var EmptyStringBytes = []byte(`""`)
 
 // Permissions extends the Bit structure, and is used within roles and channels (https://discord.com/developers/docs/topics/permissions#permissions)
 type Permissions int64
@@ -201,7 +199,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON unmarshalls permissions into an int64
 func (p *Permissions) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(data, EmptyStringBytes) || bytes.Equal(data, json.NullBytes) {
+	if bytes.Equal(data, []byte("")) || bytes.Equal(data, []byte("null")) {
 		return nil
 	}
 

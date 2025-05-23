@@ -45,14 +45,15 @@ message, err := client.CreateEmbeds(discord.NewEmbedBuilder().
 	Build(),
 )
 
-message, err := client.CreateMessage(webhook.NewWebhookMessageCreateBuilder().
+message, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().
 	SetContent("hello world!").
 	Build(),
+	rest.CreateWebhookMessageParams{},
 )
 
 message, err := client.CreateMessage(discord.WebhookMessageCreate{
 	Content: "hello world!",
-})
+}, rest.CreateWebhookMessageParams{})
 ```
 
 ### Edit Message
@@ -72,11 +73,12 @@ message, err := client.UpdateEmbeds("870741249114652722", discord.NewEmbedBuilde
 message, err := client.UpdateMessage("870741249114652722", discord.NewWebhookMessageUpdateBuilder().
 	SetContent("hello world!").
 	Build(),
+	rest.UpdateWebhookMessageParams{},
 )
 
 message, err := client.UpdateMessage("870741249114652722", discord.WebhookMessageUpdate{
 	Content: json.Ptr("hello world!"),
-})
+}, rest.UpdateWebhookMessageParams{})
 ```
 
 ### Delete Message

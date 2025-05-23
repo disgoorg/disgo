@@ -1,7 +1,10 @@
 package discord
 
 import (
-	"github.com/disgoorg/json"
+	"fmt"
+
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type internalAutocompleteOption interface {
@@ -93,3 +96,53 @@ func (o AutocompleteOption) name() string {
 	return o.Name
 }
 func (AutocompleteOption) autocompleteOption() {}
+
+// String returns the string value of the option.
+// If the type is not ApplicationCommandOptionTypeString, it panics.
+func (o AutocompleteOption) String() string {
+	var v string
+	if err := json.Unmarshal(o.Value, &v); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal value of option %s: %v", o.Name, err))
+	}
+	return v
+}
+
+// Int returns the int value of the option.
+// If the type is not ApplicationCommandOptionTypeInt, it panics.
+func (o AutocompleteOption) Int() int {
+	var v int
+	if err := json.Unmarshal(o.Value, &v); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal value of option %s: %v", o.Name, err))
+	}
+	return v
+}
+
+// Float returns the float value of the option.
+// If the type is not ApplicationCommandOptionTypeFloat, it panics.
+func (o AutocompleteOption) Float() float64 {
+	var v float64
+	if err := json.Unmarshal(o.Value, &v); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal value of option %s: %v", o.Name, err))
+	}
+	return v
+}
+
+// Bool returns the bool value of the option.
+// If the type is not ApplicationCommandOptionTypeBool, it panics.
+func (o AutocompleteOption) Bool() bool {
+	var v bool
+	if err := json.Unmarshal(o.Value, &v); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal value of option %s: %v", o.Name, err))
+	}
+	return v
+}
+
+// Snowflake returns the snowflake value of the option.
+// If the type is not ApplicationCommandOptionTypeUser, ApplicationCommandOptionTypeChannel, ApplicationCommandOptionTypeRole or ApplicationCommandOptionTypeMentionable, it panics.
+func (o AutocompleteOption) Snowflake() snowflake.ID {
+	var v snowflake.ID
+	if err := json.Unmarshal(o.Value, &v); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal value of option %s: %v", o.Name, err))
+	}
+	return v
+}

@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -40,32 +40,32 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	)
 	switch cType.Type {
 	case ComponentTypeButton:
-		v := ButtonInteractionData{}
+		var v ButtonInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeStringSelectMenu:
-		v := StringSelectMenuInteractionData{}
+		var v StringSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeUserSelectMenu:
-		v := UserSelectMenuInteractionData{}
+		var v UserSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeRoleSelectMenu:
-		v := RoleSelectMenuInteractionData{}
+		var v RoleSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeMentionableSelectMenu:
-		v := MentionableSelectMenuInteractionData{}
+		var v MentionableSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeChannelSelectMenu:
-		v := ChannelSelectMenuInteractionData{}
+		var v ChannelSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
@@ -82,7 +82,6 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.version = interaction.Version
 	i.baseInteraction.guild = interaction.Guild
 	i.baseInteraction.guildID = interaction.GuildID
-	i.baseInteraction.channelID = interaction.ChannelID
 	i.baseInteraction.channel = interaction.Channel
 	i.baseInteraction.locale = interaction.Locale
 	i.baseInteraction.guildLocale = interaction.GuildLocale
@@ -118,7 +117,6 @@ func (i ComponentInteraction) MarshalJSON() ([]byte, error) {
 			Version:                      i.version,
 			Guild:                        i.guild,
 			GuildID:                      i.guildID,
-			ChannelID:                    i.channelID,
 			Channel:                      i.channel,
 			Locale:                       i.locale,
 			GuildLocale:                  i.guildLocale,
