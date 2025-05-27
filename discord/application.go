@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -68,8 +68,8 @@ type ApplicationUpdate struct {
 	RoleConnectionsVerificationURL *string                            `json:"role_connections_verification_url,omitempty"`
 	InstallParams                  *InstallParams                     `json:"install_params,omitempty"`
 	Flags                          *ApplicationFlags                  `json:"flags,omitempty"`
-	Icon                           *json.Nullable[Icon]               `json:"icon,omitempty"`
-	CoverImage                     *json.Nullable[Icon]               `json:"cover_image,omitempty"`
+	Icon                           omit.Omit[*Icon]                   `json:"icon,omitzero"`
+	CoverImage                     omit.Omit[*Icon]                   `json:"cover_image,omitzero"`
 	InteractionsEndpointURL        *string                            `json:"interactions_endpoint_url,omitempty"`
 	Tags                           []string                           `json:"tags,omitempty"`
 	IntegrationTypesConfig         *ApplicationIntegrationTypesConfig `json:"integration_types_config,omitempty"`

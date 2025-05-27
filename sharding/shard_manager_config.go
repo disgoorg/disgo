@@ -6,17 +6,15 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-// DefaultConfig returns a Config with sensible defaults.
-func DefaultConfig() *Config {
-	return &Config{
+func defaultConfig() config {
+	return config{
 		Logger:            slog.Default(),
 		GatewayCreateFunc: gateway.New,
-		ShardSplitCount:   ShardSplitCount,
+		ShardSplitCount:   DefaultShardSplitCount,
 	}
 }
 
-// Config lets you configure your ShardManager instance.
-type Config struct {
+type config struct {
 	// Logger is the logger of the ShardManager. Defaults to log.Default()
 	Logger *slog.Logger
 	// ShardIDs is a map of shardIDs the ShardManager should manage. Leave this nil to manage all shards.
@@ -37,29 +35,34 @@ type Config struct {
 	RateLimiterConfigOpts []RateLimiterConfigOpt
 }
 
-// ConfigOpt is a type alias for a function that takes a Config and is used to configure your Server.
-type ConfigOpt func(config *Config)
+// ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
+type ConfigOpt func(config *config)
 
-// Apply applies the given ConfigOpt(s) to the Config
-func (c *Config) Apply(opts []ConfigOpt) {
+func (c *config) apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.Logger = c.Logger.With(slog.String("name", "sharding"))
 	if c.RateLimiter == nil {
 		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
 	}
 }
 
+// WithDefault returns a ConfigOpt that sets the default values for the ShardManager.
+func WithDefault() ConfigOpt {
+	return func(config *config) {}
+}
+
 // WithLogger sets the logger of the ShardManager.
 func WithLogger(logger *slog.Logger) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.Logger = logger
 	}
 }
 
 // WithShardIDs sets the shardIDs the ShardManager should manage.
 func WithShardIDs(shardIDs ...int) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		if config.ShardIDs == nil {
 			config.ShardIDs = map[int]struct{}{}
 		}
@@ -71,7 +74,7 @@ func WithShardIDs(shardIDs ...int) ConfigOpt {
 
 // WithShardCount sets the shard count of the ShardManager.
 func WithShardCount(shardCount int) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ShardCount = shardCount
 	}
 }
@@ -79,42 +82,49 @@ func WithShardCount(shardCount int) ConfigOpt {
 // WithShardSplitCount sets the count a shard should be split into if it is too large.
 // This is only used if AutoScaling is enabled.
 func WithShardSplitCount(shardSplitCount int) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ShardSplitCount = shardSplitCount
 	}
 }
 
 // WithAutoScaling sets whether the ShardManager should automatically re-shard shards if they are too large. This is disabled by default.
 func WithAutoScaling(autoScaling bool) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.AutoScaling = autoScaling
 	}
 }
 
 // WithGatewayCreateFunc sets the function which is used by the ShardManager to create a new gateway.Gateway.
 func WithGatewayCreateFunc(gatewayCreateFunc gateway.CreateFunc) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GatewayCreateFunc = gatewayCreateFunc
 	}
 }
 
 // WithGatewayConfigOpts lets you configure the gateway.Gateway created by the ShardManager.
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GatewayConfigOpts = append(config.GatewayConfigOpts, opts...)
 	}
 }
 
 // WithRateLimiter lets you inject your own RateLimiter into the ShardManager.
 func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
 // WithRateLimiterConfigOpt lets you configure the default RateLimiter used by the ShardManager.
 func WithRateLimiterConfigOpt(opts ...RateLimiterConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
+	}
+}
+
+// WithDefaultRateLimiterConfigOpt lets you configure the default RateLimiter used by the ShardManager and prepend the options to the existing ones.
+func WithDefaultRateLimiterConfigOpt(opts ...RateLimiterConfigOpt) ConfigOpt {
+	return func(config *config) {
+		config.RateLimiterConfigOpts = append(opts, config.RateLimiterConfigOpts...)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 )
 
 // JSONErrorCode is the error code returned by the Discord API.

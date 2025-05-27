@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/disgoorg/json"
+import (
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
+)
 
 type ApplicationCommandCreate interface {
 	json.Marshaler
@@ -10,17 +13,15 @@ type ApplicationCommandCreate interface {
 }
 
 type SlashCommandCreate struct {
-	Name                     string                      `json:"name"`
-	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
-	Description              string                      `json:"description"`
-	DescriptionLocalizations map[Locale]string           `json:"description_localizations,omitempty"`
-	Options                  []ApplicationCommandOption  `json:"options,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"` // different behavior for 0 and null, optional
-	// Deprecated: Use Contexts instead
-	DMPermission     *bool                        `json:"dm_permission,omitempty"`
-	IntegrationTypes []ApplicationIntegrationType `json:"integration_types,omitempty"`
-	Contexts         []InteractionContextType     `json:"contexts,omitempty"`
-	NSFW             *bool                        `json:"nsfw,omitempty"`
+	Name                     string                       `json:"name"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
+	Description              string                       `json:"description"`
+	DescriptionLocalizations map[Locale]string            `json:"description_localizations,omitempty"`
+	Options                  []ApplicationCommandOption   `json:"options,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions]      `json:"default_member_permissions,omitzero"` // different behavior for 0 and null, optional
+	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts                 []InteractionContextType     `json:"contexts,omitempty"`
+	NSFW                     *bool                        `json:"nsfw,omitempty"`
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
@@ -45,14 +46,12 @@ func (c SlashCommandCreate) CommandName() string {
 func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
-	Name                     string                      `json:"name"`
-	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	// Deprecated: Use Contexts instead
-	DMPermission     *bool                        `json:"dm_permission,omitempty"`
-	IntegrationTypes []ApplicationIntegrationType `json:"integration_types,omitempty"`
-	Contexts         []InteractionContextType     `json:"contexts,omitempty"`
-	NSFW             *bool                        `json:"nsfw,omitempty"`
+	Name                     string                       `json:"name"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions]      `json:"default_member_permissions,omitzero"`
+	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts                 []InteractionContextType     `json:"contexts,omitempty"`
+	NSFW                     *bool                        `json:"nsfw,omitempty"`
 }
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
@@ -77,14 +76,12 @@ func (c UserCommandCreate) CommandName() string {
 func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
-	Name                     string                      `json:"name"`
-	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	// Deprecated: Use Contexts instead
-	DMPermission     *bool                        `json:"dm_permission,omitempty"`
-	IntegrationTypes []ApplicationIntegrationType `json:"integration_types,omitempty"`
-	Contexts         []InteractionContextType     `json:"contexts,omitempty"`
-	NSFW             *bool                        `json:"nsfw,omitempty"`
+	Name                     string                       `json:"name"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions]      `json:"default_member_permissions,omitzero"`
+	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts                 []InteractionContextType     `json:"contexts,omitempty"`
+	NSFW                     *bool                        `json:"nsfw,omitempty"`
 }
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {
@@ -109,15 +106,13 @@ func (c MessageCommandCreate) CommandName() string {
 func (MessageCommandCreate) applicationCommandCreate() {}
 
 type EntryPointCommandCreate struct {
-	Name                     string                      `json:"name"`
-	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	// Deprecated: Use Contexts instead
-	DMPermission     *bool                        `json:"dm_permission,omitempty"`
-	IntegrationTypes []ApplicationIntegrationType `json:"integration_types,omitempty"`
-	Contexts         []InteractionContextType     `json:"contexts,omitempty"`
-	NSFW             *bool                        `json:"nsfw,omitempty"`
-	Handler          EntryPointCommandHandlerType `json:"handler,omitempty"`
+	Name                     string                       `json:"name"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions omit.Omit[*Permissions]      `json:"default_member_permissions,omitzero"`
+	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts                 []InteractionContextType     `json:"contexts,omitempty"`
+	NSFW                     *bool                        `json:"nsfw,omitempty"`
+	Handler                  EntryPointCommandHandlerType `json:"handler,omitempty"`
 }
 
 func (c EntryPointCommandCreate) MarshalJSON() ([]byte, error) {

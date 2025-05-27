@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/gorilla/websocket"
 
@@ -91,19 +91,18 @@ type Gateway interface {
 
 // NewGateway creates a new voice Gateway.
 func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
-	config := DefaultGatewayConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "voice_conn_gateway"))
+	cfg := defaultGatewayConfig()
+	cfg.apply(opts)
 
 	return &gatewayImpl{
-		config:           *config,
+		config:           cfg,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
 	}
 }
 
 type gatewayImpl struct {
-	config           GatewayConfig
+	config           gatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
 
@@ -142,7 +141,9 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close()
-		defer rs.Body.Close()
+		if rs != nil {
+			defer rs.Body.Close()
+		}
 		return fmt.Errorf("error connecting to voice gateway: %w", err)
 	}
 

@@ -79,19 +79,19 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// SetContainerComponents sets the discord.ContainerComponent(s) of the Message
-func (b *MessageUpdateBuilder) SetContainerComponents(containerComponents ...ContainerComponent) *MessageUpdateBuilder {
+// SetComponents sets the discord.LayoutComponent(s) of the Message
+func (b *MessageUpdateBuilder) SetComponents(components ...LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
-	*b.Components = containerComponents
+	*b.Components = components
 	return b
 }
 
-// SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *MessageUpdateBuilder) SetContainerComponent(i int, container ContainerComponent) *MessageUpdateBuilder {
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
+func (b *MessageUpdateBuilder) SetComponent(i int, container LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
 	if len(*b.Components) > i {
 		(*b.Components)[i] = container
@@ -102,23 +102,23 @@ func (b *MessageUpdateBuilder) SetContainerComponent(i int, container ContainerC
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the Message
 func (b *MessageUpdateBuilder) AddActionRow(components ...InteractiveComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
-	*b.Components = append(*b.Components, ActionRowComponent(components))
+	*b.Components = append(*b.Components, ActionRowComponent{Components: components})
 	return b
 }
 
-// AddContainerComponents adds the discord.ContainerComponent(s) to the Message
-func (b *MessageUpdateBuilder) AddContainerComponents(containers ...ContainerComponent) *MessageUpdateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the Message
+func (b *MessageUpdateBuilder) AddComponents(containers ...LayoutComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
 	*b.Components = append(*b.Components, containers...)
 	return b
 }
 
-// RemoveContainerComponent removes a discord.ContainerComponent from the Message
-func (b *MessageUpdateBuilder) RemoveContainerComponent(i int) *MessageUpdateBuilder {
+// RemoveComponent removes a discord.LayoutComponent from the Message
+func (b *MessageUpdateBuilder) RemoveComponent(i int) *MessageUpdateBuilder {
 	if b.Components == nil {
 		return b
 	}
@@ -128,9 +128,9 @@ func (b *MessageUpdateBuilder) RemoveContainerComponent(i int) *MessageUpdateBui
 	return b
 }
 
-// ClearContainerComponents removes all the discord.ContainerComponent(s) of the Message
-func (b *MessageUpdateBuilder) ClearContainerComponents() *MessageUpdateBuilder {
-	b.Components = &[]ContainerComponent{}
+// ClearComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *MessageUpdateBuilder) ClearComponents() *MessageUpdateBuilder {
+	b.Components = &[]LayoutComponent{}
 	return b
 }
 
@@ -250,6 +250,21 @@ func (b *MessageUpdateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageUp
 		*b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
 	} else {
 		*b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags.
+// Once a message with the flag has been sent, it cannot be removed by editing the message.
+func (b *MessageUpdateBuilder) SetIsComponentsV2(isComponentV2 bool) *MessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+
+	if isComponentV2 {
+		*b.Flags = b.Flags.Add(MessageFlagIsComponentsV2)
+	} else {
+		*b.Flags = b.Flags.Remove(MessageFlagIsComponentsV2)
 	}
 	return b
 }

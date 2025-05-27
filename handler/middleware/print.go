@@ -8,7 +8,7 @@ import (
 func Print(msg string, args ...any) handler.Middleware {
 	return func(next handler.Handler) handler.Handler {
 		return func(event *handler.InteractionEvent) error {
-			event.Client().Logger().InfoContext(event.Ctx, msg, args...)
+			event.Client().Logger.InfoContext(event.Ctx, msg, args...)
 			return next(event)
 		}
 	}

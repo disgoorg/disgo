@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -98,37 +98,37 @@ func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
 func (GuildStageVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GuildForumChannelUpdate struct {
-	Name                          *string                              `json:"name,omitempty"`
-	Position                      *int                                 `json:"position,omitempty"`
-	Topic                         *string                              `json:"topic,omitempty"`
-	NSFW                          *bool                                `json:"nsfw,omitempty"`
-	PermissionOverwrites          *[]PermissionOverwrite               `json:"permission_overwrites,omitempty"`
-	ParentID                      *snowflake.ID                        `json:"parent_id,omitempty"`
-	RateLimitPerUser              *int                                 `json:"rate_limit_per_user"`
-	AvailableTags                 *[]ChannelTag                        `json:"available_tags,omitempty"`
-	Flags                         *ChannelFlags                        `json:"flags,omitempty"`
-	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
-	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
-	DefaultSortOrder              *json.Nullable[DefaultSortOrder]     `json:"default_sort_order,omitempty"`
-	DefaultForumLayout            *json.Nullable[DefaultForumLayout]   `json:"default_forum_layout,omitempty"`
+	Name                          *string                          `json:"name,omitempty"`
+	Position                      *int                             `json:"position,omitempty"`
+	Topic                         *string                          `json:"topic,omitempty"`
+	NSFW                          *bool                            `json:"nsfw,omitempty"`
+	PermissionOverwrites          *[]PermissionOverwrite           `json:"permission_overwrites,omitempty"`
+	ParentID                      *snowflake.ID                    `json:"parent_id,omitempty"`
+	RateLimitPerUser              *int                             `json:"rate_limit_per_user"`
+	AvailableTags                 *[]ChannelTag                    `json:"available_tags,omitempty"`
+	Flags                         *ChannelFlags                    `json:"flags,omitempty"`
+	DefaultReactionEmoji          omit.Omit[*DefaultReactionEmoji] `json:"default_reaction_emoji,omitzero"`
+	DefaultThreadRateLimitPerUser *int                             `json:"default_thread_rate_limit_per_user,omitempty"`
+	DefaultSortOrder              omit.Omit[*DefaultSortOrder]     `json:"default_sort_order,omitzero"`
+	DefaultForumLayout            omit.Omit[*DefaultForumLayout]   `json:"default_forum_layout,omitzero"`
 }
 
 func (GuildForumChannelUpdate) channelUpdate()      {}
 func (GuildForumChannelUpdate) guildChannelUpdate() {}
 
 type GuildMediaChannelUpdate struct {
-	Name                          *string                              `json:"name,omitempty"`
-	Position                      *int                                 `json:"position,omitempty"`
-	Topic                         *string                              `json:"topic,omitempty"`
-	NSFW                          *bool                                `json:"nsfw,omitempty"`
-	PermissionOverwrites          *[]PermissionOverwrite               `json:"permission_overwrites,omitempty"`
-	ParentID                      *snowflake.ID                        `json:"parent_id,omitempty"`
-	RateLimitPerUser              *int                                 `json:"rate_limit_per_user"`
-	AvailableTags                 *[]ChannelTag                        `json:"available_tags,omitempty"`
-	Flags                         *ChannelFlags                        `json:"flags,omitempty"`
-	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
-	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
-	DefaultSortOrder              *json.Nullable[DefaultSortOrder]     `json:"default_sort_order,omitempty"`
+	Name                          *string                          `json:"name,omitempty"`
+	Position                      *int                             `json:"position,omitempty"`
+	Topic                         *string                          `json:"topic,omitempty"`
+	NSFW                          *bool                            `json:"nsfw,omitempty"`
+	PermissionOverwrites          *[]PermissionOverwrite           `json:"permission_overwrites,omitempty"`
+	ParentID                      *snowflake.ID                    `json:"parent_id,omitempty"`
+	RateLimitPerUser              *int                             `json:"rate_limit_per_user"`
+	AvailableTags                 *[]ChannelTag                    `json:"available_tags,omitempty"`
+	Flags                         *ChannelFlags                    `json:"flags,omitempty"`
+	DefaultReactionEmoji          omit.Omit[*DefaultReactionEmoji] `json:"default_reaction_emoji,omitzero"`
+	DefaultThreadRateLimitPerUser *int                             `json:"default_thread_rate_limit_per_user,omitempty"`
+	DefaultSortOrder              omit.Omit[*DefaultSortOrder]     `json:"default_sort_order,omitzero"`
 }
 
 func (GuildMediaChannelUpdate) channelUpdate()      {}
@@ -149,8 +149,8 @@ func (GuildPostUpdate) channelUpdate()      {}
 func (GuildPostUpdate) guildChannelUpdate() {}
 
 type GuildChannelPositionUpdate struct {
-	ID              snowflake.ID         `json:"id"`
-	Position        *json.Nullable[int]  `json:"position"`
-	LockPermissions *json.Nullable[bool] `json:"lock_permissions,omitempty"`
-	ParentID        *snowflake.ID        `json:"parent_id,omitempty"`
+	ID              snowflake.ID     `json:"id"`
+	Position        omit.Omit[*int]  `json:"position,omitzero"`
+	LockPermissions omit.Omit[*bool] `json:"lock_permissions,omitzero"`
+	ParentID        *snowflake.ID    `json:"parent_id,omitempty"`
 }

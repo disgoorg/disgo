@@ -83,19 +83,19 @@ func (b *WebhookMessageUpdateBuilder) RemoveEmbed(i int) *WebhookMessageUpdateBu
 	return b
 }
 
-// SetContainerComponents sets the discord.ContainerComponent(s) of the Message
-func (b *WebhookMessageUpdateBuilder) SetContainerComponents(containerComponents ...ContainerComponent) *WebhookMessageUpdateBuilder {
+// SetComponents sets the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageUpdateBuilder) SetComponents(components ...LayoutComponent) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
-	*b.Components = containerComponents
+	*b.Components = components
 	return b
 }
 
-// SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *WebhookMessageUpdateBuilder) SetContainerComponent(i int, container ContainerComponent) *WebhookMessageUpdateBuilder {
+// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
+func (b *WebhookMessageUpdateBuilder) SetComponent(i int, container LayoutComponent) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
 	if len(*b.Components) > i {
 		(*b.Components)[i] = container
@@ -106,23 +106,23 @@ func (b *WebhookMessageUpdateBuilder) SetContainerComponent(i int, container Con
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the Message
 func (b *WebhookMessageUpdateBuilder) AddActionRow(components ...InteractiveComponent) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
-	*b.Components = append(*b.Components, ActionRowComponent(components))
+	*b.Components = append(*b.Components, ActionRowComponent{Components: components})
 	return b
 }
 
-// AddContainerComponents adds the discord.ContainerComponent(s) to the Message
-func (b *WebhookMessageUpdateBuilder) AddContainerComponents(containers ...ContainerComponent) *WebhookMessageUpdateBuilder {
+// AddComponents adds the discord.LayoutComponent(s) to the Message
+func (b *WebhookMessageUpdateBuilder) AddComponents(containers ...LayoutComponent) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]ContainerComponent)
+		b.Components = new([]LayoutComponent)
 	}
 	*b.Components = append(*b.Components, containers...)
 	return b
 }
 
-// RemoveContainerComponent removes a discord.ContainerComponent from the Message
-func (b *WebhookMessageUpdateBuilder) RemoveContainerComponent(i int) *WebhookMessageUpdateBuilder {
+// RemoveComponent removes a discord.LayoutComponent from the Message
+func (b *WebhookMessageUpdateBuilder) RemoveComponent(i int) *WebhookMessageUpdateBuilder {
 	if b.Components == nil {
 		return b
 	}
@@ -132,9 +132,9 @@ func (b *WebhookMessageUpdateBuilder) RemoveContainerComponent(i int) *WebhookMe
 	return b
 }
 
-// ClearContainerComponents removes all the discord.ContainerComponent(s) of the Message
-func (b *WebhookMessageUpdateBuilder) ClearContainerComponents() *WebhookMessageUpdateBuilder {
-	b.Components = &[]ContainerComponent{}
+// ClearComponents removes all the discord.LayoutComponent(s) of the Message
+func (b *WebhookMessageUpdateBuilder) ClearComponents() *WebhookMessageUpdateBuilder {
+	b.Components = &[]LayoutComponent{}
 	return b
 }
 
@@ -220,6 +220,68 @@ func (b *WebhookMessageUpdateBuilder) SetPoll(poll PollCreate) *WebhookMessageUp
 // ClearPoll clears the Poll of the webhook Message
 func (b *WebhookMessageUpdateBuilder) ClearPoll() *WebhookMessageUpdateBuilder {
 	b.Poll = nil
+	return b
+}
+
+// SetFlags sets the MessageFlags of the Message.
+// Be careful not to override the current flags when editing messages from other users - this will result in a permission error.
+// Use SetIsComponentsV2 or AddFlags for flags like discord.MessageFlagIsComponentsV2.
+func (b *WebhookMessageUpdateBuilder) SetFlags(flags MessageFlags) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	*b.Flags = flags
+	return b
+}
+
+// AddFlags adds the MessageFlags of the Message
+func (b *WebhookMessageUpdateBuilder) AddFlags(flags ...MessageFlags) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	*b.Flags = b.Flags.Add(flags...)
+	return b
+}
+
+// RemoveFlags removes the MessageFlags of the Message
+func (b *WebhookMessageUpdateBuilder) RemoveFlags(flags ...MessageFlags) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	*b.Flags = b.Flags.Remove(flags...)
+	return b
+}
+
+// ClearFlags clears the MessageFlags of the Message
+func (b *WebhookMessageUpdateBuilder) ClearFlags() *WebhookMessageUpdateBuilder {
+	return b.SetFlags(MessageFlagsNone)
+}
+
+// SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags
+func (b *WebhookMessageUpdateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	if suppressEmbeds {
+		*b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
+	} else {
+		*b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
+// SetIsComponentsV2 adds/removes discord.MessageFlagIsComponentsV2 to the Message flags.
+// Once a message with the flag has been sent, it cannot be removed by editing the message.
+func (b *WebhookMessageUpdateBuilder) SetIsComponentsV2(isComponentV2 bool) *WebhookMessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+
+	if isComponentV2 {
+		*b.Flags = b.Flags.Add(MessageFlagIsComponentsV2)
+	} else {
+		*b.Flags = b.Flags.Remove(MessageFlagIsComponentsV2)
+	}
 	return b
 }
 

@@ -20,7 +20,7 @@ type InteractionCreate struct {
 // This only returns cached guilds.
 func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -37,7 +37,7 @@ type ApplicationCommandInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -80,12 +80,6 @@ func (e *ApplicationCommandInteractionCreate) Modal(modalCreate discord.ModalCre
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
-// Deprecated: Respond with a discord.ButtonStylePremium button instead.
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *ApplicationCommandInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
-}
-
 // LaunchActivity responds to the interaction by launching activity associated with the app.
 func (e *ApplicationCommandInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
@@ -103,7 +97,7 @@ type ComponentInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -156,12 +150,6 @@ func (e *ComponentInteractionCreate) Modal(modalCreate discord.ModalCreate, opts
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
-// Deprecated: Respond with a discord.ButtonStylePremium button instead.
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *ComponentInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
-}
-
 // LaunchActivity responds to the interaction by launching activity associated with the app.
 func (e *ComponentInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
@@ -179,7 +167,7 @@ type AutocompleteInteractionCreate struct {
 // This only returns cached guilds.
 func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -220,7 +208,7 @@ type ModalSubmitInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -266,12 +254,6 @@ func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.Messa
 // DeferUpdateMessage responds to the interaction with nothing.
 func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
-}
-
-// Deprecated: Respond with a discord.ButtonStylePremium button instead.
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *ModalSubmitInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
 // LaunchActivity responds to the interaction by launching activity associated with the app.

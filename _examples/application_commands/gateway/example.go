@@ -7,11 +7,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -53,7 +54,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
 		slog.Error("error while registering commands", slog.Any("err", err))
 	}
 

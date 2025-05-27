@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -180,9 +180,9 @@ const (
 
 // UserUpdate is the payload used to update the OAuth2User
 type UserUpdate struct {
-	Username string               `json:"username,omitempty"`
-	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
-	Banner   *json.Nullable[Icon] `json:"banner,omitempty"`
+	Username string           `json:"username,omitempty"`
+	Avatar   omit.Omit[*Icon] `json:"avatar,omitzero"`
+	Banner   omit.Omit[*Icon] `json:"banner,omitzero"`
 }
 
 type ApplicationRoleConnection struct {

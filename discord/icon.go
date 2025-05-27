@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 )
 
 type IconType string
@@ -14,6 +14,7 @@ const (
 	IconTypeJPEG    IconType = "image/jpeg"
 	IconTypePNG     IconType = "image/png"
 	IconTypeWEBP    IconType = "image/webp"
+	IconTypeAVIF    IconType = "image/avif"
 	IconTypeGIF     IconType = "image/gif"
 	IconTypeUnknown          = IconTypeJPEG
 )

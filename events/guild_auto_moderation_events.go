@@ -13,7 +13,7 @@ type GenericAutoModerationRule struct {
 // Guild returns the discord.Guild the event happened in.
 // This will only check cached guilds!
 func (e *GenericAutoModerationRule) Guild() (discord.Guild, bool) {
-	return e.Client().Caches().Guild(e.GuildID)
+	return e.Client().Caches.Guild(e.GuildID)
 }
 
 type AutoModerationRuleCreate struct {
@@ -36,5 +36,5 @@ type AutoModerationActionExecution struct {
 // Guild returns the discord.Guild the event happened in.
 // This will only check cached guilds!
 func (e *AutoModerationActionExecution) Guild() (discord.Guild, bool) {
-	return e.Client().Caches().Guild(e.GuildID)
+	return e.Client().Caches.Guild(e.GuildID)
 }

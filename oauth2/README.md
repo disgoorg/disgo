@@ -10,4 +10,4 @@ Next you need to put in your redirect URL.
 
 ### Usage
 
-See [here](https://github.com/disgoorg/disgo/blob/master/_examples/oauth2/example.go) for an example.
+See [here](../_examples/oauth2/example.go) for an example.
