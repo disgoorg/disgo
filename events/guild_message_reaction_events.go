@@ -20,7 +20,7 @@ type GenericGuildMessageReaction struct {
 
 // Member returns the Member that reacted to the discord.Message from the cache.
 func (e *GenericGuildMessageReaction) Member() (discord.Member, bool) {
-	return e.Client().Caches().Member(e.GuildID, e.UserID)
+	return e.Client().Caches.Member(e.GuildID, e.UserID)
 }
 
 // GuildMessageReactionAdd indicates that a discord.Member added a discord.PartialEmoji to a discord.Message in a discord.GuildMessageChannel(requires the gateway.IntentGuildMessageReactions)

@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
+// EventData is the base interface for all data types sent by discord
 type EventData interface {
 	MessageData
 	eventData()

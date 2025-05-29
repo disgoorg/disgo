@@ -65,8 +65,8 @@ func main() {
 	<-s
 }
 
-func showCaseAutoMod(client bot.Client) {
-	rule, err := client.Rest().CreateAutoModerationRule(guildID, discord.AutoModerationRuleCreate{
+func showCaseAutoMod(client *bot.Client) {
+	rule, err := client.Rest.CreateAutoModerationRule(guildID, discord.AutoModerationRuleCreate{
 		Name:        "test-rule",
 		EventType:   discord.AutoModerationEventTypeMessageSend,
 		TriggerType: discord.AutoModerationTriggerTypeKeyword,
@@ -93,7 +93,7 @@ func showCaseAutoMod(client bot.Client) {
 
 	time.Sleep(time.Second * 10)
 
-	rule, err = client.Rest().UpdateAutoModerationRule(guildID, rule.ID, discord.AutoModerationRuleUpdate{
+	rule, err = client.Rest.UpdateAutoModerationRule(guildID, rule.ID, discord.AutoModerationRuleUpdate{
 		Name: omit.Ptr("test-rule-updated"),
 		TriggerMetadata: &discord.AutoModerationTriggerMetadata{
 			KeywordFilter: []string{"*test2*"},
@@ -114,7 +114,7 @@ func showCaseAutoMod(client bot.Client) {
 
 	time.Sleep(time.Second * 10)
 
-	err = client.Rest().DeleteAutoModerationRule(guildID, rule.ID)
+	err = client.Rest.DeleteAutoModerationRule(guildID, rule.ID)
 	if err != nil {
 		slog.Error("error while deleting rule", slog.Any("err", err))
 		return

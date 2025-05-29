@@ -52,7 +52,7 @@ func main() {
 				if event.Message.Content != "test" {
 					return
 				}
-				gse, _ := event.Client().Rest().CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
+				gse, _ := event.Client().Rest.CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
 					ChannelID:          885677988916641802,
 					Name:               "test",
 					PrivacyLevel:       discord.ScheduledEventPrivacyLevelGuildOnly,
@@ -62,14 +62,14 @@ func main() {
 				})
 
 				status := discord.ScheduledEventStatusActive
-				gse, _ = event.Client().Rest().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest.UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
 
 				time.Sleep(time.Second * 10)
 
 				status = discord.ScheduledEventStatusCompleted
-				gse, _ = event.Client().Rest().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest.UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
 			},

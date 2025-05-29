@@ -40,12 +40,11 @@ type RateLimiter interface {
 
 // NewRateLimiter return a new default RateLimiter with the given RateLimiterConfigOpt(s).
 func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
-	config := DefaultRateLimiterConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "rest_rate_limiter"))
+	cfg := defaultRateLimiterConfig()
+	cfg.apply(opts)
 
 	rateLimiter := &rateLimiterImpl{
-		config:  *config,
+		config:  cfg,
 		hashes:  map[*Endpoint]string{},
 		buckets: map[string]*bucket{},
 	}
@@ -56,7 +55,7 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 }
 
 type rateLimiterImpl struct {
-	config RateLimiterConfig
+	config rateLimiterConfig
 
 	// global Rate Limit
 	global time.Time

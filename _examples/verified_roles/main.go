@@ -20,8 +20,8 @@ var (
 	token        = os.Getenv("disgo_token")
 	clientSecret = os.Getenv("disgo_client_secret")
 	baseURL      = os.Getenv("disgo_base_url")
-	client       bot.Client
-	oAuth2Client oauth2.Client
+	client       *bot.Client
+	oAuth2Client *oauth2.Client
 )
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 		return
 	}
 
-	_, _ = client.Rest().UpdateApplicationRoleConnectionMetadata(client.ApplicationID(), []discord.ApplicationRoleConnectionMetadata{
+	_, _ = client.Rest.UpdateApplicationRoleConnectionMetadata(client.ApplicationID, []discord.ApplicationRoleConnectionMetadata{
 		{
 			Type:        discord.ApplicationRoleConnectionMetadataTypeIntegerGreaterThanOrEqual,
 			Key:         "cookies_eaten",
@@ -44,7 +44,7 @@ func main() {
 		},
 	})
 
-	oAuth2Client = oauth2.New(client.ApplicationID(), clientSecret)
+	oAuth2Client = oauth2.New(client.ApplicationID, clientSecret)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/verify", handleVerify)
@@ -79,7 +79,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = oAuth2Client.UpdateApplicationRoleConnection(session, client.ApplicationID(), discord.ApplicationRoleConnectionUpdate{
+		_, err = oAuth2Client.UpdateApplicationRoleConnection(session, client.ApplicationID, discord.ApplicationRoleConnectionUpdate{
 			PlatformName:     omit.Ptr("Cookie Monster " + user.Username),
 			PlatformUsername: omit.Ptr("Cookie Monster " + user.Tag()),
 			Metadata: &map[string]string{
@@ -91,7 +91,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		metadata, err := oAuth2Client.GetApplicationRoleConnection(session, client.ApplicationID())
+		metadata, err := oAuth2Client.GetApplicationRoleConnection(session, client.ApplicationID)
 		if err != nil {
 			writeError(w, "error while getting role connection", err)
 			return

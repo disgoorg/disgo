@@ -70,7 +70,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
 		slog.Error("error while registering commands", slog.Any("err", err))
 		return
 	}

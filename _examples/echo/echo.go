@@ -52,8 +52,8 @@ func main() {
 	<-s
 }
 
-func play(client bot.Client) {
-	conn := client.VoiceManager().CreateConn(guildID)
+func play(client *bot.Client) {
+	conn := client.VoiceManager.CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()

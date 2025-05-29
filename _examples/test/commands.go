@@ -38,8 +38,8 @@ var commands = []discord.ApplicationCommandCreate{
 	},
 }
 
-func registerCommands(client bot.Client) {
-	if _, err := client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+func registerCommands(client *bot.Client) {
+	if _, err := client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
 		slog.Error("error while registering guild commands", slog.Any("err", err))
 	}
 }

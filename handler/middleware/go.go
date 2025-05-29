@@ -9,7 +9,7 @@ import (
 
 // Go is a middleware that runs the next handler in a goroutine.
 var Go = GoErr(func(event *handler.InteractionEvent, err error) {
-	event.Client().Logger().Error("failed to handle interaction", slog.Any("err", err))
+	event.Client().Logger.Error("failed to handle interaction", slog.Any("err", err))
 })
 
 // GoDefer combines Go and Defer
