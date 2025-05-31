@@ -41,9 +41,13 @@ type Channels interface {
 	RemoveAllReactions(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	RemoveAllReactionsForEmoji(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 
+	// Deprecated: use GetChannelPins instead
 	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
+
+	GetChannelPins(channelID snowflake.ID, opts ...RequestOpt) ([]discord.MessagePin, error)
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
+
 	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
 
 	GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID int, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.User, error)
@@ -208,6 +212,11 @@ func (s *channelImpl) RemoveAllReactionsForEmoji(channelID snowflake.ID, message
 
 func (s *channelImpl) GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) (messages []discord.Message, err error) {
 	err = s.client.Do(GetPinnedMessages.Compile(nil, channelID), nil, &messages, opts...)
+	return
+}
+
+func (s *channelImpl) GetChannelPins(channelID snowflake.ID, opts ...RequestOpt) (pins []discord.MessagePin, err error) {
+	err = s.client.Do(GetChannelPins.Compile(nil, channelID), nil, &pins, opts...)
 	return
 }
 
