@@ -41,10 +41,10 @@ type Channels interface {
 	RemoveAllReactions(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	RemoveAllReactionsForEmoji(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 
-	// Deprecated: use GetChannelPins instead
+	// Deprecated: Use GetChannelPins instead
 	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
 
-	GetChannelPins(channelID snowflake.ID, opts ...RequestOpt) ([]discord.MessagePin, error)
+	GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) ([]discord.MessagePin, error)
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 
@@ -210,13 +210,21 @@ func (s *channelImpl) RemoveAllReactionsForEmoji(channelID snowflake.ID, message
 	return s.client.Do(RemoveAllReactionsForEmoji.Compile(nil, channelID, messageID, emoji), nil, nil, opts...)
 }
 
+// Deprecated: Use GetChannelPins instead
 func (s *channelImpl) GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) (messages []discord.Message, err error) {
 	err = s.client.Do(GetPinnedMessages.Compile(nil, channelID), nil, &messages, opts...)
 	return
 }
 
-func (s *channelImpl) GetChannelPins(channelID snowflake.ID, opts ...RequestOpt) (pins []discord.MessagePin, err error) {
-	err = s.client.Do(GetChannelPins.Compile(nil, channelID), nil, &pins, opts...)
+func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (pins []discord.MessagePin, err error) {
+	values := discord.QueryValues{}
+	if before != 0 {
+		values["before"] = before
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
+	err = s.client.Do(GetChannelPins.Compile(values, channelID), nil, &pins, opts...)
 	return
 }
 
