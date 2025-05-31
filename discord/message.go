@@ -421,3 +421,8 @@ func (n *Nonce) UnmarshalJSON(b []byte) error {
 
 	return nil
 }
+
+type MessagePin struct {
+	PinnedAt time.Time `json:"pinned_at"`
+	Message  Message   `json:"message"`
+}
