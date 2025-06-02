@@ -422,6 +422,11 @@ func (n *Nonce) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type ChannelPins struct {
+	Items   []MessagePin `json:"items"`
+	HasMore bool         `json:"has_more"`
+}
+
 type MessagePin struct {
 	PinnedAt time.Time `json:"pinned_at"`
 	Message  Message   `json:"message"`

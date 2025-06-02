@@ -44,7 +44,7 @@ type Channels interface {
 	// Deprecated: Use GetChannelPins instead
 	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
 
-	GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) ([]discord.MessagePin, error)
+	GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (*discord.ChannelPins, error)
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 
@@ -216,7 +216,7 @@ func (s *channelImpl) GetPinnedMessages(channelID snowflake.ID, opts ...RequestO
 	return
 }
 
-func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (pins []discord.MessagePin, err error) {
+func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (pins *discord.ChannelPins, err error) {
 	values := discord.QueryValues{}
 	if before != 0 {
 		values["before"] = before
