@@ -108,6 +108,7 @@ const (
 	GuildFeatureCreatorStorePage                      GuildFeature = "CREATOR_STORE_PAGE"
 	GuildFeatureDeveloperSupportServer                GuildFeature = "DEVELOPER_SUPPORT_SERVER"
 	GuildFeatureDiscoverable                          GuildFeature = "DISCOVERABLE"
+	GuildFeatureEnhancedRoleColors                    GuildFeature = "ENHANCED_ROLE_COLORS"
 	GuildFeatureFeaturable                            GuildFeature = "FEATURABLE"
 	GuildFeatureInvitesDisabled                       GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                          GuildFeature = "INVITE_SPLASH"
