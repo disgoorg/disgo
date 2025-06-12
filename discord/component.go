@@ -675,6 +675,8 @@ type UnfurledMediaItem struct {
 	Width int `json:"width,omitempty"`
 	// ContentType is the content type of the media item. This can't be set by bots.
 	ContentType string `json:"content_type,omitempty"`
+	// AttachmentID is the id of the uploaded attachment. This can't be set by bots.
+	AttachmentID snowflake.ID `json:"attachment_id,omitempty"`
 	// LoadingState is the loading state of the media item. This can't be set by bots.
 	LoadingState UnfurledMediaItemLoadingState `json:"loading_state,omitempty"`
 }
