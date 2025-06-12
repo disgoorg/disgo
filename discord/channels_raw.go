@@ -90,7 +90,6 @@ type guildThread struct {
 	Type             ChannelType    `json:"type"`
 	GuildID          snowflake.ID   `json:"guild_id"`
 	Name             string         `json:"name"`
-	NSFW             bool           `json:"nsfw"`
 	LastMessageID    *snowflake.ID  `json:"last_message_id"`
 	RateLimitPerUser int            `json:"rate_limit_per_user"`
 	OwnerID          snowflake.ID   `json:"owner_id"`
