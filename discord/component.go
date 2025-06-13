@@ -1087,6 +1087,8 @@ type FileComponent struct {
 	// File only supports attachment://<filename> references
 	File    UnfurledMediaItem `json:"file"`
 	Spoiler bool              `json:"spoiler,omitempty"`
+	Name    string            `json:"name,omitempty"`
+	Size    int               `json:"size,omitempty"`
 }
 
 func (c FileComponent) MarshalJSON() ([]byte, error) {
