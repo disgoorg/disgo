@@ -76,6 +76,7 @@ type User struct {
 	System               bool                  `json:"system"`
 	PublicFlags          UserFlags             `json:"public_flags"`
 	AvatarDecorationData *AvatarDecorationData `json:"avatar_decoration_data"`
+	Collectibles         *Collectibles         `json:"collectibles"`
 }
 
 // String returns a mention of the user
@@ -201,3 +202,30 @@ type AvatarDecorationData struct {
 	Asset string       `json:"asset"`
 	SkuID snowflake.ID `json:"sku_id"`
 }
+
+type Collectibles struct {
+	Nameplate *Nameplate `json:"nameplate"`
+}
+
+type Nameplate struct {
+	SkuID   snowflake.ID     `json:"sku_id"`
+	Asset   string           `json:"asset"`
+	Label   string           `json:"label"`
+	Palette NameplatePalette `json:"palette"`
+}
+
+type NameplatePalette string
+
+const (
+	NameplatePaletteBerry     NameplatePalette = "berry"
+	NameplatePaletteBubbleGum NameplatePalette = "bubble_gum"
+	NameplatePaletteClover    NameplatePalette = "clover"
+	NameplatePaletteCobalt    NameplatePalette = "cobalt"
+	NameplatePaletteCrimson   NameplatePalette = "crimson"
+	NameplatePaletteForest    NameplatePalette = "forest"
+	NameplatePaletteLemon     NameplatePalette = "lemon"
+	NameplatePaletteSky       NameplatePalette = "sky"
+	NameplatePaletteTeal      NameplatePalette = "teal"
+	NameplatePaletteViolet    NameplatePalette = "violet"
+	NameplatePaletteWhite     NameplatePalette = "white"
+)
