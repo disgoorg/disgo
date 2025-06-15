@@ -48,6 +48,8 @@ var (
 	AttachmentFile = NewCDN("/attachments/{channel.id}/{attachment.id}/{file.name}", FileFormatNone)
 
 	SoundboardSoundFile = NewCDN("/soundboard-sounds/{sound.id}", FileFormatNone)
+
+	NameplateAsset = NewCDN("/assets/collectibles/{nameplate.asset}/asset", FileFormatWebM)
 )
 
 // FileFormat is the type of file on Discord's CDN (https://discord.com/developers/docs/reference#image-formatting-image-formats)
@@ -62,6 +64,7 @@ const (
 	FileFormatAVIF   FileFormat = "avif"
 	FileFormatGIF    FileFormat = "gif"
 	FileFormatLottie FileFormat = "json"
+	FileFormatWebM   FileFormat = "webm"
 )
 
 // String returns the string representation of the FileFormat
@@ -72,7 +75,7 @@ func (f FileFormat) String() string {
 // Animated returns true if the FileFormat is animated
 func (f FileFormat) Animated() bool {
 	switch f {
-	case FileFormatWebP, FileFormatAVIF, FileFormatGIF:
+	case FileFormatWebP, FileFormatAVIF, FileFormatGIF, FileFormatWebM:
 		return true
 	default:
 		return false

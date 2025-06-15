@@ -214,6 +214,10 @@ type Nameplate struct {
 	Palette NameplatePalette `json:"palette"`
 }
 
+func (n Nameplate) AssetURL(opts ...CDNOpt) string {
+	return formatAssetURL(NameplateAsset, opts, n.Asset)
+}
+
 type NameplatePalette string
 
 const (
