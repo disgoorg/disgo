@@ -76,7 +76,7 @@ type User struct {
 	System               bool                  `json:"system"`
 	PublicFlags          UserFlags             `json:"public_flags"`
 	AvatarDecorationData *AvatarDecorationData `json:"avatar_decoration_data"`
-	Clan                 *Clan                 `json:"clan"`
+	PrimaryGuild         *PrimaryGuild         `json:"primary_guild"`
 }
 
 // String returns a mention of the user
@@ -153,12 +153,12 @@ func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-// ClanBadgeURL returns the clan badge URL if in a clan or nil
-func (u User) ClanBadgeURL(opts ...CDNOpt) *string {
-	if u.Clan == nil {
+// ServerTagURL returns the server tag badge URL if the user has a primary discord.Guild or nil
+func (u User) ServerTagURL(opts ...CDNOpt) *string {
+	if u.PrimaryGuild == nil {
 		return nil
 	}
-	url := formatAssetURL(ClanBadge, opts, u.Clan.IdentityGuildID, u.Clan.Badge)
+	url := formatAssetURL(ServerTagBadge, opts, u.PrimaryGuild.IdentityGuildID, u.PrimaryGuild.Badge)
 	return &url
 }
 
@@ -214,9 +214,9 @@ type AvatarDecorationData struct {
 	SkuID snowflake.ID `json:"sku_id"`
 }
 
-type Clan struct {
-	IdentityGuildID snowflake.ID `json:"identity_guild_id"`
-	IdentityEnabled bool         `json:"identity_enabled"`
-	Tag             string       `json:"tag"`
-	Badge           string       `json:"badge"`
+type PrimaryGuild struct {
+	IdentityGuildID *snowflake.ID `json:"identity_guild_id"`
+	IdentityEnabled *bool         `json:"identity_enabled"`
+	Tag             *string       `json:"tag"`
+	Badge           *string       `json:"badge"`
 }
