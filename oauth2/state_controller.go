@@ -3,7 +3,7 @@ package oauth2
 import "log/slog"
 
 var (
-	_ StateController = (*stateControllerImpl)(nil)
+	_ StateController = (*defaultStateController)(nil)
 )
 
 // StateController is responsible for generating, storing and validating states.
@@ -17,36 +17,35 @@ type StateController interface {
 
 // NewStateController returns a new empty StateController.
 func NewStateController(opts ...StateControllerConfigOpt) StateController {
-	config := DefaultStateControllerConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "oauth2_state_controller"))
+	cfg := defaultStateControllerConfig()
+	cfg.apply(opts)
 
-	states := newTTLMap(config.MaxTTL)
-	for state, url := range config.States {
+	states := newTTLMap(cfg.MaxTTL)
+	for state, url := range cfg.States {
 		states.put(state, url)
 	}
 
-	return &stateControllerImpl{
+	return &defaultStateController{
 		states:       states,
-		newStateFunc: config.NewStateFunc,
-		logger:       config.Logger,
+		newStateFunc: cfg.NewStateFunc,
+		logger:       cfg.Logger,
 	}
 }
 
-type stateControllerImpl struct {
+type defaultStateController struct {
 	logger       *slog.Logger
 	states       *ttlMap
 	newStateFunc func() string
 }
 
-func (c *stateControllerImpl) NewState(redirectURI string) string {
+func (c *defaultStateController) NewState(redirectURI string) string {
 	state := c.newStateFunc()
 	c.logger.Debug("new state: %s for redirect uri", slog.String("state", state), slog.String("redirect_uri", redirectURI))
 	c.states.put(state, redirectURI)
 	return state
 }
 
-func (c *stateControllerImpl) UseState(state string) string {
+func (c *defaultStateController) UseState(state string) string {
 	uri := c.states.get(state)
 	if uri == "" {
 		return ""

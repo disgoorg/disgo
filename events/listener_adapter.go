@@ -69,6 +69,11 @@ type ListenerAdapter struct {
 	OnEntitlementUpdate func(event *EntitlementUpdate)
 	OnEntitlementDelete func(event *EntitlementDelete)
 
+	// Subscription Events
+	OnSubscriptionCreate func(event *SubscriptionCreate)
+	OnSubscriptionUpdate func(event *SubscriptionUpdate)
+	OnSubscriptionDelete func(event *SubscriptionDelete)
+
 	// Sticker Events
 	OnStickersUpdate func(event *StickersUpdate)
 	OnStickerCreate  func(event *StickerCreate)
@@ -111,12 +116,20 @@ type ListenerAdapter struct {
 	OnGuildMessageReactionRemoveEmoji func(event *GuildMessageReactionRemoveEmoji)
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAll)
 
+	// Guild Soundboard Events
+	OnGuildSoundboardSoundCreate  func(event *GuildSoundboardSoundCreate)
+	OnGuildSoundboardSoundUpdate  func(event *GuildSoundboardSoundUpdate)
+	OnGuildSoundboardSoundDelete  func(event *GuildSoundboardSoundDelete)
+	OnGuildSoundboardSoundsUpdate func(event *GuildSoundboardSoundsUpdate)
+	OnSoundboardSounds            func(event *SoundboardSounds)
+
 	// Guild Voice Events
-	OnVoiceServerUpdate     func(event *VoiceServerUpdate)
-	OnGuildVoiceStateUpdate func(event *GuildVoiceStateUpdate)
-	OnGuildVoiceJoin        func(event *GuildVoiceJoin)
-	OnGuildVoiceMove        func(event *GuildVoiceMove)
-	OnGuildVoiceLeave       func(event *GuildVoiceLeave)
+	OnVoiceServerUpdate           func(event *VoiceServerUpdate)
+	OnGuildVoiceChannelEffectSend func(event *GuildVoiceChannelEffectSend)
+	OnGuildVoiceStateUpdate       func(event *GuildVoiceStateUpdate)
+	OnGuildVoiceJoin              func(event *GuildVoiceJoin)
+	OnGuildVoiceMove              func(event *GuildVoiceMove)
+	OnGuildVoiceLeave             func(event *GuildVoiceLeave)
 
 	// Guild StageInstance Events
 	OnStageInstanceCreate func(event *StageInstanceCreate)
@@ -352,6 +365,20 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	// Subscription Events
+	case *SubscriptionCreate:
+		if listener := l.OnSubscriptionCreate; listener != nil {
+			listener(e)
+		}
+	case *SubscriptionUpdate:
+		if listener := l.OnSubscriptionUpdate; listener != nil {
+			listener(e)
+		}
+	case *SubscriptionDelete:
+		if listener := l.OnSubscriptionDelete; listener != nil {
+			listener(e)
+		}
+
 	// Sticker Events
 	case *StickersUpdate:
 		if listener := l.OnStickersUpdate; listener != nil {
@@ -478,9 +505,35 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	// Guild Soundboard Sound Events
+	case *GuildSoundboardSoundCreate:
+		if listener := l.OnGuildSoundboardSoundCreate; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundUpdate:
+		if listener := l.OnGuildSoundboardSoundUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundDelete:
+		if listener := l.OnGuildSoundboardSoundDelete; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundsUpdate:
+		if listener := l.OnGuildSoundboardSoundsUpdate; listener != nil {
+			listener(e)
+		}
+	case *SoundboardSounds:
+		if listener := l.OnSoundboardSounds; listener != nil {
+			listener(e)
+		}
+
 	// Guild Voice Events
 	case *VoiceServerUpdate:
 		if listener := l.OnVoiceServerUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceChannelEffectSend:
+		if listener := l.OnGuildVoiceChannelEffectSend; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceStateUpdate:
@@ -707,6 +760,6 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	default:
-		e.Client().Logger().Error("unexpected event received", slog.String("type", fmt.Sprintf("%T", event)), slog.String("data", fmt.Sprintf("%+v", event)))
+		e.Client().Logger.Error("unexpected event received", slog.String("type", fmt.Sprintf("%T", event)), slog.String("data", fmt.Sprintf("%+v", event)))
 	}
 }

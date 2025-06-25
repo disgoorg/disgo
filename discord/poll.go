@@ -3,8 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/disgoorg/json/v2"
 )
 
 type Poll struct {
@@ -58,9 +57,9 @@ type PollResults struct {
 }
 
 type PollAnswerCount struct {
-	ID      snowflake.ID `json:"id"`
-	Count   int          `json:"count"`
-	MeVoted bool         `json:"me_voted"`
+	ID      int  `json:"id"`
+	Count   int  `json:"count"`
+	MeVoted bool `json:"me_voted"`
 }
 
 type PollLayoutType int

@@ -88,12 +88,12 @@ func (s *defaultAudioReceiver) receive() {
 		return
 	}
 	if err != nil {
-		s.logger.Error("error while reading packet", slog.String("err", err.Error()))
+		s.logger.Error("error while reading packet", slog.Any("err", err))
 		return
 	}
 	if s.opusReceiver != nil {
 		if err = s.opusReceiver.ReceiveOpusFrame(s.conn.UserIDBySSRC(packet.SSRC), packet); err != nil {
-			s.logger.Error("error while receiving opus frame", slog.String("err", err.Error()))
+			s.logger.Error("error while receiving opus frame", slog.Any("err", err))
 		}
 	}
 

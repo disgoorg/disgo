@@ -11,15 +11,14 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-func DefaultRequestConfig(rq *http.Request) *RequestConfig {
-	return &RequestConfig{
+func defaultRequestConfig(rq *http.Request) requestConfig {
+	return requestConfig{
 		Request: rq,
 		Ctx:     context.TODO(),
 	}
 }
 
-// RequestConfig are additional options for the request
-type RequestConfig struct {
+type requestConfig struct {
 	Request *http.Request
 	Ctx     context.Context
 	Checks  []Check
@@ -30,10 +29,9 @@ type RequestConfig struct {
 type Check func() bool
 
 // RequestOpt can be used to supply optional parameters to Client.Do
-type RequestOpt func(config *RequestConfig)
+type RequestOpt func(config *requestConfig)
 
-// Apply applies the given RequestOpt(s) to the RequestConfig & sets the context if none is set
-func (c *RequestConfig) Apply(opts []RequestOpt) {
+func (c *requestConfig) apply(opts []RequestOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -44,28 +42,28 @@ func (c *RequestConfig) Apply(opts []RequestOpt) {
 
 // WithCtx applies a custom context to the request
 func WithCtx(ctx context.Context) RequestOpt {
-	return func(config *RequestConfig) {
+	return func(config *requestConfig) {
 		config.Ctx = ctx
 	}
 }
 
 // WithCheck adds a new check to the request
 func WithCheck(check Check) RequestOpt {
-	return func(config *RequestConfig) {
+	return func(config *requestConfig) {
 		config.Checks = append(config.Checks, check)
 	}
 }
 
 // WithDelay applies a delay to the request
 func WithDelay(delay time.Duration) RequestOpt {
-	return func(config *RequestConfig) {
+	return func(config *requestConfig) {
 		config.Delay = delay
 	}
 }
 
 // WithHeader adds a custom header to the request
 func WithHeader(key string, value string) RequestOpt {
-	return func(config *RequestConfig) {
+	return func(config *requestConfig) {
 		config.Request.Header.Set(key, value)
 	}
 }
@@ -88,7 +86,7 @@ func WithToken(tokenType discord.TokenType, token string) RequestOpt {
 
 // WithQueryParam applies a custom query parameter to the request
 func WithQueryParam(param string, value any) RequestOpt {
-	return func(config *RequestConfig) {
+	return func(config *requestConfig) {
 		values := config.Request.URL.Query()
 		values.Add(param, fmt.Sprint(value))
 		config.Request.URL.RawQuery = values.Encode()

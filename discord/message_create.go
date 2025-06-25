@@ -6,19 +6,19 @@ import (
 
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
-	Nonce            string               `json:"nonce,omitempty"`
-	Content          string               `json:"content,omitempty"`
-	TTS              bool                 `json:"tts,omitempty"`
-	Embeds           []Embed              `json:"embeds,omitempty"`
-	Components       []ContainerComponent `json:"components,omitempty"`
-	StickerIDs       []snowflake.ID       `json:"sticker_ids,omitempty"`
-	Files            []*File              `json:"-"`
-	Attachments      []AttachmentCreate   `json:"attachments,omitempty"`
-	AllowedMentions  *AllowedMentions     `json:"allowed_mentions,omitempty"`
-	MessageReference *MessageReference    `json:"message_reference,omitempty"`
-	Flags            MessageFlags         `json:"flags,omitempty"`
-	EnforceNonce     bool                 `json:"enforce_nonce,omitempty"`
-	Poll             *PollCreate          `json:"poll,omitempty"`
+	Nonce            string             `json:"nonce,omitempty"`
+	Content          string             `json:"content,omitempty"`
+	TTS              bool               `json:"tts,omitempty"`
+	Embeds           []Embed            `json:"embeds,omitempty"`
+	Components       []LayoutComponent  `json:"components,omitempty"`
+	StickerIDs       []snowflake.ID     `json:"sticker_ids,omitempty"`
+	Files            []*File            `json:"-"`
+	Attachments      []AttachmentCreate `json:"attachments,omitempty"`
+	AllowedMentions  *AllowedMentions   `json:"allowed_mentions,omitempty"`
+	MessageReference *MessageReference  `json:"message_reference,omitempty"`
+	Flags            MessageFlags       `json:"flags,omitempty"`
+	EnforceNonce     bool               `json:"enforce_nonce,omitempty"`
+	Poll             *PollCreate        `json:"poll,omitempty"`
 }
 
 func (MessageCreate) interactionCallbackData() {}

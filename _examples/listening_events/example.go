@@ -7,11 +7,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -47,7 +48,7 @@ func main() {
 }
 
 func eventListenerFunc(event *events.MessageCreate) {
-	_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.MessageCreate{
+	_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.MessageCreate{
 		Content: "pong",
 	})
 }
@@ -58,7 +59,7 @@ func eventListenerChan() chan<- *events.MessageCreate {
 		defer close(c)
 		for event := range c {
 			if event.Message.Content == "ping" {
-				_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.MessageCreate{
+				_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.MessageCreate{
 					Content: "pong",
 				})
 			}

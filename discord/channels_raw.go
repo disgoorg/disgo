@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -13,6 +13,16 @@ type dmChannel struct {
 	LastMessageID    *snowflake.ID `json:"last_message_id"`
 	Recipients       []User        `json:"recipients"`
 	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
+}
+
+type groupDMChannel struct {
+	ID               snowflake.ID  `json:"id"`
+	Type             ChannelType   `json:"type"`
+	OwnerID          *snowflake.ID `json:"owner_id"`
+	Name             string        `json:"name"`
+	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
+	LastMessageID    *snowflake.ID `json:"last_message_id"`
+	Icon             *string       `json:"icon"`
 }
 
 type guildTextChannel struct {
@@ -80,7 +90,6 @@ type guildThread struct {
 	Type             ChannelType    `json:"type"`
 	GuildID          snowflake.ID   `json:"guild_id"`
 	Name             string         `json:"name"`
-	NSFW             bool           `json:"nsfw"`
 	LastMessageID    *snowflake.ID  `json:"last_message_id"`
 	RateLimitPerUser int            `json:"rate_limit_per_user"`
 	OwnerID          snowflake.ID   `json:"owner_id"`

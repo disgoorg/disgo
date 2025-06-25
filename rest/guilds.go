@@ -3,10 +3,10 @@ package rest
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/slicehelper"
 )
 
 var _ Guilds = (*guildImpl)(nil)
@@ -60,6 +60,8 @@ type Guilds interface {
 
 	GetGuildOnboarding(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildOnboarding, error)
 	UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate discord.GuildOnboardingUpdate, opts ...RequestOpt) (*discord.GuildOnboarding, error)
+
+	UpdateGuildIncidentActions(guildID snowflake.ID, actionsUpdate discord.GuildIncidentActionsUpdate, opts ...RequestOpt) (*discord.GuildIncidentsData, error)
 }
 
 type guildImpl struct {
@@ -308,5 +310,10 @@ func (s *guildImpl) GetGuildOnboarding(guildID snowflake.ID, opts ...RequestOpt)
 
 func (s *guildImpl) UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate discord.GuildOnboardingUpdate, opts ...RequestOpt) (guildOnboarding *discord.GuildOnboarding, err error) {
 	err = s.client.Do(UpdateGuildOnboarding.Compile(nil, guildID), onboardingUpdate, &guildOnboarding, opts...)
+	return
+}
+
+func (s *guildImpl) UpdateGuildIncidentActions(guildID snowflake.ID, actionsUpdate discord.GuildIncidentActionsUpdate, opts ...RequestOpt) (incidentsData *discord.GuildIncidentsData, err error) {
+	err = s.client.Do(UpdateGuildIncidentActions.Compile(nil, guildID), actionsUpdate, &incidentsData, opts...)
 	return
 }

@@ -31,13 +31,13 @@ import (
 )
 
 // SyncCommands sets the given commands for the given guilds or globally if no guildIDs are empty. It will return on the first error for multiple guilds.
-func SyncCommands(client bot.Client, commands []discord.ApplicationCommandCreate, guildIDs []snowflake.ID, opts ...rest.RequestOpt) error {
+func SyncCommands(client *bot.Client, commands []discord.ApplicationCommandCreate, guildIDs []snowflake.ID, opts ...rest.RequestOpt) error {
 	if len(guildIDs) == 0 {
-		_, err := client.Rest().SetGlobalCommands(client.ApplicationID(), commands, opts...)
+		_, err := client.Rest.SetGlobalCommands(client.ApplicationID, commands, opts...)
 		return err
 	}
 	for _, guildID := range guildIDs {
-		_, err := client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands, opts...)
+		_, err := client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands, opts...)
 		if err != nil {
 			return err
 		}
@@ -53,11 +53,14 @@ type handlerHolder[T any] struct {
 }
 
 func (h *handlerHolder[T]) Match(path string, t discord.InteractionType, t2 int) bool {
-	if h.t != t || (len(h.t2) > 0 && !slices.Contains(h.t2, t2)) {
+	if h.t > 0 && (h.t != t || (len(h.t2) > 0 && !slices.Contains(h.t2, t2))) {
 		return false
 	}
 	parts := splitPath(path)
 	patternParts := splitPath(h.pattern)
+	if len(parts) < len(patternParts) {
+		return false
+	}
 
 	for i, part := range patternParts {
 		if strings.HasPrefix(part, "{") && strings.HasSuffix(part, "}") {
@@ -112,6 +115,17 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 	case MessageCommandHandler:
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
 		return handler(commandInteraction.Data.(discord.MessageCommandInteractionData), &CommandEvent{
+			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
+				GenericEvent:                  event.GenericEvent,
+				ApplicationCommandInteraction: commandInteraction,
+				Respond:                       event.Respond,
+			},
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
+		})
+	case EntryPointCommandHandler:
+		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
+		return handler(commandInteraction.Data.(discord.EntryPointCommandInteractionData), &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,

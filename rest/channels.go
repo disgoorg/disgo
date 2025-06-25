@@ -20,8 +20,6 @@ type Channels interface {
 	GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
 	CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (*discord.IncomingWebhook, error)
 
-	GetPermissionOverwrites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.PermissionOverwrite, error)
-	GetPermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) (*discord.PermissionOverwrite, error)
 	UpdatePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, permissionOverwrite discord.PermissionOverwriteUpdate, opts ...RequestOpt) error
 	DeletePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) error
 
@@ -36,16 +34,20 @@ type Channels interface {
 	BulkDeleteMessages(channelID snowflake.ID, messageIDs []snowflake.ID, opts ...RequestOpt) error
 	CrosspostMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
 
-	GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) ([]discord.User, error)
+	GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, reactionType discord.MessageReactionType, after int, limit int, opts ...RequestOpt) ([]discord.User, error)
 	AddReaction(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 	RemoveOwnReaction(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 	RemoveUserReaction(channelID snowflake.ID, messageID snowflake.ID, emoji string, userID snowflake.ID, opts ...RequestOpt) error
 	RemoveAllReactions(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	RemoveAllReactionsForEmoji(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 
+	// Deprecated: Use GetChannelPins instead
 	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
+
+	GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (*discord.ChannelPins, error)
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
+
 	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
 
 	GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID int, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.User, error)
@@ -93,16 +95,6 @@ func (s *channelImpl) GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) (w
 
 func (s *channelImpl) CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (webhook *discord.IncomingWebhook, err error) {
 	err = s.client.Do(CreateWebhook.Compile(nil, channelID), webhookCreate, &webhook, opts...)
-	return
-}
-
-func (s *channelImpl) GetPermissionOverwrites(channelID snowflake.ID, opts ...RequestOpt) (overwrites []discord.PermissionOverwrite, err error) {
-	err = s.client.Do(GetPermissionOverwrites.Compile(nil, channelID), nil, &overwrites, opts...)
-	return
-}
-
-func (s *channelImpl) GetPermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) (overwrite *discord.PermissionOverwrite, err error) {
-	err = s.client.Do(GetPermissionOverwrite.Compile(nil, channelID, overwriteID), nil, &overwrite, opts...)
 	return
 }
 
@@ -184,8 +176,17 @@ func (s *channelImpl) CrosspostMessage(channelID snowflake.ID, messageID snowfla
 	return
 }
 
-func (s *channelImpl) GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) (users []discord.User, err error) {
-	err = s.client.Do(GetReactions.Compile(nil, channelID, messageID, emoji), nil, &users, opts...)
+func (s *channelImpl) GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, reactionType discord.MessageReactionType, after int, limit int, opts ...RequestOpt) (users []discord.User, err error) {
+	values := discord.QueryValues{
+		"type": reactionType,
+	}
+	if after != 0 {
+		values["after"] = after
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
+	err = s.client.Do(GetReactions.Compile(values, channelID, messageID, emoji), nil, &users, opts...)
 	return
 }
 
@@ -209,8 +210,21 @@ func (s *channelImpl) RemoveAllReactionsForEmoji(channelID snowflake.ID, message
 	return s.client.Do(RemoveAllReactionsForEmoji.Compile(nil, channelID, messageID, emoji), nil, nil, opts...)
 }
 
+// Deprecated: Use GetChannelPins instead
 func (s *channelImpl) GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) (messages []discord.Message, err error) {
 	err = s.client.Do(GetPinnedMessages.Compile(nil, channelID), nil, &messages, opts...)
+	return
+}
+
+func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (pins *discord.ChannelPins, err error) {
+	values := discord.QueryValues{}
+	if before != 0 {
+		values["before"] = before
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
+	err = s.client.Do(GetChannelPins.Compile(values, channelID), nil, &pins, opts...)
 	return
 }
 
@@ -235,7 +249,11 @@ func (s *channelImpl) GetPollAnswerVotes(channelID snowflake.ID, messageID snowf
 	if limit != 0 {
 		values["limit"] = limit
 	}
-	err = s.client.Do(GetPollAnswerVotes.Compile(values, channelID, messageID, answerID), nil, &users, opts...)
+	var rs pollAnswerVotesResponse
+	err = s.client.Do(GetPollAnswerVotes.Compile(values, channelID, messageID, answerID), nil, &rs, opts...)
+	if err == nil {
+		users = rs.Users
+	}
 	return
 }
 
@@ -251,4 +269,8 @@ func (s *channelImpl) GetPollAnswerVotesPage(channelID snowflake.ID, messageID s
 func (s *channelImpl) ExpirePoll(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (message *discord.Message, err error) {
 	err = s.client.Do(ExpirePoll.Compile(nil, channelID, messageID), nil, &message, opts...)
 	return
+}
+
+type pollAnswerVotesResponse struct {
+	Users []discord.User `json:"users"`
 }

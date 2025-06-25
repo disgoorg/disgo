@@ -1,10 +1,10 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/slicehelper"
 )
 
 var _ Applications = (*applicationsImpl)(nil)
@@ -37,12 +37,55 @@ type Applications interface {
 	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 
-	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
+	GetEntitlements(applicationID snowflake.ID, params GetEntitlementsParams, opts ...RequestOpt) ([]discord.Entitlement, error)
+	GetEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) (*discord.Entitlement, error)
 	CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (*discord.Entitlement, error)
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 	ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 
-	GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.SKU, error)
+	GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.Emoji, error)
+	GetApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (*discord.Emoji, error)
+	CreateApplicationEmoji(applicationID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, error)
+	UpdateApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, error)
+	DeleteApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error
+
+	GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (*discord.ActivityInstance, error)
+}
+
+// GetEntitlementsParams holds query parameters for Applications.GetEntitlements (https://discord.com/developers/docs/resources/entitlement#list-entitlements)
+type GetEntitlementsParams struct {
+	UserID         snowflake.ID
+	SkuIDs         []snowflake.ID
+	Before         int
+	After          int
+	Limit          int
+	GuildID        snowflake.ID
+	ExcludeEnded   bool
+	ExcludeDeleted bool
+}
+
+func (p GetEntitlementsParams) ToQueryValues() discord.QueryValues {
+	queryValues := discord.QueryValues{
+		"exclude_ended":   p.ExcludeEnded,
+		"exclude_deleted": p.ExcludeDeleted,
+		"sku_ids":         slicehelper.JoinSnowflakes(p.SkuIDs),
+	}
+	if p.UserID != 0 {
+		queryValues["user_id"] = p.UserID
+	}
+	if p.Before != 0 {
+		queryValues["before"] = p.Before
+	}
+	if p.After != 0 {
+		queryValues["after"] = p.After
+	}
+	if p.Limit != 0 {
+		queryValues["limit"] = p.Limit
+	}
+	if p.GuildID != 0 {
+		queryValues["guild_id"] = p.GuildID
+	}
+	return queryValues
 }
 
 type applicationsImpl struct {
@@ -70,7 +113,7 @@ func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.ID, withLoc
 
 func (s *applicationsImpl) GetGlobalCommand(applicationID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(GetGlobalCommand.Compile(nil, applicationID, commandID), nil, &command, opts...)
+	err = s.client.Do(GetGlobalCommand.Compile(nil, applicationID, commandID), nil, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -79,7 +122,7 @@ func (s *applicationsImpl) GetGlobalCommand(applicationID snowflake.ID, commandI
 
 func (s *applicationsImpl) CreateGlobalCommand(applicationID snowflake.ID, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(CreateGlobalCommand.Compile(nil, applicationID), commandCreate, &command, opts...)
+	err = s.client.Do(CreateGlobalCommand.Compile(nil, applicationID), commandCreate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -177,27 +220,13 @@ func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID
 	return
 }
 
-func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
-	queryValues := discord.QueryValues{
-		"exclude_ended": excludeEnded,
-		"sku_ids":       slicehelper.JoinSnowflakes(skuIDs),
-	}
-	if userID != 0 {
-		queryValues["user_id"] = userID
-	}
-	if guildID != 0 {
-		queryValues["guild_id"] = guildID
-	}
-	if before != 0 {
-		queryValues["before"] = before
-	}
-	if after != 0 {
-		queryValues["after"] = after
-	}
-	if limit != 0 {
-		queryValues["limit"] = limit
-	}
-	err = s.client.Do(GetEntitlements.Compile(queryValues, applicationID), nil, &entitlements, opts...)
+func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, params GetEntitlementsParams, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
+	err = s.client.Do(GetEntitlements.Compile(params.ToQueryValues(), applicationID), nil, &entitlements, opts...)
+	return
+}
+
+func (s *applicationsImpl) GetEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) (entitlement *discord.Entitlement, err error) {
+	err = s.client.Do(GetEntitlement.Compile(nil, applicationID, entitlementID), nil, &entitlement, opts...)
 	return
 }
 
@@ -214,8 +243,36 @@ func (s *applicationsImpl) ConsumeEntitlement(applicationID snowflake.ID, entitl
 	return s.client.Do(ConsumeEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
 }
 
-func (s *applicationsImpl) GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) (skus []discord.SKU, err error) {
-	err = s.client.Do(GetSKUs.Compile(nil, applicationID), nil, &skus, opts...)
+func (s *applicationsImpl) GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
+	var rs emojisResponse
+	err = s.client.Do(GetApplicationEmojis.Compile(nil, applicationID), nil, &rs, opts...)
+	if err == nil {
+		emojis = rs.Items
+	}
+	return
+}
+
+func (s *applicationsImpl) GetApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
+	err = s.client.Do(GetApplicationEmoji.Compile(nil, applicationID, emojiID), nil, &emoji, opts...)
+	return
+}
+
+func (s *applicationsImpl) CreateApplicationEmoji(applicationID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
+	err = s.client.Do(CreateApplicationEmoji.Compile(nil, applicationID), emojiCreate, &emoji, opts...)
+	return
+}
+
+func (s *applicationsImpl) UpdateApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
+	err = s.client.Do(UpdateApplicationEmoji.Compile(nil, applicationID, emojiID), emojiUpdate, &emoji, opts...)
+	return
+}
+
+func (s *applicationsImpl) DeleteApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(DeleteApplicationEmoji.Compile(nil, applicationID, emojiID), nil, nil, opts...)
+}
+
+func (s *applicationsImpl) GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (instance *discord.ActivityInstance, err error) {
+	err = s.client.Do(GetActivityInstance.Compile(nil, applicationID, instanceID), nil, &instance, opts...)
 	return
 }
 
@@ -225,4 +282,8 @@ func unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands []disco
 		commands[i] = unmarshalCommands[i].ApplicationCommand
 	}
 	return commands
+}
+
+type emojisResponse struct {
+	Items []discord.Emoji `json:"items"`
 }

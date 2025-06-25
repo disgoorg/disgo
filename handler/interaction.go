@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
+// InteractionEvent allows to handle all types of interactions.
 type InteractionEvent struct {
 	*events.InteractionCreate
 	Vars map[string]string
@@ -40,9 +41,9 @@ func (e *InteractionEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
-// PremiumRequired responds to the interaction with an upgrade button if available.
-func (e *InteractionEvent) PremiumRequired(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *InteractionEvent) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
 }
 
 // Modal responds to the interaction with a new modal.
@@ -55,29 +56,29 @@ func (e *InteractionEvent) AutocompleteResult(choices []discord.AutocompleteChoi
 }
 
 func (e *InteractionEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
-	return e.Client().Rest().GetInteractionResponse(e.ApplicationID(), e.Token(), opts...)
+	return e.Client().Rest.GetInteractionResponse(e.ApplicationID(), e.Token(), opts...)
 }
 
 func (e *InteractionEvent) UpdateInteractionResponse(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return e.Client().Rest().UpdateInteractionResponse(e.ApplicationID(), e.Token(), messageUpdate, opts...)
+	return e.Client().Rest.UpdateInteractionResponse(e.ApplicationID(), e.Token(), messageUpdate, opts...)
 }
 
 func (e *InteractionEvent) DeleteInteractionResponse(opts ...rest.RequestOpt) error {
-	return e.Client().Rest().DeleteInteractionResponse(e.ApplicationID(), e.Token(), opts...)
+	return e.Client().Rest.DeleteInteractionResponse(e.ApplicationID(), e.Token(), opts...)
 }
 
 func (e *InteractionEvent) GetFollowupMessage(messageID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return e.Client().Rest().GetFollowupMessage(e.ApplicationID(), e.Token(), messageID, opts...)
+	return e.Client().Rest.GetFollowupMessage(e.ApplicationID(), e.Token(), messageID, opts...)
 }
 
 func (e *InteractionEvent) CreateFollowupMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return e.Client().Rest().CreateFollowupMessage(e.ApplicationID(), e.Token(), messageCreate, opts...)
+	return e.Client().Rest.CreateFollowupMessage(e.ApplicationID(), e.Token(), messageCreate, opts...)
 }
 
 func (e *InteractionEvent) UpdateFollowupMessage(messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return e.Client().Rest().UpdateFollowupMessage(e.ApplicationID(), e.Token(), messageID, messageUpdate, opts...)
+	return e.Client().Rest.UpdateFollowupMessage(e.ApplicationID(), e.Token(), messageID, messageUpdate, opts...)
 }
 
 func (e *InteractionEvent) DeleteFollowupMessage(messageID snowflake.ID, opts ...rest.RequestOpt) error {
-	return e.Client().Rest().DeleteFollowupMessage(e.ApplicationID(), e.Token(), messageID, opts...)
+	return e.Client().Rest.DeleteFollowupMessage(e.ApplicationID(), e.Token(), messageID, opts...)
 }

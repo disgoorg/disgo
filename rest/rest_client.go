@@ -10,22 +10,19 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 
 	"github.com/disgoorg/disgo/discord"
 )
 
-// NewClient constructs a new Client with the given Config struct
+// NewClient constructs a new Client with the given config struct
 func NewClient(botToken string, opts ...ConfigOpt) Client {
-	config := DefaultConfig()
-	config.Apply(opts)
-	config.Logger = config.Logger.With(slog.String("name", "rest_client"))
-
-	config.RateLimiter.Reset()
+	cfg := defaultConfig()
+	cfg.apply(opts)
 
 	return &clientImpl{
 		botToken: botToken,
-		config:   *config,
+		config:   cfg,
 	}
 }
 
@@ -46,7 +43,7 @@ type Client interface {
 
 type clientImpl struct {
 	botToken string
-	config   Config
+	config   config
 }
 
 func (c *clientImpl) Close(ctx context.Context) {
@@ -103,34 +100,34 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		opts = append([]RequestOpt{WithToken(discord.TokenTypeBot, c.botToken)}, opts...)
 	}
 
-	config := DefaultRequestConfig(rq)
-	config.Apply(opts)
+	cfg := defaultRequestConfig(rq)
+	cfg.apply(opts)
 
-	if config.Delay > 0 {
-		timer := time.NewTimer(config.Delay)
+	if cfg.Delay > 0 {
+		timer := time.NewTimer(cfg.Delay)
 		defer timer.Stop()
 		select {
-		case <-config.Ctx.Done():
-			return config.Ctx.Err()
+		case <-cfg.Ctx.Done():
+			return cfg.Ctx.Err()
 		case <-timer.C:
 		}
 	}
 
 	// wait for rate limits
-	err = c.RateLimiter().WaitBucket(config.Ctx, endpoint)
+	err = c.RateLimiter().WaitBucket(cfg.Ctx, endpoint)
 	if err != nil {
 		return fmt.Errorf("error locking bucket in rest client: %w", err)
 	}
-	rq = rq.WithContext(config.Ctx)
+	rq = cfg.Request.WithContext(cfg.Ctx)
 
-	for _, check := range config.Checks {
+	for _, check := range cfg.Checks {
 		if !check() {
 			_ = c.RateLimiter().UnlockBucket(endpoint, nil)
 			return discord.ErrCheckFailed
 		}
 	}
 
-	rs, err := c.HTTPClient().Do(config.Request)
+	rs, err := c.HTTPClient().Do(rq)
 	if err != nil {
 		_ = c.RateLimiter().UnlockBucket(endpoint, nil)
 		return fmt.Errorf("error doing request in rest client: %w", err)
@@ -152,7 +149,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if rsBody != nil && rs.Body != nil {
 			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
-				c.config.Logger.Error("error unmarshalling response body", slog.String("err", err.Error()), slog.String("endpoint", endpoint.URL), slog.String("code", rs.Status), slog.String("body", string(rawRsBody)))
+				c.config.Logger.Error("error unmarshalling response body", slog.Any("err", err), slog.String("endpoint", endpoint.URL), slog.String("code", rs.Status), slog.String("body", string(rawRsBody)))
 				return fmt.Errorf("error unmarshalling response body: %w", err)
 			}
 		}

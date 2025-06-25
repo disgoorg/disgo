@@ -18,9 +18,11 @@ type Rest interface {
 	Users
 	Voice
 	Webhooks
+	SoundboardSounds
 	StageInstances
 	Emojis
 	Stickers
+	SKUs
 	GuildScheduledEvents
 }
 
@@ -44,9 +46,11 @@ func New(client Client) Rest {
 		Users:                NewUsers(client),
 		Voice:                NewVoice(client),
 		Webhooks:             NewWebhooks(client),
+		SoundboardSounds:     NewSoundboardSounds(client),
 		StageInstances:       NewStageInstances(client),
 		Emojis:               NewEmojis(client),
 		Stickers:             NewStickers(client),
+		SKUs:                 NewSKUs(client),
 		GuildScheduledEvents: NewGuildScheduledEvents(client),
 	}
 }
@@ -68,8 +72,10 @@ type restImpl struct {
 	Users
 	Voice
 	Webhooks
+	SoundboardSounds
 	StageInstances
 	Emojis
 	Stickers
+	SKUs
 	GuildScheduledEvents
 }

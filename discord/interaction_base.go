@@ -11,8 +11,8 @@ type baseInteraction struct {
 	applicationID                snowflake.ID
 	token                        string
 	version                      int
+	guild                        *InteractionGuild
 	guildID                      *snowflake.ID
-	channelID                    snowflake.ID
 	channel                      InteractionChannel
 	locale                       Locale
 	guildLocale                  *Locale
@@ -22,6 +22,7 @@ type baseInteraction struct {
 	entitlements                 []Entitlement
 	authorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID
 	context                      InteractionContextType
+	attachmentSizeLimit          int
 }
 
 func (i baseInteraction) ID() snowflake.ID {
@@ -36,13 +37,11 @@ func (i baseInteraction) Token() string {
 func (i baseInteraction) Version() int {
 	return i.version
 }
+func (i baseInteraction) PartialGuild() *InteractionGuild {
+	return i.guild
+}
 func (i baseInteraction) GuildID() *snowflake.ID {
 	return i.guildID
-}
-
-// Deprecated: Use Channel() instead
-func (i baseInteraction) ChannelID() snowflake.ID {
-	return i.channelID
 }
 func (i baseInteraction) Channel() InteractionChannel {
 	return i.channel
@@ -77,6 +76,10 @@ func (i baseInteraction) AuthorizingIntegrationOwners() map[ApplicationIntegrati
 
 func (i baseInteraction) Context() InteractionContextType {
 	return i.context
+}
+
+func (i baseInteraction) AttachmentSizeLimit() int {
+	return i.attachmentSizeLimit
 }
 
 func (i baseInteraction) CreatedAt() time.Time {

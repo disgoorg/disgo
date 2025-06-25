@@ -6,9 +6,10 @@ import (
 	"github.com/disgoorg/disgo/handler"
 )
 
+// Logger is a middleware that logs the interaction and its variables.
 var Logger handler.Middleware = func(next handler.Handler) handler.Handler {
 	return func(event *handler.InteractionEvent) error {
-		event.Client().Logger().Info("handling interaction", slog.Int64("interaction_id", int64(event.Interaction.ID())))
+		event.Client().Logger.InfoContext(event.Ctx, "handling interaction", slog.Any("interaction", event.Interaction), slog.Any("vars", event.Vars))
 		return next(event)
 	}
 }

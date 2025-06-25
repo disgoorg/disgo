@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
@@ -14,7 +16,6 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -69,12 +70,12 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
 		slog.Error("error while registering commands", slog.Any("err", err))
 		return
 	}
 
-	if err = client.OpenGateway(context.TODO()); err != nil {
+	if err = client.OpenShardManager(context.TODO()); err != nil {
 		slog.Error("error while connecting to gateway", slog.Any("err", err))
 		return
 	}

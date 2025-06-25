@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -61,4 +61,21 @@ type rawContextCommand struct {
 	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types"`
 	Contexts                 []InteractionContextType     `json:"contexts"`
 	Version                  snowflake.ID                 `json:"version"`
+}
+
+type rawEntryPointCommand struct {
+	ID                       snowflake.ID                 `json:"id"`
+	Type                     ApplicationCommandType       `json:"type"`
+	ApplicationID            snowflake.ID                 `json:"application_id"`
+	GuildID                  *snowflake.ID                `json:"guild_id,omitempty"`
+	Name                     string                       `json:"name"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
+	NameLocalized            string                       `json:"name_localized,omitempty"`
+	DefaultMemberPermissions Permissions                  `json:"default_member_permissions"`
+	DMPermission             bool                         `json:"dm_permission"`
+	NSFW                     bool                         `json:"nsfw"`
+	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types"`
+	Contexts                 []InteractionContextType     `json:"contexts"`
+	Version                  snowflake.ID                 `json:"version"`
+	Handler                  EntryPointCommandHandlerType `json:"handler"`
 }

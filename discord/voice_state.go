@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -24,9 +24,9 @@ type VoiceState struct {
 }
 
 type CurrentUserVoiceStateUpdate struct {
-	ChannelID               *snowflake.ID             `json:"channel_id,omitempty"`
-	Suppress                *bool                     `json:"suppress,omitempty"`
-	RequestToSpeakTimestamp *json.Nullable[time.Time] `json:"request_to_speak_timestamp,omitempty"`
+	ChannelID               *snowflake.ID         `json:"channel_id,omitempty"`
+	Suppress                *bool                 `json:"suppress,omitempty"`
+	RequestToSpeakTimestamp omit.Omit[*time.Time] `json:"request_to_speak_timestamp,omitzero"`
 }
 
 type UserVoiceStateUpdate struct {

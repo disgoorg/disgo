@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"iter"
+	"slices"
 	"sync"
 	"time"
 
@@ -41,6 +43,8 @@ func (c *selfUserCacheImpl) SetSelfUser(user discord.OAuth2User) {
 }
 
 type GuildCache interface {
+	GuildCache() Cache[discord.Guild]
+
 	IsGuildUnready(guildID snowflake.ID) bool
 	SetGuildUnready(guildID snowflake.ID, unready bool)
 	UnreadyGuildIDs() []snowflake.ID
@@ -50,7 +54,7 @@ type GuildCache interface {
 	UnavailableGuildIDs() []snowflake.ID
 
 	Guild(guildID snowflake.ID) (discord.Guild, bool)
-	GuildsForEach(fn func(guild discord.Guild))
+	Guilds() iter.Seq[discord.Guild]
 	GuildsLen() int
 	AddGuild(guild discord.Guild)
 	RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
@@ -70,6 +74,10 @@ type guildCacheImpl struct {
 	unavailableGuilds Set[snowflake.ID]
 }
 
+func (c *guildCacheImpl) GuildCache() Cache[discord.Guild] {
+	return c.cache
+}
+
 func (c *guildCacheImpl) IsGuildUnready(guildID snowflake.ID) bool {
 	return c.unreadyGuilds.Has(guildID)
 }
@@ -84,9 +92,9 @@ func (c *guildCacheImpl) SetGuildUnready(guildID snowflake.ID, unready bool) {
 
 func (c *guildCacheImpl) UnreadyGuildIDs() []snowflake.ID {
 	var guilds []snowflake.ID
-	c.unreadyGuilds.ForEach(func(guildID snowflake.ID) {
+	for guildID := range c.unreadyGuilds.All() {
 		guilds = append(guilds, guildID)
-	})
+	}
 	return guilds
 }
 
@@ -104,9 +112,9 @@ func (c *guildCacheImpl) SetGuildUnavailable(guildID snowflake.ID, unavailable b
 
 func (c *guildCacheImpl) UnavailableGuildIDs() []snowflake.ID {
 	var guilds []snowflake.ID
-	c.unavailableGuilds.ForEach(func(guildID snowflake.ID) {
-		guilds = append(guilds, guildID)
-	})
+	for guildId := range c.unavailableGuilds.All() {
+		guilds = append(guilds, guildId)
+	}
 	return guilds
 }
 
@@ -114,8 +122,8 @@ func (c *guildCacheImpl) Guild(guildID snowflake.ID) (discord.Guild, bool) {
 	return c.cache.Get(guildID)
 }
 
-func (c *guildCacheImpl) GuildsForEach(fn func(guild discord.Guild)) {
-	c.cache.ForEach(fn)
+func (c *guildCacheImpl) Guilds() iter.Seq[discord.Guild] {
+	return c.cache.All()
 }
 
 func (c *guildCacheImpl) GuildsLen() int {
@@ -131,8 +139,10 @@ func (c *guildCacheImpl) RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
 }
 
 type ChannelCache interface {
+	ChannelCache() Cache[discord.GuildChannel]
+
 	Channel(channelID snowflake.ID) (discord.GuildChannel, bool)
-	ChannelsForEach(fn func(channel discord.GuildChannel))
+	Channels() iter.Seq[discord.GuildChannel]
 	ChannelsLen() int
 	AddChannel(channel discord.GuildChannel)
 	RemoveChannel(channelID snowflake.ID) (discord.GuildChannel, bool)
@@ -149,12 +159,16 @@ type channelCacheImpl struct {
 	cache Cache[discord.GuildChannel]
 }
 
+func (c *channelCacheImpl) ChannelCache() Cache[discord.GuildChannel] {
+	return c.cache
+}
+
 func (c *channelCacheImpl) Channel(channelID snowflake.ID) (discord.GuildChannel, bool) {
 	return c.cache.Get(channelID)
 }
 
-func (c *channelCacheImpl) ChannelsForEach(fn func(channel discord.GuildChannel)) {
-	c.cache.ForEach(fn)
+func (c *channelCacheImpl) Channels() iter.Seq[discord.GuildChannel] {
+	return c.cache.All()
 }
 
 func (c *channelCacheImpl) ChannelsLen() int {
@@ -176,8 +190,10 @@ func (c *channelCacheImpl) RemoveChannelsByGuildID(guildID snowflake.ID) {
 }
 
 type StageInstanceCache interface {
+	StageInstanceCache() GroupedCache[discord.StageInstance]
+
 	StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID) (discord.StageInstance, bool)
-	StageInstanceForEach(guildID snowflake.ID, fn func(stageInstance discord.StageInstance))
+	StageInstances(guildID snowflake.ID) iter.Seq[discord.StageInstance]
 	StageInstancesAllLen() int
 	StageInstancesLen(guildID snowflake.ID) int
 	AddStageInstance(stageInstance discord.StageInstance)
@@ -195,14 +211,16 @@ type stageInstanceCacheImpl struct {
 	cache GroupedCache[discord.StageInstance]
 }
 
+func (c *stageInstanceCacheImpl) StageInstanceCache() GroupedCache[discord.StageInstance] {
+	return c.cache
+}
+
 func (c *stageInstanceCacheImpl) StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID) (discord.StageInstance, bool) {
 	return c.cache.Get(guildID, stageInstanceID)
 }
 
-func (c *stageInstanceCacheImpl) StageInstanceForEach(guildID snowflake.ID, fn func(stageInstance discord.StageInstance)) {
-	c.cache.GroupForEach(guildID, func(stageInstance discord.StageInstance) {
-		fn(stageInstance)
-	})
+func (c *stageInstanceCacheImpl) StageInstances(guildID snowflake.ID) iter.Seq[discord.StageInstance] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *stageInstanceCacheImpl) StageInstancesAllLen() int {
@@ -226,8 +244,10 @@ func (c *stageInstanceCacheImpl) RemoveStageInstancesByGuildID(guildID snowflake
 }
 
 type GuildScheduledEventCache interface {
+	GuildScheduledEventCache() GroupedCache[discord.GuildScheduledEvent]
+
 	GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID) (discord.GuildScheduledEvent, bool)
-	GuildScheduledEventsForEach(guildID snowflake.ID, fn func(guildScheduledEvent discord.GuildScheduledEvent))
+	GuildScheduledEvents(guildID snowflake.ID) iter.Seq[discord.GuildScheduledEvent]
 	GuildScheduledEventsAllLen() int
 	GuildScheduledEventsLen(guildID snowflake.ID) int
 	AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent)
@@ -245,12 +265,16 @@ type guildScheduledEventCacheImpl struct {
 	cache GroupedCache[discord.GuildScheduledEvent]
 }
 
+func (c *guildScheduledEventCacheImpl) GuildScheduledEventCache() GroupedCache[discord.GuildScheduledEvent] {
+	return c.cache
+}
+
 func (c *guildScheduledEventCacheImpl) GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID) (discord.GuildScheduledEvent, bool) {
 	return c.cache.Get(guildID, guildScheduledEventID)
 }
 
-func (c *guildScheduledEventCacheImpl) GuildScheduledEventsForEach(guildID snowflake.ID, fn func(guildScheduledEvent discord.GuildScheduledEvent)) {
-	c.cache.GroupForEach(guildID, fn)
+func (c *guildScheduledEventCacheImpl) GuildScheduledEvents(guildID snowflake.ID) iter.Seq[discord.GuildScheduledEvent] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *guildScheduledEventCacheImpl) GuildScheduledEventsAllLen() int {
@@ -273,9 +297,64 @@ func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEventsByGuildID(guild
 	c.cache.GroupRemove(guildID)
 }
 
+type GuildSoundboardSoundCache interface {
+	GuildSoundboardSoundCache() GroupedCache[discord.SoundboardSound]
+	GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool)
+	GuildSoundboardSounds(guildID snowflake.ID) iter.Seq[discord.SoundboardSound]
+	GuildSoundboardSoundsAllLen() int
+	GuildSoundboardSoundsLen(guildID snowflake.ID) int
+	AddGuildSoundboardSound(sound discord.SoundboardSound)
+	RemoveGuildSoundboardSound(guildID snowflake.ID, sound snowflake.ID) (discord.SoundboardSound, bool)
+	RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID)
+}
+
+func NewGuildSoundboardSoundCache(cache GroupedCache[discord.SoundboardSound]) GuildSoundboardSoundCache {
+	return &guildSoundboardSoundCacheImpl{
+		cache: cache,
+	}
+}
+
+type guildSoundboardSoundCacheImpl struct {
+	cache GroupedCache[discord.SoundboardSound]
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundCache() GroupedCache[discord.SoundboardSound] {
+	return c.cache
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool) {
+	return c.cache.Get(guildID, soundID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSounds(guildID snowflake.ID) iter.Seq[discord.SoundboardSound] {
+	return c.cache.GroupAll(guildID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsAllLen() int {
+	return c.cache.Len()
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) AddGuildSoundboardSound(sound discord.SoundboardSound) {
+	c.cache.Put(*sound.GuildID, sound.SoundID, sound)
+}
+
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool) {
+	return c.cache.Remove(guildID, soundID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID) {
+	c.cache.GroupRemove(guildID)
+}
+
 type RoleCache interface {
+	RoleCache() GroupedCache[discord.Role]
+
 	Role(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool)
-	RolesForEach(guildID snowflake.ID, fn func(role discord.Role))
+	Roles(guildID snowflake.ID) iter.Seq[discord.Role]
 	RolesAllLen() int
 	RolesLen(guildID snowflake.ID) int
 	AddRole(role discord.Role)
@@ -293,12 +372,16 @@ type roleCacheImpl struct {
 	cache GroupedCache[discord.Role]
 }
 
+func (c *roleCacheImpl) RoleCache() GroupedCache[discord.Role] {
+	return c.cache
+}
+
 func (c *roleCacheImpl) Role(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool) {
 	return c.cache.Get(guildID, roleID)
 }
 
-func (c *roleCacheImpl) RolesForEach(guildID snowflake.ID, fn func(role discord.Role)) {
-	c.cache.GroupForEach(guildID, fn)
+func (c *roleCacheImpl) Roles(guildID snowflake.ID) iter.Seq[discord.Role] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *roleCacheImpl) RolesAllLen() int {
@@ -322,8 +405,10 @@ func (c *roleCacheImpl) RemoveRolesByGuildID(guildID snowflake.ID) {
 }
 
 type MemberCache interface {
+	MemberCache() GroupedCache[discord.Member]
+
 	Member(guildID snowflake.ID, userID snowflake.ID) (discord.Member, bool)
-	MembersForEach(guildID snowflake.ID, fn func(member discord.Member))
+	Members(guildID snowflake.ID) iter.Seq[discord.Member]
 	MembersAllLen() int
 	MembersLen(guildID snowflake.ID) int
 	AddMember(member discord.Member)
@@ -341,12 +426,16 @@ type memberCacheImpl struct {
 	cache GroupedCache[discord.Member]
 }
 
+func (c *memberCacheImpl) MemberCache() GroupedCache[discord.Member] {
+	return c.cache
+}
+
 func (c *memberCacheImpl) Member(guildID snowflake.ID, userID snowflake.ID) (discord.Member, bool) {
 	return c.cache.Get(guildID, userID)
 }
 
-func (c *memberCacheImpl) MembersForEach(guildID snowflake.ID, fn func(member discord.Member)) {
-	c.cache.GroupForEach(guildID, fn)
+func (c *memberCacheImpl) Members(guildID snowflake.ID) iter.Seq[discord.Member] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *memberCacheImpl) MembersAllLen() int {
@@ -370,8 +459,10 @@ func (c *memberCacheImpl) RemoveMembersByGuildID(guildID snowflake.ID) {
 }
 
 type ThreadMemberCache interface {
+	ThreadMemberCache() GroupedCache[discord.ThreadMember]
+
 	ThreadMember(threadID snowflake.ID, userID snowflake.ID) (discord.ThreadMember, bool)
-	ThreadMemberForEach(threadID snowflake.ID, fn func(threadMember discord.ThreadMember))
+	ThreadMembers(threadID snowflake.ID) iter.Seq[discord.ThreadMember]
 	ThreadMembersAllLen() int
 	ThreadMembersLen(guildID snowflake.ID) int
 	AddThreadMember(threadMember discord.ThreadMember)
@@ -389,14 +480,16 @@ type threadMemberCacheImpl struct {
 	cache GroupedCache[discord.ThreadMember]
 }
 
+func (c *threadMemberCacheImpl) ThreadMemberCache() GroupedCache[discord.ThreadMember] {
+	return c.cache
+}
+
 func (c *threadMemberCacheImpl) ThreadMember(threadID snowflake.ID, userID snowflake.ID) (discord.ThreadMember, bool) {
 	return c.cache.Get(threadID, userID)
 }
 
-func (c *threadMemberCacheImpl) ThreadMemberForEach(threadID snowflake.ID, fn func(threadMember discord.ThreadMember)) {
-	c.cache.GroupForEach(threadID, func(threadMember discord.ThreadMember) {
-		fn(threadMember)
-	})
+func (c *threadMemberCacheImpl) ThreadMembers(threadID snowflake.ID) iter.Seq[discord.ThreadMember] {
+	return c.cache.GroupAll(threadID)
 }
 
 func (c *threadMemberCacheImpl) ThreadMembersAllLen() int {
@@ -420,8 +513,10 @@ func (c *threadMemberCacheImpl) RemoveThreadMembersByThreadID(threadID snowflake
 }
 
 type PresenceCache interface {
+	PresenceCache() GroupedCache[discord.Presence]
+
 	Presence(guildID snowflake.ID, userID snowflake.ID) (discord.Presence, bool)
-	PresenceForEach(guildID snowflake.ID, fn func(presence discord.Presence))
+	Presences(guildID snowflake.ID) iter.Seq[discord.Presence]
 	PresencesAllLen() int
 	PresencesLen(guildID snowflake.ID) int
 	AddPresence(presence discord.Presence)
@@ -439,14 +534,16 @@ type presenceCacheImpl struct {
 	cache GroupedCache[discord.Presence]
 }
 
+func (c *presenceCacheImpl) PresenceCache() GroupedCache[discord.Presence] {
+	return c.cache
+}
+
 func (c *presenceCacheImpl) Presence(guildID snowflake.ID, userID snowflake.ID) (discord.Presence, bool) {
 	return c.cache.Get(guildID, userID)
 }
 
-func (c *presenceCacheImpl) PresenceForEach(guildID snowflake.ID, fn func(presence discord.Presence)) {
-	c.cache.GroupForEach(guildID, func(presence discord.Presence) {
-		fn(presence)
-	})
+func (c *presenceCacheImpl) Presences(guildID snowflake.ID) iter.Seq[discord.Presence] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *presenceCacheImpl) PresencesAllLen() int {
@@ -470,8 +567,10 @@ func (c *presenceCacheImpl) RemovePresencesByGuildID(guildID snowflake.ID) {
 }
 
 type VoiceStateCache interface {
+	VoiceStateCache() GroupedCache[discord.VoiceState]
+
 	VoiceState(guildID snowflake.ID, userID snowflake.ID) (discord.VoiceState, bool)
-	VoiceStatesForEach(guildID snowflake.ID, fn func(discord.VoiceState))
+	VoiceStates(guildID snowflake.ID) iter.Seq[discord.VoiceState]
 	VoiceStatesAllLen() int
 	VoiceStatesLen(guildID snowflake.ID) int
 	AddVoiceState(voiceState discord.VoiceState)
@@ -489,12 +588,16 @@ type voiceStateCacheImpl struct {
 	cache GroupedCache[discord.VoiceState]
 }
 
+func (c *voiceStateCacheImpl) VoiceStateCache() GroupedCache[discord.VoiceState] {
+	return c.cache
+}
+
 func (c *voiceStateCacheImpl) VoiceState(guildID snowflake.ID, userID snowflake.ID) (discord.VoiceState, bool) {
 	return c.cache.Get(guildID, userID)
 }
 
-func (c *voiceStateCacheImpl) VoiceStatesForEach(guildID snowflake.ID, fn func(discord.VoiceState)) {
-	c.cache.GroupForEach(guildID, fn)
+func (c *voiceStateCacheImpl) VoiceStates(guildID snowflake.ID) iter.Seq[discord.VoiceState] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *voiceStateCacheImpl) VoiceStatesAllLen() int {
@@ -518,8 +621,10 @@ func (c *voiceStateCacheImpl) RemoveVoiceStatesByGuildID(guildID snowflake.ID) {
 }
 
 type MessageCache interface {
+	MessageCache() GroupedCache[discord.Message]
+
 	Message(channelID snowflake.ID, messageID snowflake.ID) (discord.Message, bool)
-	MessagesForEach(channelID snowflake.ID, fn func(message discord.Message))
+	Messages(channelID snowflake.ID) iter.Seq[discord.Message]
 	MessagesAllLen() int
 	MessagesLen(guildID snowflake.ID) int
 	AddMessage(message discord.Message)
@@ -538,12 +643,16 @@ type messageCacheImpl struct {
 	cache GroupedCache[discord.Message]
 }
 
+func (c *messageCacheImpl) MessageCache() GroupedCache[discord.Message] {
+	return c.cache
+}
+
 func (c *messageCacheImpl) Message(channelID snowflake.ID, messageID snowflake.ID) (discord.Message, bool) {
 	return c.cache.Get(channelID, messageID)
 }
 
-func (c *messageCacheImpl) MessagesForEach(channelID snowflake.ID, fn func(message discord.Message)) {
-	c.cache.GroupForEach(channelID, fn)
+func (c *messageCacheImpl) Messages(channelID snowflake.ID) iter.Seq[discord.Message] {
+	return c.cache.GroupAll(channelID)
 }
 
 func (c *messageCacheImpl) MessagesAllLen() int {
@@ -573,8 +682,10 @@ func (c *messageCacheImpl) RemoveMessagesByGuildID(guildID snowflake.ID) {
 }
 
 type EmojiCache interface {
+	EmojiCache() GroupedCache[discord.Emoji]
+
 	Emoji(guildID snowflake.ID, emojiID snowflake.ID) (discord.Emoji, bool)
-	EmojisForEach(guildID snowflake.ID, fn func(emoji discord.Emoji))
+	Emojis(guildID snowflake.ID) iter.Seq[discord.Emoji]
 	EmojisAllLen() int
 	EmojisLen(guildID snowflake.ID) int
 	AddEmoji(emoji discord.Emoji)
@@ -592,12 +703,16 @@ type emojiCacheImpl struct {
 	cache GroupedCache[discord.Emoji]
 }
 
+func (c *emojiCacheImpl) EmojiCache() GroupedCache[discord.Emoji] {
+	return c.cache
+}
+
 func (c *emojiCacheImpl) Emoji(guildID snowflake.ID, emojiID snowflake.ID) (discord.Emoji, bool) {
 	return c.cache.Get(guildID, emojiID)
 }
 
-func (c *emojiCacheImpl) EmojisForEach(guildID snowflake.ID, fn func(emoji discord.Emoji)) {
-	c.cache.GroupForEach(guildID, fn)
+func (c *emojiCacheImpl) Emojis(guildID snowflake.ID) iter.Seq[discord.Emoji] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *emojiCacheImpl) EmojisAllLen() int {
@@ -621,8 +736,10 @@ func (c *emojiCacheImpl) RemoveEmojisByGuildID(guildID snowflake.ID) {
 }
 
 type StickerCache interface {
+	StickerCache() GroupedCache[discord.Sticker]
+
 	Sticker(guildID snowflake.ID, stickerID snowflake.ID) (discord.Sticker, bool)
-	StickersForEach(guildID snowflake.ID, fn func(sticker discord.Sticker))
+	Stickers(guildID snowflake.ID) iter.Seq[discord.Sticker]
 	StickersAllLen() int
 	StickersLen(guildID snowflake.ID) int
 	AddSticker(sticker discord.Sticker)
@@ -640,12 +757,16 @@ type stickerCacheImpl struct {
 	cache GroupedCache[discord.Sticker]
 }
 
+func (c *stickerCacheImpl) StickerCache() GroupedCache[discord.Sticker] {
+	return c.cache
+}
+
 func (c *stickerCacheImpl) Sticker(guildID snowflake.ID, stickerID snowflake.ID) (discord.Sticker, bool) {
 	return c.cache.Get(guildID, stickerID)
 }
 
-func (c *stickerCacheImpl) StickersForEach(guildID snowflake.ID, fn func(sticker discord.Sticker)) {
-	c.cache.GroupForEach(guildID, fn)
+func (c *stickerCacheImpl) Stickers(guildID snowflake.ID) iter.Seq[discord.Sticker] {
+	return c.cache.GroupAll(guildID)
 }
 
 func (c *stickerCacheImpl) StickersAllLen() int {
@@ -678,6 +799,7 @@ type Caches interface {
 	ChannelCache
 	StageInstanceCache
 	GuildScheduledEventCache
+	GuildSoundboardSoundCache
 	RoleCache
 	MemberCache
 	ThreadMemberCache
@@ -755,43 +877,63 @@ type Caches interface {
 
 // New returns a new default Caches instance with the given ConfigOpt(s) applied.
 func New(opts ...ConfigOpt) Caches {
-	config := DefaultConfig()
-	config.Apply(opts)
+	cfg := defaultConfig()
+	cfg.apply(opts)
 
 	return &cachesImpl{
-		config:                   *config,
-		SelfUserCache:            config.SelfUserCache,
-		GuildCache:               config.GuildCache,
-		ChannelCache:             config.ChannelCache,
-		StageInstanceCache:       config.StageInstanceCache,
-		GuildScheduledEventCache: config.GuildScheduledEventCache,
-		RoleCache:                config.RoleCache,
-		MemberCache:              config.MemberCache,
-		ThreadMemberCache:        config.ThreadMemberCache,
-		PresenceCache:            config.PresenceCache,
-		VoiceStateCache:          config.VoiceStateCache,
-		MessageCache:             config.MessageCache,
-		EmojiCache:               config.EmojiCache,
-		StickerCache:             config.StickerCache,
+		config:                    cfg,
+		selfUserCache:             cfg.SelfUserCache,
+		guildCache:                cfg.GuildCache,
+		channelCache:              cfg.ChannelCache,
+		stageInstanceCache:        cfg.StageInstanceCache,
+		guildScheduledEventCache:  cfg.GuildScheduledEventCache,
+		guildSoundboardSoundCache: cfg.GuildSoundboardSoundCache,
+		roleCache:                 cfg.RoleCache,
+		memberCache:               cfg.MemberCache,
+		threadMemberCache:         cfg.ThreadMemberCache,
+		presenceCache:             cfg.PresenceCache,
+		voiceStateCache:           cfg.VoiceStateCache,
+		messageCache:              cfg.MessageCache,
+		emojiCache:                cfg.EmojiCache,
+		stickerCache:              cfg.StickerCache,
 	}
 }
 
-type cachesImpl struct {
-	config Config
+// these type aliases are needed to allow having the GuildCache, ChannelCache, etc. as methods on the cachesImpl struct
+type (
+	guildCache                = GuildCache
+	channelCache              = ChannelCache
+	stageInstanceCache        = StageInstanceCache
+	guildScheduledEventCache  = GuildScheduledEventCache
+	guildSoundboardSoundCache = GuildSoundboardSoundCache
+	roleCache                 = RoleCache
+	memberCache               = MemberCache
+	threadMemberCache         = ThreadMemberCache
+	presenceCache             = PresenceCache
+	voiceStateCache           = VoiceStateCache
+	messageCache              = MessageCache
+	emojiCache                = EmojiCache
+	stickerCache              = StickerCache
+	selfUserCache             = SelfUserCache
+)
 
-	GuildCache
-	ChannelCache
-	StageInstanceCache
-	GuildScheduledEventCache
-	RoleCache
-	MemberCache
-	ThreadMemberCache
-	PresenceCache
-	VoiceStateCache
-	MessageCache
-	EmojiCache
-	StickerCache
-	SelfUserCache
+type cachesImpl struct {
+	config config
+
+	guildCache
+	channelCache
+	stageInstanceCache
+	guildScheduledEventCache
+	guildSoundboardSoundCache
+	roleCache
+	memberCache
+	threadMemberCache
+	presenceCache
+	voiceStateCache
+	messageCache
+	emojiCache
+	stickerCache
+	selfUserCache
 }
 
 func (c *cachesImpl) CacheFlags() Flags {
@@ -864,23 +1006,22 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 
 func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
 	var roles []discord.Role
-	c.RolesForEach(member.GuildID, func(role discord.Role) {
-		for _, roleID := range member.RoleIDs {
-			if roleID == role.ID {
-				roles = append(roles, role)
-			}
+
+	for role := range c.Roles(member.GuildID) {
+		if slices.Contains(member.RoleIDs, role.ID) {
+			roles = append(roles, role)
 		}
-	})
+	}
 	return roles
 }
 
 func (c *cachesImpl) AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member {
 	var members []discord.Member
-	c.VoiceStatesForEach(channel.GuildID(), func(state discord.VoiceState) {
+	for state := range c.VoiceStates(channel.GuildID()) {
 		if member, ok := c.Member(channel.GuildID(), state.UserID); ok && state.ChannelID != nil && *state.ChannelID == channel.ID() {
 			members = append(members, member)
 		}
-	})
+	}
 	return members
 }
 
@@ -894,11 +1035,11 @@ func (c *cachesImpl) SelfMember(guildID snowflake.ID) (discord.Member, bool) {
 
 func (c *cachesImpl) GuildThreadsInChannel(channelID snowflake.ID) []discord.GuildThread {
 	var threads []discord.GuildThread
-	c.ChannelsForEach(func(channel discord.GuildChannel) {
+	for channel := range c.Channels() {
 		if thread, ok := channel.(discord.GuildThread); ok && *thread.ParentID() == channelID {
 			threads = append(threads, thread)
 		}
-	})
+	}
 	return threads
 }
 

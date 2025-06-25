@@ -1,0 +1,35 @@
+# branch names
+"type:bugfix":
+  - head-branch: [ '^fix/', '^bugfix/', '^hotfix/']
+"type:docs":
+  - head-branch: [ '^docs/', '^documentation/' ]
+"type:enhancement":
+  - head-branch: [ '^feature/', '^feat/' ]
+"type:refactor":
+  - head-branch: [ '^refactor/' ]
+
+# changed files
+"t:caching":
+  - changed-files:
+      - any-glob-to-any-file: [ 'cache/*' ]
+"t:gateway":
+  - changed-files:
+      - any-glob-to-any-file: [ 'gateway/*' ]
+"t:handler":
+  - changed-files:
+      - any-glob-to-any-file: [ 'handler/*' ]
+"t:oauth2":
+  - changed-files:
+      - any-glob-to-any-file: [ 'oauth2/*' ]
+"t:ratelimits":
+  - changed-files:
+      - any-glob-to-any-file: [ 'rest/rest_rate_limiter_*', 'gateway/gateway_rate_limiter_*' ]
+"t:rest":
+  - changed-files:
+      - any-glob-to-any-file: [ 'rest/*' ]
+"t:sharding":
+  - changed-files:
+      - any-glob-to-any-file: [ 'sharding/*' ]
+"t:voice":
+  - changed-files:
+      - any-glob-to-any-file: [ 'voice/*' ]

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 )
 
 type IconType string
@@ -14,15 +14,16 @@ const (
 	IconTypeJPEG    IconType = "image/jpeg"
 	IconTypePNG     IconType = "image/png"
 	IconTypeWEBP    IconType = "image/webp"
+	IconTypeAVIF    IconType = "image/avif"
 	IconTypeGIF     IconType = "image/gif"
 	IconTypeUnknown          = IconTypeJPEG
 )
 
-func (t IconType) GetMIME() string {
+func (t IconType) MIME() string {
 	return string(t)
 }
 
-func (t IconType) GetHeader() string {
+func (t IconType) Header() string {
 	return "data:" + string(t) + ";base64"
 }
 
@@ -56,5 +57,5 @@ func (i Icon) String() string {
 	if len(i.Data) == 0 {
 		return ""
 	}
-	return i.Type.GetHeader() + "," + string(i.Data)
+	return i.Type.Header() + "," + string(i.Data)
 }

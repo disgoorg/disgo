@@ -23,8 +23,10 @@ type Members interface {
 	AddMemberRole(guildID snowflake.ID, userID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 	RemoveMemberRole(guildID snowflake.ID, userID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 
-	UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (*string, error)
+	UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (*discord.Member, error)
 
+	GetCurrentUserVoiceState(guildID snowflake.ID, opts ...RequestOpt) (*discord.VoiceState, error)
+	GetUserVoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.VoiceState, error)
 	UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.CurrentUserVoiceStateUpdate, opts ...RequestOpt) error
 	UpdateUserVoiceState(guildID snowflake.ID, userID snowflake.ID, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
 }
@@ -100,8 +102,18 @@ func (s *memberImpl) RemoveMemberRole(guildID snowflake.ID, userID snowflake.ID,
 	return s.client.Do(RemoveMemberRole.Compile(nil, guildID, userID, roleID), nil, nil, opts...)
 }
 
-func (s *memberImpl) UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (nickName *string, err error) {
-	err = s.client.Do(UpdateCurrentMember.Compile(nil, guildID), discord.CurrentMemberUpdate{Nick: nick}, nickName, opts...)
+func (s *memberImpl) UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (member *discord.Member, err error) {
+	err = s.client.Do(UpdateCurrentMember.Compile(nil, guildID), discord.CurrentMemberUpdate{Nick: nick}, &member, opts...)
+	return
+}
+
+func (s *memberImpl) GetCurrentUserVoiceState(guildID snowflake.ID, opts ...RequestOpt) (state *discord.VoiceState, err error) {
+	err = s.client.Do(GetCurrentUserVoiceState.Compile(nil, guildID), nil, &state, opts...)
+	return
+}
+
+func (s *memberImpl) GetUserVoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (state *discord.VoiceState, err error) {
+	err = s.client.Do(GetUserVoiceState.Compile(nil, guildID, userID), nil, &state, opts...)
 	return
 }
 

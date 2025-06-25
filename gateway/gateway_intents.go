@@ -10,7 +10,7 @@ const (
 	IntentGuilds Intents = 1 << iota
 	IntentGuildMembers
 	IntentGuildModeration
-	IntentGuildEmojisAndStickers
+	IntentGuildExpressions
 	IntentGuildIntegrations
 	IntentGuildWebhooks
 	IntentGuildInvites
@@ -37,7 +37,7 @@ const (
 	IntentsGuild = IntentGuilds |
 		IntentGuildMembers |
 		IntentGuildModeration |
-		IntentGuildEmojisAndStickers |
+		IntentGuildExpressions |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
 		IntentGuildInvites |
@@ -59,7 +59,7 @@ const (
 
 	IntentsNonPrivileged = IntentGuilds |
 		IntentGuildModeration |
-		IntentGuildEmojisAndStickers |
+		IntentGuildExpressions |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
 		IntentGuildInvites |

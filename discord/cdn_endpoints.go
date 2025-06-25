@@ -10,12 +10,14 @@ const (
 )
 
 var (
-	CustomEmoji = NewCDN("/emojis/{emote.id}", FileFormatPNG, FileFormatGIF)
+	CustomEmoji = NewCDN("/emojis/{emote.id}", FileFormatPNG, FileFormatWebP, FileFormatAVIF, FileFormatGIF)
 
 	GuildIcon            = NewCDN("/icons/{guild.id}/{guild.icon.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
 	GuildSplash          = NewCDN("/splashes/{guild.id}/{guild.splash.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 	GuildDiscoverySplash = NewCDN("/discovery-splashes/{guild.id}/{guild.discovery.splash.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 	GuildBanner          = NewCDN("/banners/{guild.id}/{guild.banner.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
+
+	GuildScheduledEventCover = NewCDN("/guild-events/{event.id}/{event.cover.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 
 	RoleIcon = NewCDN("/role-icons/{role.id}/{role.icon.hash}", FileFormatPNG, FileFormatJPEG)
 
@@ -26,6 +28,7 @@ var (
 	ChannelIcon = NewCDN("/channel-icons/{channel.id}/{channel.icon.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 
 	MemberAvatar = NewCDN("/guilds/{guild.id}/users/{user.id}/avatars/{member.avatar.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
+	MemberBanner = NewCDN("/guilds/{guild.id}/users/{user.id}/banners/{member.avatar.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
 
 	AvatarDecoration = NewCDN("/avatar-decoration-presets/{user.avatar.decoration.hash}", FileFormatPNG)
 
@@ -45,6 +48,10 @@ var (
 	CustomSticker     = NewCDN("/stickers/{sticker.id}", FileFormatPNG, FileFormatLottie, FileFormatGIF)
 
 	AttachmentFile = NewCDN("/attachments/{channel.id}/{attachment.id}/{file.name}", FileFormatNone)
+
+	SoundboardSoundFile = NewCDN("/soundboard-sounds/{sound.id}", FileFormatNone)
+
+	NameplateAsset = NewCDN("/assets/collectibles/{nameplate.asset}/asset", FileFormatWebM)
 )
 
 // FileFormat is the type of file on Discord's CDN (https://discord.com/developers/docs/reference#image-formatting-image-formats)
@@ -56,8 +63,10 @@ const (
 	FileFormatPNG    FileFormat = "png"
 	FileFormatJPEG   FileFormat = "jpg"
 	FileFormatWebP   FileFormat = "webp"
+	FileFormatAVIF   FileFormat = "avif"
 	FileFormatGIF    FileFormat = "gif"
 	FileFormatLottie FileFormat = "json"
+	FileFormatWebM   FileFormat = "webm"
 )
 
 // String returns the string representation of the FileFormat
@@ -68,7 +77,7 @@ func (f FileFormat) String() string {
 // Animated returns true if the FileFormat is animated
 func (f FileFormat) Animated() bool {
 	switch f {
-	case FileFormatWebP, FileFormatGIF:
+	case FileFormatWebP, FileFormatAVIF, FileFormatGIF, FileFormatWebM:
 		return true
 	default:
 		return false
@@ -93,17 +102,22 @@ func (e CDNEndpoint) URL(format FileFormat, values QueryValues, params ...any) s
 		query = "?" + query
 	}
 
-	// for some reason custom gif stickers use a different cnd url, blame discord for this one
+	// for some reason custom gif stickers use a different cdn url, blame discord for this one
 	if format == FileFormatGIF && e.Route == "/stickers/{sticker.id}" {
 		return urlPrint(CDNMedia+e.Route+"."+format.String(), params...) + query
 	}
+	route := CDN + e.Route
+	// only append period and file extension if the format is not FileFormatNone
+	if format != FileFormatNone {
+		route += "." + format.String()
+	}
 
-	return urlPrint(CDN+e.Route+"."+format.String(), params...) + query
+	return urlPrint(route, params...) + query
 }
 
-func DefaultCDNConfig() *CDNConfig {
+func DefaultCDNConfig(format FileFormat) *CDNConfig {
 	return &CDNConfig{
-		Format: FileFormatPNG,
+		Format: format,
 		Values: QueryValues{},
 	}
 }
@@ -135,8 +149,14 @@ func WithFormat(format FileFormat) CDNOpt {
 }
 
 func formatAssetURL(cdnRoute *CDNEndpoint, opts []CDNOpt, params ...any) string {
-	config := DefaultCDNConfig()
-	config.Apply(opts)
+	format := FileFormatNone
+	if len(cdnRoute.Formats) > 0 { // just in case someone fucks up
+		// use the first provided format in the route definition itself. if the user provides a different format, this will be overriden by the apply function call below
+		// previously, the default format was png, which would cause issues for cdn endpoints like attachments and soundboard sounds, requiring custom "overrides"
+		format = cdnRoute.Formats[0]
+	}
+	cfg := DefaultCDNConfig(format)
+	cfg.Apply(opts)
 
 	var lastStringParam string
 	lastParam := params[len(params)-1]
@@ -153,9 +173,9 @@ func formatAssetURL(cdnRoute *CDNEndpoint, opts []CDNOpt, params ...any) string 
 	}
 
 	// some endpoints have a_ prefix for animated images except the AvatarDecoration endpoint does not like this
-	if strings.HasPrefix(lastStringParam, "a_") && !config.Format.Animated() && cdnRoute.Route != "/avatar-decoration-presets/{user.avatar.decoration.hash}" {
-		config.Format = FileFormatGIF
+	if strings.HasPrefix(lastStringParam, "a_") && !cfg.Format.Animated() && cdnRoute.Route != "/avatar-decoration-presets/{user.avatar.decoration.hash}" {
+		cfg.Format = FileFormatGIF
 	}
 
-	return cdnRoute.URL(config.Format, config.Values, params...)
+	return cdnRoute.URL(cfg.Format, cfg.Values, params...)
 }

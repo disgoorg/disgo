@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -129,6 +129,7 @@ type GuildMessageChannel interface {
 	Topic() *string
 
 	// NSFW returns whether the GuildMessageChannel is marked as not safe for work.
+	// This is always false for GuildThread(s).
 	NSFW() bool
 
 	// DefaultAutoArchiveDuration returns the default AutoArchiveDuration for GuildThread(s) in this GuildMessageChannel.
@@ -182,6 +183,11 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 
 	case ChannelTypeGuildVoice:
 		var v GuildVoiceChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGroupDM:
+		var v GroupDMChannel
 		err = json.Unmarshal(data, &v)
 		channel = v
 
@@ -422,6 +428,91 @@ func (c DMChannel) CreatedAt() time.Time {
 
 func (DMChannel) channel()        {}
 func (DMChannel) messageChannel() {}
+
+var (
+	_ Channel        = (*GroupDMChannel)(nil)
+	_ MessageChannel = (*GroupDMChannel)(nil)
+)
+
+type GroupDMChannel struct {
+	id               snowflake.ID
+	ownerID          *snowflake.ID
+	name             string
+	lastPinTimestamp *time.Time
+	lastMessageID    *snowflake.ID
+	icon             *string
+}
+
+func (c *GroupDMChannel) UnmarshalJSON(data []byte) error {
+	var v groupDMChannel
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.id = v.ID
+	c.ownerID = v.OwnerID
+	c.name = v.Name
+	c.lastPinTimestamp = v.LastPinTimestamp
+	c.lastMessageID = v.LastMessageID
+	c.icon = v.Icon
+	return nil
+}
+
+func (c GroupDMChannel) MarshalJSON() ([]byte, error) {
+	return json.Marshal(groupDMChannel{
+		ID:               c.id,
+		Type:             c.Type(),
+		OwnerID:          c.ownerID,
+		Name:             c.name,
+		LastPinTimestamp: c.lastPinTimestamp,
+		LastMessageID:    c.lastMessageID,
+		Icon:             c.icon,
+	})
+}
+
+func (c GroupDMChannel) String() string {
+	return channelString(c)
+}
+
+func (c GroupDMChannel) ID() snowflake.ID {
+	return c.id
+}
+
+func (GroupDMChannel) Type() ChannelType {
+	return ChannelTypeGroupDM
+}
+
+func (c GroupDMChannel) OwnerID() *snowflake.ID {
+	return c.ownerID
+}
+
+func (c GroupDMChannel) Name() string {
+	return c.name
+}
+
+func (c GroupDMChannel) LastPinTimestamp() *time.Time {
+	return c.lastPinTimestamp
+}
+
+func (c GroupDMChannel) LastMessageID() *snowflake.ID {
+	return c.lastMessageID
+}
+
+func (c GroupDMChannel) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
+// IconURL returns the icon URL of this group DM or nil if not set
+func (c GroupDMChannel) IconURL(opts ...CDNOpt) *string {
+	if c.icon == nil {
+		return nil
+	}
+	url := formatAssetURL(ChannelIcon, opts, c.id, *c.icon)
+	return &url
+}
+
+func (GroupDMChannel) channel()        {}
+func (GroupDMChannel) messageChannel() {}
 
 var (
 	_ Channel             = (*GuildVoiceChannel)(nil)
@@ -792,7 +883,6 @@ type GuildThread struct {
 	channelType      ChannelType
 	guildID          snowflake.ID
 	name             string
-	nsfw             bool
 	lastMessageID    *snowflake.ID
 	lastPinTimestamp *time.Time
 	rateLimitPerUser int
@@ -815,7 +905,6 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 	c.channelType = v.Type
 	c.guildID = v.GuildID
 	c.name = v.Name
-	c.nsfw = v.NSFW
 	c.lastMessageID = v.LastMessageID
 	c.lastPinTimestamp = v.LastPinTimestamp
 	c.rateLimitPerUser = v.RateLimitPerUser
@@ -835,7 +924,6 @@ func (c GuildThread) MarshalJSON() ([]byte, error) {
 		Type:             c.channelType,
 		GuildID:          c.guildID,
 		Name:             c.name,
-		NSFW:             c.nsfw,
 		LastMessageID:    c.lastMessageID,
 		LastPinTimestamp: c.lastPinTimestamp,
 		RateLimitPerUser: c.rateLimitPerUser,
@@ -875,8 +963,9 @@ func (c GuildThread) Topic() *string {
 	return nil
 }
 
+// NSFW always returns false for GuildThread(s) as they do not have their own NSFW flag.
 func (c GuildThread) NSFW() bool {
-	return c.nsfw
+	return false
 }
 
 func (c GuildThread) Name() string {
@@ -1304,7 +1393,7 @@ type PartialChannel struct {
 	Type ChannelType  `json:"type"`
 }
 
-// VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes
+// VideoQualityMode https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int
 
 const (

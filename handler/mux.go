@@ -11,7 +11,7 @@ import (
 )
 
 var defaultErrorHandler ErrorHandler = func(event *InteractionEvent, err error) {
-	event.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
+	event.Client().Logger.Error("error handling interaction", slog.Any("err", err))
 }
 
 // New returns a new Router.
@@ -60,6 +60,10 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
+	if !strings.HasPrefix(path, "/") {
+		return
+	}
+
 	var ctx context.Context
 	if r.defaultContext != nil {
 		ctx = r.defaultContext()
@@ -86,6 +90,9 @@ func (r *Mux) Match(path string, t discord.InteractionType, t2 int) bool {
 	if r.pattern != "" {
 		parts := splitPath(path)
 		patternParts := splitPath(r.pattern)
+		if len(parts) < len(patternParts) {
+			return false
+		}
 
 		for i, part := range patternParts {
 			path = strings.TrimPrefix(path, "/"+parts[i])
@@ -108,9 +115,9 @@ func (r *Mux) Match(path string, t discord.InteractionType, t2 int) bool {
 
 // Handle handles the given interaction event.
 func (r *Mux) Handle(path string, event *InteractionEvent) error {
-	handlerChain := Handler(func(event *InteractionEvent) error {
-		path = parseVariables(path, r.pattern, event.Vars)
+	path = parseVariables(path, r.pattern, event.Vars)
 
+	handlerChain := Handler(func(event *InteractionEvent) error {
 		t := event.Type()
 		var t2 int
 		switch i := event.Interaction.(type) {
@@ -231,6 +238,17 @@ func (r *Mux) MessageCommand(pattern string, h MessageCommandHandler) {
 	})
 }
 
+// EntryPointCommand registers the given EntryPointCommandHandler to the current Router.
+func (r *Mux) EntryPointCommand(pattern string, h EntryPointCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[EntryPointCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypePrimaryEntryPoint)},
+	})
+}
+
 // Autocomplete registers the given AutocompleteHandler to the current Router.
 func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler) {
 	checkPattern(pattern)
@@ -317,7 +335,8 @@ func checkPattern(pattern string) {
 }
 
 func splitPath(path string) []string {
-	return strings.FieldsFunc(path, func(r rune) bool { return r == '/' })
+	path = strings.TrimPrefix(path, "/")
+	return strings.Split(path, "/")
 }
 
 func parseVariables(path string, pattern string, variables map[string]string) string {

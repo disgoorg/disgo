@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -58,6 +58,10 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 				v.Resolved.Messages[id] = msg
 			}
 		}
+	case ApplicationCommandTypePrimaryEntryPoint:
+		v := EntryPointCommandInteractionData{}
+		err = json.Unmarshal(interaction.Data, &v)
+		interactionData = v
 
 	default:
 		return fmt.Errorf("unknown application rawInteraction data with type %d received", cType.Type)
@@ -70,8 +74,8 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.applicationID = interaction.ApplicationID
 	i.baseInteraction.token = interaction.Token
 	i.baseInteraction.version = interaction.Version
+	i.baseInteraction.guild = interaction.Guild
 	i.baseInteraction.guildID = interaction.GuildID
-	i.baseInteraction.channelID = interaction.ChannelID
 	i.baseInteraction.channel = interaction.Channel
 	i.baseInteraction.locale = interaction.Locale
 	i.baseInteraction.guildLocale = interaction.GuildLocale
@@ -81,6 +85,11 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.entitlements = interaction.Entitlements
 	i.baseInteraction.authorizingIntegrationOwners = interaction.AuthorizingIntegrationOwners
 	i.baseInteraction.context = interaction.Context
+	i.baseInteraction.attachmentSizeLimit = interaction.AttachmentSizeLimit
+
+	if i.baseInteraction.member != nil && i.baseInteraction.guildID != nil {
+		i.baseInteraction.member.GuildID = *i.baseInteraction.guildID
+	}
 
 	i.Data = interactionData
 	return nil
@@ -97,8 +106,8 @@ func (i ApplicationCommandInteraction) MarshalJSON() ([]byte, error) {
 			ApplicationID:                i.applicationID,
 			Token:                        i.token,
 			Version:                      i.version,
+			Guild:                        i.guild,
 			GuildID:                      i.guildID,
-			ChannelID:                    i.channelID,
 			Channel:                      i.channel,
 			Locale:                       i.locale,
 			GuildLocale:                  i.guildLocale,
@@ -108,6 +117,7 @@ func (i ApplicationCommandInteraction) MarshalJSON() ([]byte, error) {
 			Entitlements:                 i.entitlements,
 			AuthorizingIntegrationOwners: i.authorizingIntegrationOwners,
 			Context:                      i.context,
+			AttachmentSizeLimit:          i.attachmentSizeLimit,
 		},
 		Data: i.Data,
 	})
@@ -127,6 +137,10 @@ func (i ApplicationCommandInteraction) UserCommandInteractionData() UserCommandI
 
 func (i ApplicationCommandInteraction) MessageCommandInteractionData() MessageCommandInteractionData {
 	return i.Data.(MessageCommandInteractionData)
+}
+
+func (i ApplicationCommandInteraction) EntryPointCommandInteractionData() EntryPointCommandInteractionData {
+	return i.Data.(EntryPointCommandInteractionData)
 }
 
 func (ApplicationCommandInteraction) interaction() {}
@@ -294,10 +308,7 @@ func (d SlashCommandInteractionData) Option(name string) (SlashCommandOption, bo
 
 func (d SlashCommandInteractionData) OptString(name string) (string, bool) {
 	if option, ok := d.Option(name); ok {
-		var v string
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.String(), true
 	}
 	return "", false
 }
@@ -311,10 +322,7 @@ func (d SlashCommandInteractionData) String(name string) string {
 
 func (d SlashCommandInteractionData) OptInt(name string) (int, bool) {
 	if option, ok := d.Option(name); ok {
-		var v int
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Int(), true
 	}
 	return 0, false
 }
@@ -328,10 +336,7 @@ func (d SlashCommandInteractionData) Int(name string) int {
 
 func (d SlashCommandInteractionData) OptBool(name string) (bool, bool) {
 	if option, ok := d.Option(name); ok {
-		var v bool
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Bool(), true
 	}
 	return false, false
 }
@@ -345,11 +350,9 @@ func (d SlashCommandInteractionData) Bool(name string) bool {
 
 func (d SlashCommandInteractionData) OptUser(name string) (User, bool) {
 	if option, ok := d.Option(name); ok {
-		var userID snowflake.ID
-		if err := json.Unmarshal(option.Value, &userID); err == nil {
-			user, ok := d.Resolved.Users[userID]
-			return user, ok
-		}
+		userID := option.Snowflake()
+		user, ok := d.Resolved.Users[userID]
+		return user, ok
 	}
 	return User{}, false
 }
@@ -363,11 +366,9 @@ func (d SlashCommandInteractionData) User(name string) User {
 
 func (d SlashCommandInteractionData) OptMember(name string) (ResolvedMember, bool) {
 	if option, ok := d.Option(name); ok {
-		var userID snowflake.ID
-		if err := json.Unmarshal(option.Value, &userID); err == nil {
-			user, ok := d.Resolved.Members[userID]
-			return user, ok
-		}
+		userID := option.Snowflake()
+		member, ok := d.Resolved.Members[userID]
+		return member, ok
 	}
 	return ResolvedMember{}, false
 }
@@ -381,11 +382,9 @@ func (d SlashCommandInteractionData) Member(name string) ResolvedMember {
 
 func (d SlashCommandInteractionData) OptChannel(name string) (ResolvedChannel, bool) {
 	if option, ok := d.Option(name); ok {
-		var channelID snowflake.ID
-		if err := json.Unmarshal(option.Value, &channelID); err == nil {
-			channel, ok := d.Resolved.Channels[channelID]
-			return channel, ok
-		}
+		channelID := option.Snowflake()
+		channel, ok := d.Resolved.Channels[channelID]
+		return channel, ok
 	}
 	return ResolvedChannel{}, false
 }
@@ -399,11 +398,9 @@ func (d SlashCommandInteractionData) Channel(name string) ResolvedChannel {
 
 func (d SlashCommandInteractionData) OptRole(name string) (Role, bool) {
 	if option, ok := d.Option(name); ok {
-		var roleID snowflake.ID
-		if err := json.Unmarshal(option.Value, &roleID); err == nil {
-			role, ok := d.Resolved.Roles[roleID]
-			return role, ok
-		}
+		roleID := option.Snowflake()
+		role, ok := d.Resolved.Roles[roleID]
+		return role, ok
 	}
 	return Role{}, false
 }
@@ -417,10 +414,7 @@ func (d SlashCommandInteractionData) Role(name string) Role {
 
 func (d SlashCommandInteractionData) OptSnowflake(name string) (snowflake.ID, bool) {
 	if option, ok := d.Option(name); ok {
-		var id snowflake.ID
-		if err := json.Unmarshal(option.Value, &id); err == nil {
-			return id, ok
-		}
+		return option.Snowflake(), true
 	}
 	return 0, false
 }
@@ -434,10 +428,7 @@ func (d SlashCommandInteractionData) Snowflake(name string) snowflake.ID {
 
 func (d SlashCommandInteractionData) OptFloat(name string) (float64, bool) {
 	if option, ok := d.Option(name); ok {
-		var v float64
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			return v, true
-		}
+		return option.Float(), true
 	}
 	return 0, false
 }
@@ -451,11 +442,9 @@ func (d SlashCommandInteractionData) Float(name string) float64 {
 
 func (d SlashCommandInteractionData) OptAttachment(name string) (Attachment, bool) {
 	if option, ok := d.Option(name); ok {
-		var v snowflake.ID
-		if err := json.Unmarshal(option.Value, &v); err == nil {
-			attachment, ok := d.Resolved.Attachments[v]
-			return attachment, ok
-		}
+		attachmentID := option.Snowflake()
+		attachment, ok := d.Resolved.Attachments[attachmentID]
+		return attachment, ok
 	}
 	return Attachment{}, false
 }
@@ -685,3 +674,54 @@ func (MessageCommandInteractionData) contextCommandInteractionData()     {}
 type MessageCommandResolved struct {
 	Messages map[snowflake.ID]Message `json:"messages,omitempty"`
 }
+
+var (
+	_ ApplicationCommandInteractionData = (*EntryPointCommandInteractionData)(nil)
+)
+
+type rawEntryPointCommandInteractionData struct {
+	ID   snowflake.ID           `json:"id"`
+	Name string                 `json:"name"`
+	Type ApplicationCommandType `json:"type"`
+}
+
+type EntryPointCommandInteractionData struct {
+	id   snowflake.ID
+	name string
+}
+
+func (d *EntryPointCommandInteractionData) UnmarshalJSON(data []byte) error {
+	var iData rawEntryPointCommandInteractionData
+	if err := json.Unmarshal(data, &iData); err != nil {
+		return err
+	}
+	d.id = iData.ID
+	d.name = iData.Name
+	return nil
+}
+
+func (d *EntryPointCommandInteractionData) MarshalJSON() ([]byte, error) {
+	return json.Marshal(rawEntryPointCommandInteractionData{
+		ID:   d.id,
+		Name: d.name,
+		Type: d.Type(),
+	})
+}
+
+func (EntryPointCommandInteractionData) Type() ApplicationCommandType {
+	return ApplicationCommandTypePrimaryEntryPoint
+}
+
+func (d EntryPointCommandInteractionData) CommandID() snowflake.ID {
+	return d.id
+}
+
+func (d EntryPointCommandInteractionData) CommandName() string {
+	return d.name
+}
+
+func (d EntryPointCommandInteractionData) GuildID() *snowflake.ID {
+	return nil
+}
+
+func (EntryPointCommandInteractionData) applicationCommandInteractionData() {}

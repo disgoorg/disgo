@@ -10,12 +10,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/voice"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -51,8 +52,8 @@ func main() {
 	<-s
 }
 
-func play(client bot.Client) {
-	conn := client.VoiceManager().CreateConn(guildID)
+func play(client *bot.Client) {
+	conn := client.VoiceManager.CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
