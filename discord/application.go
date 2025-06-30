@@ -2,37 +2,45 @@ package discord
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
 )
 
 type Application struct {
-	ID                             snowflake.ID     `json:"id"`
-	Name                           string           `json:"name"`
-	Icon                           *string          `json:"icon,omitempty"`
-	Description                    string           `json:"description"`
-	RPCOrigins                     []string         `json:"rpc_origins"`
-	BotPublic                      bool             `json:"bot_public"`
-	BotRequireCodeGrant            bool             `json:"bot_require_code_grant"`
-	TermsOfServiceURL              *string          `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL               *string          `json:"privacy_policy_url,omitempty"`
-	CustomInstallURL               *string          `json:"custom_install_url,omitempty"`
-	RoleConnectionsVerificationURL *string          `json:"role_connections_verification_url"`
-	InstallParams                  *InstallParams   `json:"install_params"`
-	Tags                           []string         `json:"tags"`
-	Owner                          *User            `json:"owner,omitempty"`
-	Summary                        string           `json:"summary"`
-	VerifyKey                      string           `json:"verify_key"`
-	Team                           *Team            `json:"team,omitempty"`
-	GuildID                        *snowflake.ID    `json:"guild_id,omitempty"`
-	PrimarySkuID                   *snowflake.ID    `json:"primary_sku_id,omitempty"`
-	Slug                           *string          `json:"slug,omitempty"`
-	CoverImage                     *string          `json:"cover_image,omitempty"`
-	Flags                          ApplicationFlags `json:"flags,omitempty"`
+	ID                                snowflake.ID                      `json:"id"`
+	Name                              string                            `json:"name"`
+	Icon                              *string                           `json:"icon,omitempty"`
+	Description                       string                            `json:"description"`
+	RPCOrigins                        []string                          `json:"rpc_origins"`
+	BotPublic                         bool                              `json:"bot_public"`
+	BotRequireCodeGrant               bool                              `json:"bot_require_code_grant"`
+	Bot                               *User                             `json:"bot,omitempty"`
+	TermsOfServiceURL                 *string                           `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL                  *string                           `json:"privacy_policy_url,omitempty"`
+	CustomInstallURL                  *string                           `json:"custom_install_url,omitempty"`
+	InteractionsEndpointURL           *string                           `json:"interactions_endpoint_url,omitempty"`
+	RoleConnectionsVerificationURL    *string                           `json:"role_connections_verification_url"`
+	InstallParams                     *InstallParams                    `json:"install_params"`
+	Tags                              []string                          `json:"tags"`
+	Owner                             *User                             `json:"owner,omitempty"`
+	VerifyKey                         string                            `json:"verify_key"`
+	Team                              *Team                             `json:"team,omitempty"`
+	GuildID                           *snowflake.ID                     `json:"guild_id,omitempty"`
+	Guild                             *Guild                            `json:"guild,omitempty"`
+	PrimarySkuID                      *snowflake.ID                     `json:"primary_sku_id,omitempty"`
+	Slug                              *string                           `json:"slug,omitempty"`
+	CoverImage                        *string                           `json:"cover_image,omitempty"`
+	Flags                             ApplicationFlags                  `json:"flags,omitempty"`
+	ApproximateGuildCount             *int                              `json:"approximate_guild_count,omitempty"`
+	ApproximateUserInstallCount       *int                              `json:"approximate_user_install_count,omitempty"`
+	ApproximateUserAuthorizationCount *int                              `json:"approximate_user_authorization_count,omitempty"`
+	IntegrationTypesConfig            ApplicationIntegrationTypesConfig `json:"integration_types_config"`
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {
@@ -53,6 +61,19 @@ func (a Application) CoverImageURL(opts ...CDNOpt) *string {
 
 func (a Application) CreatedAt() time.Time {
 	return a.ID.Time()
+}
+
+type ApplicationUpdate struct {
+	CustomInstallURL               *string                            `json:"custom_install_url,omitempty"`
+	Description                    *string                            `json:"description,omitempty"`
+	RoleConnectionsVerificationURL *string                            `json:"role_connections_verification_url,omitempty"`
+	InstallParams                  *InstallParams                     `json:"install_params,omitempty"`
+	Flags                          *ApplicationFlags                  `json:"flags,omitempty"`
+	Icon                           omit.Omit[*Icon]                   `json:"icon,omitzero"`
+	CoverImage                     omit.Omit[*Icon]                   `json:"cover_image,omitzero"`
+	InteractionsEndpointURL        *string                            `json:"interactions_endpoint_url,omitempty"`
+	Tags                           []string                           `json:"tags,omitempty"`
+	IntegrationTypesConfig         *ApplicationIntegrationTypesConfig `json:"integration_types_config,omitempty"`
 }
 
 type PartialApplication struct {
@@ -136,12 +157,7 @@ func SplitScopes(joinedScopes string) []OAuth2Scope {
 }
 
 func HasScope(scope OAuth2Scope, scopes ...OAuth2Scope) bool {
-	for _, s := range scopes {
-		if s == scope {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(scopes, scope)
 }
 
 type TokenType string
@@ -224,21 +240,58 @@ func (t Team) CreatedAt() time.Time {
 }
 
 type TeamMember struct {
-	MembershipState MembershipState   `json:"membership_state"`
-	Permissions     []TeamPermissions `json:"permissions"`
-	TeamID          snowflake.ID      `json:"team_id"`
-	User            User              `json:"user"`
+	MembershipState MembershipState `json:"membership_state"`
+	TeamID          snowflake.ID    `json:"team_id"`
+	User            User            `json:"user"`
+	Role            TeamRole        `json:"role"`
 }
 
 type MembershipState int
 
 const (
-	MembershipStateInvited = iota + 1
+	MembershipStateInvited MembershipState = iota + 1
 	MembershipStateAccepted
 )
 
-type TeamPermissions string
+type TeamRole string
 
 const (
-	TeamPermissionAdmin = "*"
+	TeamRoleAdmin     TeamRole = "admin"
+	TeamRoleDeveloper TeamRole = "developer"
+	TeamRoleReadOnly  TeamRole = "read_only"
+)
+
+type ApplicationIntegrationType int
+
+const (
+	ApplicationIntegrationTypeGuildInstall ApplicationIntegrationType = iota
+	ApplicationIntegrationTypeUserInstall
+)
+
+type ApplicationIntegrationTypesConfig map[ApplicationIntegrationType]ApplicationIntegrationTypeConfiguration
+
+type ApplicationIntegrationTypeConfiguration struct {
+	OAuth2InstallParams *InstallParams `json:"oauth2_install_params"`
+}
+
+type ActivityInstance struct {
+	ApplicationID snowflake.ID     `json:"application_id"`
+	InstanceID    string           `json:"instance_id"`
+	LaunchID      snowflake.ID     `json:"launch_id"`
+	Location      ActivityLocation `json:"location"`
+	Users         []snowflake.ID   `json:"users"`
+}
+
+type ActivityLocation struct {
+	ID        string               `json:"id"`
+	Kind      ActivityLocationKind `json:"kind"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+}
+
+type ActivityLocationKind string
+
+const (
+	ActivityLocationKindGC ActivityLocationKind = "gc"
+	ActivityLocationKindPC ActivityLocationKind = "pc"
 )

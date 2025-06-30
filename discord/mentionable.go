@@ -12,14 +12,16 @@ type MentionType struct {
 }
 
 var (
-	MentionTypeUser         = MentionType{regexp.MustCompile(`<@!?(\d+)>`)}
-	MentionTypeRole         = MentionType{regexp.MustCompile(`<@&(\d+)>`)}
-	MentionTypeChannel      = MentionType{regexp.MustCompile(`<#(\d+)>`)}
-	MentionTypeEmoji        = MentionType{regexp.MustCompile(`<a?:(\w+):(\d+)>`)}
-	MentionTypeTimestamp    = MentionType{regexp.MustCompile(`<t:(?P<time>-?\d{1,17})(?::(?P<format>[tTdDfFR]))?>`)}
-	MentionTypeSlashCommand = MentionType{regexp.MustCompile(`</(\w+) ?((\w+)|(\w+ \w+)):(\d+)>`)}
-	MentionTypeHere         = MentionType{regexp.MustCompile(`@here`)}
-	MentionTypeEveryone     = MentionType{regexp.MustCompile(`@everyone`)}
+	MentionTypeUser            = MentionType{regexp.MustCompile(`<@!?(\d+)>`)}
+	MentionTypeRole            = MentionType{regexp.MustCompile(`<@&(\d+)>`)}
+	MentionTypeChannel         = MentionType{regexp.MustCompile(`<#(\d+)>`)}
+	MentionTypeEmoji           = MentionType{regexp.MustCompile(`<a?:(\w+):(\d+)>`)}
+	MentionTypeTimestamp       = MentionType{regexp.MustCompile(`<t:(?P<time>-?\d{1,17})(?::(?P<format>[tTdDfFR]))?>`)}
+	MentionTypeSlashCommand    = MentionType{regexp.MustCompile(`</(\w+) ?((\w+)|(\w+ \w+)):(\d+)>`)}
+	MentionTypeHere            = MentionType{regexp.MustCompile(`@here`)}
+	MentionTypeEveryone        = MentionType{regexp.MustCompile(`@everyone`)}
+	MentionTypeGuildNavigation = MentionType{regexp.MustCompile("<id:(browse|customize|guide|linked-roles)>")}
+	MentionTypeLinkedRole      = MentionType{regexp.MustCompile(`<id:linked-roles:(\d+)>`)}
 )
 
 type Mentionable interface {
@@ -69,4 +71,24 @@ func FormattedTimestampMention(timestamp int64, style TimestampStyle) string {
 //	mention := SlashCommandMention(id, "command group subcommand")
 func SlashCommandMention(id snowflake.ID, path string) string {
 	return fmt.Sprintf("</%s:%d>", path, id)
+}
+
+func NavigationBrowseMention() string {
+	return "<id:browse>"
+}
+
+func NavigationCustomizeMention() string {
+	return "<id:customize>"
+}
+
+func NavigationGuideMention() string {
+	return "<id:guide>"
+}
+
+func NavigationLinkedRoles() string {
+	return "<id:linked-roles>"
+}
+
+func NavigationLinkedRole(id snowflake.ID) string {
+	return fmt.Sprintf("<id:linked-roles:%d>", id)
 }

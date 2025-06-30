@@ -13,14 +13,15 @@ type InviteTargetType int
 const (
 	InviteTargetTypeStream InviteTargetType = iota + 1
 	InviteTargetTypeEmbeddedApplication
+	InviteTargetTypeRoleSubscriptionsPurchase
 )
 
 // Invite is a partial invite struct
 type Invite struct {
+	Type                     InviteType           `json:"type"`
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
 	Channel                  *InviteChannel       `json:"channel"`
-	ChannelID                snowflake.ID         `json:"channel_id"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
 	TargetType               InviteTargetType     `json:"target_user_type"`
@@ -34,6 +35,14 @@ type Invite struct {
 func (i Invite) URL() string {
 	return InviteURL(i.Code)
 }
+
+type InviteType int
+
+const (
+	InviteTypeGuild InviteType = iota
+	InviteTypeGroupDM
+	InviteTypeFriend
+)
 
 type InviteFlags int
 
@@ -84,6 +93,22 @@ type InviteGuild struct {
 	Features          []GuildFeature    `json:"features"`
 	VerificationLevel VerificationLevel `json:"verification_level"`
 	VanityURLCode     *string           `json:"vanity_url_code"`
+}
+
+func (g InviteGuild) IconURL(opts ...CDNOpt) *string {
+	if g.Icon == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildIcon, opts, g.ID, *g.Icon)
+	return &url
+}
+
+func (g InviteGuild) SplashURL(opts ...CDNOpt) *string {
+	if g.Splash == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildSplash, opts, g.ID, *g.Splash)
+	return &url
 }
 
 type InviteCreate struct {

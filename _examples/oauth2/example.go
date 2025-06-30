@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
+	"log/slog"
+	"math/rand/v2"
 	"net/http"
 	"os"
-	"time"
 
-	"github.com/disgoorg/json"
-	"github.com/disgoorg/log"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
@@ -18,26 +17,20 @@ import (
 )
 
 var (
-	letters      = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	letters      = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	clientID     = snowflake.GetEnv("client_id")
 	clientSecret = os.Getenv("client_secret")
 	baseURL      = os.Getenv("base_url")
-	logger       = log.Default()
 	httpClient   = http.DefaultClient
-	client       oauth2.Client
+	client       *oauth2.Client
 	sessions     map[string]oauth2.Session
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func main() {
-	logger.SetLevel(log.LevelDebug)
-	logger.Info("starting example...")
-	logger.Infof("disgo %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
-	client = oauth2.New(clientID, clientSecret, oauth2.WithLogger(logger), oauth2.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
+	client = oauth2.New(clientID, clientSecret, oauth2.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
@@ -90,7 +83,11 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin", discord.PermissionsNone, 0, false, discord.OAuth2ScopeIdentify, discord.OAuth2ScopeGuilds, discord.OAuth2ScopeEmail, discord.OAuth2ScopeConnections, discord.OAuth2ScopeWebhookIncoming), http.StatusSeeOther)
+	params := oauth2.AuthorizationURLParams{
+		RedirectURI: baseURL + "/trylogin",
+		Scopes:      []discord.OAuth2Scope{discord.OAuth2ScopeIdentify, discord.OAuth2ScopeGuilds, discord.OAuth2ScopeEmail, discord.OAuth2ScopeConnections, discord.OAuth2ScopeWebhookIncoming},
+	}
+	http.Redirect(w, r, client.GenerateAuthorizationURL(params), http.StatusSeeOther)
 }
 
 func handleTryLogin(w http.ResponseWriter, r *http.Request) {
@@ -118,9 +115,9 @@ func writeError(w http.ResponseWriter, text string, err error) {
 }
 
 func randStr(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+	b := make([]byte, n)
+	for i := range n {
+		b[i] = letters[rand.IntN(len(letters))]
 	}
 	return string(b)
 }

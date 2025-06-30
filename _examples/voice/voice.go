@@ -4,21 +4,19 @@ import (
 	"context"
 	"encoding/binary"
 	"io"
-	_ "net/http/pprof"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/disgo/voice"
-
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/voice"
 )
 
 var (
@@ -28,9 +26,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelInfo)
-	log.SetFlags(log.LstdFlags | log.Llongfile)
-	log.Info("starting up")
+	slog.Info("starting up")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	s := make(chan os.Signal, 1)
 
@@ -41,7 +38,7 @@ func main() {
 		}),
 	)
 	if err != nil {
-		log.Fatal("error creating client: ", err)
+		slog.Error("error creating client", slog.Any("err", err))
 	}
 
 	defer func() {
@@ -51,16 +48,17 @@ func main() {
 	}()
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error connecting to gateway: ", err)
+		slog.Error("error connecting to gateway", slog.Any("error", err))
+		return
 	}
 
-	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
+	slog.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 
-func play(client bot.Client, closeChan chan os.Signal) {
-	conn := client.VoiceManager().CreateConn(guildID)
+func play(client *bot.Client, closeChan chan os.Signal) {
+	conn := client.VoiceManager.CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()

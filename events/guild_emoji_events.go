@@ -14,25 +14,25 @@ type EmojisUpdate struct {
 	gateway.EventGuildEmojisUpdate
 }
 
-// GenericEmoji is called upon receiving EmojiCreate , EmojiUpdate or EmojiDelete (requires gateway.IntentGuildEmojisAndStickers)
+// GenericEmoji is called upon receiving EmojiCreate , EmojiUpdate or EmojiDelete (requires gateway.IntentGuildExpressions)
 type GenericEmoji struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	Emoji   discord.Emoji
 }
 
-// EmojiCreate indicates that a new discord.Emoji got created in a discord.Guild (requires gateway.IntentGuildEmojisAndStickers)
+// EmojiCreate indicates that a new discord.Emoji got created in a discord.Guild (requires gateway.IntentGuildExpressions)
 type EmojiCreate struct {
 	*GenericEmoji
 }
 
-// EmojiUpdate indicates that a discord.Emoji got updated in a discord.Guild (requires gateway.IntentGuildEmojisAndStickers)
+// EmojiUpdate indicates that a discord.Emoji got updated in a discord.Guild (requires gateway.IntentGuildExpressions)
 type EmojiUpdate struct {
 	*GenericEmoji
 	OldEmoji discord.Emoji
 }
 
-// EmojiDelete indicates that a discord.Emoji got deleted in a discord.Guild (requires gateway.IntentGuildEmojisAndStickers)
+// EmojiDelete indicates that a discord.Emoji got deleted in a discord.Guild (requires gateway.IntentGuildExpressions)
 type EmojiDelete struct {
 	*GenericEmoji
 }

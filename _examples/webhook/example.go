@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
@@ -21,10 +21,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Info("starting webhook example...")
-	log.Info("disgo version: ", disgo.Version)
+	slog.Info("starting webhook example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	// construct new webhook client
 	client := webhook.New(webhookID, webhookToken)
@@ -41,19 +39,20 @@ func main() {
 
 	// wait for all messages to be sent
 	wg.Wait()
-	log.Info("exiting webhook example...")
+	slog.Info("exiting webhook example...")
 }
 
 // send(s) a message to the webhook
-func send(wg *sync.WaitGroup, client webhook.Client, i int) {
+func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
 	defer wg.Done()
 
 	if _, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().
 		SetContentf("test %d", i).
 		Build(),
+		rest.CreateWebhookMessageParams{Wait: true},
 		// delay each request by 2 seconds
 		rest.WithDelay(2*time.Second),
 	); err != nil {
-		log.Errorf("error sending message %d: %s", i, err)
+		slog.Error("error sending message to webhook", slog.Any("error", err), slog.Int("i", i))
 	}
 }

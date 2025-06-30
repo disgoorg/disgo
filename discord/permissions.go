@@ -5,12 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
 )
-
-var EmptyStringBytes = []byte(`""`)
 
 // Permissions extends the Bit structure, and is used within roles and channels (https://discord.com/developers/docs/topics/permissions#permissions)
 type Permissions int64
@@ -59,10 +57,14 @@ const (
 	PermissionModerateMembers
 	PermissionViewCreatorMonetizationAnalytics
 	PermissionUseSoundboard
-	_
-	_
+	PermissionCreateGuildExpressions
+	PermissionCreateEvents
 	PermissionUseExternalSounds
 	PermissionSendVoiceMessages
+	_
+	_
+	PermissionSendPolls
+	PermissionUseExternalApps
 
 	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -72,7 +74,9 @@ const (
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone |
-		PermissionSendVoiceMessages
+		PermissionSendVoiceMessages |
+		PermissionSendPolls |
+		PermissionUseExternalApps
 
 	PermissionsAllThread = PermissionManageThreads |
 		PermissionCreatePublicThreads |
@@ -91,7 +95,10 @@ const (
 		PermissionUseSoundboard |
 		PermissionUseExternalSounds |
 		PermissionRequestToSpeak |
-		PermissionUseEmbeddedActivities
+		PermissionUseEmbeddedActivities |
+		PermissionCreateGuildExpressions |
+		PermissionCreateEvents |
+		PermissionManageEvents
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
@@ -116,7 +123,6 @@ const (
 		PermissionManageRoles |
 		PermissionChangeNickname |
 		PermissionManageNicknames |
-		PermissionManageEvents |
 		PermissionModerateMembers
 
 	PermissionsNone Permissions = 0
@@ -168,6 +174,8 @@ var permissions = map[Permissions]string{
 	PermissionStream:                           "Video",
 	PermissionViewGuildInsights:                "View Server Insights",
 	PermissionSendVoiceMessages:                "Send Voice Messages",
+	PermissionSendPolls:                        "Create Polls",
+	PermissionUseExternalApps:                  "Use External Apps",
 }
 
 func (p Permissions) String() string {
@@ -191,7 +199,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON unmarshalls permissions into an int64
 func (p *Permissions) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(data, EmptyStringBytes) || bytes.Equal(data, json.NullBytes) {
+	if bytes.Equal(data, []byte("")) || bytes.Equal(data, []byte("null")) {
 		return nil
 	}
 

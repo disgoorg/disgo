@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -13,17 +13,19 @@ var _ Mentionable = (*Member)(nil)
 
 // Member is a discord GuildMember
 type Member struct {
-	User                       User           `json:"user"`
-	Nick                       *string        `json:"nick"`
-	Avatar                     *string        `json:"avatar"`
-	RoleIDs                    []snowflake.ID `json:"roles,omitempty"`
-	JoinedAt                   *time.Time     `json:"joined_at"`
-	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
-	Deaf                       bool           `json:"deaf,omitempty"`
-	Mute                       bool           `json:"mute,omitempty"`
-	Flags                      MemberFlags    `json:"flags"`
-	Pending                    bool           `json:"pending"`
-	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
+	User                       User                  `json:"user"`
+	Nick                       *string               `json:"nick"`
+	Avatar                     *string               `json:"avatar"`
+	Banner                     *string               `json:"banner"`
+	RoleIDs                    []snowflake.ID        `json:"roles,omitempty"`
+	JoinedAt                   *time.Time            `json:"joined_at"`
+	PremiumSince               *time.Time            `json:"premium_since,omitempty"`
+	Deaf                       bool                  `json:"deaf,omitempty"`
+	Mute                       bool                  `json:"mute,omitempty"`
+	Flags                      MemberFlags           `json:"flags"`
+	Pending                    bool                  `json:"pending"`
+	CommunicationDisabledUntil *time.Time            `json:"communication_disabled_until"`
+	AvatarDecorationData       *AvatarDecorationData `json:"avatar_decoration_data"`
 
 	// This field is not present everywhere in the API and often populated by disgo
 	GuildID snowflake.ID `json:"guild_id"`
@@ -52,10 +54,7 @@ func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if m.Avatar == nil {
 		return m.User.EffectiveAvatarURL(opts...)
 	}
-	if avatar := m.AvatarURL(opts...); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
 }
 
 // AvatarURL returns the guild-specific avatar URL of the user if set or nil
@@ -64,6 +63,35 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 		return nil
 	}
 	url := formatAssetURL(MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
+	return &url
+}
+
+// EffectiveBannerURL returns the guild-specific banner URL of the user if set, falling back to the banner URL of the user
+func (m Member) EffectiveBannerURL(opts ...CDNOpt) string {
+	if m.Banner == nil {
+		if banner := m.User.BannerURL(opts...); banner != nil {
+			return *banner
+		}
+		return ""
+	}
+	return formatAssetURL(MemberBanner, opts, m.GuildID, m.User.ID, *m.Banner)
+}
+
+// BannerURL returns the guild-specific banner URL of the user if set or nil
+func (m Member) BannerURL(opts ...CDNOpt) *string {
+	if m.Banner == nil {
+		return nil
+	}
+	url := formatAssetURL(MemberBanner, opts, m.GuildID, m.User.ID, *m.Banner)
+	return &url
+}
+
+// AvatarDecorationURL returns the avatar decoration URL if set or nil
+func (m Member) AvatarDecorationURL(opts ...CDNOpt) *string {
+	if m.AvatarDecorationData == nil {
+		return nil
+	}
+	url := formatAssetURL(AvatarDecoration, opts, m.AvatarDecorationData.Asset)
 	return &url
 }
 
@@ -82,13 +110,13 @@ type MemberAdd struct {
 
 // MemberUpdate is used to modify a member
 type MemberUpdate struct {
-	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
-	Nick                       *string                   `json:"nick,omitempty"`
-	Roles                      *[]snowflake.ID           `json:"roles,omitempty"`
-	Mute                       *bool                     `json:"mute,omitempty"`
-	Deaf                       *bool                     `json:"deaf,omitempty"`
-	Flags                      *MemberFlags              `json:"flags,omitempty"`
-	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
+	ChannelID                  *snowflake.ID         `json:"channel_id,omitempty"`
+	Nick                       *string               `json:"nick,omitempty"`
+	Roles                      *[]snowflake.ID       `json:"roles,omitempty"`
+	Mute                       *bool                 `json:"mute,omitempty"`
+	Deaf                       *bool                 `json:"deaf,omitempty"`
+	Flags                      *MemberFlags          `json:"flags,omitempty"`
+	CommunicationDisabledUntil omit.Omit[*time.Time] `json:"communication_disabled_until,omitzero"`
 }
 
 // CurrentMemberUpdate is used to update the current member
@@ -103,6 +131,12 @@ const (
 	MemberFlagCompletedOnboarding
 	MemberFlagBypassesVerification
 	MemberFlagStartedOnboarding
+	MemberFlagIsGuest
+	MemberFlagStartedHomeActions
+	MemberFlagCompletedHomeActions
+	MemberFlagAutomodQuarantinedUsername
+	_
+	MemberFlagDMSettingsUpsellAcknowledged
 	MemberFlagsNone MemberFlags = 0
 )
 

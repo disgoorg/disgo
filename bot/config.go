@@ -2,8 +2,7 @@ package bot
 
 import (
 	"fmt"
-
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
@@ -15,18 +14,16 @@ import (
 	"github.com/disgoorg/disgo/voice"
 )
 
-// DefaultConfig returns a Config with sensible defaults.
-func DefaultConfig(gatewayHandlers map[gateway.EventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *Config {
-	return &Config{
-		Logger:                 log.Default(),
+func defaultConfig(gatewayHandlers map[gateway.EventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) config {
+	return config{
+		Logger:                 slog.Default(),
 		EventManagerConfigOpts: []EventManagerConfigOpt{WithGatewayHandlers(gatewayHandlers), WithHTTPServerHandler(httpHandler)},
 		MemberChunkingFilter:   MemberChunkingFilterNone,
 	}
 }
 
-// Config lets you configure your Client instance.
-type Config struct {
-	Logger log.Logger
+type config struct {
+	Logger *slog.Logger
 
 	RestClient           rest.Client
 	RestClientConfigOpts []rest.ConfigOpt
@@ -55,61 +52,61 @@ type Config struct {
 	MemberChunkingFilter  MemberChunkingFilter
 }
 
-// ConfigOpt is a type alias for a function that takes a Config and is used to configure your Client.
-type ConfigOpt func(config *Config)
+// ConfigOpt is a type alias for a function that takes a config and is used to configure your Client.
+type ConfigOpt func(config *config)
 
-// Apply applies the given ConfigOpt(s) to the Config
-func (c *Config) Apply(opts []ConfigOpt) {
+func (c *config) apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.Logger = c.Logger.With(slog.String("name", "bot"))
 }
 
-// WithLogger lets you inject your own logger implementing log.Logger.
-func WithLogger(logger log.Logger) ConfigOpt {
-	return func(config *Config) {
+// WithLogger lets you inject your own Logger implementing *slog.Logger.
+func WithLogger(logger *slog.Logger) ConfigOpt {
+	return func(config *config) {
 		config.Logger = logger
 	}
 }
 
 // WithRestClient lets you inject your own rest.Client.
 func WithRestClient(restClient rest.Client) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.RestClient = restClient
 	}
 }
 
 // WithRestClientConfigOpts let's you configure the default rest.Client.
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
 }
 
 // WithRest lets you inject your own rest.Rest.
 func WithRest(rest rest.Rest) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.Rest = rest
 	}
 }
 
 // WithEventManager lets you inject your own EventManager.
 func WithEventManager(eventManager EventManager) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.EventManager = eventManager
 	}
 }
 
 // WithEventManagerConfigOpts lets you configure the default EventManager.
 func WithEventManagerConfigOpts(opts ...EventManagerConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.EventManagerConfigOpts = append(config.EventManagerConfigOpts, opts...)
 	}
 }
 
 // WithEventListeners adds the given EventListener(s) to the default EventManager.
 func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.EventManagerConfigOpts = append(config.EventManagerConfigOpts, WithListeners(eventListeners...))
 	}
 }
@@ -126,56 +123,56 @@ func WithEventListenerChan[E Event](c chan<- E) ConfigOpt {
 
 // WithGateway lets you inject your own gateway.Gateway.
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.Gateway = gateway
 	}
 }
 
 // WithDefaultGateway creates a gateway.Gateway with sensible defaults.
 func WithDefaultGateway() ConfigOpt {
-	return func(config *Config) {
-		config.GatewayConfigOpts = append(config.GatewayConfigOpts, func(_ *gateway.Config) {})
+	return func(config *config) {
+		config.GatewayConfigOpts = append(config.GatewayConfigOpts, gateway.WithDefault())
 	}
 }
 
 // WithGatewayConfigOpts lets you configure the default gateway.Gateway.
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.GatewayConfigOpts = append(config.GatewayConfigOpts, opts...)
 	}
 }
 
 // WithShardManager lets you inject your own sharding.ShardManager.
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ShardManager = shardManager
 	}
 }
 
 // WithDefaultShardManager creates a sharding.ShardManager with sensible defaults.
 func WithDefaultShardManager() ConfigOpt {
-	return func(config *Config) {
-		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, func(_ *sharding.Config) {})
+	return func(config *config) {
+		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, sharding.WithDefault())
 	}
 }
 
 // WithShardManagerConfigOpts lets you configure the default sharding.ShardManager.
 func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, opts...)
 	}
 }
 
 // WithHTTPServer lets you inject your own httpserver.Server.
 func WithHTTPServer(httpServer httpserver.Server) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.HTTPServer = httpServer
 	}
 }
 
 // WithHTTPServerConfigOpts lets you configure the default httpserver.Server.
 func WithHTTPServerConfigOpts(publicKey string, opts ...httpserver.ConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.PublicKey = publicKey
 		config.HTTPServerConfigOpts = append(config.HTTPServerConfigOpts, opts...)
 	}
@@ -183,151 +180,172 @@ func WithHTTPServerConfigOpts(publicKey string, opts ...httpserver.ConfigOpt) Co
 
 // WithCaches lets you inject your own cache.Caches.
 func WithCaches(caches cache.Caches) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.Caches = caches
 	}
 }
 
 // WithCacheConfigOpts lets you configure the default cache.Caches.
 func WithCacheConfigOpts(opts ...cache.ConfigOpt) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.CacheConfigOpts = append(config.CacheConfigOpts, opts...)
 	}
 }
 
 // WithMemberChunkingManager lets you inject your own MemberChunkingManager.
 func WithMemberChunkingManager(memberChunkingManager MemberChunkingManager) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.MemberChunkingManager = memberChunkingManager
 	}
 }
 
 // WithMemberChunkingFilter lets you configure the default MemberChunkingFilter.
 func WithMemberChunkingFilter(memberChunkingFilter MemberChunkingFilter) ConfigOpt {
-	return func(config *Config) {
+	return func(config *config) {
 		config.MemberChunkingFilter = memberChunkingFilter
 	}
 }
 
-// BuildClient creates a new Client instance with the given token, Config, gateway handlers, http handlers os, name, github & version.
-func BuildClient(token string, config Config, gatewayEventHandlerFunc func(client Client) gateway.EventHandlerFunc, httpServerEventHandlerFunc func(client Client) httpserver.EventHandlerFunc, os string, name string, github string, version string) (Client, error) {
+func defaultHTTPServerEventHandlerFunc(client *Client) httpserver.EventHandlerFunc {
+	return client.EventManager.HandleHTTPEvent
+}
+
+func defaultGatewayEventHandlerFunc(client *Client) gateway.EventHandlerFunc {
+	return client.EventManager.HandleGatewayEvent
+}
+
+// BuildClient creates a new Client instance with the given Token, config, Gateway handlers, http handlers os, name, github & version.
+func BuildClient(
+	token string,
+	otps []ConfigOpt,
+	gatewayHandlers map[gateway.EventType]GatewayEventHandler,
+	httpHandler HTTPServerEventHandler,
+	os string,
+	name string,
+	github string,
+	version string,
+) (*Client, error) {
 	if token == "" {
 		return nil, discord.ErrNoBotToken
 	}
 	id, err := tokenhelper.IDFromToken(token)
 	if err != nil {
-		return nil, fmt.Errorf("error while getting application id from token: %w", err)
-	}
-	client := &clientImpl{
-		token:  token,
-		logger: config.Logger,
+		return nil, fmt.Errorf("error while getting application id from Token: %w", err)
 	}
 
-	client.applicationID = *id
+	cfg := defaultConfig(gatewayHandlers, httpHandler)
+	cfg.apply(otps)
 
-	if config.RestClient == nil {
+	client := &Client{
+		Token:         token,
+		Logger:        cfg.Logger,
+		ApplicationID: *id,
+	}
+
+	if cfg.RestClient == nil {
 		// prepend standard user-agent. this can be overridden as it's appended to the front of the slice
-		config.RestClientConfigOpts = append([]rest.ConfigOpt{
+		cfg.RestClientConfigOpts = append([]rest.ConfigOpt{
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
-			rest.WithLogger(client.logger),
-			func(config *rest.Config) {
-				config.RateRateLimiterConfigOpts = append([]rest.RateLimiterConfigOpt{rest.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
-			},
-		}, config.RestClientConfigOpts...)
+			rest.WithLogger(client.Logger),
+			rest.WithDefaultRateLimiterConfigOpts(
+				rest.WithRateLimiterLogger(cfg.Logger),
+			),
+		}, cfg.RestClientConfigOpts...)
 
-		config.RestClient = rest.NewClient(client.token, config.RestClientConfigOpts...)
+		cfg.RestClient = rest.NewClient(client.Token, cfg.RestClientConfigOpts...)
 	}
 
-	if config.Rest == nil {
-		config.Rest = rest.New(config.RestClient)
+	if cfg.Rest == nil {
+		cfg.Rest = rest.New(cfg.RestClient)
 	}
-	client.restServices = config.Rest
+	client.Rest = cfg.Rest
 
-	if config.VoiceManager == nil {
-		config.VoiceManager = voice.NewManager(client.UpdateVoiceState, *id, append([]voice.ManagerConfigOpt{voice.WithLogger(client.logger)}, config.VoiceManagerConfigOpts...)...)
+	if cfg.VoiceManager == nil {
+		cfg.VoiceManager = voice.NewManager(client.UpdateVoiceState, *id, append([]voice.ManagerConfigOpt{voice.WithLogger(cfg.Logger)}, cfg.VoiceManagerConfigOpts...)...)
 	}
-	client.voiceManager = config.VoiceManager
+	client.VoiceManager = cfg.VoiceManager
 
-	if config.EventManager == nil {
-		config.EventManager = NewEventManager(client, config.EventManagerConfigOpts...)
+	if cfg.EventManager == nil {
+		cfg.EventManager = NewEventManager(client, append([]EventManagerConfigOpt{WithEventManagerLogger(cfg.Logger)}, cfg.EventManagerConfigOpts...)...)
 	}
-	client.eventManager = config.EventManager
+	client.EventManager = cfg.EventManager
 
-	if config.Gateway == nil && len(config.GatewayConfigOpts) > 0 {
+	if cfg.Gateway == nil && len(cfg.GatewayConfigOpts) > 0 {
 		var gatewayRs *discord.Gateway
-		gatewayRs, err = client.restServices.GetGateway()
+		gatewayRs, err = client.Rest.GetGateway()
 		if err != nil {
 			return nil, err
 		}
 
-		config.GatewayConfigOpts = append([]gateway.ConfigOpt{
+		cfg.GatewayConfigOpts = append([]gateway.ConfigOpt{
 			gateway.WithURL(gatewayRs.URL),
-			gateway.WithLogger(client.logger),
+			gateway.WithLogger(cfg.Logger),
 			gateway.WithOS(os),
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
-			func(config *gateway.Config) {
-				config.RateRateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
-			},
-		}, config.GatewayConfigOpts...)
+			gateway.WithDefaultRateLimiterConfigOpts(
+				gateway.WithRateLimiterLogger(cfg.Logger),
+			),
+		}, cfg.GatewayConfigOpts...)
 
-		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), nil, config.GatewayConfigOpts...)
+		cfg.Gateway = gateway.New(token, defaultGatewayEventHandlerFunc(client), nil, cfg.GatewayConfigOpts...)
 	}
-	client.gateway = config.Gateway
+	client.Gateway = cfg.Gateway
 
-	if config.ShardManager == nil && len(config.ShardManagerConfigOpts) > 0 {
+	if cfg.ShardManager == nil && len(cfg.ShardManagerConfigOpts) > 0 {
 		var gatewayBotRs *discord.GatewayBot
-		gatewayBotRs, err = client.restServices.GetGatewayBot()
+		gatewayBotRs, err = client.Rest.GetGatewayBot()
 		if err != nil {
 			return nil, err
 		}
 
 		shardIDs := make([]int, gatewayBotRs.Shards)
-		for i := 0; i < gatewayBotRs.Shards-1; i++ {
+		for i := range gatewayBotRs.Shards {
 			shardIDs[i] = i
 		}
 
-		config.ShardManagerConfigOpts = append([]sharding.ConfigOpt{
+		cfg.ShardManagerConfigOpts = append([]sharding.ConfigOpt{
 			sharding.WithShardCount(gatewayBotRs.Shards),
 			sharding.WithShardIDs(shardIDs...),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithURL(gatewayBotRs.URL),
-				gateway.WithLogger(client.logger),
+				gateway.WithLogger(cfg.Logger),
 				gateway.WithOS(os),
 				gateway.WithBrowser(name),
 				gateway.WithDevice(name),
-				func(config *gateway.Config) {
-					config.RateRateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
-				},
 			),
-			sharding.WithLogger(client.logger),
-			func(config *sharding.Config) {
-				config.RateRateLimiterConfigOpts = append([]sharding.RateLimiterConfigOpt{sharding.WithRateLimiterLogger(client.logger), sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateRateLimiterConfigOpts...)
-			},
-		}, config.ShardManagerConfigOpts...)
+			sharding.WithLogger(cfg.Logger),
+			sharding.WithDefaultRateLimiterConfigOpt(
+				sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency),
+				sharding.WithRateLimiterLogger(cfg.Logger),
+			),
+		}, cfg.ShardManagerConfigOpts...)
 
-		config.ShardManager = sharding.New(token, gatewayEventHandlerFunc(client), config.ShardManagerConfigOpts...)
+		cfg.ShardManager = sharding.New(token, defaultGatewayEventHandlerFunc(client), cfg.ShardManagerConfigOpts...)
 	}
-	client.shardManager = config.ShardManager
+	client.ShardManager = cfg.ShardManager
 
-	if config.HTTPServer == nil && config.PublicKey != "" {
-		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
-			httpserver.WithLogger(client.logger),
-		}, config.HTTPServerConfigOpts...)
+	if cfg.HTTPServer == nil && cfg.PublicKey != "" {
+		cfg.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
+			httpserver.WithLogger(cfg.Logger),
+		}, cfg.HTTPServerConfigOpts...)
 
-		config.HTTPServer = httpserver.New(config.PublicKey, httpServerEventHandlerFunc(client), config.HTTPServerConfigOpts...)
+		cfg.HTTPServer, err = httpserver.New(cfg.PublicKey, defaultHTTPServerEventHandlerFunc(client), cfg.HTTPServerConfigOpts...)
+		if err != nil {
+			return nil, fmt.Errorf("error while creating http server: %w", err)
+		}
 	}
-	client.httpServer = config.HTTPServer
+	client.HTTPServer = cfg.HTTPServer
 
-	if config.MemberChunkingManager == nil {
-		config.MemberChunkingManager = NewMemberChunkingManager(client, config.Logger, config.MemberChunkingFilter)
+	if cfg.MemberChunkingManager == nil {
+		cfg.MemberChunkingManager = NewMemberChunkingManager(client, cfg.Logger, cfg.MemberChunkingFilter)
 	}
-	client.memberChunkingManager = config.MemberChunkingManager
+	client.MemberChunkingManager = cfg.MemberChunkingManager
 
-	if config.Caches == nil {
-		config.Caches = cache.New(config.CacheConfigOpts...)
+	if cfg.Caches == nil {
+		cfg.Caches = cache.New(cfg.CacheConfigOpts...)
 	}
-	client.caches = config.Caches
+	client.Caches = cfg.Caches
 
 	return client, nil
 }

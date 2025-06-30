@@ -34,7 +34,7 @@ func (s *emojiImpl) GetEmojis(guildID snowflake.ID, opts ...RequestOpt) (emojis 
 
 func (s *emojiImpl) GetEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
 	err = s.client.Do(GetEmoji.Compile(nil, guildID, emojiID), nil, &emoji, opts...)
-	if err != nil {
+	if emoji != nil {
 		emoji.GuildID = guildID
 	}
 	return
@@ -42,7 +42,7 @@ func (s *emojiImpl) GetEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ..
 
 func (s *emojiImpl) CreateEmoji(guildID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
 	err = s.client.Do(CreateEmoji.Compile(nil, guildID), emojiCreate, &emoji, opts...)
-	if err != nil {
+	if emoji != nil {
 		emoji.GuildID = guildID
 	}
 	return
@@ -50,7 +50,7 @@ func (s *emojiImpl) CreateEmoji(guildID snowflake.ID, emojiCreate discord.EmojiC
 
 func (s *emojiImpl) UpdateEmoji(guildID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
 	err = s.client.Do(UpdateEmoji.Compile(nil, guildID, emojiID), emojiUpdate, &emoji, opts...)
-	if err != nil {
+	if emoji != nil {
 		emoji.GuildID = guildID
 	}
 	return

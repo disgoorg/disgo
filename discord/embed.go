@@ -7,12 +7,14 @@ type EmbedType string
 
 // Constants for EmbedType
 const (
-	EmbedTypeRich    EmbedType = "rich"
-	EmbedTypeImage   EmbedType = "image"
-	EmbedTypeVideo   EmbedType = "video"
-	EmbedTypeGifV    EmbedType = "rich"
-	EmbedTypeArticle EmbedType = "article"
-	EmbedTypeLink    EmbedType = "link"
+	EmbedTypeRich                  EmbedType = "rich"
+	EmbedTypeImage                 EmbedType = "image"
+	EmbedTypeVideo                 EmbedType = "video"
+	EmbedTypeGifV                  EmbedType = "gifv"
+	EmbedTypeArticle               EmbedType = "article"
+	EmbedTypeLink                  EmbedType = "link"
+	EmbedTypeAutoModerationMessage EmbedType = "auto_moderation_message"
+	EmbedTypePollResult            EmbedType = "poll_result"
 )
 
 // Embed allows you to send embeds to discord
@@ -30,6 +32,25 @@ type Embed struct {
 	Provider    *EmbedProvider `json:"provider,omitempty"`
 	Author      *EmbedAuthor   `json:"author,omitempty"`
 	Fields      []EmbedField   `json:"fields,omitempty"`
+}
+
+func (e Embed) FindField(fieldFindFunc func(field EmbedField) bool) (EmbedField, bool) {
+	for _, field := range e.Fields {
+		if fieldFindFunc(field) {
+			return field, true
+		}
+	}
+	return EmbedField{}, false
+}
+
+func (e Embed) FindAllFields(fieldFindFunc func(field EmbedField) bool) []EmbedField {
+	var fields []EmbedField
+	for _, field := range e.Fields {
+		if fieldFindFunc(field) {
+			fields = append(fields, field)
+		}
+	}
+	return fields
 }
 
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
@@ -67,3 +88,16 @@ type EmbedField struct {
 	Value  string `json:"value"`
 	Inline *bool  `json:"inline,omitempty"`
 }
+
+type EmbedFieldPollResult string
+
+const (
+	EmbedFieldPollResultQuestionText              EmbedFieldPollResult = "poll_question_text"
+	EmbedFieldPollResultVictorAnswerVotes         EmbedFieldPollResult = "victor_answer_votes"
+	EmbedFieldPollResultTotalVotes                EmbedFieldPollResult = "total_votes"
+	EmbedFieldPollResultVictorAnswerID            EmbedFieldPollResult = "victor_answer_id"
+	EmbedFieldPollResultVictorAnswerText          EmbedFieldPollResult = "victor_answer_text"
+	EmbedFieldPollResultVictorAnswerEmojiID       EmbedFieldPollResult = "victor_answer_emoji_id"
+	EmbedFieldPollResultVictorAnswerEmojiName     EmbedFieldPollResult = "victor_answer_emoji_name"
+	EmbedFieldPollResultVictorAnswerEmojiAnimated EmbedFieldPollResult = "victor_answer_emoji_animated"
+)

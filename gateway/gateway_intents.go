@@ -10,7 +10,7 @@ const (
 	IntentGuilds Intents = 1 << iota
 	IntentGuildMembers
 	IntentGuildModeration
-	IntentGuildEmojisAndStickers
+	IntentGuildExpressions
 	IntentGuildIntegrations
 	IntentGuildWebhooks
 	IntentGuildInvites
@@ -29,11 +29,15 @@ const (
 	_
 	IntentAutoModerationConfiguration
 	IntentAutoModerationExecution
+	_
+	_
+	IntentGuildMessagePolls
+	IntentDirectMessagePolls
 
 	IntentsGuild = IntentGuilds |
 		IntentGuildMembers |
 		IntentGuildModeration |
-		IntentGuildEmojisAndStickers |
+		IntentGuildExpressions |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
 		IntentGuildInvites |
@@ -42,15 +46,20 @@ const (
 		IntentGuildMessages |
 		IntentGuildMessageReactions |
 		IntentGuildMessageTyping |
-		IntentGuildScheduledEvents
+		IntentGuildScheduledEvents |
+		IntentGuildMessagePolls
 
 	IntentsDirectMessage = IntentDirectMessages |
 		IntentDirectMessageReactions |
-		IntentDirectMessageTyping
+		IntentDirectMessageTyping |
+		IntentDirectMessagePolls
+
+	IntentsMessagePolls = IntentGuildMessagePolls |
+		IntentDirectMessagePolls
 
 	IntentsNonPrivileged = IntentGuilds |
 		IntentGuildModeration |
-		IntentGuildEmojisAndStickers |
+		IntentGuildExpressions |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
 		IntentGuildInvites |
@@ -63,7 +72,9 @@ const (
 		IntentDirectMessageTyping |
 		IntentGuildScheduledEvents |
 		IntentAutoModerationConfiguration |
-		IntentAutoModerationExecution
+		IntentAutoModerationExecution |
+		IntentGuildMessagePolls |
+		IntentDirectMessagePolls
 
 	IntentsPrivileged = IntentGuildMembers |
 		IntentGuildPresences | IntentMessageContent

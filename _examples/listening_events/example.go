@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
@@ -21,9 +21,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelInfo)
-	log.Info("starting example...")
-	log.Info("disgo version: ", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithDefaultGateway(),
@@ -32,24 +31,24 @@ func main() {
 		bot.WithEventListeners(&events.ListenerAdapter{OnMessageCreate: eventListenerFunc}),
 	)
 	if err != nil {
-		log.Fatal("error while building disgo instance: ", err)
+		slog.Error("error while building disgo instance", slog.Any("err", err))
 		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error while connecting to gateway: ", err)
+		slog.Error("error while connecting to gateway", slog.Any("err", err))
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 
 func eventListenerFunc(event *events.MessageCreate) {
-	_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.MessageCreate{
+	_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.MessageCreate{
 		Content: "pong",
 	})
 }
@@ -60,7 +59,7 @@ func eventListenerChan() chan<- *events.MessageCreate {
 		defer close(c)
 		for event := range c {
 			if event.Message.Content == "ping" {
-				_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.MessageCreate{
+				_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.MessageCreate{
 					Content: "pong",
 				})
 			}

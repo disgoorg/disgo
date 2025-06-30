@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -27,7 +27,7 @@ type Activity struct {
 	ID            string              `json:"id"`
 	Name          string              `json:"name"`
 	Type          ActivityType        `json:"type"`
-	URL           *string             `json:"url"`
+	URL           *string             `json:"url,omitempty"`
 	CreatedAt     time.Time           `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
 	SyncID        *string             `json:"sync_id,omitempty"`
@@ -40,7 +40,7 @@ type Activity struct {
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
 	Instance      *bool               `json:"instance,omitempty"`
 	Flags         ActivityFlags       `json:"flags,omitempty"`
-	Buttons       []string            `json:"buttons"`
+	Buttons       []string            `json:"buttons,omitempty"`
 }
 
 func (a *Activity) UnmarshalJSON(data []byte) error {

@@ -47,8 +47,8 @@ func TestParseURL(t *testing.T) {
 				assert.Error(t, err, "URL parsing should have resulted in an error")
 				return
 			}
-			assert.Equal(t, tc.ID, c.ID(), "URL ID should match")
-			assert.Equal(t, tc.Token, c.Token(), "URL token should match")
+			assert.Equal(t, tc.ID, c.ID, "URL ID should match")
+			assert.Equal(t, tc.Token, c.Token, "URL Token should match")
 		})
 	}
 }

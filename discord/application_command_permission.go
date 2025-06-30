@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -12,7 +12,7 @@ type ApplicationCommandPermissionType int
 
 // types of ApplicationCommandPermissionType
 const (
-	ApplicationCommandPermissionTypeRole = iota + 1
+	ApplicationCommandPermissionTypeRole ApplicationCommandPermissionType = iota + 1
 	ApplicationCommandPermissionTypeUser
 	ApplicationCommandPermissionTypeChannel
 )

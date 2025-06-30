@@ -3,14 +3,13 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log/slog"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
@@ -27,9 +26,7 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelTrace)
-	log.SetFlags(log.LstdFlags | log.Llongfile)
-	log.Info("starting up")
+	slog.Info("starting up")
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuildVoiceStates)),
@@ -38,23 +35,25 @@ func main() {
 		}),
 	)
 	if err != nil {
-		log.Fatal("error creating client: ", err)
+		slog.Error("error creating client", slog.Any("err", err))
+		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error connecting to voicegateway: ", err)
+		slog.Error("error connecting to voice gateway", slog.Any("err", err))
+		return
 	}
 
-	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
+	slog.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
 }
 
-func play(client bot.Client) {
-	conn := client.VoiceManager().CreateConn(guildID)
+func play(client *bot.Client) {
+	conn := client.VoiceManager.CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -68,7 +67,7 @@ func play(client bot.Client) {
 		conn.Close(ctx2)
 	}()
 
-	println("starting playback")
+	slog.Info("starting playback")
 
 	if err := conn.SetSpeaking(ctx, voice.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
@@ -81,18 +80,18 @@ func play(client bot.Client) {
 		packet, err := conn.UDP().ReadPacket()
 		if err != nil {
 			if errors.Is(err, net.ErrClosed) {
-				println("connection closed")
+				slog.Info("connection closed")
 				return
 			}
-			fmt.Printf("error while reading from reader: %s", err)
+			slog.Info("error while reading from reader", slog.Any("err", err))
 			continue
 		}
 		if _, err = conn.UDP().Write(packet.Opus); err != nil {
 			if errors.Is(err, net.ErrClosed) {
-				println("connection closed")
+				slog.Info("connection closed")
 				return
 			}
-			fmt.Printf("error while writing to UDPConn: %s", err)
+			slog.Info("error while writing to UDPConn", slog.Any("err", err))
 			continue
 		}
 	}

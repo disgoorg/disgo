@@ -1,13 +1,14 @@
 package main
 
 import (
-	"math/rand"
+	"log/slog"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"strconv"
 
-	"github.com/disgoorg/json"
-	"github.com/disgoorg/log"
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -16,26 +17,25 @@ import (
 )
 
 var (
-	letters      = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	token        = os.Getenv("disgo_token")
 	clientSecret = os.Getenv("disgo_client_secret")
 	baseURL      = os.Getenv("disgo_base_url")
-	client       bot.Client
-	oAuth2Client oauth2.Client
+	client       *bot.Client
+	oAuth2Client *oauth2.Client
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Infof("disgo %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	var err error
 	client, err = disgo.New(token)
 	if err != nil {
-		log.Panic(err)
+		slog.Error("error creating client", slog.Any("err", err))
+		return
 	}
 
-	_, _ = client.Rest().UpdateApplicationRoleConnectionMetadata(client.ApplicationID(), []discord.ApplicationRoleConnectionMetadata{
+	_, _ = client.Rest.UpdateApplicationRoleConnectionMetadata(client.ApplicationID, []discord.ApplicationRoleConnectionMetadata{
 		{
 			Type:        discord.ApplicationRoleConnectionMetadataTypeIntegerGreaterThanOrEqual,
 			Key:         "cookies_eaten",
@@ -44,7 +44,7 @@ func main() {
 		},
 	})
 
-	oAuth2Client = oauth2.New(client.ApplicationID(), clientSecret)
+	oAuth2Client = oauth2.New(client.ApplicationID, clientSecret)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/verify", handleVerify)
@@ -53,7 +53,11 @@ func main() {
 }
 
 func handleVerify(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, oAuth2Client.GenerateAuthorizationURL(baseURL+"/callback", discord.PermissionsNone, 0, false, discord.OAuth2ScopeIdentify, discord.OAuth2ScopeRoleConnectionsWrite), http.StatusTemporaryRedirect)
+	params := oauth2.AuthorizationURLParams{
+		RedirectURI: baseURL + "/callback",
+		Scopes:      []discord.OAuth2Scope{discord.OAuth2ScopeIdentify, discord.OAuth2ScopeRoleConnectionsWrite},
+	}
+	http.Redirect(w, r, oAuth2Client.GenerateAuthorizationURL(params), http.StatusTemporaryRedirect)
 }
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {
@@ -75,11 +79,11 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = oAuth2Client.UpdateApplicationRoleConnection(session, client.ApplicationID(), discord.ApplicationRoleConnectionUpdate{
-			PlatformName:     json.Ptr("Cookie Monster " + user.Username),
-			PlatformUsername: json.Ptr("Cookie Monster " + user.Tag()),
+		_, err = oAuth2Client.UpdateApplicationRoleConnection(session, client.ApplicationID, discord.ApplicationRoleConnectionUpdate{
+			PlatformName:     omit.Ptr("Cookie Monster " + user.Username),
+			PlatformUsername: omit.Ptr("Cookie Monster " + user.Tag()),
 			Metadata: &map[string]string{
-				"cookies_eaten": strconv.Itoa(rand.Intn(100)),
+				"cookies_eaten": strconv.Itoa(rand.IntN(100)),
 			},
 		})
 		if err != nil {
@@ -87,7 +91,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		metadata, err := oAuth2Client.GetApplicationRoleConnection(session, client.ApplicationID())
+		metadata, err := oAuth2Client.GetApplicationRoleConnection(session, client.ApplicationID)
 		if err != nil {
 			writeError(w, "error while getting role connection", err)
 			return

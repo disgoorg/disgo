@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 
@@ -42,39 +42,44 @@ var (
 	}
 )
 
-func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Info("disgo version: ", disgo.Version)
+type customVerifier struct{}
 
-	// use custom ed25519 verify implementation
-	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {
-		return ed25519.Verify(publicKey, message, sig)
-	}
+func (customVerifier) Verify(publicKey httpserver.PublicKey, message, sig []byte) bool {
+	return ed25519.Verify(publicKey, message, sig)
+}
+
+func (customVerifier) SignatureSize() int {
+	return ed25519.SignatureSize
+}
+
+func main() {
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithHTTPServerConfigOpts(publicKey,
 			httpserver.WithURL("/interactions/callback"),
 			httpserver.WithAddress(":80"),
+			// use custom ed25519 verify implementation
+			httpserver.WithVerifier(customVerifier{}),
 		),
 		bot.WithEventListenerFunc(commandListener),
 	)
 	if err != nil {
-		log.Fatal("error while building disgo instance: ", err)
-		return
+		panic("error while building disgo instance: " + err.Error())
 	}
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
-		log.Fatal("error while registering commands: ", err)
+	if _, err = client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
+		panic("error while registering commands: " + err.Error())
 	}
 
 	if err = client.OpenHTTPServer(); err != nil {
-		log.Fatal("error while starting http server: ", err)
+		panic("error while starting http server: " + err.Error())
 	}
 
-	log.Info("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
@@ -88,7 +93,7 @@ func commandListener(event *events.ApplicationCommandInteractionCreate) {
 			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
 		); err != nil {
-			event.Client().Logger().Error("error on sending response: ", err)
+			event.Client().Logger.Error("error on sending response", slog.Any("err", err))
 		}
 	}
 }

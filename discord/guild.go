@@ -3,7 +3,8 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -29,6 +30,8 @@ const (
 	SystemChannelFlagSuppressPremiumSubscriptions
 	SystemChannelFlagSuppressGuildReminderNotifications
 	SystemChannelFlagSuppressJoinNotificationReplies
+	SystemChannelFlagSuppressRoleSubscriptionPurchaseNotifications
+	SystemChannelFlagSuppressRoleSubscriptionPurchaseNotificationReplies
 )
 
 // Add allows you to add multiple bits together, producing a new bit
@@ -96,30 +99,36 @@ type GuildFeature string
 
 // Constants for GuildFeature
 const (
-	GuildFeatureAnimatedBanner                GuildFeature = "ANIMATED_BANNER"
-	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
-	GuildFeatureAutoModeration                GuildFeature = "AUTO_MODERATION"
-	GuildFeatureBanner                        GuildFeature = "BANNER"
-	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
-	GuildFeatureDeveloperSupportServer        GuildFeature = "DEVELOPER_SUPPORT_SERVER"
-	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
-	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
-	GuildFeatureGuestsEnabled                 GuildFeature = "GUESTS_ENABLED"
-	GuildFeatureInvitesDisabled               GuildFeature = "INVITES_DISABLED"
-	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
-	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
-	GuildFeatureMonetizationEnabled           GuildFeature = "MONETIZATION_ENABLED"
-	GuildFeatureMoreStickers                  GuildFeature = "MORE_STICKERS"
-	GuildFeatureNews                          GuildFeature = "NEWS"
-	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
-	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
-	GuildFeatureRaidAlertsDisabled            GuildFeature = "RAID_ALERTS_DISABLED"
-	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
-	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
-	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
-	GuildFeatureVerified                      GuildFeature = "VERIFIED"
-	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
-	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
+	GuildFeatureAnimatedBanner                        GuildFeature = "ANIMATED_BANNER"
+	GuildFeatureAnimatedIcon                          GuildFeature = "ANIMATED_ICON"
+	GuildFeatureAutoModeration                        GuildFeature = "AUTO_MODERATION"
+	GuildFeatureBanner                                GuildFeature = "BANNER"
+	GuildFeatureCommunity                             GuildFeature = "COMMUNITY"
+	GuildFeatureCreatorMonetizableProvisional         GuildFeature = "CREATOR_MONETIZABLE_PROVISIONAL"
+	GuildFeatureCreatorStorePage                      GuildFeature = "CREATOR_STORE_PAGE"
+	GuildFeatureDeveloperSupportServer                GuildFeature = "DEVELOPER_SUPPORT_SERVER"
+	GuildFeatureDiscoverable                          GuildFeature = "DISCOVERABLE"
+	GuildFeatureEnhancedRoleColors                    GuildFeature = "ENHANCED_ROLE_COLORS"
+	GuildFeatureFeaturable                            GuildFeature = "FEATURABLE"
+	GuildFeatureGuestsEnabled                         GuildFeature = "GUESTS_ENABLED"
+	GuildFeatureInvitesDisabled                       GuildFeature = "INVITES_DISABLED"
+	GuildFeatureInviteSplash                          GuildFeature = "INVITE_SPLASH"
+	GuildFeatureMemberVerificationGateEnabled         GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
+	GuildFeatureMoreSoundboard                        GuildFeature = "MORE_SOUNDBOARD"
+	GuildFeatureMoreStickers                          GuildFeature = "MORE_STICKERS"
+	GuildFeatureNews                                  GuildFeature = "NEWS"
+	GuildFeaturePartnered                             GuildFeature = "PARTNERED"
+	GuildFeaturePreviewEnabled                        GuildFeature = "PREVIEW_ENABLED"
+	GuildFeatureRaidAlertsDisabled                    GuildFeature = "RAID_ALERTS_DISABLED"
+	GuildFeatureRoleIcons                             GuildFeature = "ROLE_ICONS"
+	GuildFeatureRoleSubscriptionsAvailableForPurchase GuildFeature = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
+	GuildFeatureRoleSubscriptionsEnabled              GuildFeature = "ROLE_SUBSCRIPTIONS_ENABLED"
+	GuildFeatureSoundboard                            GuildFeature = "SOUNDBOARD"
+	GuildFeatureTicketedEventsEnabled                 GuildFeature = "TICKETED_EVENTS_ENABLED"
+	GuildFeatureVanityURL                             GuildFeature = "VANITY_URL"
+	GuildFeatureVerified                              GuildFeature = "VERIFIED"
+	GuildFeatureVipRegions                            GuildFeature = "VIP_REGIONS"
+	GuildFeatureWelcomeScreenEnabled                  GuildFeature = "WELCOME_SCREEN_ENABLED"
 )
 
 // Guild represents a discord Guild
@@ -160,6 +169,7 @@ type Guild struct {
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
 	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
+	IncidentsData               *GuildIncidentsData        `json:"incidents_data"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -220,6 +230,7 @@ type GatewayGuild struct {
 	Presences            []Presence            `json:"presences"`
 	StageInstances       []StageInstance       `json:"stage_instances"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
+	SoundboardSounds     []SoundboardSound     `json:"soundboard_sounds"`
 }
 
 func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
@@ -249,12 +260,31 @@ type UnavailableGuild struct {
 
 // OAuth2Guild is returned on the GetGuilds route
 type OAuth2Guild struct {
-	ID          snowflake.ID   `json:"id"`
-	Name        string         `json:"name"`
-	Icon        *string        `json:"icon"`
-	Owner       bool           `json:"owner"`
-	Permissions Permissions    `json:"permissions"`
-	Features    []GuildFeature `json:"features"`
+	ID                       snowflake.ID   `json:"id"`
+	Name                     string         `json:"name"`
+	Icon                     *string        `json:"icon"`
+	Banner                   *string        `json:"banner"`
+	Owner                    bool           `json:"owner"`
+	Permissions              Permissions    `json:"permissions"`
+	Features                 []GuildFeature `json:"features"`
+	ApproximateMemberCount   int            `json:"approximate_member_count"`
+	ApproximatePresenceCount int            `json:"approximate_presence_count"`
+}
+
+func (g OAuth2Guild) IconURL(opts ...CDNOpt) *string {
+	if g.Icon == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildIcon, opts, g.ID, *g.Icon)
+	return &url
+}
+
+func (g OAuth2Guild) BannerURL(opts ...CDNOpt) *string {
+	if g.Banner == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildBanner, opts, g.ID, *g.Banner)
+	return &url
 }
 
 // GuildWelcomeScreen is the Welcome Screen of a Guild
@@ -293,43 +323,55 @@ type GuildPreview struct {
 	Stickers                 []Sticker      `json:"stickers"`
 }
 
+type GuildIncidentsData struct {
+	InvitesDisabledUntil *time.Time `json:"invites_disabled_until"`
+	DMsDisabledUntil     *time.Time `json:"dms_disabled_until"`
+	DMSpamDetectedAt     *time.Time `json:"dm_spam_detected_at"`
+	RaidDetectedAt       *time.Time `json:"raid_detected_at"`
+}
+
+type GuildIncidentActionsUpdate struct {
+	InvitesDisabledUntil omit.Omit[*time.Time] `json:"invites_disabled_until,omitzero"`
+	DMsDisabledUntil     omit.Omit[*time.Time] `json:"dms_disabled_until,omitzero"`
+}
+
 // GuildCreate is the payload used to create a Guild
 type GuildCreate struct {
-	Name                            string                     `json:"name"`
-	Icon                            *Icon                      `json:"icon,omitempty"`
-	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel MessageNotificationsLevel  `json:"default_message_notification_level,omitempty"`
-	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
-	Roles                           []GuildCreateRole          `json:"roles,omitempty"`
-	Channels                        []GuildCreateChannel       `json:"channels,omitempty"`
-	AFKChannelID                    snowflake.ID               `json:"afk_channel_id,omitempty"`
-	AFKTimeout                      int                        `json:"afk_timeout,omitempty"`
-	SystemChannelID                 snowflake.ID               `json:"system_channel_id,omitempty"`
-	SystemChannelFlags              SystemChannelFlags         `json:"system_channel_flags,omitempty"`
+	Name                        string                     `json:"name"`
+	Icon                        *Icon                      `json:"icon,omitempty"`
+	VerificationLevel           VerificationLevel          `json:"verification_level,omitempty"`
+	DefaultMessageNotifications MessageNotificationsLevel  `json:"default_message_notifications,omitempty"`
+	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
+	Roles                       []GuildCreateRole          `json:"roles,omitempty"`
+	Channels                    []GuildCreateChannel       `json:"channels,omitempty"`
+	AFKChannelID                snowflake.ID               `json:"afk_channel_id,omitempty"`
+	AFKTimeout                  int                        `json:"afk_timeout,omitempty"`
+	SystemChannelID             snowflake.ID               `json:"system_channel_id,omitempty"`
+	SystemChannelFlags          SystemChannelFlags         `json:"system_channel_flags,omitempty"`
 }
 
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
-	Name                            *string                                    `json:"name,omitempty"`
-	VerificationLevel               *json.Nullable[VerificationLevel]          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel *json.Nullable[MessageNotificationsLevel]  `json:"default_message_notification_level,omitempty"`
-	ExplicitContentFilterLevel      *json.Nullable[ExplicitContentFilterLevel] `json:"explicit_content_filter_level,omitempty"`
-	AFKChannelID                    *snowflake.ID                              `json:"afk_channel_id,omitempty"`
-	AFKTimeout                      *int                                       `json:"afk_timeout,omitempty"`
-	Icon                            *json.Nullable[Icon]                       `json:"icon,omitempty"`
-	OwnerID                         *snowflake.ID                              `json:"owner_id,omitempty"`
-	Splash                          *json.Nullable[Icon]                       `json:"splash,omitempty"`
-	DiscoverySplash                 *json.Nullable[Icon]                       `json:"discovery_splash,omitempty"`
-	Banner                          *json.Nullable[Icon]                       `json:"banner,omitempty"`
-	SystemChannelID                 *snowflake.ID                              `json:"system_channel_id,omitempty"`
-	SystemChannelFlags              *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
-	RulesChannelID                  *snowflake.ID                              `json:"rules_channel_id,omitempty"`
-	PublicUpdatesChannelID          *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
-	SafetyAlertsChannelID           *snowflake.ID                              `json:"safety_alerts_channel_id,omitempty"`
-	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
-	Features                        *[]GuildFeature                            `json:"features,omitempty"`
-	Description                     *string                                    `json:"description,omitempty"`
-	PremiumProgressBarEnabled       *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
+	Name                        *string                                `json:"name,omitempty"`
+	VerificationLevel           omit.Omit[*VerificationLevel]          `json:"verification_level,omitzero"`
+	DefaultMessageNotifications omit.Omit[*MessageNotificationsLevel]  `json:"default_message_notification,omitzero"`
+	ExplicitContentFilter       omit.Omit[*ExplicitContentFilterLevel] `json:"explicit_content_filter,omitzero"`
+	AFKChannelID                *snowflake.ID                          `json:"afk_channel_id,omitempty"`
+	AFKTimeout                  *int                                   `json:"afk_timeout,omitempty"`
+	Icon                        omit.Omit[*Icon]                       `json:"icon,omitzero"`
+	OwnerID                     *snowflake.ID                          `json:"owner_id,omitempty"`
+	Splash                      omit.Omit[*Icon]                       `json:"splash,omitzero"`
+	DiscoverySplash             omit.Omit[*Icon]                       `json:"discovery_splash,omitzero"`
+	Banner                      omit.Omit[*Icon]                       `json:"banner,omitzero"`
+	SystemChannelID             *snowflake.ID                          `json:"system_channel_id,omitempty"`
+	SystemChannelFlags          *SystemChannelFlags                    `json:"system_channel_flags,omitempty"`
+	RulesChannelID              *snowflake.ID                          `json:"rules_channel_id,omitempty"`
+	PublicUpdatesChannelID      *snowflake.ID                          `json:"public_updates_channel_id,omitempty"`
+	SafetyAlertsChannelID       *snowflake.ID                          `json:"safety_alerts_channel_id,omitempty"`
+	PreferredLocale             *string                                `json:"preferred_locale,omitempty"`
+	Features                    *[]GuildFeature                        `json:"features,omitempty"`
+	Description                 *string                                `json:"description,omitempty"`
+	PremiumProgressBarEnabled   *bool                                  `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int
@@ -360,4 +402,9 @@ type GuildPrune struct {
 
 type GuildPruneResult struct {
 	Pruned *int `json:"pruned"`
+}
+
+type GuildActiveThreads struct {
+	Threads []GuildThread  `json:"threads"`
+	Members []ThreadMember `json:"members"`
 }

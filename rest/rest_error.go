@@ -1,10 +1,11 @@
 package rest
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 )
 
 // JSONErrorCode is the error code returned by the Discord API.
@@ -40,8 +41,8 @@ func NewError(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte)
 
 // Is returns true if the error is a *Error with the same status code as the target error
 func (e Error) Is(target error) bool {
-	err, ok := target.(*Error)
-	if !ok {
+	var err *Error
+	if ok := errors.As(target, &err); !ok {
 		return false
 	}
 	if e.Code != 0 && err.Code != 0 {

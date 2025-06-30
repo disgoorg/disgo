@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"log/slog"
 	"runtime/debug"
 	"sync"
 
@@ -11,17 +12,21 @@ import (
 var _ EventManager = (*eventManagerImpl)(nil)
 
 // NewEventManager returns a new EventManager with the EventManagerConfigOpt(s) applied.
-func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager {
-	config := DefaultEventManagerConfig()
-	config.Apply(opts)
+func NewEventManager(client *Client, opts ...EventManagerConfigOpt) EventManager {
+	cfg := defaultEventManagerConfig()
+	cfg.apply(opts)
 
 	return &eventManagerImpl{
-		client: client,
-		config: *config,
+		client:             client,
+		logger:             cfg.Logger,
+		eventListeners:     cfg.EventListeners,
+		asyncEventsEnabled: cfg.AsyncEventsEnabled,
+		gatewayHandlers:    cfg.GatewayHandlers,
+		httpServerHandler:  cfg.HTTPServerHandler,
 	}
 }
 
-// EventManager lets you listen for specific events triggered by raw gateway events
+// EventManager lets you listen for specific events triggered by raw Gateway events
 type EventManager interface {
 	// AddEventListeners adds one or more EventListener(s) to the EventManager
 	AddEventListeners(eventListeners ...EventListener)
@@ -76,31 +81,31 @@ func (l *listenerChan[E]) OnEvent(e Event) {
 
 // Event the basic interface each event implement
 type Event interface {
-	Client() Client
+	Client() *Client
 	SequenceNumber() int
 }
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
 	EventType() gateway.EventType
-	HandleGatewayEvent(client Client, sequenceNumber int, shardID int, event gateway.EventData)
+	HandleGatewayEvent(client *Client, sequenceNumber int, shardID int, event gateway.EventData)
 }
 
 // NewGatewayEventHandler returns a new GatewayEventHandler for the given GatewayEventType and handler func
-func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
+func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client *Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
 	return &genericGatewayEventHandler[T]{eventType: eventType, handleFunc: handleFunc}
 }
 
 type genericGatewayEventHandler[T gateway.EventData] struct {
 	eventType  gateway.EventType
-	handleFunc func(client Client, sequenceNumber int, shardID int, event T)
+	handleFunc func(client *Client, sequenceNumber int, shardID int, event T)
 }
 
 func (h *genericGatewayEventHandler[T]) EventType() gateway.EventType {
 	return h.eventType
 }
 
-func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequenceNumber int, shardID int, event gateway.EventData) {
+func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client *Client, sequenceNumber int, shardID int, event gateway.EventData) {
 	if e, ok := event.(T); ok {
 		h.handleFunc(client, sequenceNumber, shardID, e)
 	}
@@ -108,72 +113,76 @@ func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequen
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
-	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
+	HandleHTTPEvent(client *Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 }
 
 type eventManagerImpl struct {
-	client          Client
-	eventListenerMu sync.Mutex
-	config          EventManagerConfig
-
 	mu sync.Mutex
+
+	client             *Client
+	logger             *slog.Logger
+	eventListenerMu    sync.Mutex
+	eventListeners     []EventListener
+	asyncEventsEnabled bool
+	gatewayHandlers    map[gateway.EventType]GatewayEventHandler
+	httpServerHandler  HTTPServerEventHandler
 }
 
 func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
+	if handler, ok := e.gatewayHandlers[gatewayEventType]; ok {
 		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
 	} else {
-		e.config.Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
+		e.logger.Warn("no handler for Gateway event found", slog.Any("event_type", gatewayEventType))
 	}
 }
 
 func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
+	e.httpServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
 }
 
 func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
 			return
 		}
 	}()
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
-	for i := range e.config.EventListeners {
-		if e.config.AsyncEventsEnabled {
-			go func(i int) {
+	for _, listener := range e.eventListeners {
+		if e.asyncEventsEnabled {
+			go func() {
 				defer func() {
 					if r := recover(); r != nil {
-						e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
 						return
 					}
 				}()
-				e.config.EventListeners[i].OnEvent(event)
-			}(i)
+				listener.OnEvent(event)
+			}()
 			continue
 		}
-		e.config.EventListeners[i].OnEvent(event)
+		listener.OnEvent(event)
 	}
 }
 
 func (e *eventManagerImpl) AddEventListeners(listeners ...EventListener) {
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
-	e.config.EventListeners = append(e.config.EventListeners, listeners...)
+	e.eventListeners = append(e.eventListeners, listeners...)
 }
 
 func (e *eventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
 	for _, listener := range listeners {
-		for i, l := range e.config.EventListeners {
+		for i, l := range e.eventListeners {
 			if l == listener {
-				e.config.EventListeners = append(e.config.EventListeners[:i], e.config.EventListeners[i+1:]...)
+				e.eventListeners = append(e.eventListeners[:i], e.eventListeners[i+1:]...)
 				break
 			}
 		}

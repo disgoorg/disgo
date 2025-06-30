@@ -20,7 +20,7 @@ type InteractionCreate struct {
 // This only returns cached guilds.
 func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
@@ -37,9 +37,28 @@ type ApplicationCommandInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
+}
+
+// Acknowledge acknowledges the interaction.
+//
+// This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
+//
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
+//
+// This does not produce a visible loading state to the user.
+// You are expected to send a new http request within 3 seconds to respond to the interaction.
+// This allows you to gracefully handle errors with your sent response & access the resulting message.
+//
+// If you want to create a visible loading state, use DeferCreateMessage.
+//
+// Source docs: [Discord Source docs]
+//
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+func (e *ApplicationCommandInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -56,9 +75,14 @@ func (e *ApplicationCommandInteractionCreate) DeferCreateMessage(ephemeral bool,
 	return e.Respond(discord.InteractionResponseTypeDeferredCreateMessage, data, opts...)
 }
 
-// CreateModal responds to the interaction with a new modal.
-func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// Modal responds to the interaction with a new modal.
+func (e *ApplicationCommandInteractionCreate) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
+}
+
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *ApplicationCommandInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
 }
 
 // ComponentInteractionCreate indicates that a new component interaction has been created.
@@ -73,9 +97,28 @@ type ComponentInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
+}
+
+// Acknowledge acknowledges the interaction.
+//
+// This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
+//
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
+//
+// This does not produce a visible loading state to the user.
+// You are expected to send a new http request within 3 seconds to respond to the interaction.
+// This allows you to gracefully handle errors with your sent response & access the resulting message.
+//
+// If you want to create a visible loading state, use DeferCreateMessage.
+//
+// Source docs: [Discord Source docs]
+//
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+func (e *ComponentInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -102,9 +145,14 @@ func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt)
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
-// CreateModal responds to the interaction with a new modal.
-func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// Modal responds to the interaction with a new modal.
+func (e *ComponentInteractionCreate) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
+}
+
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *ComponentInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
 }
 
 // AutocompleteInteractionCreate indicates that a new autocomplete interaction has been created.
@@ -119,14 +167,33 @@ type AutocompleteInteractionCreate struct {
 // This only returns cached guilds.
 func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-// Result responds to the interaction with a slice of choices.
-func (e *AutocompleteInteractionCreate) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
+// Acknowledge acknowledges the interaction.
+//
+// This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
+//
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
+//
+// This does not produce a visible loading state to the user.
+// You are expected to send a new http request within 3 seconds to respond to the interaction.
+// This allows you to gracefully handle errors with your sent response & access the resulting message.
+//
+// If you want to create a visible loading state, use DeferCreateMessage.
+//
+// Source docs: [Discord Source docs]
+//
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+func (e *AutocompleteInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
+}
+
+// AutocompleteResult responds to the interaction with a slice of choices.
+func (e *AutocompleteInteractionCreate) AutocompleteResult(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
 }
 
 // ModalSubmitInteractionCreate indicates that a new modal submit interaction has been created.
@@ -141,9 +208,28 @@ type ModalSubmitInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guild(*e.GuildID())
+		return e.Client().Caches.Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
+}
+
+// Acknowledge acknowledges the interaction.
+//
+// This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
+//
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
+//
+// This does not produce a visible loading state to the user.
+// You are expected to send a new http request within 3 seconds to respond to the interaction.
+// This allows you to gracefully handle errors with your sent response & access the resulting message.
+//
+// If you want to create a visible loading state, use DeferCreateMessage.
+//
+// Source docs: [Discord Source docs]
+//
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+func (e *ModalSubmitInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -168,4 +254,9 @@ func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.Messa
 // DeferUpdateMessage responds to the interaction with nothing.
 func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
+}
+
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *ModalSubmitInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
 }

@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -59,11 +60,11 @@ type (
 
 // NewConn returns a new default voice conn.
 func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
-	config := DefaultConnConfig()
-	config.Apply(opts)
+	cfg := defaultConnConfig()
+	cfg.apply(opts)
 
 	conn := &connImpl{
-		config:               *config,
+		config:               cfg,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		removeConnFunc:       removeConnFunc,
 		state: State{
@@ -75,14 +76,14 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
-	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(config.Logger)}, config.GatewayConfigOpts...)...)
-	conn.udp = config.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(config.Logger)}, config.UDPConnConfigOpts...)...)
+	conn.gateway = cfg.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(cfg.Logger)}, cfg.GatewayConfigOpts...)...)
+	conn.udp = cfg.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(cfg.Logger)}, cfg.UDPConnConfigOpts...)...)
 
 	return conn
 }
 
 type connImpl struct {
-	config               ConnConfig
+	config               connConfig
 	voiceStateUpdateFunc StateUpdateFunc
 	removeConnFunc       func()
 
@@ -188,7 +189,7 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := c.gateway.Open(ctx, c.state); err != nil {
-			c.config.Logger.Error("error opening voice gateway. error: ", err)
+			c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
 		}
 	}()
 }
@@ -200,18 +201,18 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 		defer cancel()
 		ourAddress, ourPort, err := c.udp.Open(ctx, d.IP, d.Port, d.SSRC)
 		if err != nil {
-			c.config.Logger.Error("voice: failed to open voiceudp conn. error: ", err)
+			c.config.Logger.Error("voice: failed to open voiceudp conn", slog.Any("err", err))
 			break
 		}
 		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
-			Protocol: VoiceProtocolUDP,
+			Protocol: ProtocolUDP,
 			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
 				Port:    ourPort,
 				Mode:    EncryptionModeNormal,
 			},
 		}); err != nil {
-			c.config.Logger.Error("voice: failed to send select protocol. error: ", err)
+			c.config.Logger.Error("voice: failed to send select protocol", slog.Any("err", err))
 		}
 
 	case GatewayMessageDataSessionDescription:
@@ -241,7 +242,7 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 	}
 }
 
-func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
+func (c *connImpl) handleGatewayClose(_ Gateway, _ error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	c.Close(ctx)

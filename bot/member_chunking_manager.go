@@ -2,9 +2,10 @@ package bot
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 	"sync"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -14,14 +15,19 @@ import (
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
+// ErrNoUserIDs is returned when no user IDs are provided to request members.
+var ErrNoUserIDs = errors.New("no user ids to request")
+
 // NewMemberChunkingManager returns a new MemberChunkingManager with the given MemberChunkingFilter.
-func NewMemberChunkingManager(client Client, logger log.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
+func NewMemberChunkingManager(client *Client, logger *slog.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
 	if memberChunkingFilter == nil {
 		memberChunkingFilter = MemberChunkingFilterNone
 	}
 	if logger == nil {
-		logger = log.Default()
+		logger = slog.Default()
 	}
+	logger = logger.With(slog.String("name", "bot_member_chunking_manager"))
+
 	return &memberChunkingManagerImpl{
 		client:               client,
 		logger:               logger,
@@ -30,40 +36,38 @@ func NewMemberChunkingManager(client Client, logger log.Logger, memberChunkingFi
 	}
 }
 
-// MemberChunkingManager is used to request members for guilds from the discord gateway.
+// MemberChunkingManager is used to request members for guilds from the discord Gateway.
 type MemberChunkingManager interface {
 	// MemberChunkingFilter returns the configured MemberChunkingFilter used by this MemberChunkingManager.
 	MemberChunkingFilter() MemberChunkingFilter
 
-	// HandleChunk handles the discord.EventGuildMembersChunk event payloads from the discord gateway.
+	// HandleChunk handles the discord.EventGuildMembersChunk event payloads from the discord Gateway.
 	HandleChunk(payload gateway.EventGuildMembersChunk)
 
 	// RequestMembers requests members from the given guildID and userIDs.
 	// Notice: This action requires the gateway.IntentGuildMembers.
-	RequestMembers(guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
+	RequestMembers(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
+	// RequestAllMembers requests all members from the given guildID.
+	// Notice: This action requires the gateway.IntentGuildMembers.
+	RequestAllMembers(ctx context.Context, guildID snowflake.ID) ([]discord.Member, error)
 	// RequestMembersWithQuery requests members from the given guildID and query.
 	// query : string the username starts with
 	// Notice: This action requires the gateway.IntentGuildMembers.
-	RequestMembersWithQuery(guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
+	RequestMembersWithQuery(ctx context.Context, guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
 	// RequestMembersWithFilter requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
 	// Notice: This action requires the gateway.IntentGuildMembers.
-	RequestMembersWithFilter(guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error)
-
-	// RequestMembersCtx requests members from the given guildID and userIDs.
-	// Notice: This action requires the gateway.IntentGuildMembers.
-	RequestMembersCtx(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
-	// RequestMembersWithQueryCtx requests members from the given guildID and query.
-	// Notice: This action requires the gateway.IntentGuildMembers.
-	RequestMembersWithQueryCtx(ctx context.Context, guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
-	// RequestMembersWithFilterCtx requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
-	// Notice: This action requires the gateway.IntentGuildMembers.
-	RequestMembersWithFilterCtx(ctx context.Context, guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error)
+	RequestMembersWithFilter(ctx context.Context, guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error)
 
 	// RequestMembersChan requests members from the given guildID and userIDs.
 	// Returns a channel which will receive the members.
 	// Returns a function which can be used to cancel the request and close the channel.
 	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersChan(guildID snowflake.ID, userIDs ...snowflake.ID) (<-chan discord.Member, func(), error)
+	// RequestAllMembersChan requests all members from the given guildID.
+	// Returns a channel which will receive the members.
+	// Returns a function which can be used to cancel the request and close the channel.
+	// Notice: This action requires the gateway.IntentGuildMembers.
+	RequestAllMembersChan(guildID snowflake.ID) (<-chan discord.Member, func(), error)
 	// RequestMembersWithQueryChan requests members from the given guildID and query.
 	// Returns a channel which will receive the members.
 	// Returns a function which can be used to cancel the request and close the channel.
@@ -87,8 +91,8 @@ type chunkingRequest struct {
 }
 
 type memberChunkingManagerImpl struct {
-	client               Client
-	logger               log.Logger
+	client               *Client
+	logger               *slog.Logger
 	memberChunkingFilter MemberChunkingFilter
 
 	chunkingRequestsMu sync.RWMutex
@@ -104,7 +108,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
 	if !ok {
-		m.logger.Debug("received unknown member chunk event: ", payload)
+		m.logger.Debug("received unknown member chunk event", slog.Any("payload", payload))
 		return
 	}
 
@@ -113,7 +117,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 
 	for _, member := range payload.Members {
 		// try to cache member
-		m.client.Caches().AddMember(member)
+		m.client.Caches.AddMember(member)
 		if request.memberFilterFunc != nil && !request.memberFilterFunc(member) {
 			continue
 		}
@@ -200,40 +204,33 @@ func (m *memberChunkingManagerImpl) requestGuildMembers(ctx context.Context, gui
 	}
 }
 
-func (m *memberChunkingManagerImpl) RequestMembers(guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error) {
-	return m.RequestMembersCtx(context.Background(), guildID, userIDs...)
-}
-func (m *memberChunkingManagerImpl) RequestMembersWithQuery(guildID snowflake.ID, query string, limit int) ([]discord.Member, error) {
-	return m.RequestMembersWithQueryCtx(context.Background(), guildID, query, limit)
-}
-func (m *memberChunkingManagerImpl) RequestAllMembers(guildID snowflake.ID) ([]discord.Member, error) {
-	return m.RequestAllMembersCtx(context.Background(), guildID)
-}
-func (m *memberChunkingManagerImpl) RequestMembersWithFilter(guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error) {
-	return m.RequestMembersWithFilterCtx(context.Background(), guildID, memberFilterFunc)
-}
-
-func (m *memberChunkingManagerImpl) RequestMembersCtx(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error) {
+func (m *memberChunkingManagerImpl) RequestMembers(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error) {
+	if len(userIDs) == 0 {
+		return nil, ErrNoUserIDs
+	}
 	return m.requestGuildMembers(ctx, guildID, nil, nil, userIDs, nil)
 }
 
-func (m *memberChunkingManagerImpl) RequestMembersWithQueryCtx(ctx context.Context, guildID snowflake.ID, query string, limit int) ([]discord.Member, error) {
+func (m *memberChunkingManagerImpl) RequestMembersWithQuery(ctx context.Context, guildID snowflake.ID, query string, limit int) ([]discord.Member, error) {
 	return m.requestGuildMembers(ctx, guildID, &query, &limit, nil, nil)
 }
 
-func (m *memberChunkingManagerImpl) RequestAllMembersCtx(ctx context.Context, guildID snowflake.ID) ([]discord.Member, error) {
+func (m *memberChunkingManagerImpl) RequestAllMembers(ctx context.Context, guildID snowflake.ID) ([]discord.Member, error) {
 	query := ""
 	limit := 0
 	return m.requestGuildMembers(ctx, guildID, &query, &limit, nil, nil)
 }
 
-func (m *memberChunkingManagerImpl) RequestMembersWithFilterCtx(ctx context.Context, guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error) {
+func (m *memberChunkingManagerImpl) RequestMembersWithFilter(ctx context.Context, guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error) {
 	query := ""
 	limit := 0
 	return m.requestGuildMembers(ctx, guildID, &query, &limit, nil, memberFilterFunc)
 }
 
 func (m *memberChunkingManagerImpl) RequestMembersChan(guildID snowflake.ID, userIDs ...snowflake.ID) (<-chan discord.Member, func(), error) {
+	if len(userIDs) == 0 {
+		return nil, nil, ErrNoUserIDs
+	}
 	return m.requestGuildMembersChan(context.Background(), guildID, nil, nil, userIDs, nil)
 }
 

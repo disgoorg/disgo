@@ -1,8 +1,9 @@
 package cache
 
 import (
+	"slices"
+
 	"github.com/disgoorg/snowflake/v2"
-	"golang.org/x/exp/slices"
 
 	"github.com/disgoorg/disgo/discord"
 )

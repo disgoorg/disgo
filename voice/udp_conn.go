@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net"
 	"strconv"
 	"strings"
@@ -15,8 +16,13 @@ import (
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-// OpusPacketHeaderSize is the size of the opus packet header.
-const OpusPacketHeaderSize = 12
+const (
+	// OpusPacketHeaderSize is the size of the opus packet header.
+	OpusPacketHeaderSize = 12
+
+	// UDPTimeout is the timeout for UDP connections.
+	UDPTimeout = 30 * time.Second
+)
 
 // ErrDecryptionFailed is returned when the packet decryption fails.
 var ErrDecryptionFailed = errors.New("decryption failed")
@@ -84,17 +90,17 @@ type (
 
 // NewUDPConn creates a new voice UDPConn with the given configuration.
 func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
-	config := DefaultUDPConnConfig()
-	config.Apply(opts)
+	cfg := defaultUDPConnConfig()
+	cfg.apply(opts)
 
 	return &udpConnImpl{
-		config:        config,
+		config:        cfg,
 		receiveBuffer: make([]byte, 1400),
 	}
 }
 
 type udpConnImpl struct {
-	config UDPConnConfig
+	config udpConnConfig
 
 	conn   net.Conn
 	connMu sync.Mutex
@@ -148,7 +154,7 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	host := net.JoinHostPort(ip, strconv.Itoa(port))
-	u.config.Logger.Debugf("Opening UDPConn connection to: %s\n", host)
+	u.config.Logger.Debug("Opening UDPConn connection", slog.String("host", host))
 	var err error
 	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", host)
 	if err != nil {

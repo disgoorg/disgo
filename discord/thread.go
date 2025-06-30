@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/json"
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -11,7 +11,7 @@ type ThreadCreateFromMessage struct {
 	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
 }
 
-type ForumThreadCreate struct {
+type ThreadChannelPostCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
@@ -19,7 +19,7 @@ type ForumThreadCreate struct {
 	AppliedTags         []snowflake.ID      `json:"applied_tags,omitempty"`
 }
 
-func (c ForumThreadCreate) ToBody() (any, error) {
+func (c ThreadChannelPostCreate) ToBody() (any, error) {
 	if len(c.Message.Files) > 0 {
 		c.Message.Attachments = parseAttachments(c.Message.Files)
 		return PayloadWithFiles(c, c.Message.Files...)
@@ -27,7 +27,7 @@ func (c ForumThreadCreate) ToBody() (any, error) {
 	return c, nil
 }
 
-type ForumThread struct {
+type ThreadChannelPost struct {
 	GuildThread
 	Message Message `json:"message"`
 }
@@ -80,7 +80,7 @@ func (GuildPublicThreadCreate) Type() ChannelType {
 type GuildPrivateThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
-	Invitable           bool                `json:"invitable,omitempty"`
+	Invitable           *bool               `json:"invitable,omitempty"`
 }
 
 func (c GuildPrivateThreadCreate) MarshalJSON() ([]byte, error) {

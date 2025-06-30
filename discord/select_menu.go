@@ -1,10 +1,20 @@
 package discord
 
-import "github.com/disgoorg/json"
+import (
+	"github.com/disgoorg/json/v2"
+	"github.com/disgoorg/snowflake/v2"
+)
 
+// SelectMenuComponent is an interface for all components that are select menus.
+// [StringSelectMenuComponent]
+// [UserSelectMenuComponent]
+// [RoleSelectMenuComponent]
+// [MentionableSelectMenuComponent]
+// [ChannelSelectMenuComponent]
+// [UnknownComponent]
 type SelectMenuComponent interface {
 	InteractiveComponent
-	selectMenu()
+	selectMenuComponent()
 }
 
 var (
@@ -23,6 +33,7 @@ func NewStringSelectMenu(customID string, placeholder string, options ...StringS
 }
 
 type StringSelectMenuComponent struct {
+	ID          int                      `json:"id,omitempty"`
 	CustomID    string                   `json:"custom_id"`
 	Placeholder string                   `json:"placeholder,omitempty"`
 	MinValues   *int                     `json:"min_values,omitempty"`
@@ -46,13 +57,17 @@ func (StringSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeStringSelectMenu
 }
 
-func (c StringSelectMenuComponent) ID() string {
+func (c StringSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c StringSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (StringSelectMenuComponent) component()            {}
 func (StringSelectMenuComponent) interactiveComponent() {}
-func (StringSelectMenuComponent) selectMenu()           {}
+func (StringSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new StringSelectMenuComponent with the provided customID
 func (c StringSelectMenuComponent) WithCustomID(customID string) StringSelectMenuComponent {
@@ -127,6 +142,11 @@ func (c StringSelectMenuComponent) RemoveOption(index int) StringSelectMenuCompo
 	return c
 }
 
+func (c StringSelectMenuComponent) WithID(i int) InteractiveComponent {
+	c.ID = i
+	return c
+}
+
 // NewStringSelectMenuOption builds a new StringSelectMenuOption
 func NewStringSelectMenuOption(label string, value string) StringSelectMenuOption {
 	return StringSelectMenuOption{
@@ -137,6 +157,7 @@ func NewStringSelectMenuOption(label string, value string) StringSelectMenuOptio
 
 // StringSelectMenuOption represents an option in a StringSelectMenuComponent
 type StringSelectMenuOption struct {
+	ID          int             `json:"id,omitempty"`
 	Label       string          `json:"label"`
 	Value       string          `json:"value"`
 	Description string          `json:"description,omitempty"`
@@ -189,11 +210,13 @@ func NewUserSelectMenu(customID string, placeholder string) UserSelectMenuCompon
 }
 
 type UserSelectMenuComponent struct {
-	CustomID    string `json:"custom_id"`
-	Placeholder string `json:"placeholder,omitempty"`
-	MinValues   *int   `json:"min_values,omitempty"`
-	MaxValues   int    `json:"max_values,omitempty"`
-	Disabled    bool   `json:"disabled,omitempty"`
+	ID            int                      `json:"id,omitempty"`
+	CustomID      string                   `json:"custom_id"`
+	Placeholder   string                   `json:"placeholder,omitempty"`
+	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
+	MinValues     *int                     `json:"min_values,omitempty"`
+	MaxValues     int                      `json:"max_values,omitempty"`
+	Disabled      bool                     `json:"disabled,omitempty"`
 }
 
 func (c UserSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -211,13 +234,17 @@ func (UserSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeUserSelectMenu
 }
 
-func (c UserSelectMenuComponent) ID() string {
+func (c UserSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c UserSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (UserSelectMenuComponent) component()            {}
 func (UserSelectMenuComponent) interactiveComponent() {}
-func (UserSelectMenuComponent) selectMenu()           {}
+func (UserSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new UserSelectMenuComponent with the provided customID
 func (c UserSelectMenuComponent) WithCustomID(customID string) UserSelectMenuComponent {
@@ -261,6 +288,30 @@ func (c UserSelectMenuComponent) WithDisabled(disabled bool) UserSelectMenuCompo
 	return c
 }
 
+// SetDefaultValues returns a new UserSelectMenuComponent with the provided default values
+func (c UserSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) UserSelectMenuComponent {
+	values := make([]SelectMenuDefaultValue, 0, len(defaultValues))
+	for _, value := range defaultValues {
+		values = append(values, NewSelectMenuDefaultUser(value))
+	}
+	c.DefaultValues = values
+	return c
+}
+
+// AddDefaultValue returns a new UserSelectMenuComponent with the provided default value added
+func (c UserSelectMenuComponent) AddDefaultValue(defaultValue snowflake.ID) UserSelectMenuComponent {
+	c.DefaultValues = append(c.DefaultValues, NewSelectMenuDefaultUser(defaultValue))
+	return c
+}
+
+// RemoveDefaultValue returns a new UserSelectMenuComponent with the provided default value at the index removed
+func (c UserSelectMenuComponent) RemoveDefaultValue(index int) UserSelectMenuComponent {
+	if len(c.DefaultValues) > index {
+		c.DefaultValues = append(c.DefaultValues[:index], c.DefaultValues[index+1:]...)
+	}
+	return c
+}
+
 var (
 	_ Component            = (*UserSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*UserSelectMenuComponent)(nil)
@@ -276,11 +327,13 @@ func NewRoleSelectMenu(customID string, placeholder string) RoleSelectMenuCompon
 }
 
 type RoleSelectMenuComponent struct {
-	CustomID    string `json:"custom_id"`
-	Placeholder string `json:"placeholder,omitempty"`
-	MinValues   *int   `json:"min_values,omitempty"`
-	MaxValues   int    `json:"max_values,omitempty"`
-	Disabled    bool   `json:"disabled,omitempty"`
+	ID            int                      `json:"id,omitempty"`
+	CustomID      string                   `json:"custom_id"`
+	Placeholder   string                   `json:"placeholder,omitempty"`
+	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
+	MinValues     *int                     `json:"min_values,omitempty"`
+	MaxValues     int                      `json:"max_values,omitempty"`
+	Disabled      bool                     `json:"disabled,omitempty"`
 }
 
 func (c RoleSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -298,13 +351,17 @@ func (RoleSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeRoleSelectMenu
 }
 
-func (c RoleSelectMenuComponent) ID() string {
+func (c RoleSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c RoleSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (RoleSelectMenuComponent) component()            {}
 func (RoleSelectMenuComponent) interactiveComponent() {}
-func (RoleSelectMenuComponent) selectMenu()           {}
+func (RoleSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new RoleSelectMenuComponent with the provided customID
 func (c RoleSelectMenuComponent) WithCustomID(customID string) RoleSelectMenuComponent {
@@ -348,6 +405,30 @@ func (c RoleSelectMenuComponent) WithDisabled(disabled bool) RoleSelectMenuCompo
 	return c
 }
 
+// SetDefaultValues returns a new RoleSelectMenuComponent with the provided default values
+func (c RoleSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) RoleSelectMenuComponent {
+	values := make([]SelectMenuDefaultValue, 0, len(defaultValues))
+	for _, value := range defaultValues {
+		values = append(values, NewSelectMenuDefaultRole(value))
+	}
+	c.DefaultValues = values
+	return c
+}
+
+// AddDefaultValue returns a new RoleSelectMenuComponent with the provided default value added
+func (c RoleSelectMenuComponent) AddDefaultValue(defaultValue snowflake.ID) RoleSelectMenuComponent {
+	c.DefaultValues = append(c.DefaultValues, NewSelectMenuDefaultRole(defaultValue))
+	return c
+}
+
+// RemoveDefaultValue returns a new RoleSelectMenuComponent with the provided default value at the index removed
+func (c RoleSelectMenuComponent) RemoveDefaultValue(index int) RoleSelectMenuComponent {
+	if len(c.DefaultValues) > index {
+		c.DefaultValues = append(c.DefaultValues[:index], c.DefaultValues[index+1:]...)
+	}
+	return c
+}
+
 var (
 	_ Component            = (*MentionableSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*MentionableSelectMenuComponent)(nil)
@@ -363,11 +444,13 @@ func NewMentionableSelectMenu(customID string, placeholder string) MentionableSe
 }
 
 type MentionableSelectMenuComponent struct {
-	CustomID    string `json:"custom_id"`
-	Placeholder string `json:"placeholder,omitempty"`
-	MinValues   *int   `json:"min_values,omitempty"`
-	MaxValues   int    `json:"max_values,omitempty"`
-	Disabled    bool   `json:"disabled,omitempty"`
+	ID            int                      `json:"id,omitempty"`
+	CustomID      string                   `json:"custom_id"`
+	Placeholder   string                   `json:"placeholder,omitempty"`
+	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
+	MinValues     *int                     `json:"min_values,omitempty"`
+	MaxValues     int                      `json:"max_values,omitempty"`
+	Disabled      bool                     `json:"disabled,omitempty"`
 }
 
 func (c MentionableSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -385,13 +468,17 @@ func (MentionableSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeMentionableSelectMenu
 }
 
-func (c MentionableSelectMenuComponent) ID() string {
+func (c MentionableSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c MentionableSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (MentionableSelectMenuComponent) component()            {}
 func (MentionableSelectMenuComponent) interactiveComponent() {}
-func (MentionableSelectMenuComponent) selectMenu()           {}
+func (MentionableSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new MentionableSelectMenuComponent with the provided customID
 func (c MentionableSelectMenuComponent) WithCustomID(customID string) MentionableSelectMenuComponent {
@@ -435,6 +522,27 @@ func (c MentionableSelectMenuComponent) WithDisabled(disabled bool) MentionableS
 	return c
 }
 
+// SetDefaultValues returns a new MentionableSelectMenuComponent with the provided default values
+func (c MentionableSelectMenuComponent) SetDefaultValues(defaultValues ...SelectMenuDefaultValue) MentionableSelectMenuComponent {
+	c.DefaultValues = defaultValues
+	return c
+}
+
+// AddDefaultValue returns a new MentionableSelectMenuComponent with the provided default value added.
+// SelectMenuDefaultValue can easily be constructed using helpers like NewSelectMenuDefaultUser or NewSelectMenuDefaultRole
+func (c MentionableSelectMenuComponent) AddDefaultValue(value SelectMenuDefaultValue) MentionableSelectMenuComponent {
+	c.DefaultValues = append(c.DefaultValues, value)
+	return c
+}
+
+// RemoveDefaultValue returns a new MentionableSelectMenuComponent with the provided default value at the index removed
+func (c MentionableSelectMenuComponent) RemoveDefaultValue(index int) MentionableSelectMenuComponent {
+	if len(c.DefaultValues) > index {
+		c.DefaultValues = append(c.DefaultValues[:index], c.DefaultValues[index+1:]...)
+	}
+	return c
+}
+
 var (
 	_ Component            = (*ChannelSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*ChannelSelectMenuComponent)(nil)
@@ -450,12 +558,14 @@ func NewChannelSelectMenu(customID string, placeholder string) ChannelSelectMenu
 }
 
 type ChannelSelectMenuComponent struct {
-	CustomID     string        `json:"custom_id"`
-	Placeholder  string        `json:"placeholder,omitempty"`
-	MinValues    *int          `json:"min_values,omitempty"`
-	MaxValues    int           `json:"max_values,omitempty"`
-	Disabled     bool          `json:"disabled,omitempty"`
-	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
+	ID            int                      `json:"id,omitempty"`
+	CustomID      string                   `json:"custom_id"`
+	Placeholder   string                   `json:"placeholder,omitempty"`
+	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
+	MinValues     *int                     `json:"min_values,omitempty"`
+	MaxValues     int                      `json:"max_values,omitempty"`
+	Disabled      bool                     `json:"disabled,omitempty"`
+	ChannelTypes  []ChannelType            `json:"channel_types,omitempty"`
 }
 
 func (c ChannelSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -473,13 +583,17 @@ func (ChannelSelectMenuComponent) Type() ComponentType {
 	return ComponentTypeChannelSelectMenu
 }
 
-func (c ChannelSelectMenuComponent) ID() string {
+func (c ChannelSelectMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (c ChannelSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
 func (ChannelSelectMenuComponent) component()            {}
 func (ChannelSelectMenuComponent) interactiveComponent() {}
-func (ChannelSelectMenuComponent) selectMenu()           {}
+func (ChannelSelectMenuComponent) selectMenuComponent()  {}
 
 // WithCustomID returns a new ChannelSelectMenuComponent with the provided customID
 func (c ChannelSelectMenuComponent) WithCustomID(customID string) ChannelSelectMenuComponent {
@@ -527,4 +641,65 @@ func (c ChannelSelectMenuComponent) WithDisabled(disabled bool) ChannelSelectMen
 func (c ChannelSelectMenuComponent) WithChannelTypes(channelTypes ...ChannelType) ChannelSelectMenuComponent {
 	c.ChannelTypes = channelTypes
 	return c
+}
+
+// SetDefaultValues returns a new ChannelSelectMenuComponent with the provided default values
+func (c ChannelSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) ChannelSelectMenuComponent {
+	values := make([]SelectMenuDefaultValue, 0, len(defaultValues))
+	for _, value := range defaultValues {
+		values = append(values, NewSelectMenuDefaultChannel(value))
+	}
+	c.DefaultValues = values
+	return c
+}
+
+// AddDefaultValue returns a new ChannelSelectMenuComponent with the provided default value added
+func (c ChannelSelectMenuComponent) AddDefaultValue(defaultValue snowflake.ID) ChannelSelectMenuComponent {
+	c.DefaultValues = append(c.DefaultValues, NewSelectMenuDefaultChannel(defaultValue))
+	return c
+}
+
+// RemoveDefaultValue returns a new ChannelSelectMenuComponent with the provided default value at the index removed
+func (c ChannelSelectMenuComponent) RemoveDefaultValue(index int) ChannelSelectMenuComponent {
+	if len(c.DefaultValues) > index {
+		c.DefaultValues = append(c.DefaultValues[:index], c.DefaultValues[index+1:]...)
+	}
+	return c
+}
+
+type SelectMenuDefaultValue struct {
+	ID   snowflake.ID               `json:"id"`
+	Type SelectMenuDefaultValueType `json:"type"`
+}
+
+type SelectMenuDefaultValueType string
+
+const (
+	SelectMenuDefaultValueTypeUser    SelectMenuDefaultValueType = "user"
+	SelectMenuDefaultValueTypeRole    SelectMenuDefaultValueType = "role"
+	SelectMenuDefaultValueTypeChannel SelectMenuDefaultValueType = "channel"
+)
+
+// NewSelectMenuDefaultUser returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeUser
+func NewSelectMenuDefaultUser(id snowflake.ID) SelectMenuDefaultValue {
+	return SelectMenuDefaultValue{
+		ID:   id,
+		Type: SelectMenuDefaultValueTypeUser,
+	}
+}
+
+// NewSelectMenuDefaultRole returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeRole
+func NewSelectMenuDefaultRole(id snowflake.ID) SelectMenuDefaultValue {
+	return SelectMenuDefaultValue{
+		ID:   id,
+		Type: SelectMenuDefaultValueTypeRole,
+	}
+}
+
+// NewSelectMenuDefaultChannel returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeChannel
+func NewSelectMenuDefaultChannel(id snowflake.ID) SelectMenuDefaultValue {
+	return SelectMenuDefaultValue{
+		ID:   id,
+		Type: SelectMenuDefaultValueTypeChannel,
+	}
 }
