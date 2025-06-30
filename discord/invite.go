@@ -29,6 +29,7 @@ type Invite struct {
 	ApproximateMemberCount   int                  `json:"approximate_member_count"`
 	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
+	Flags                    InviteFlags          `json:"flags"`
 }
 
 func (i Invite) URL() string {
@@ -41,6 +42,13 @@ const (
 	InviteTypeGuild InviteType = iota
 	InviteTypeGroupDM
 	InviteTypeFriend
+)
+
+type InviteFlags int
+
+const (
+	InviteFlagIsGuestInvite InviteFlags = 1 << iota
+	InviteFlagsNone         InviteFlags = 0
 )
 
 type ExtendedInvite struct {
