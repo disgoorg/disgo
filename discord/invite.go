@@ -47,8 +47,8 @@ const (
 type InviteFlags int
 
 const (
-	InviteFlagGuest InviteFlags = 1 << iota
-	InviteFlagsNone InviteFlags = 0
+	InviteFlagIsGuestInvite InviteFlags = 1 << iota
+	InviteFlagsNone         InviteFlags = 0
 )
 
 type ExtendedInvite struct {
