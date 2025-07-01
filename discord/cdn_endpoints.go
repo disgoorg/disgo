@@ -32,7 +32,7 @@ var (
 
 	AvatarDecoration = NewCDN("/avatar-decoration-presets/{user.avatar.decoration.hash}", FileFormatPNG)
 
-	ServerTagBadge = NewCDN("/clan-badges/{guild.id}/{badge.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
+	GuildTagBadge = NewCDN("/guild-tag-badges/{guild.id}/{badge.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 
 	ApplicationIcon  = NewCDN("/app-icons/{application.id}/{icon.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 	ApplicationCover = NewCDN("/app-assets/{application.id}/{cover.image.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)

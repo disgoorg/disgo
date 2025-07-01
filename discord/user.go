@@ -151,12 +151,12 @@ func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-// ServerTagURL returns the server tag badge URL if the user has a primary discord.Guild or nil
-func (u User) ServerTagURL(opts ...CDNOpt) *string {
+// GuildTagURL returns the server tag badge URL if the user has a primary discord.Guild or nil
+func (u User) GuildTagURL(opts ...CDNOpt) *string {
 	if u.PrimaryGuild == nil {
 		return nil
 	}
-	url := formatAssetURL(ServerTagBadge, opts, u.PrimaryGuild.IdentityGuildID, u.PrimaryGuild.Badge)
+	url := formatAssetURL(GuildTagBadge, opts, u.PrimaryGuild.IdentityGuildID, u.PrimaryGuild.Badge)
 	return &url
 }
 
