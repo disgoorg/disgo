@@ -24,7 +24,6 @@ type Member struct {
 	Mute                       bool                  `json:"mute,omitempty"`
 	Flags                      MemberFlags           `json:"flags"`
 	Pending                    bool                  `json:"pending"`
-	UnusualDMActivityUntil     *time.Time            `json:"unusual_dm_activity_until"`
 	CommunicationDisabledUntil *time.Time            `json:"communication_disabled_until"`
 	AvatarDecorationData       *AvatarDecorationData `json:"avatar_decoration_data"`
 
