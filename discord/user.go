@@ -77,6 +77,7 @@ type User struct {
 	PublicFlags          UserFlags             `json:"public_flags"`
 	AvatarDecorationData *AvatarDecorationData `json:"avatar_decoration_data"`
 	Collectibles         *Collectibles         `json:"collectibles"`
+	PrimaryGuild         *PrimaryGuild         `json:"primary_guild"`
 }
 
 // String returns a mention of the user
@@ -147,6 +148,15 @@ func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 		return nil
 	}
 	url := formatAssetURL(AvatarDecoration, opts, u.AvatarDecorationData.Asset)
+	return &url
+}
+
+// GuildTagURL returns the server tag badge URL if the user has a primary discord.Guild or nil
+func (u User) GuildTagURL(opts ...CDNOpt) *string {
+	if u.PrimaryGuild == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildTagBadge, opts, u.PrimaryGuild.IdentityGuildID, u.PrimaryGuild.Badge)
 	return &url
 }
 
@@ -233,3 +243,10 @@ const (
 	NameplatePaletteViolet    NameplatePalette = "violet"
 	NameplatePaletteWhite     NameplatePalette = "white"
 )
+
+type PrimaryGuild struct {
+	IdentityGuildID *snowflake.ID `json:"identity_guild_id"`
+	IdentityEnabled *bool         `json:"identity_enabled"`
+	Tag             *string       `json:"tag"`
+	Badge           *string       `json:"badge"`
+}
