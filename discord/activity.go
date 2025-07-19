@@ -24,23 +24,26 @@ const (
 
 // Activity represents the fields of a user's presence
 type Activity struct {
-	ID            string              `json:"id"`
-	Name          string              `json:"name"`
-	Type          ActivityType        `json:"type"`
-	URL           *string             `json:"url,omitempty"`
-	CreatedAt     time.Time           `json:"created_at"`
-	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
-	SyncID        *string             `json:"sync_id,omitempty"`
-	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
-	Details       *string             `json:"details,omitempty"`
-	State         *string             `json:"state,omitempty"`
-	Emoji         *PartialEmoji       `json:"emoji,omitempty"`
-	Party         *ActivityParty      `json:"party,omitempty"`
-	Assets        *ActivityAssets     `json:"assets,omitempty"`
-	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
-	Instance      *bool               `json:"instance,omitempty"`
-	Flags         ActivityFlags       `json:"flags,omitempty"`
-	Buttons       []string            `json:"buttons,omitempty"`
+	ID                string                     `json:"id"`
+	Name              string                     `json:"name"`
+	Type              ActivityType               `json:"type"`
+	URL               *string                    `json:"url,omitempty"`
+	CreatedAt         time.Time                  `json:"created_at"`
+	Timestamps        *ActivityTimestamps        `json:"timestamps,omitempty"`
+	SyncID            *string                    `json:"sync_id,omitempty"`
+	ApplicationID     snowflake.ID               `json:"application_id,omitempty"`
+	StatusDisplayType *ActivityStatusDisplayType `json:"status_display_type,omitempty"`
+	Details           *string                    `json:"details,omitempty"`
+	DetailsURL        *string                    `json:"details_url,omitempty"`
+	State             *string                    `json:"state,omitempty"`
+	StateURL          *string                    `json:"state_url,omitempty"`
+	Emoji             *PartialEmoji              `json:"emoji,omitempty"`
+	Party             *ActivityParty             `json:"party,omitempty"`
+	Assets            *ActivityAssets            `json:"assets,omitempty"`
+	Secrets           *ActivitySecrets           `json:"secrets,omitempty"`
+	Instance          *bool                      `json:"instance,omitempty"`
+	Flags             ActivityFlags              `json:"flags,omitempty"`
+	Buttons           []string                   `json:"buttons,omitempty"`
 }
 
 func (a *Activity) UnmarshalJSON(data []byte) error {
@@ -149,8 +152,10 @@ type ActivityParty struct {
 type ActivityAssets struct {
 	LargeImage string `json:"large_image,omitempty"`
 	LargeText  string `json:"large_text,omitempty"`
+	LargeURL   string `json:"large_url,omitempty"`
 	SmallImage string `json:"small_image,omitempty"`
 	SmallText  string `json:"small_text,omitempty"`
+	SmallURL   string `json:"small_url,omitempty"`
 }
 
 // ActivitySecrets contain secrets for Rich Presence joining and spectating
@@ -159,3 +164,11 @@ type ActivitySecrets struct {
 	Spectate string `json:"spectate,omitempty"`
 	Match    string `json:"match,omitempty"`
 }
+
+type ActivityStatusDisplayType int
+
+const (
+	ActivityStatusDisplayTypeName ActivityStatusDisplayType = iota
+	ActivityStatusDisplayTypeState
+	ActivityStatusDisplayTypeDetails
+)

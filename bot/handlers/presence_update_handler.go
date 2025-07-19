@@ -120,8 +120,11 @@ func isActivityUpdated(old discord.Activity, new discord.Activity) bool {
 		compareActivityTimestampsPtr(old.Timestamps, new.Timestamps) ||
 		compareStringPtr(old.SyncID, new.SyncID) ||
 		old.ApplicationID != new.ApplicationID ||
+		compareStatusDisplayTypePtr(old.StatusDisplayType, new.StatusDisplayType) ||
 		compareStringPtr(old.Details, new.Details) ||
+		compareStringPtr(old.DetailsURL, new.DetailsURL) ||
 		compareStringPtr(old.State, new.State) ||
+		compareStringPtr(old.StateURL, new.StateURL) ||
 		comparePartialEmojiPtr(old.Emoji, new.Emoji) ||
 		compareActivityPartyPtr(old.Party, new.Party) ||
 		compareActivityAssetsPtr(old.Assets, new.Assets) ||
@@ -204,7 +207,7 @@ func compareActivityAssetsPtr(old *discord.ActivityAssets, new *discord.Activity
 	if old == nil || new == nil {
 		return true
 	}
-	return old.LargeText != new.LargeText || old.LargeImage != new.LargeImage || old.SmallText != new.SmallText || old.SmallImage != new.SmallImage
+	return old.LargeText != new.LargeText || old.LargeImage != new.LargeImage || old.LargeURL != new.LargeURL || old.SmallText != new.SmallText || old.SmallImage != new.SmallImage || old.SmallURL != new.SmallURL
 }
 
 func compareActivitySecretsPtr(old *discord.ActivitySecrets, new *discord.ActivitySecrets) bool {
@@ -215,4 +218,14 @@ func compareActivitySecretsPtr(old *discord.ActivitySecrets, new *discord.Activi
 		return true
 	}
 	return old.Join != new.Join || old.Spectate != new.Spectate || old.Match != new.Match
+}
+
+func compareStatusDisplayTypePtr(old *discord.ActivityStatusDisplayType, new *discord.ActivityStatusDisplayType) bool {
+	if old == nil && new == nil {
+		return false
+	}
+	if old == nil || new == nil {
+		return true
+	}
+	return *old != *new
 }
