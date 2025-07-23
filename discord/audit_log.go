@@ -108,6 +108,7 @@ const (
 	AuditLogAutoModerationBlockMessage
 	AuditLogAutoModerationFlagToChannel
 	AuditLogAutoModerationUserCommunicationDisabled
+	AuditLogAutoModerationQuarantineUser
 )
 
 const (
