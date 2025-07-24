@@ -137,6 +137,7 @@ const (
 	MemberFlagAutomodQuarantinedUsername
 	_
 	MemberFlagDMSettingsUpsellAcknowledged
+	MemberFlagAutomodQuarantinedGuildTag
 	MemberFlagsNone MemberFlags = 0
 )
 
