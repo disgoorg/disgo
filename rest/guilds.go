@@ -18,7 +18,6 @@ func NewGuilds(client Client) Guilds {
 type Guilds interface {
 	GetGuild(guildID snowflake.ID, withCounts bool, opts ...RequestOpt) (*discord.RestGuild, error)
 	GetGuildPreview(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildPreview, error)
-	CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (*discord.RestGuild, error)
 	UpdateGuild(guildID snowflake.ID, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.RestGuild, error)
 	DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error
 
@@ -78,11 +77,6 @@ func (s *guildImpl) GetGuild(guildID snowflake.ID, withCounts bool, opts ...Requ
 
 func (s *guildImpl) GetGuildPreview(guildID snowflake.ID, opts ...RequestOpt) (guildPreview *discord.GuildPreview, err error) {
 	err = s.client.Do(GetGuildPreview.Compile(nil, guildID), nil, &guildPreview, opts...)
-	return
-}
-
-func (s *guildImpl) CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
-	err = s.client.Do(CreateGuild.Compile(nil), guildCreate, &guild, opts...)
 	return
 }
 

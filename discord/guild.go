@@ -335,21 +335,6 @@ type GuildIncidentActionsUpdate struct {
 	DMsDisabledUntil     omit.Omit[*time.Time] `json:"dms_disabled_until,omitzero"`
 }
 
-// GuildCreate is the payload used to create a Guild
-type GuildCreate struct {
-	Name                        string                     `json:"name"`
-	Icon                        *Icon                      `json:"icon,omitempty"`
-	VerificationLevel           VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotifications MessageNotificationsLevel  `json:"default_message_notifications,omitempty"`
-	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
-	Roles                       []GuildCreateRole          `json:"roles,omitempty"`
-	Channels                    []GuildCreateChannel       `json:"channels,omitempty"`
-	AFKChannelID                snowflake.ID               `json:"afk_channel_id,omitempty"`
-	AFKTimeout                  int                        `json:"afk_timeout,omitempty"`
-	SystemChannelID             snowflake.ID               `json:"system_channel_id,omitempty"`
-	SystemChannelFlags          SystemChannelFlags         `json:"system_channel_flags,omitempty"`
-}
-
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
 	Name                        *string                                `json:"name,omitempty"`
