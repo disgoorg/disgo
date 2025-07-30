@@ -111,6 +111,7 @@ const (
 	GuildFeatureEnhancedRoleColors                    GuildFeature = "ENHANCED_ROLE_COLORS"
 	GuildFeatureFeaturable                            GuildFeature = "FEATURABLE"
 	GuildFeatureGuestsEnabled                         GuildFeature = "GUESTS_ENABLED"
+	GuildFeatureGuildTags                             GuildFeature = "GUILD_TAGS"
 	GuildFeatureInvitesDisabled                       GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                          GuildFeature = "INVITE_SPLASH"
 	GuildFeatureMemberVerificationGateEnabled         GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
