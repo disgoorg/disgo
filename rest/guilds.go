@@ -19,7 +19,6 @@ type Guilds interface {
 	GetGuild(guildID snowflake.ID, withCounts bool, opts ...RequestOpt) (*discord.RestGuild, error)
 	GetGuildPreview(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildPreview, error)
 	UpdateGuild(guildID snowflake.ID, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.RestGuild, error)
-	DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error
 
 	GetGuildVanityURL(guildID snowflake.ID, opts ...RequestOpt) (*discord.PartialInvite, error)
 
@@ -83,10 +82,6 @@ func (s *guildImpl) GetGuildPreview(guildID snowflake.ID, opts ...RequestOpt) (g
 func (s *guildImpl) UpdateGuild(guildID snowflake.ID, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
 	err = s.client.Do(UpdateGuild.Compile(nil, guildID), guildUpdate, &guild, opts...)
 	return
-}
-
-func (s *guildImpl) DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error {
-	return s.client.Do(DeleteGuild.Compile(nil, guildID), nil, nil, opts...)
 }
 
 func (s *guildImpl) GetGuildVanityURL(guildID snowflake.ID, opts ...RequestOpt) (partialInvite *discord.PartialInvite, err error) {

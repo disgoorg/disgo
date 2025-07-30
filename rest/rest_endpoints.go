@@ -52,7 +52,6 @@ var (
 	GetGuild          = NewEndpoint(http.MethodGet, "/guilds/{guild.id}")
 	GetGuildPreview   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/preview")
 	UpdateGuild       = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}")
-	DeleteGuild       = NewEndpoint(http.MethodDelete, "/guilds/{guild.id}")
 	GetGuildVanityURL = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/vanity-url")
 
 	CreateGuildChannel     = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/channels")
