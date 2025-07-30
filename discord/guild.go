@@ -345,7 +345,6 @@ type GuildUpdate struct {
 	AFKChannelID                *snowflake.ID                          `json:"afk_channel_id,omitempty"`
 	AFKTimeout                  *int                                   `json:"afk_timeout,omitempty"`
 	Icon                        omit.Omit[*Icon]                       `json:"icon,omitzero"`
-	OwnerID                     *snowflake.ID                          `json:"owner_id,omitempty"`
 	Splash                      omit.Omit[*Icon]                       `json:"splash,omitzero"`
 	DiscoverySplash             omit.Omit[*Icon]                       `json:"discovery_splash,omitzero"`
 	Banner                      omit.Omit[*Icon]                       `json:"banner,omitzero"`
