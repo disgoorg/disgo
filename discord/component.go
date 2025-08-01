@@ -262,12 +262,6 @@ func (c ComponentEmoji) WithAnimated(animated bool) ComponentEmoji {
 	return c
 }
 
-// WithName returns a new ComponentEmoji with the provided name
-func (c ComponentEmoji) WithName(name string) ComponentEmoji {
-	c.Name = name
-	return c
-}
-
 func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
 	return ActionRowComponent{
 		Components: components,
