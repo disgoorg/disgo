@@ -242,6 +242,26 @@ type ComponentEmoji struct {
 	Animated bool         `json:"animated,omitempty"`
 }
 
+// NewComponentEmoji creates a new ComponentEmoji with the provided name (for Unicode emojis)
+func NewComponentEmoji(name string) ComponentEmoji {
+	return ComponentEmoji{
+		Name: name,
+	}
+}
+
+// NewCustomComponentEmoji creates a new ComponentEmoji with the provided id (for custom Discord emojis)
+func NewCustomComponentEmoji(id snowflake.ID) ComponentEmoji {
+	return ComponentEmoji{
+		ID: id,
+	}
+}
+
+// WithAnimated returns a new ComponentEmoji with the provided animated flag
+func (c ComponentEmoji) WithAnimated(animated bool) ComponentEmoji {
+	c.Animated = animated
+	return c
+}
+
 func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
 	return ActionRowComponent{
 		Components: components,
