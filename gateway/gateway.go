@@ -95,7 +95,7 @@ type (
 	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway
 
 	// CloseHandlerFunc is a function that is called when the Gateway is closed.
-	CloseHandlerFunc func(gateway Gateway, err error)
+	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
 )
 
 // Gateway is what is used to connect to discord.
@@ -480,11 +480,11 @@ loop:
 				break loop
 			}
 			g.connMu.Lock()
-			sameConnection := g.conn == conn
+			sameConn := g.conn == conn
 			g.connMu.Unlock()
 
 			// if sameConnection is false, it means the connection has been closed by the user, and we can just exit
-			if !sameConnection {
+			if !sameConn {
 				return
 			}
 
@@ -524,7 +524,7 @@ loop:
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect()
 			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err)
+				go g.closeHandlerFunc(g, err, reconnect)
 			}
 
 			break loop

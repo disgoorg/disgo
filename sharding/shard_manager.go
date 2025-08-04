@@ -71,7 +71,7 @@ type shardManagerImpl struct {
 	config           config
 }
 
-func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
+func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, _ bool) {
 	var closeError *websocket.CloseError
 	if !m.config.AutoScaling || !errors.As(err, &closeError) || gateway.CloseEventCodeByCode(closeError.Code) != gateway.CloseEventCodeShardingRequired {
 		return

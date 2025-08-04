@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"sync"
 	"syscall"
 	"time"
@@ -48,7 +49,7 @@ type (
 	EventHandlerFunc func(opCode Opcode, data GatewayMessageData)
 
 	// CloseHandlerFunc is a function that handles a voice gateway close.
-	CloseHandlerFunc func(gateway Gateway, err error)
+	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
 
 	// GatewayCreateFunc is a function that creates a new voice gateway.
 	GatewayCreateFunc func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
@@ -233,13 +234,33 @@ loop:
 			if errors.As(err, &closeError) {
 				closeCode := GatewayCloseEventCodeByCode(closeError.Code)
 				reconnect = closeCode.Reconnect
+
+				msg := "voice gateway close received"
+				args := []any{
+					slog.Bool("reconnect", reconnect),
+					slog.Int("code", closeError.Code),
+					slog.String("error", closeError.Text),
+				}
+				if reconnect {
+					g.config.Logger.Debug(msg, args...)
+				} else {
+					g.config.Logger.Error(msg, args...)
+				}
+			} else if errors.Is(err, net.ErrClosed) {
+				// we closed the connection ourselves. Don't try to reconnect here
+				reconnect = false
+			} else {
+				g.config.Logger.Debug("failed to read next message from gateway", slog.Any("err", err))
 			}
-			g.CloseWithCode(websocket.CloseServiceRestart, "listen error")
+
+			// make sure the connection is properly closed
+			g.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect()
 			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err)
+				go g.closeHandlerFunc(g, err, reconnect)
 			}
+
 			break loop
 		}
 
