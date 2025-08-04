@@ -63,9 +63,7 @@ func WithLogger(logger *slog.Logger) ConfigOpt {
 // WithShardIDs sets the shardIDs the ShardManager should manage.
 func WithShardIDs(shardIDs ...int) ConfigOpt {
 	return func(config *config) {
-		if config.ShardIDs == nil {
-			config.ShardIDs = map[int]struct{}{}
-		}
+		config.ShardIDs = map[int]struct{}{}
 		for _, shardID := range shardIDs {
 			config.ShardIDs[shardID] = struct{}{}
 		}
