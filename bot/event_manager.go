@@ -35,7 +35,7 @@ type EventManager interface {
 	RemoveEventListeners(eventListeners ...EventListener)
 
 	// HandleGatewayEvent calls the correct GatewayEventHandler for the payload
-	HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData)
+	HandleGatewayEvent(gateway gateway.Gateway, eventType gateway.EventType, sequenceNumber int, event gateway.EventData)
 
 	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
 	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
@@ -91,7 +91,7 @@ type GatewayEventHandler interface {
 	HandleGatewayEvent(client *Client, sequenceNumber int, shardID int, event gateway.EventData)
 }
 
-// NewGatewayEventHandler returns a new GatewayEventHandler for the given GatewayEventType and handler func
+// NewGatewayEventHandler returns a new GatewayEventHandler for the given gateway.EventType and handler func
 func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client *Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
 	return &genericGatewayEventHandler[T]{eventType: eventType, handleFunc: handleFunc}
 }
@@ -128,13 +128,13 @@ type eventManagerImpl struct {
 	httpServerHandler  HTTPServerEventHandler
 }
 
-func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData) {
+func (e *eventManagerImpl) HandleGatewayEvent(gateway gateway.Gateway, eventType gateway.EventType, sequenceNumber int, event gateway.EventData) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if handler, ok := e.gatewayHandlers[gatewayEventType]; ok {
-		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
+	if handler, ok := e.gatewayHandlers[eventType]; ok {
+		handler.HandleGatewayEvent(e.client, sequenceNumber, gateway.ShardID(), event)
 	} else {
-		e.logger.Warn("no handler for Gateway event found", slog.Any("event_type", gatewayEventType))
+		e.logger.Warn("no handler for Gateway event found", slog.Any("event_type", eventType))
 	}
 }
 
