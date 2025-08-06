@@ -89,7 +89,7 @@ const (
 
 type (
 	// EventHandlerFunc is a function that is called when an event is received.
-	EventHandlerFunc func(gatewayEventType EventType, sequenceNumber int, shardID int, event EventData)
+	EventHandlerFunc func(gateway Gateway, eventType EventType, sequenceNumber int, event EventData)
 
 	// CreateFunc is a type that is used to create a new Gateway(s).
 	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway
@@ -579,7 +579,7 @@ loop:
 
 			// push message to the command manager
 			if g.config.EnableRawEvents {
-				g.eventHandlerFunc(EventTypeRaw, message.S, g.config.ShardID, EventRaw{
+				g.eventHandlerFunc(g, EventTypeRaw, message.S, EventRaw{
 					EventType: message.T,
 					Payload:   bytes.NewReader(message.RawD),
 				})
@@ -589,7 +589,7 @@ loop:
 				g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
 				continue
 			}
-			g.eventHandlerFunc(message.T, message.S, g.config.ShardID, eventData)
+			g.eventHandlerFunc(g, message.T, message.S, eventData)
 
 		case OpcodeHeartbeat:
 			g.sendHeartbeat()
@@ -622,7 +622,7 @@ loop:
 
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now().UTC()
-			g.eventHandlerFunc(EventTypeHeartbeatAck, message.S, g.config.ShardID, EventHeartbeatAck{
+			g.eventHandlerFunc(g, EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
 				LastHeartbeat: g.lastHeartbeatReceived,
 				NewHeartbeat:  newHeartbeat,
 			})

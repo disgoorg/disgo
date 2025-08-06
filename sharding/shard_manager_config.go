@@ -14,11 +14,20 @@ func defaultConfig() config {
 	}
 }
 
+// ShardState is used to tell a [gateway.Gateway] managed by the [ShardManager] which session & sequence it should use when starting the shard.
+// This is useful for resuming shards when using the [ShardManager].
+type ShardState struct {
+	// SessionID is the session ID of the shard. This is used to resume the shard.
+	SessionID string
+	// Sequence is the sequence number of the shard. This is used to resume the shard.
+	Sequence int
+}
+
 type config struct {
 	// Logger is the logger of the ShardManager. Defaults to log.Default()
 	Logger *slog.Logger
 	// ShardIDs is a map of shardIDs the ShardManager should manage. Leave this nil to manage all shards.
-	ShardIDs map[int]struct{}
+	ShardIDs map[int]ShardState
 	// ShardCount is the total shard count of the ShardManager. Leave this at 0 to let Discord calculate the shard count for you.
 	ShardCount int
 	// ShardSplitCount is the count a shard should be split into if it is too large. This is only used if AutoScaling is enabled.
@@ -63,10 +72,17 @@ func WithLogger(logger *slog.Logger) ConfigOpt {
 // WithShardIDs sets the shardIDs the ShardManager should manage.
 func WithShardIDs(shardIDs ...int) ConfigOpt {
 	return func(config *config) {
-		config.ShardIDs = map[int]struct{}{}
+		config.ShardIDs = map[int]ShardState{}
 		for _, shardID := range shardIDs {
-			config.ShardIDs[shardID] = struct{}{}
+			config.ShardIDs[shardID] = ShardState{}
 		}
+	}
+}
+
+// WithShardIDsWithStates sets the shardIDs and their [ShardState] the ShardManager should manage.
+func WithShardIDsWithStates(shards map[int]ShardState) ConfigOpt {
+	return func(config *config) {
+		config.ShardIDs = shards
 	}
 }
 

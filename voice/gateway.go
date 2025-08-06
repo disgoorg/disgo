@@ -46,7 +46,7 @@ const (
 
 type (
 	// EventHandlerFunc is a function that handles a voice gateway event.
-	EventHandlerFunc func(opCode Opcode, data GatewayMessageData)
+	EventHandlerFunc func(gateway Gateway, opCode Opcode, data GatewayMessageData)
 
 	// CloseHandlerFunc is a function that handles a voice gateway close.
 	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
@@ -313,7 +313,7 @@ loop:
 			}
 			g.lastHeartbeatReceived = time.Now().UTC()
 		}
-		g.eventHandlerFunc(message.Op, message.D)
+		g.eventHandlerFunc(g, message.Op, message.D)
 	}
 }
 
