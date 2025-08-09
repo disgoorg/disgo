@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"iter"
 	"log/slog"
+	"maps"
+	"slices"
 	"sync"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -28,6 +30,9 @@ type ShardManager interface {
 
 	// OpenShard opens a specific shard.
 	OpenShard(ctx context.Context, shardID int) error
+
+	// ResumeShard resumes a specific shard with the given sessionID and sequence.
+	ResumeShard(ctx context.Context, shardID int, sessionID string, sequence int) error
 
 	// CloseShard closes a specific shard.
 	CloseShard(ctx context.Context, shardID int)
@@ -81,10 +86,8 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, _ bool
 	shard.Close(context.TODO())
 
 	m.shardsMu.Lock()
-	defer m.shardsMu.Unlock()
-
 	delete(m.shards, shard.ShardID())
-	delete(m.config.ShardIDs, shard.ShardID())
+	defer m.shardsMu.Unlock()
 
 	newShardCount := shard.ShardCount() * m.config.ShardSplitCount
 	if newShardCount > m.config.ShardCount {
@@ -99,20 +102,25 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, _ bool
 	}
 
 	var wg sync.WaitGroup
-	for i := range newShardIDs {
-		shardID := newShardIDs[i]
+	for _, shardID := range newShardIDs {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
-			if err := m.config.RateLimiter.WaitBucket(context.TODO(), shardID); err != nil {
+
+			if err := m.config.RateLimiter.WaitBucket(context.Background(), shardID); err != nil {
 				m.config.Logger.Error("failed to wait shard bucket", slog.Any("err", err), slog.Int("shard_id", shardID))
 				return
 			}
 			defer m.config.RateLimiter.UnlockBucket(shardID)
 
 			newShard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(newShardCount))...)
+
+			m.shardsMu.Lock()
 			m.shards[shardID] = newShard
-			if err := newShard.Open(context.TODO()); err != nil {
+			m.shardsMu.Unlock()
+
+			if err := newShard.Open(context.Background()); err != nil {
 				m.config.Logger.Error("failed to re shard", slog.Any("err", err), slog.Int("shard_id", shardID))
 			}
 		}()
@@ -122,27 +130,41 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, _ bool
 }
 
 func (m *shardManagerImpl) Open(ctx context.Context) {
-	m.config.Logger.Debug("opening shards", slog.String("shard_ids", fmt.Sprint(m.config.ShardIDs)))
-	var wg sync.WaitGroup
+	m.config.Logger.Debug("opening shards", slog.String("shard_ids", fmt.Sprint(slices.Collect(maps.Keys(m.config.ShardIDs)))))
 
-	m.shardsMu.Lock()
-	defer m.shardsMu.Unlock()
-	for shardID := range m.config.ShardIDs {
-		if _, ok := m.shards[shardID]; ok {
+	var wg sync.WaitGroup
+	for shardID, shardState := range m.config.ShardIDs {
+		m.shardsMu.Lock()
+		_, ok := m.shards[shardID]
+		m.shardsMu.Unlock()
+		if ok {
 			continue
 		}
 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+
 			if err := m.config.RateLimiter.WaitBucket(ctx, shardID); err != nil {
 				m.config.Logger.Error("failed to wait shard bucket", slog.Any("err", err), slog.Int("shard_id", shardID))
 				return
 			}
 			defer m.config.RateLimiter.UnlockBucket(shardID)
 
-			shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
+			opts := append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))
+			if shardState.SessionID != "" {
+				opts = append(opts, gateway.WithSessionID(shardState.SessionID))
+			}
+			if shardState.Sequence != 0 {
+				opts = append(opts, gateway.WithSequence(shardState.Sequence))
+			}
+
+			shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, opts...)
+
+			m.shardsMu.Lock()
 			m.shards[shardID] = shard
+			m.shardsMu.Unlock()
+
 			if err := shard.Open(ctx); err != nil {
 				m.config.Logger.Error("failed to open shard", slog.Any("err", err), slog.Int("shard_id", shardID))
 			}
@@ -152,14 +174,12 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 }
 
 func (m *shardManagerImpl) Close(ctx context.Context) {
-	m.config.Logger.Debug("closing shards", slog.String("shard_ids", fmt.Sprint(m.config.ShardIDs)))
+	m.config.Logger.Debug("closing shards", slog.String("shard_ids", fmt.Sprint(slices.Collect(maps.Keys(m.shards)))))
 	var wg sync.WaitGroup
 
 	m.shardsMu.Lock()
 	defer m.shardsMu.Unlock()
-	for shardID := range m.shards {
-		shard := m.shards[shardID]
-		delete(m.shards, shardID)
+	for _, shard := range m.shards {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -167,25 +187,39 @@ func (m *shardManagerImpl) Close(ctx context.Context) {
 		}()
 	}
 	wg.Wait()
+	m.shards = map[int]gateway.Gateway{}
 }
 
 func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
-	return m.openShard(ctx, shardID, m.config.ShardCount)
+	return m.openShard(ctx, shardID, m.config.ShardCount, "", 0)
 }
 
-func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCount int) error {
-	m.config.Logger.Debug("opening shard", slog.Int("shard_id", shardID))
+func (m *shardManagerImpl) ResumeShard(ctx context.Context, shardID int, sessionID string, sequence int) error {
+	return m.openShard(ctx, shardID, m.config.ShardCount, sessionID, sequence)
+}
+
+func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCount int, sessionID string, sequence int) error {
+	m.config.Logger.Debug("opening shard", slog.Int("shard_id", shardID), slog.Int("shard_count", shardCount), slog.String("session_id", sessionID), slog.Int("sequence", sequence))
 
 	if err := m.config.RateLimiter.WaitBucket(ctx, shardID); err != nil {
 		return err
 	}
 	defer m.config.RateLimiter.UnlockBucket(shardID)
-	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(shardCount))...)
+
+	opts := append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(shardCount))
+	if sessionID != "" {
+		opts = append(opts, gateway.WithSessionID(sessionID))
+	}
+	if sequence != 0 {
+		opts = append(opts, gateway.WithSequence(sequence))
+	}
+
+	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, opts...)
 
 	m.shardsMu.Lock()
-	defer m.shardsMu.Unlock()
-	m.config.ShardIDs[shardID] = struct{}{}
 	m.shards[shardID] = shard
+	defer m.shardsMu.Unlock()
+
 	return shard.Open(ctx)
 }
 
@@ -220,6 +254,7 @@ func (m *shardManagerImpl) Shards() iter.Seq[gateway.Gateway] {
 	return func(yield func(gateway.Gateway) bool) {
 		m.shardsMu.Lock()
 		defer m.shardsMu.Unlock()
+
 		for _, shard := range m.shards {
 			if !yield(shard) {
 				return
