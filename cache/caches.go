@@ -103,9 +103,9 @@ func (c *guildCacheImpl) IsGuildUnavailable(guildID snowflake.ID) bool {
 }
 
 func (c *guildCacheImpl) SetGuildUnavailable(guildID snowflake.ID, unavailable bool) {
-	if c.unavailableGuilds.Has(guildID) && unavailable {
+	if c.unavailableGuilds.Has(guildID) && !unavailable {
 		c.unavailableGuilds.Remove(guildID)
-	} else if !c.unavailableGuilds.Has(guildID) && !unavailable {
+	} else if !c.unavailableGuilds.Has(guildID) && unavailable {
 		c.unavailableGuilds.Add(guildID)
 	}
 }
