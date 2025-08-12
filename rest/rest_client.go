@@ -157,12 +157,12 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 
 	case http.StatusTooManyRequests:
 		if tries >= c.RateLimiter().MaxRetries() {
-			return NewError(rq, rawRqBody, rs, rawRsBody)
+			return newError(rq, rawRqBody, rs, rawRsBody)
 		}
 		return c.retry(endpoint, rqBody, rsBody, tries+1, opts)
 
 	default:
-		return NewError(rq, rawRqBody, rs, rawRsBody)
+		return newError(rq, rawRqBody, rs, rawRsBody)
 	}
 }
 
