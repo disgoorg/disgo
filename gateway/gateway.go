@@ -169,6 +169,7 @@ type gatewayImpl struct {
 	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
 	status          Status
+	statusMu        sync.Mutex
 
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
@@ -207,7 +208,9 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		g.connMu.Unlock()
 		return discord.ErrGatewayAlreadyConnected
 	}
+	g.statusMu.Lock()
 	g.status = StatusConnecting
+	g.statusMu.Unlock()
 
 	wsURL := g.config.URL
 	if g.config.ResumeURL != nil && g.config.EnableResumeURL {
@@ -244,7 +247,9 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	// reset rate limiter when connecting
 	g.config.RateLimiter.Reset()
 
+	g.statusMu.Lock()
 	g.status = StatusWaitingForHello
+	g.statusMu.Unlock()
 
 	readyChan := make(chan error)
 	go g.listen(conn, readyChan)
@@ -295,16 +300,28 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 			g.config.LastSequenceReceived = nil
 		}
 	}
+	g.statusMu.Lock()
 	g.status = StatusDisconnected
+	g.statusMu.Unlock()
 }
 
 func (g *gatewayImpl) Status() Status {
-	g.connMu.Lock()
-	defer g.connMu.Unlock()
+	g.statusMu.Lock()
+	defer g.statusMu.Unlock()
 	return g.status
 }
 
 func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d MessageData) error {
+	g.statusMu.Lock()
+	defer g.statusMu.Unlock()
+	if g.status != StatusReady {
+		return discord.ErrShardNotReady
+	}
+
+	return g.sendInternal(ctx, op, d)
+}
+
+func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d MessageData) error {
 	data, err := json.Marshal(Message{
 		Op: op,
 		D:  d,
@@ -367,8 +384,11 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
+
 		g.config.Logger.Error("failed to reconnect gateway", slog.Any("err", err))
+		g.statusMu.Lock()
 		g.status = StatusDisconnected
+		g.statusMu.Unlock()
 		return g.reconnectTry(ctx, try+1)
 	}
 	return nil
@@ -410,7 +430,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
-	if err := g.Send(ctx, OpcodeHeartbeat, MessageDataHeartbeat(sequence)); err != nil {
+	if err := g.sendInternal(ctx, OpcodeHeartbeat, MessageDataHeartbeat(sequence)); err != nil {
 		if errors.Is(err, discord.ErrShardNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
@@ -425,7 +445,9 @@ func (g *gatewayImpl) sendHeartbeat() {
 }
 
 func (g *gatewayImpl) identify() error {
+	g.statusMu.Lock()
 	g.status = StatusIdentifying
+	g.statusMu.Unlock()
 	g.config.Logger.Debug("sending Identify command")
 
 	identify := MessageDataIdentify{
@@ -444,15 +466,20 @@ func (g *gatewayImpl) identify() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := g.Send(ctx, OpcodeIdentify, identify); err != nil {
+	if err := g.sendInternal(ctx, OpcodeIdentify, identify); err != nil {
 		return err
 	}
+
+	g.statusMu.Lock()
 	g.status = StatusWaitingForReady
+	g.statusMu.Unlock()
 	return nil
 }
 
 func (g *gatewayImpl) resume() error {
+	g.statusMu.Lock()
 	g.status = StatusResuming
+	g.statusMu.Unlock()
 	resume := MessageDataResume{
 		Token:     g.token,
 		SessionID: *g.config.SessionID,
@@ -462,7 +489,7 @@ func (g *gatewayImpl) resume() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := g.Send(ctx, OpcodeResume, resume); err != nil {
+	if err := g.sendInternal(ctx, OpcodeResume, resume); err != nil {
 		return err
 	}
 	return nil
@@ -474,11 +501,14 @@ loop:
 	for {
 		mt, r, err := conn.NextReader()
 		if err != nil {
+			g.statusMu.Lock()
 			if g.status != StatusReady {
+				g.statusMu.Unlock()
 				readyChan <- err
 				close(readyChan)
 				break loop
 			}
+			g.statusMu.Unlock()
 			g.connMu.Lock()
 			sameConn := g.conn == conn
 			g.connMu.Unlock()
@@ -567,12 +597,16 @@ loop:
 				g.config.SessionID = &readyEvent.SessionID
 				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
 				g.config.Logger.Debug("ready message received")
+				g.statusMu.Lock()
 				g.status = StatusReady
+				g.statusMu.Unlock()
 				readyChan <- nil
 				close(readyChan)
 			} else if _, ok = eventData.(EventResumed); ok {
 				g.config.Logger.Debug("resume message received")
+				g.statusMu.Lock()
 				g.status = StatusReady
+				g.statusMu.Unlock()
 				readyChan <- nil
 				close(readyChan)
 			}
