@@ -46,8 +46,15 @@ func (b *ModalCreateBuilder) SetComponent(i int, container LayoutComponent) *Mod
 }
 
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the ModalCreate
+// Deprecated: Use [ModalCreateBuilder.AddLabel] instead
 func (b *ModalCreateBuilder) AddActionRow(components ...InteractiveComponent) *ModalCreateBuilder {
 	b.Components = append(b.Components, ActionRowComponent{Components: components})
+	return b
+}
+
+// AddLabel adds a new discord.LabelSubComponent with the provided label and component to the ModalCreate
+func (b *ModalCreateBuilder) AddLabel(label string, component LabelSubComponent) *ModalCreateBuilder {
+	b.Components = append(b.Components, NewLabel(label, component))
 	return b
 }
 
