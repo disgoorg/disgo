@@ -11,6 +11,7 @@ var (
 	ErrNoGateway               = errors.New("no gateway configured")
 	ErrGatewayAlreadyConnected = errors.New("gateway is already connected")
 	ErrShardNotConnected       = errors.New("shard is not connected")
+	ErrShardNotReady           = errors.New("shard is not ready")
 	ErrShardNotFound           = errors.New("shard not found in shard manager")
 	ErrNoHTTPServer            = errors.New("no http server configured")
 
