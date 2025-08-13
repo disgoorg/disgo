@@ -14,7 +14,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
-var ErrInvalidWebhookURL = errors.New("invalid webhook URL")
+var ErrInvalidWebhookURL = errors.New("invalid webhook InteractionURL")
 
 // New creates a new Client with the given ID, Token and ConfigOpt(s).
 func New(id snowflake.ID, token string, opts ...ConfigOpt) *Client {
@@ -34,7 +34,7 @@ func New(id snowflake.ID, token string, opts ...ConfigOpt) *Client {
 func NewWithURL(webhookURL string, opts ...ConfigOpt) (*Client, error) {
 	u, err := url.Parse(webhookURL)
 	if err != nil {
-		return nil, fmt.Errorf("invalid webhook URL: %w", err)
+		return nil, fmt.Errorf("invalid webhook InteractionURL: %w", err)
 	}
 
 	parts := strings.FieldsFunc(u.Path, func(r rune) bool { return r == '/' })

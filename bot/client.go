@@ -9,7 +9,7 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/httpgateway"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/disgo/voice"
@@ -26,7 +26,7 @@ type Client struct {
 	EventManager          EventManager
 	ShardManager          sharding.ShardManager
 	Gateway               gateway.Gateway
-	HTTPServer            httpserver.Server
+	HTTPGateway           httpgateway.Gateway
 	VoiceManager          voice.Manager
 	Caches                cache.Caches
 	MemberChunkingManager MemberChunkingManager
@@ -45,8 +45,8 @@ func (c *Client) Close(ctx context.Context) {
 	if c.ShardManager != nil {
 		c.ShardManager.Close(ctx)
 	}
-	if c.HTTPServer != nil {
-		c.HTTPServer.Close(ctx)
+	if c.HTTPGateway != nil {
+		c.HTTPGateway.Close(ctx)
 	}
 }
 
@@ -168,16 +168,16 @@ func (c *Client) SetPresenceForShard(ctx context.Context, shardId int, opts ...g
 	return shard.Send(ctx, gateway.OpcodePresenceUpdate, applyPresenceFromOpts(shard, opts...))
 }
 
-func (c *Client) OpenHTTPServer() error {
-	if c.HTTPServer == nil {
+func (c *Client) OpenHTTPGateway() error {
+	if c.HTTPGateway == nil {
 		return discord.ErrNoHTTPServer
 	}
-	c.HTTPServer.Start()
+	c.HTTPGateway.Start()
 	return nil
 }
 
-func (c *Client) HasHTTPServer() bool {
-	return c.HTTPServer != nil
+func (c *Client) HasHTTPGateway() bool {
+	return c.HTTPGateway != nil
 }
 
 func applyPresenceFromOpts(g gateway.Gateway, opts ...gateway.PresenceOpt) gateway.MessageDataPresenceUpdate {

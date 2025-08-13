@@ -389,7 +389,7 @@ const (
 	ButtonStylePremium
 )
 
-// NewButton creates a new [ButtonComponent] with the provided parameters. Link ButtonComponent(s) need a URL and other ButtonComponent(s) need a customID
+// NewButton creates a new [ButtonComponent] with the provided parameters. Link ButtonComponent(s) need a InteractionURL and other ButtonComponent(s) need a customID
 func NewButton(style ButtonStyle, label string, customID string, url string, skuID snowflake.ID) ButtonComponent {
 	return ButtonComponent{
 		Style:    style,

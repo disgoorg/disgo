@@ -89,7 +89,7 @@ const (
 
 type (
 	// EventHandlerFunc is a function that is called when an event is received.
-	EventHandlerFunc func(gateway Gateway, eventType EventType, sequenceNumber int, event EventData)
+	EventHandlerFunc func(gateway Gateway, message Message)
 
 	// CreateFunc is a type that is used to create a new Gateway(s).
 	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway
@@ -579,17 +579,22 @@ loop:
 
 			// push message to the command manager
 			if g.config.EnableRawEvents {
-				g.eventHandlerFunc(g, EventTypeRaw, message.S, EventRaw{
-					EventType: message.T,
-					Payload:   bytes.NewReader(message.RawD),
+				g.eventHandlerFunc(g, Message{
+					Op: OpcodeDispatch,
+					T:  EventTypeRaw,
+					S:  message.S,
+					D: EventRaw{
+						EventType: message.T,
+						Payload:   bytes.NewReader(message.RawD),
+					},
+					RawD: message.RawD,
 				})
 			}
 
 			if unknownEvent, ok := eventData.(EventUnknown); ok {
 				g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
-				continue
 			}
-			g.eventHandlerFunc(g, message.T, message.S, eventData)
+			g.eventHandlerFunc(g, message)
 
 		case OpcodeHeartbeat:
 			g.sendHeartbeat()
@@ -622,9 +627,15 @@ loop:
 
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now().UTC()
-			g.eventHandlerFunc(g, EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
-				LastHeartbeat: g.lastHeartbeatReceived,
-				NewHeartbeat:  newHeartbeat,
+			g.eventHandlerFunc(g, Message{
+				Op: OpcodeDispatch,
+				T:  EventTypeHeartbeatAck,
+				S:  message.S,
+				D: EventHeartbeatAck{
+					LastHeartbeat: g.lastHeartbeatReceived,
+					NewHeartbeat:  newHeartbeat,
+				},
+				RawD: message.RawD,
 			})
 			g.lastHeartbeatReceived = newHeartbeat
 
@@ -643,7 +654,9 @@ func (g *gatewayImpl) parseMessage(mt int, r io.Reader) (Message, error) {
 		if err != nil {
 			return Message{}, fmt.Errorf("failed to decompress zlib: %w", err)
 		}
-		defer reader.Close()
+		defer func() {
+			_ = reader.Close()
+		}()
 		r = reader
 	}
 

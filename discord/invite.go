@@ -72,7 +72,7 @@ type InviteChannel struct {
 	Icon *string      `json:"icon,omitempty"`
 }
 
-// IconURL returns the Icon URL of this channel.
+// IconURL returns the Icon InteractionURL of this channel.
 // This will be nil for every ChannelType except ChannelTypeGroupDM
 func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
 	if c.Icon == nil {

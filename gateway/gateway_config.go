@@ -121,7 +121,7 @@ func WithCompress(compress bool) ConfigOpt {
 	}
 }
 
-// WithURL sets the Gateway URL for the Gateway.
+// WithURL sets the Gateway InteractionURL for the Gateway.
 func WithURL(url string) ConfigOpt {
 	return func(config *config) {
 		config.URL = url

@@ -7,18 +7,22 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/httpgateway"
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/disgo/voice"
 )
 
-func defaultConfig(gatewayHandlers map[gateway.EventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) config {
+func defaultConfig(gatewayHandler GatewayEventHandler, httpInteractionHandler HTTPInteractionEventHandler, httpGatewayHandler HTTPGatewayEventHandler) config {
 	return config{
-		Logger:                 slog.Default(),
-		EventManagerConfigOpts: []EventManagerConfigOpt{WithGatewayHandlers(gatewayHandlers), WithHTTPServerHandler(httpHandler)},
-		MemberChunkingFilter:   MemberChunkingFilterNone,
+		Logger: slog.Default(),
+		EventManagerConfigOpts: []EventManagerConfigOpt{
+			WithGatewayHandlers(gatewayHandler),
+			WithHTTPServerHandler(httpInteractionHandler),
+			WithHTTPGatewayHandler(httpGatewayHandler),
+		},
+		MemberChunkingFilter: MemberChunkingFilterNone,
 	}
 }
 
@@ -41,9 +45,9 @@ type config struct {
 	ShardManager           sharding.ShardManager
 	ShardManagerConfigOpts []sharding.ConfigOpt
 
-	HTTPServer           httpserver.Server
-	PublicKey            string
-	HTTPServerConfigOpts []httpserver.ConfigOpt
+	HTTPGateway           httpgateway.Gateway
+	PublicKey             string
+	HTTPGatewayConfigOpts []httpgateway.ConfigOpt
 
 	Caches          cache.Caches
 	CacheConfigOpts []cache.ConfigOpt
@@ -164,17 +168,17 @@ func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) ConfigOpt {
 }
 
 // WithHTTPServer lets you inject your own httpserver.Server.
-func WithHTTPServer(httpServer httpserver.Server) ConfigOpt {
+func WithHTTPServer(httpServer httpgateway.Gateway) ConfigOpt {
 	return func(config *config) {
-		config.HTTPServer = httpServer
+		config.HTTPGateway = httpServer
 	}
 }
 
 // WithHTTPServerConfigOpts lets you configure the default httpserver.Server.
-func WithHTTPServerConfigOpts(publicKey string, opts ...httpserver.ConfigOpt) ConfigOpt {
+func WithHTTPServerConfigOpts(publicKey string, opts ...httpgateway.ConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.PublicKey = publicKey
-		config.HTTPServerConfigOpts = append(config.HTTPServerConfigOpts, opts...)
+		config.HTTPGatewayConfigOpts = append(config.HTTPGatewayConfigOpts, opts...)
 	}
 }
 
@@ -206,20 +210,25 @@ func WithMemberChunkingFilter(memberChunkingFilter MemberChunkingFilter) ConfigO
 	}
 }
 
-func defaultHTTPServerEventHandlerFunc(client *Client) httpserver.EventHandlerFunc {
-	return client.EventManager.HandleHTTPEvent
-}
-
 func defaultGatewayEventHandlerFunc(client *Client) gateway.EventHandlerFunc {
 	return client.EventManager.HandleGatewayEvent
+}
+
+func defaultInteractionHandlerFunc(client *Client) httpgateway.InteractionHandlerFunc {
+	return client.EventManager.HandleHTTPInteractionEvent
+}
+
+func defaultHTTPGatewayEventHandlerFunc(client *Client) httpgateway.EventHandlerFunc {
+	return client.EventManager.HandleHTTPGatewayEvent
 }
 
 // BuildClient creates a new Client instance with the given Token, config, Gateway handlers, http handlers os, name, github & version.
 func BuildClient(
 	token string,
 	otps []ConfigOpt,
-	gatewayHandlers map[gateway.EventType]GatewayEventHandler,
-	httpHandler HTTPServerEventHandler,
+	gatewayHandler GatewayEventHandler,
+	httpInteractionHandler HTTPInteractionEventHandler,
+	httpGatewayHandler HTTPGatewayEventHandler,
 	os string,
 	name string,
 	github string,
@@ -233,7 +242,7 @@ func BuildClient(
 		return nil, fmt.Errorf("error while getting application id from Token: %w", err)
 	}
 
-	cfg := defaultConfig(gatewayHandlers, httpHandler)
+	cfg := defaultConfig(gatewayHandler, httpInteractionHandler, httpGatewayHandler)
 	cfg.apply(otps)
 
 	client := &Client{
@@ -325,17 +334,17 @@ func BuildClient(
 	}
 	client.ShardManager = cfg.ShardManager
 
-	if cfg.HTTPServer == nil && cfg.PublicKey != "" {
-		cfg.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
-			httpserver.WithLogger(cfg.Logger),
-		}, cfg.HTTPServerConfigOpts...)
+	if cfg.HTTPGateway == nil && cfg.PublicKey != "" {
+		cfg.HTTPGatewayConfigOpts = append([]httpgateway.ConfigOpt{
+			httpgateway.WithLogger(cfg.Logger),
+		}, cfg.HTTPGatewayConfigOpts...)
 
-		cfg.HTTPServer, err = httpserver.New(cfg.PublicKey, defaultHTTPServerEventHandlerFunc(client), cfg.HTTPServerConfigOpts...)
+		cfg.HTTPGateway, err = httpgateway.New(cfg.PublicKey, defaultInteractionHandlerFunc(client), defaultHTTPGatewayEventHandlerFunc(client), cfg.HTTPGatewayConfigOpts...)
 		if err != nil {
 			return nil, fmt.Errorf("error while creating http server: %w", err)
 		}
 	}
-	client.HTTPServer = cfg.HTTPServer
+	client.HTTPGateway = cfg.HTTPGateway
 
 	if cfg.MemberChunkingManager == nil {
 		cfg.MemberChunkingManager = NewMemberChunkingManager(client, cfg.Logger, cfg.MemberChunkingFilter)

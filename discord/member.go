@@ -49,7 +49,7 @@ func (m Member) EffectiveName() string {
 	return m.User.EffectiveName()
 }
 
-// EffectiveAvatarURL returns the guild-specific avatar URL of the user if set, falling back to the effective avatar URL of the user
+// EffectiveAvatarURL returns the guild-specific avatar InteractionURL of the user if set, falling back to the effective avatar InteractionURL of the user
 func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if m.Avatar == nil {
 		return m.User.EffectiveAvatarURL(opts...)
@@ -57,7 +57,7 @@ func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
 }
 
-// AvatarURL returns the guild-specific avatar URL of the user if set or nil
+// AvatarURL returns the guild-specific avatar InteractionURL of the user if set or nil
 func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	if m.Avatar == nil {
 		return nil
@@ -66,7 +66,7 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-// EffectiveBannerURL returns the guild-specific banner URL of the user if set, falling back to the banner URL of the user
+// EffectiveBannerURL returns the guild-specific banner InteractionURL of the user if set, falling back to the banner InteractionURL of the user
 func (m Member) EffectiveBannerURL(opts ...CDNOpt) string {
 	if m.Banner == nil {
 		if banner := m.User.BannerURL(opts...); banner != nil {
@@ -77,7 +77,7 @@ func (m Member) EffectiveBannerURL(opts ...CDNOpt) string {
 	return formatAssetURL(MemberBanner, opts, m.GuildID, m.User.ID, *m.Banner)
 }
 
-// BannerURL returns the guild-specific banner URL of the user if set or nil
+// BannerURL returns the guild-specific banner InteractionURL of the user if set or nil
 func (m Member) BannerURL(opts ...CDNOpt) *string {
 	if m.Banner == nil {
 		return nil
@@ -86,7 +86,7 @@ func (m Member) BannerURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-// AvatarDecorationURL returns the avatar decoration URL if set or nil
+// AvatarDecorationURL returns the avatar decoration InteractionURL if set or nil
 func (m Member) AvatarDecorationURL(opts ...CDNOpt) *string {
 	if m.AvatarDecorationData == nil {
 		return nil

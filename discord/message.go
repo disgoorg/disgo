@@ -165,7 +165,7 @@ func (m Message) AllComponents() iter.Seq[Component] {
 	return componentIter(m.Components)
 }
 
-// JumpURL returns the URL which can be used to jump to the message in the discord client.
+// JumpURL returns the InteractionURL which can be used to jump to the message in the discord client.
 func (m Message) JumpURL() string {
 	guildID := "@me"
 	if m.GuildID != nil {

@@ -44,11 +44,11 @@ func TestParseURL(t *testing.T) {
 		t.Run(tc.URL, func(t *testing.T) {
 			c, err := NewWithURL(tc.URL)
 			if tc.Err {
-				assert.Error(t, err, "URL parsing should have resulted in an error")
+				assert.Error(t, err, "InteractionURL parsing should have resulted in an error")
 				return
 			}
-			assert.Equal(t, tc.ID, c.ID, "URL ID should match")
-			assert.Equal(t, tc.Token, c.Token, "URL Token should match")
+			assert.Equal(t, tc.ID, c.ID, "InteractionURL ID should match")
+			assert.Equal(t, tc.Token, c.Token, "InteractionURL Token should match")
 		})
 	}
 }

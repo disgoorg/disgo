@@ -44,7 +44,7 @@ var (
 
 type customVerifier struct{}
 
-func (customVerifier) Verify(publicKey httpserver.PublicKey, message, sig []byte) bool {
+func (customVerifier) Verify(publicKey httpgateway.PublicKey, message, sig []byte) bool {
 	return ed25519.Verify(publicKey, message, sig)
 }
 
@@ -58,10 +58,10 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithHTTPServerConfigOpts(publicKey,
-			httpserver.WithURL("/interactions/callback"),
-			httpserver.WithAddress(":80"),
+			httpgateway.WithURL("/interactions/callback"),
+			httpgateway.WithAddress(":80"),
 			// use custom ed25519 verify implementation
-			httpserver.WithVerifier(customVerifier{}),
+			httpgateway.WithVerifier(customVerifier{}),
 		),
 		bot.WithEventListenerFunc(commandListener),
 	)
@@ -75,7 +75,7 @@ func main() {
 		panic("error while registering commands: " + err.Error())
 	}
 
-	if err = client.OpenHTTPServer(); err != nil {
+	if err = client.OpenHTTPGateway(); err != nil {
 		panic("error while starting http server: " + err.Error())
 	}
 

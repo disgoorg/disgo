@@ -1,4 +1,4 @@
-package httpserver
+package httpgateway
 
 import (
 	"log/slog"
@@ -7,24 +7,26 @@ import (
 
 func defaultConfig() config {
 	return config{
-		Logger:     slog.Default(),
-		HTTPServer: &http.Server{},
-		ServeMux:   http.NewServeMux(),
-		URL:        "/interactions/callback",
-		Address:    ":80",
-		Verifier:   DefaultVerifier{},
+		Logger:         slog.Default(),
+		HTTPServer:     &http.Server{},
+		ServeMux:       http.NewServeMux(),
+		InteractionURL: "/interactions/callback",
+		EventURL:       "/events/callback",
+		Address:        ":80",
+		Verifier:       DefaultVerifier{},
 	}
 }
 
 type config struct {
-	Logger     *slog.Logger
-	HTTPServer *http.Server
-	ServeMux   *http.ServeMux
-	URL        string
-	Address    string
-	CertFile   string
-	KeyFile    string
-	Verifier   Verifier
+	Logger         *slog.Logger
+	HTTPServer     *http.Server
+	ServeMux       *http.ServeMux
+	InteractionURL string
+	EventURL       string
+	Address        string
+	CertFile       string
+	KeyFile        string
+	Verifier       Verifier
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
@@ -58,10 +60,17 @@ func WithServeMux(serveMux *http.ServeMux) ConfigOpt {
 	}
 }
 
-// WithURL sets the URL of the config.
-func WithURL(url string) ConfigOpt {
+// WithInteractionURL sets the InteractionURL of the config.
+func WithInteractionURL(url string) ConfigOpt {
 	return func(config *config) {
-		config.URL = url
+		config.InteractionURL = url
+	}
+}
+
+// WithEventURL sets the EventURL of the config.
+func WithEventURL(url string) ConfigOpt {
+	return func(config *config) {
+		config.EventURL = url
 	}
 }
 

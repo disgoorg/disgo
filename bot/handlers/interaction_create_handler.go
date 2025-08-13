@@ -8,7 +8,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/httpgateway"
 	"github.com/disgoorg/disgo/rest"
 )
 
@@ -16,7 +16,7 @@ func gatewayHandlerInteractionCreate(client *bot.Client, sequenceNumber int, sha
 	handleInteraction(client, sequenceNumber, shardID, nil, event.Interaction)
 }
 
-func respond(client *bot.Client, respondFunc httpserver.RespondFunc, interaction discord.Interaction) events.InteractionResponderFunc {
+func respond(client *bot.Client, respondFunc httpgateway.RespondFunc, interaction discord.Interaction) events.InteractionResponderFunc {
 	return func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
 		response := discord.InteractionResponse{
 			Type: responseType,
@@ -29,7 +29,7 @@ func respond(client *bot.Client, respondFunc httpserver.RespondFunc, interaction
 	}
 }
 
-func handleInteraction(client *bot.Client, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, interaction discord.Interaction) {
+func handleInteraction(client *bot.Client, sequenceNumber int, shardID int, respondFunc httpgateway.RespondFunc, interaction discord.Interaction) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	client.EventManager.DispatchEvent(&events.InteractionCreate{

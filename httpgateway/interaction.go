@@ -1,9 +1,8 @@
-package httpserver
+package httpgateway
 
 import (
 	"bytes"
 	"context"
-	"encoding/hex"
 	"io"
 	"log/slog"
 	"net/http"
@@ -13,14 +12,6 @@ import (
 	"github.com/disgoorg/json/v2"
 
 	"github.com/disgoorg/disgo/discord"
-)
-
-type (
-	// EventHandlerFunc is used to handle events from Discord's Outgoing Webhooks
-	EventHandlerFunc func(responseFunc RespondFunc, event EventInteractionCreate)
-
-	// RespondFunc is used to respond to Discord's Outgoing Webhooks
-	RespondFunc func(response discord.InteractionResponse) error
 )
 
 // EventInteractionCreate is the event payload when an interaction is created via Discord's Outgoing Webhooks
@@ -41,49 +32,6 @@ func (e EventInteractionCreate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(e.Interaction)
 }
 
-// VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
-// Credit: https://github.com/bsdlp/discord-interactions-go/blob/main/interactions/verify.go
-func VerifyRequest(verifier Verifier, r *http.Request, key PublicKey) bool {
-	var msg bytes.Buffer
-
-	signature := r.Header.Get("X-Signature-Ed25519")
-	if signature == "" {
-		return false
-	}
-
-	sig, err := hex.DecodeString(signature)
-	if err != nil {
-		return false
-	}
-
-	if len(sig) != verifier.SignatureSize() || sig[63]&224 != 0 {
-		return false
-	}
-
-	timestamp := r.Header.Get("X-Signature-Timestamp")
-	if timestamp == "" {
-		return false
-	}
-
-	msg.WriteString(timestamp)
-
-	defer func() {
-		_ = r.Body.Close()
-	}()
-	var body bytes.Buffer
-
-	defer func() {
-		r.Body = io.NopCloser(&body)
-	}()
-
-	_, err = io.Copy(&msg, io.TeeReader(r.Body, &body))
-	if err != nil {
-		return false
-	}
-
-	return verifier.Verify(key, msg.Bytes(), sig)
-}
-
 type replyStatus int
 
 const (
@@ -93,18 +41,18 @@ const (
 )
 
 // HandleInteraction handles an interaction from Discord's Outgoing Webhooks. It verifies and parses the interaction and then calls the passed EventHandlerFunc.
-func HandleInteraction(verifier Verifier, publicKey PublicKey, logger *slog.Logger, handleFunc EventHandlerFunc) http.HandlerFunc {
+func HandleInteraction(verifier Verifier, publicKey PublicKey, logger *slog.Logger, handleFunc InteractionHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			_ = r.Body.Close()
+		}()
+
 		if ok := VerifyRequest(verifier, r, publicKey); !ok {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			data, _ := io.ReadAll(r.Body)
 			logger.Debug("received http interaction with invalid signature", slog.String("body", string(data)))
 			return
 		}
-
-		defer func() {
-			_ = r.Body.Close()
-		}()
 
 		buff := new(bytes.Buffer)
 		rqData, _ := io.ReadAll(io.TeeReader(r.Body, buff))
