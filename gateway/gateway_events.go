@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	"io"
 	"time"
 
@@ -49,6 +50,48 @@ type EventResumed struct{}
 
 func (EventResumed) messageData() {}
 func (EventResumed) eventData()   {}
+
+type EventRateLimited struct {
+	Opcode     Opcode                      `json:"opcode"`
+	RetryAfter float64                     `json:"retry_after"`
+	Metadata   discord.RateLimitedMetadata `json:"meta"`
+}
+
+func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
+	var partialEvent struct {
+		Opcode     Opcode  `json:"opcode"`
+		RetryAfter float64 `json:"retry_after"`
+		Metadata   []byte  `json:"meta"`
+	}
+
+	if err := json.Unmarshal(data, &partialEvent); err != nil {
+		return err
+	}
+
+	var (
+		metadata discord.RateLimitedMetadata
+		err      error
+	)
+
+	switch partialEvent.Opcode {
+	case OpcodeRequestGuildMembers:
+		v := discord.RequestGuildMemberRateLimitMetadata{}
+		err = json.Unmarshal(partialEvent.Metadata, &v)
+		metadata = v
+
+	default:
+		err = fmt.Errorf("unknown ratelimited event for opcode %d received", partialEvent.Opcode)
+	}
+
+	e.Opcode = partialEvent.Opcode
+	e.RetryAfter = partialEvent.RetryAfter
+	e.Metadata = metadata
+
+	return err
+}
+
+func (EventRateLimited) messageData() {}
+func (EventRateLimited) eventData()   {}
 
 type EventApplicationCommandPermissionsUpdate struct {
 	discord.ApplicationCommandPermissions
