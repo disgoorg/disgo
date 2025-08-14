@@ -123,6 +123,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 	case EventTypeResumed:
 		eventData = EventResumed{}
 
+	case EventTypeRateLimited:
+		var d EventRateLimited
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeApplicationCommandPermissionsUpdate:
 		var d EventApplicationCommandPermissionsUpdate
 		err = json.Unmarshal(data, &d)
