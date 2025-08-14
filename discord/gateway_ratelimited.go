@@ -9,9 +9,9 @@ type RateLimitedMetadata interface {
 	ratelimitedmetadata()
 }
 
-type RequestGuildMemberRateLimitMetadata struct {
+type RequestGuildMemberRateLimitedMetadata struct {
 	GuildID snowflake.ID `json:"guild_id"`
 	Nonce   string       `json:"nonce"`
 }
 
-func (RequestGuildMemberRateLimitMetadata) ratelimitedmetadata() {}
+func (RequestGuildMemberRateLimitedMetadata) ratelimitedmetadata() {}

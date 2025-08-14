@@ -75,7 +75,7 @@ func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
 
 	switch partialEvent.Opcode {
 	case OpcodeRequestGuildMembers:
-		v := discord.RequestGuildMemberRateLimitMetadata{}
+		v := discord.RequestGuildMemberRateLimitedMetadata{}
 		err = json.Unmarshal(partialEvent.Metadata, &v)
 		metadata = v
 
