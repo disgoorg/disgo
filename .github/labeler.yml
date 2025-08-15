@@ -15,6 +15,12 @@
 "t:gateway":
   - changed-files:
       - any-glob-to-any-file: [ 'gateway/*' ]
+"t:http interaction":
+  - changed-files:
+      - any-glob-to-any-file: [ 'httpinteraction/*' ]
+"t:webhook event":
+  - changed-files:
+      - any-glob-to-any-file: [ 'webhookevent/*' ]
 "t:handler":
   - changed-files:
       - any-glob-to-any-file: [ 'handler/*' ]
