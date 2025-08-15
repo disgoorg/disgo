@@ -47,11 +47,11 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		messageEvent = EventPing{}
 	case MessageTypeEvent:
 		var d Event
-		err = json.Unmarshal(data, &v.Event)
+		err = json.Unmarshal(v.Event, &d)
 		messageEvent = d
 	default:
 		var d EventUnknown
-		err = json.Unmarshal(data, &v.Event)
+		err = json.Unmarshal(v.Event, &d)
 		messageEvent = d
 	}
 	if err != nil {
@@ -113,23 +113,23 @@ func (m *Event) UnmarshalJSON(data []byte) error {
 	switch v.Type {
 	case EventTypeApplicationAuthorized:
 		var d EventDataApplicationAuthorized
-		err = json.Unmarshal(data, &v.Data)
+		err = json.Unmarshal(v.Data, &d)
 		eventData = d
 	case EventTypeApplicationDeauthorized:
 		var d EventDataApplicationDeauthorized
-		err = json.Unmarshal(data, &v.Data)
+		err = json.Unmarshal(v.Data, &d)
 		eventData = d
 	case EventTypeEntitlementCreate:
 		var d EventDataEntitlementCreate
-		err = json.Unmarshal(data, &v.Data)
+		err = json.Unmarshal(v.Data, &d)
 		eventData = d
 	case EventTypeQuestUserEnrollment:
 		var d EventDataQuestUserEnrollment
-		err = json.Unmarshal(data, &v.Data)
+		err = json.Unmarshal(v.Data, &d)
 		eventData = d
 	default:
 		var d EventDataUnknown
-		err = json.Unmarshal(data, &v.Data)
+		err = json.Unmarshal(v.Data, &d)
 		eventData = d
 	}
 	if err != nil {
