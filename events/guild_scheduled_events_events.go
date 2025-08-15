@@ -8,7 +8,8 @@ import (
 
 // GenericGuildScheduledEvent is the base struct for all GuildScheduledEvents events.
 type GenericGuildScheduledEvent struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildScheduled discord.GuildScheduledEvent
 }
 
@@ -30,7 +31,8 @@ type GuildScheduledEventDelete struct {
 
 // GenericGuildScheduledEventUser is the base struct for all GuildScheduledEventUser events.
 type GenericGuildScheduledEventUser struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildScheduledEventID snowflake.ID
 	UserID                snowflake.ID
 	GuildID               snowflake.ID

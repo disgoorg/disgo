@@ -8,7 +8,8 @@ import (
 
 // GenericReaction is called upon receiving MessageReactionAdd or MessageReactionRemove
 type GenericReaction struct {
-	*GenericEvent
+	*GatewayEvent
+	*Event
 	UserID      snowflake.ID
 	ChannelID   snowflake.ID
 	MessageID   snowflake.ID
@@ -31,7 +32,8 @@ type MessageReactionRemove struct {
 
 // MessageReactionRemoveEmoji indicates someone removed all discord.MessageReaction of a specific discord.Emoji from a discord.Message in a discord.Channel(requires the gateway.IntentGuildMessageReactions and/or gateway.IntentDirectMessageReactions)
 type MessageReactionRemoveEmoji struct {
-	*GenericEvent
+	*GatewayEvent
+	*Event
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
 	GuildID   *snowflake.ID
@@ -40,7 +42,8 @@ type MessageReactionRemoveEmoji struct {
 
 // MessageReactionRemoveAll indicates someone removed all discord.MessageReaction(s) from a discord.Message in a discord.Channel(requires the gateway.IntentGuildMessageReactions and/or gateway.IntentDirectMessageReactions)
 type MessageReactionRemoveAll struct {
-	*GenericEvent
+	*GatewayEvent
+	*Event
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
 	GuildID   *snowflake.ID

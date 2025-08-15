@@ -12,7 +12,8 @@ var _ bot.EventListener = (*ListenerAdapter)(nil)
 // ListenerAdapter lets you override the handles for receiving events
 type ListenerAdapter struct {
 	// raw event
-	OnRaw func(event *Raw)
+	OnGatewayRaw func(event *GatewayRaw)
+	OnWebhookRaw func(event *WebhookRaw)
 
 	// heartbeat ack event
 	OnHeartbeatAck func(event *HeartbeatAck)
@@ -208,8 +209,12 @@ type ListenerAdapter struct {
 // OnEvent is getting called everytime we receive an event
 func (l *ListenerAdapter) OnEvent(event bot.Event) {
 	switch e := event.(type) {
-	case *Raw:
-		if listener := l.OnRaw; listener != nil {
+	case *GatewayRaw:
+		if listener := l.OnGatewayRaw; listener != nil {
+			listener(e)
+		}
+	case *WebhookRaw:
+		if listener := l.OnWebhookRaw; listener != nil {
 			listener(e)
 		}
 

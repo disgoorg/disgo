@@ -2,14 +2,15 @@ package bot
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"net/http"
 
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/disgo/voice"
@@ -26,7 +27,7 @@ type Client struct {
 	EventManager          EventManager
 	ShardManager          sharding.ShardManager
 	Gateway               gateway.Gateway
-	HTTPServer            httpserver.Server
+	HTTPServer            *http.Server
 	VoiceManager          voice.Manager
 	Caches                cache.Caches
 	MemberChunkingManager MemberChunkingManager
@@ -46,7 +47,7 @@ func (c *Client) Close(ctx context.Context) {
 		c.ShardManager.Close(ctx)
 	}
 	if c.HTTPServer != nil {
-		c.HTTPServer.Close(ctx)
+		_ = c.HTTPServer.Close()
 	}
 }
 
@@ -172,7 +173,11 @@ func (c *Client) OpenHTTPServer() error {
 	if c.HTTPServer == nil {
 		return discord.ErrNoHTTPServer
 	}
-	c.HTTPServer.Start()
+	go func() {
+		if err := c.HTTPServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			c.Logger.Error("HTTP server failed to run", slog.Any("err", err))
+		}
+	}()
 	return nil
 }
 

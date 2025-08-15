@@ -8,7 +8,8 @@ import (
 
 // GenericMessage generic discord.Message event
 type GenericMessage struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	MessageID snowflake.ID
 	Message   discord.Message
 	ChannelID snowflake.ID

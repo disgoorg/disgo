@@ -10,13 +10,15 @@ import (
 // EmojisUpdate is dispatched when a guild's emojis are updated.
 // This event does not depend on a cache like EmojiCreate, EmojiUpdate or EmojiDelete.
 type EmojisUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	gateway.EventGuildEmojisUpdate
 }
 
 // GenericEmoji is called upon receiving EmojiCreate , EmojiUpdate or EmojiDelete (requires gateway.IntentGuildExpressions)
 type GenericEmoji struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID snowflake.ID
 	Emoji   discord.Emoji
 }

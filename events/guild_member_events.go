@@ -10,7 +10,8 @@ import (
 
 // GenericGuildMember generic discord.Member event
 type GenericGuildMember struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID snowflake.ID
 	Member  discord.Member
 }
@@ -28,7 +29,8 @@ type GuildMemberUpdate struct {
 
 // GuildMemberLeave indicates that a discord.Member left the discord.Guild
 type GuildMemberLeave struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID snowflake.ID
 	User    discord.User
 	Member  discord.Member
@@ -39,7 +41,8 @@ type GuildMemberLeave struct {
 //
 // [Clyde bot]: https://support.discord.com/hc/en-us/articles/13066317497239-Clyde-Discord-s-AI-Chatbot
 type GuildMemberTypingStart struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	ChannelID snowflake.ID
 	UserID    snowflake.ID
 	GuildID   snowflake.ID
