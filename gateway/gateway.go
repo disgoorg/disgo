@@ -640,7 +640,6 @@ loop:
 			g.lastHeartbeatReceived = newHeartbeat
 
 		default:
-
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
 		}
 	}

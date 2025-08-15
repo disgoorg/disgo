@@ -3,15 +3,17 @@ package bot
 import (
 	"fmt"
 	"log/slog"
+	"net/http"
 
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpgateway"
+	"github.com/disgoorg/disgo/httpinteraction"
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/disgo/voice"
+	"github.com/disgoorg/disgo/webhookevent"
 )
 
 func defaultConfig(gatewayHandler GatewayEventHandler, httpInteractionHandler HTTPInteractionEventHandler, httpGatewayHandler HTTPGatewayEventHandler) config {
@@ -23,6 +25,9 @@ func defaultConfig(gatewayHandler GatewayEventHandler, httpInteractionHandler HT
 			WithHTTPGatewayHandler(httpGatewayHandler),
 		},
 		MemberChunkingFilter: MemberChunkingFilterNone,
+		HTTPServer:           &http.Server{},
+		ServeMux:             http.NewServeMux(),
+		Address:              ":80",
 	}
 }
 
@@ -45,9 +50,14 @@ type config struct {
 	ShardManager           sharding.ShardManager
 	ShardManagerConfigOpts []sharding.ConfigOpt
 
-	HTTPGateway           httpgateway.Gateway
-	PublicKey             string
-	HTTPGatewayConfigOpts []httpgateway.ConfigOpt
+	HTTPServer                *http.Server
+	ServeMux                  *http.ServeMux
+	Address                   string
+	PublicKey                 string
+	CertFile                  string
+	KeyFile                   string
+	HTTPInteractionConfigOpts []httpinteraction.ConfigOpt
+	WebhookEventConfigOpts    []webhookevent.ConfigOpt
 
 	Caches          cache.Caches
 	CacheConfigOpts []cache.ConfigOpt
@@ -167,18 +177,58 @@ func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithHTTPServer lets you inject your own httpserver.Server.
-func WithHTTPServer(httpServer httpgateway.Gateway) ConfigOpt {
+func WithHTTPServer(httpServer *http.Server) ConfigOpt {
 	return func(config *config) {
-		config.HTTPGateway = httpServer
+		config.HTTPServer = httpServer
 	}
 }
 
-// WithHTTPServerConfigOpts lets you configure the default httpserver.Server.
-func WithHTTPServerConfigOpts(publicKey string, opts ...httpgateway.ConfigOpt) ConfigOpt {
+func WithServeMux(serveMux *http.ServeMux) ConfigOpt {
+	return func(config *config) {
+		config.ServeMux = serveMux
+	}
+}
+
+// WithAddress sets the address the HTTP server will listen on.
+func WithAddress(address string) ConfigOpt {
+	return func(config *config) {
+		config.Address = address
+	}
+}
+
+// WithCert lets you set the certificate and key files for the HTTP server.
+func WithCert(certFile string, keyFile string) ConfigOpt {
+	return func(config *config) {
+		config.CertFile = certFile
+		config.KeyFile = keyFile
+	}
+}
+
+func WithHTTPInteractionConfigOpts(publicKey string, opts ...httpinteraction.ConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.PublicKey = publicKey
-		config.HTTPGatewayConfigOpts = append(config.HTTPGatewayConfigOpts, opts...)
+		config.HTTPInteractionConfigOpts = append(config.HTTPInteractionConfigOpts, opts...)
+	}
+}
+
+func WithDefaultHTTPInteractions(publicKey string) ConfigOpt {
+	return func(config *config) {
+		config.PublicKey = publicKey
+		config.HTTPInteractionConfigOpts = append(config.HTTPInteractionConfigOpts, httpinteraction.WithDefault())
+	}
+}
+
+func WithWebhookEventConfigOpts(publicKey string, opts ...webhookevent.ConfigOpt) ConfigOpt {
+	return func(config *config) {
+		config.PublicKey = publicKey
+		config.WebhookEventConfigOpts = append(config.WebhookEventConfigOpts, opts...)
+	}
+}
+
+func WithDefaultWebhookEvents(publicKey string) ConfigOpt {
+	return func(config *config) {
+		config.PublicKey = publicKey
+		config.WebhookEventConfigOpts = append(config.WebhookEventConfigOpts, webhookevent.WithDefault())
 	}
 }
 
@@ -214,11 +264,11 @@ func defaultGatewayEventHandlerFunc(client *Client) gateway.EventHandlerFunc {
 	return client.EventManager.HandleGatewayEvent
 }
 
-func defaultInteractionHandlerFunc(client *Client) httpgateway.InteractionHandlerFunc {
+func defaultInteractionHandlerFunc(client *Client) httpinteraction.InteractionHandlerFunc {
 	return client.EventManager.HandleHTTPInteractionEvent
 }
 
-func defaultHTTPGatewayEventHandlerFunc(client *Client) httpgateway.EventHandlerFunc {
+func defaultHTTPGatewayEventHandlerFunc(client *Client) webhookevent.EventHandlerFunc {
 	return client.EventManager.HandleHTTPGatewayEvent
 }
 
@@ -334,17 +384,29 @@ func BuildClient(
 	}
 	client.ShardManager = cfg.ShardManager
 
-	if cfg.HTTPGateway == nil && cfg.PublicKey != "" {
-		cfg.HTTPGatewayConfigOpts = append([]httpgateway.ConfigOpt{
-			httpgateway.WithLogger(cfg.Logger),
-		}, cfg.HTTPGatewayConfigOpts...)
+	if len(cfg.HTTPInteractionConfigOpts) > 0 || len(cfg.WebhookEventConfigOpts) > 0 {
+		cfg.HTTPInteractionConfigOpts = append([]httpinteraction.ConfigOpt{
+			httpinteraction.WithLogger(cfg.Logger),
+		}, cfg.HTTPInteractionConfigOpts...)
 
-		cfg.HTTPGateway, err = httpgateway.New(cfg.PublicKey, defaultInteractionHandlerFunc(client), defaultHTTPGatewayEventHandlerFunc(client), cfg.HTTPGatewayConfigOpts...)
-		if err != nil {
-			return nil, fmt.Errorf("error while creating http server: %w", err)
+		if err = httpinteraction.New(cfg.ServeMux, cfg.PublicKey, defaultInteractionHandlerFunc(client), cfg.HTTPInteractionConfigOpts...); err != nil {
+			return nil, fmt.Errorf("error while initializing http interaction handler: %w", err)
 		}
+
+		cfg.WebhookEventConfigOpts = append([]webhookevent.ConfigOpt{
+			webhookevent.WithLogger(cfg.Logger),
+		}, cfg.WebhookEventConfigOpts...)
+
+		if err = webhookevent.New(cfg.ServeMux, cfg.PublicKey, defaultHTTPGatewayEventHandlerFunc(client), cfg.WebhookEventConfigOpts...); err != nil {
+			return nil, fmt.Errorf("error while initializing webhook event handler: %w", err)
+		}
+
+		if cfg.HTTPServer.Addr == "" {
+			cfg.HTTPServer.Addr = cfg.Address
+		}
+		cfg.HTTPServer.Handler = cfg.ServeMux
 	}
-	client.HTTPGateway = cfg.HTTPGateway
+	client.HTTPServer = cfg.HTTPServer
 
 	if cfg.MemberChunkingManager == nil {
 		cfg.MemberChunkingManager = NewMemberChunkingManager(client, cfg.Logger, cfg.MemberChunkingFilter)

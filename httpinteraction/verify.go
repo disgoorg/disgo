@@ -1,4 +1,4 @@
-package httpgateway
+package httpinteraction
 
 import (
 	"bytes"
@@ -11,8 +11,8 @@ import (
 // PublicKey is the type of Ed25519 public keys.
 type PublicKey = []byte
 
-// Verifier is used to verify Ed25519 signatures.
-type Verifier interface {
+// KeyVerifier is used to verify Ed25519 signatures.
+type KeyVerifier interface {
 	// Verify verifies the signature of the message using the public key.
 	// It returns true if the signature is valid, false otherwise.
 	Verify(publicKey PublicKey, message []byte, sig []byte) bool
@@ -21,7 +21,7 @@ type Verifier interface {
 	SignatureSize() int
 }
 
-// DefaultVerifier is the default implementation of the Verifier interface.
+// DefaultVerifier is the default implementation of the KeyVerifier interface.
 type DefaultVerifier struct{}
 
 func (DefaultVerifier) Verify(publicKey PublicKey, message []byte, sig []byte) bool {
@@ -34,7 +34,7 @@ func (DefaultVerifier) SignatureSize() int {
 
 // VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
 // Credit: https://github.com/bsdlp/discord-interactions-go/blob/main/interactions/verify.go
-func VerifyRequest(verifier Verifier, r *http.Request, key PublicKey) bool {
+func VerifyRequest(verifier KeyVerifier, r *http.Request, key PublicKey) bool {
 	var msg bytes.Buffer
 
 	signature := r.Header.Get("X-Signature-Ed25519")

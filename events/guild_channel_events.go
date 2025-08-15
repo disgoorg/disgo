@@ -10,7 +10,8 @@ import (
 
 // GenericGuildChannel is called upon receiving GuildChannelCreate , GuildChannelUpdate or GuildChannelDelete
 type GenericGuildChannel struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	ChannelID snowflake.ID
 	Channel   discord.GuildChannel
 	GuildID   snowflake.ID
@@ -40,7 +41,8 @@ type GuildChannelDelete struct {
 
 // GuildChannelPinsUpdate indicates a discord.Message got pinned or unpinned in a discord.GuildMessageChannel
 type GuildChannelPinsUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID             snowflake.ID
 	ChannelID           snowflake.ID
 	NewLastPinTimestamp *time.Time

@@ -8,7 +8,8 @@ import (
 
 // GenericGuild represents a generic guild event
 type GenericGuild struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID snowflake.ID
 }
 
@@ -51,7 +52,8 @@ type GuildReady struct {
 
 // GuildsReady is called when all discord.Guild(s) are loaded after logging in
 type GuildsReady struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 }
 
 // GuildBan is called when a discord.Member/discord.User is banned from the discord.Guild

@@ -1,8 +1,10 @@
-package httpgateway
+package httpinteraction
 
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -14,22 +16,31 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-// EventInteractionCreate is the event payload when an interaction is created via Discord's Outgoing Webhooks
-type EventInteractionCreate struct {
-	discord.Interaction
+type (
+	// InteractionHandlerFunc is used to handle events from Discord's Outgoing Webhooks
+	InteractionHandlerFunc func(respond RespondFunc, event EventInteractionCreate)
+
+	// RespondFunc is used to respond to Discord's Outgoing Webhooks
+	RespondFunc func(response discord.InteractionResponse) error
+)
+
+type HTTPHandler interface {
+	Handle(pattern string, handler http.Handler)
 }
 
-func (e *EventInteractionCreate) UnmarshalJSON(data []byte) error {
-	interaction, err := discord.UnmarshalInteraction(data)
+// New creates a new Server with the given publicKey eventHandlerFunc and ConfigOpt(s)
+func New(handler HTTPHandler, publicKey string, interactionHandler InteractionHandlerFunc, opts ...ConfigOpt) error {
+	cfg := defaultConfig()
+	cfg.apply(opts)
+
+	hexDecodedKey, err := hex.DecodeString(publicKey)
 	if err != nil {
-		return err
+		return fmt.Errorf("error decoding public key: %w", err)
 	}
-	e.Interaction = interaction
-	return nil
-}
 
-func (e EventInteractionCreate) MarshalJSON() ([]byte, error) {
-	return json.Marshal(e.Interaction)
+	handler.Handle(cfg.Endpoint, HandleInteraction(cfg.Verifier, hexDecodedKey, cfg.Logger, interactionHandler))
+
+	return nil
 }
 
 type replyStatus int
@@ -41,7 +52,7 @@ const (
 )
 
 // HandleInteraction handles an interaction from Discord's Outgoing Webhooks. It verifies and parses the interaction and then calls the passed EventHandlerFunc.
-func HandleInteraction(verifier Verifier, publicKey PublicKey, logger *slog.Logger, handleFunc InteractionHandlerFunc) http.HandlerFunc {
+func HandleInteraction(verifier KeyVerifier, publicKey PublicKey, logger *slog.Logger, handleFunc InteractionHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			_ = r.Body.Close()

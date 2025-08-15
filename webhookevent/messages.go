@@ -1,7 +1,8 @@
-package httpgateway
+package webhookevent
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -175,3 +176,10 @@ func (EventDataQuestUserEnrollment) eventData() {}
 type EventDataUnknown json.RawMessage
 
 func (EventDataUnknown) eventData() {}
+
+type EventDataRaw struct {
+	EventType EventType
+	Payload   io.Reader
+}
+
+func (EventDataRaw) eventData() {}

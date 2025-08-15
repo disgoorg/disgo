@@ -11,7 +11,8 @@ func gatewayHandlerStageInstanceCreate(client *bot.Client, sequenceNumber int, s
 
 	client.EventManager.DispatchEvent(&events.StageInstanceCreate{
 		GenericStageInstance: &events.GenericStageInstance{
-			GenericEvent:    events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:           events.NewEvent(client),
+			GatewayEvent:    events.NewGatewayEvent(sequenceNumber, shardID),
 			StageInstanceID: event.ID,
 			StageInstance:   event.StageInstance,
 		},
@@ -24,7 +25,8 @@ func gatewayHandlerStageInstanceUpdate(client *bot.Client, sequenceNumber int, s
 
 	client.EventManager.DispatchEvent(&events.StageInstanceUpdate{
 		GenericStageInstance: &events.GenericStageInstance{
-			GenericEvent:    events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:           events.NewEvent(client),
+			GatewayEvent:    events.NewGatewayEvent(sequenceNumber, shardID),
 			StageInstanceID: event.ID,
 			StageInstance:   event.StageInstance,
 		},
@@ -37,7 +39,8 @@ func gatewayHandlerStageInstanceDelete(client *bot.Client, sequenceNumber int, s
 
 	client.EventManager.DispatchEvent(&events.StageInstanceDelete{
 		GenericStageInstance: &events.GenericStageInstance{
-			GenericEvent:    events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:           events.NewEvent(client),
+			GatewayEvent:    events.NewGatewayEvent(sequenceNumber, shardID),
 			StageInstanceID: event.ID,
 			StageInstance:   event.StageInstance,
 		},

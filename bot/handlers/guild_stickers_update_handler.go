@@ -17,7 +17,8 @@ type updatedSticker struct {
 
 func gatewayHandlerGuildStickersUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildStickersUpdate) {
 	client.EventManager.DispatchEvent(&events.StickersUpdate{
-		GenericEvent:             events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:                    events.NewEvent(client),
+		GatewayEvent:             events.NewGatewayEvent(sequenceNumber, shardID),
 		EventGuildStickersUpdate: event,
 	})
 
@@ -48,7 +49,8 @@ func gatewayHandlerGuildStickersUpdate(client *bot.Client, sequenceNumber int, s
 	for _, emoji := range createdStickers {
 		client.EventManager.DispatchEvent(&events.StickerCreate{
 			GenericSticker: &events.GenericSticker{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				GuildID:      event.GuildID,
 				Sticker:      emoji,
 			},
@@ -58,7 +60,8 @@ func gatewayHandlerGuildStickersUpdate(client *bot.Client, sequenceNumber int, s
 	for _, emoji := range updatedStickers {
 		client.EventManager.DispatchEvent(&events.StickerUpdate{
 			GenericSticker: &events.GenericSticker{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				GuildID:      event.GuildID,
 				Sticker:      emoji.new,
 			},
@@ -69,7 +72,8 @@ func gatewayHandlerGuildStickersUpdate(client *bot.Client, sequenceNumber int, s
 	for _, emoji := range deletedStickers {
 		client.EventManager.DispatchEvent(&events.StickerDelete{
 			GenericSticker: &events.GenericSticker{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				GuildID:      event.GuildID,
 				Sticker:      emoji,
 			},

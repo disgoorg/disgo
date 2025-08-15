@@ -8,7 +8,8 @@ import (
 
 // UserStatusUpdate generic Status event
 type UserStatusUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	UserID    snowflake.ID
 	OldStatus discord.OnlineStatus
 	Status    discord.OnlineStatus
@@ -16,7 +17,8 @@ type UserStatusUpdate struct {
 
 // UserClientStatusUpdate generic client-specific Status event
 type UserClientStatusUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	UserID          snowflake.ID
 	OldClientStatus discord.ClientStatus
 	ClientStatus    discord.ClientStatus

@@ -9,7 +9,8 @@ import (
 
 func gatewayHandlerTypingStart(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventTypingStart) {
 	client.EventManager.DispatchEvent(&events.UserTypingStart{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		ChannelID:    event.ChannelID,
 		GuildID:      event.GuildID,
 		UserID:       event.UserID,
@@ -18,7 +19,8 @@ func gatewayHandlerTypingStart(client *bot.Client, sequenceNumber int, shardID i
 
 	if event.GuildID == nil {
 		client.EventManager.DispatchEvent(&events.DMUserTypingStart{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			ChannelID:    event.ChannelID,
 			UserID:       event.UserID,
 			Timestamp:    event.Timestamp,
@@ -29,7 +31,8 @@ func gatewayHandlerTypingStart(client *bot.Client, sequenceNumber int, shardID i
 			member = *event.Member
 		}
 		client.EventManager.DispatchEvent(&events.GuildMemberTypingStart{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			ChannelID:    event.ChannelID,
 			UserID:       event.UserID,
 			GuildID:      *event.GuildID,

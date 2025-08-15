@@ -8,7 +8,8 @@ import (
 
 func gatewayHandlerVoiceChannelEffectSend(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceChannelEffectSend) {
 	client.EventManager.DispatchEvent(&events.GuildVoiceChannelEffectSend{
-		GenericEvent:                events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:                       events.NewEvent(client),
+		GatewayEvent:                events.NewGatewayEvent(sequenceNumber, shardID),
 		EventVoiceChannelEffectSend: event,
 	})
 }
@@ -29,7 +30,8 @@ func gatewayHandlerVoiceStateUpdate(client *bot.Client, sequenceNumber int, shar
 	}
 
 	genericGuildVoiceEvent := &events.GenericGuildVoiceState{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		VoiceState:   event.VoiceState,
 		Member:       member,
 	}
@@ -64,7 +66,8 @@ func gatewayHandlerVoiceServerUpdate(client *bot.Client, sequenceNumber int, sha
 	}
 
 	client.EventManager.DispatchEvent(&events.VoiceServerUpdate{
-		GenericEvent:           events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:                  events.NewEvent(client),
+		GatewayEvent:           events.NewGatewayEvent(sequenceNumber, shardID),
 		EventVoiceServerUpdate: event,
 	})
 }

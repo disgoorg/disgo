@@ -14,7 +14,8 @@ func gatewayHandlerChannelCreate(client *bot.Client, sequenceNumber int, shardID
 
 	client.EventManager.DispatchEvent(&events.GuildChannelCreate{
 		GenericGuildChannel: &events.GenericGuildChannel{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			ChannelID:    event.ID(),
 			Channel:      event.GuildChannel,
 			GuildID:      event.GuildChannel.GuildID(),
@@ -28,7 +29,8 @@ func gatewayHandlerChannelUpdate(client *bot.Client, sequenceNumber int, shardID
 
 	client.EventManager.DispatchEvent(&events.GuildChannelUpdate{
 		GenericGuildChannel: &events.GenericGuildChannel{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			ChannelID:    event.ID(),
 			Channel:      event.GuildChannel,
 			GuildID:      event.GuildChannel.GuildID(),
@@ -44,7 +46,8 @@ func gatewayHandlerChannelUpdate(client *bot.Client, sequenceNumber int, shardID
 				client.Caches.RemoveChannel(guildThread.ID())
 				client.EventManager.DispatchEvent(&events.ThreadHide{
 					GenericThread: &events.GenericThread{
-						GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+						Event:        events.NewEvent(client),
+						GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 						Thread:       guildThread,
 						ThreadID:     guildThread.ID(),
 						GuildID:      guildThread.GuildID(),
@@ -62,7 +65,8 @@ func gatewayHandlerChannelDelete(client *bot.Client, sequenceNumber int, shardID
 
 	client.EventManager.DispatchEvent(&events.GuildChannelDelete{
 		GenericGuildChannel: &events.GenericGuildChannel{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			ChannelID:    event.ID(),
 			Channel:      event.GuildChannel,
 			GuildID:      event.GuildChannel.GuildID(),
@@ -73,7 +77,8 @@ func gatewayHandlerChannelDelete(client *bot.Client, sequenceNumber int, shardID
 func gatewayHandlerChannelPinsUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventChannelPinsUpdate) {
 	if event.GuildID == nil {
 		client.EventManager.DispatchEvent(&events.DMChannelPinsUpdate{
-			GenericEvent:        events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:               events.NewEvent(client),
+			GatewayEvent:        events.NewGatewayEvent(sequenceNumber, shardID),
 			ChannelID:           event.ChannelID,
 			NewLastPinTimestamp: event.LastPinTimestamp,
 		})
@@ -88,7 +93,8 @@ func gatewayHandlerChannelPinsUpdate(client *bot.Client, sequenceNumber int, sha
 	}
 
 	client.EventManager.DispatchEvent(&events.GuildChannelPinsUpdate{
-		GenericEvent:        events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:               events.NewEvent(client),
+		GatewayEvent:        events.NewGatewayEvent(sequenceNumber, shardID),
 		GuildID:             *event.GuildID,
 		ChannelID:           event.ChannelID,
 		OldLastPinTimestamp: oldTime,

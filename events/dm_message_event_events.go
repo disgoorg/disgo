@@ -8,7 +8,8 @@ import (
 
 // GenericDMMessage is called upon receiving DMMessageCreate , DMMessageUpdate , DMMessageDelete , GenericDMMessageReaction , DMMessageReactionAdd , DMMessageReactionRemove , DMMessageReactionRemoveEmoji or DMMessageReactionRemoveAll (requires gateway.IntentsDirectMessage)
 type GenericDMMessage struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	MessageID snowflake.ID
 	Message   discord.Message
 	ChannelID snowflake.ID

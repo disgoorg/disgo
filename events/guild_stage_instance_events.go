@@ -8,7 +8,8 @@ import (
 
 // GenericStageInstance generic StageInstance event
 type GenericStageInstance struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	StageInstanceID snowflake.ID
 	StageInstance   discord.StageInstance
 }

@@ -8,7 +8,8 @@ import (
 
 // GenericGuildSoundboardSound is called upon receiving GuildSoundboardSoundCreate and GuildSoundboardSoundUpdate (requires gateway.IntentGuildExpressions)
 type GenericGuildSoundboardSound struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.SoundboardSound
 }
 
@@ -25,21 +26,24 @@ type GuildSoundboardSoundUpdate struct {
 
 // GuildSoundboardSoundDelete indicates that a discord.SoundboardSound was deleted in a discord.Guild (requires gateway.IntentGuildExpressions)
 type GuildSoundboardSoundDelete struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	SoundID snowflake.ID
 	GuildID snowflake.ID
 }
 
 // GuildSoundboardSoundsUpdate indicates when multiple discord.Guild soundboard sounds were updated (requires gateway.IntentGuildExpressions)
 type GuildSoundboardSoundsUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	SoundboardSounds []discord.SoundboardSound
 	GuildID          snowflake.ID
 }
 
 // SoundboardSounds is a response to gateway.OpcodeRequestSoundboardSounds
 type SoundboardSounds struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	SoundboardSounds []discord.SoundboardSound
 	GuildID          snowflake.ID
 }

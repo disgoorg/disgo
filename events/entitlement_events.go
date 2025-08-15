@@ -1,14 +1,20 @@
 package events
 
-import "github.com/disgoorg/disgo/discord"
+import (
+	"github.com/disgoorg/disgo/discord"
+)
 
 type GenericEntitlementEvent struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.Entitlement
 }
 
 type EntitlementCreate struct {
-	*GenericEntitlementEvent
+	*Event
+	*GatewayEvent
+	*WebhookEvent
+	discord.Entitlement
 }
 
 type EntitlementUpdate struct {

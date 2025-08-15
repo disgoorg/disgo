@@ -11,7 +11,8 @@ func gatewayHandlerGuildRoleCreate(client *bot.Client, sequenceNumber int, shard
 
 	client.EventManager.DispatchEvent(&events.RoleCreate{
 		GenericRole: &events.GenericRole{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			GuildID:      event.GuildID,
 			RoleID:       event.Role.ID,
 			Role:         event.Role,
@@ -25,7 +26,8 @@ func gatewayHandlerGuildRoleUpdate(client *bot.Client, sequenceNumber int, shard
 
 	client.EventManager.DispatchEvent(&events.RoleUpdate{
 		GenericRole: &events.GenericRole{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			GuildID:      event.GuildID,
 			RoleID:       event.Role.ID,
 			Role:         event.Role,
@@ -39,7 +41,8 @@ func gatewayHandlerGuildRoleDelete(client *bot.Client, sequenceNumber int, shard
 
 	client.EventManager.DispatchEvent(&events.RoleDelete{
 		GenericRole: &events.GenericRole{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			GuildID:      event.GuildID,
 			RoleID:       event.RoleID,
 			Role:         role,
