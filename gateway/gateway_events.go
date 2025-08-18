@@ -59,9 +59,9 @@ type EventRateLimited struct {
 
 func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
 	var partialEvent struct {
-		Opcode     Opcode  `json:"opcode"`
-		RetryAfter float64 `json:"retry_after"`
-		Metadata   []byte  `json:"meta"`
+		Opcode      Opcode          `json:"opcode"`
+		RetryAfter  float64         `json:"retry_after"`
+		RawMetadata json.RawMessage `json:"meta"`
 	}
 
 	if err := json.Unmarshal(data, &partialEvent); err != nil {
@@ -76,7 +76,7 @@ func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
 	switch partialEvent.Opcode {
 	case OpcodeRequestGuildMembers:
 		v := discord.RequestGuildMemberRateLimitedMetadata{}
-		err = json.Unmarshal(partialEvent.Metadata, &v)
+		err = json.Unmarshal(partialEvent.RawMetadata, &v)
 		metadata = v
 
 	default:
