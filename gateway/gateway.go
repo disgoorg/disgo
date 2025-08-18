@@ -378,6 +378,7 @@ func (g *gatewayImpl) reconnect() {
 	err := g.reconnectTry(context.Background(), 0)
 	if err != nil {
 		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
+		g.closeHandlerFunc(g, err, false)
 	}
 }
 
