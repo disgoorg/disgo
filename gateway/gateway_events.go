@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"fmt"
 	"io"
 	"time"
 
@@ -52,42 +51,46 @@ func (EventResumed) messageData() {}
 func (EventResumed) eventData()   {}
 
 type EventRateLimited struct {
-	Opcode     Opcode                      `json:"opcode"`
-	RetryAfter float64                     `json:"retry_after"`
-	Metadata   discord.RateLimitedMetadata `json:"meta"`
+	Opcode     Opcode              `json:"opcode"`
+	RetryAfter float64             `json:"retry_after"`
+	Meta       RateLimitedMetadata `json:"meta"`
 }
 
 func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
-	var partialEvent struct {
-		Opcode      Opcode          `json:"opcode"`
-		RetryAfter  float64         `json:"retry_after"`
-		RawMetadata json.RawMessage `json:"meta"`
+	var event struct {
+		Opcode     Opcode          `json:"opcode"`
+		RetryAfter float64         `json:"retry_after"`
+		Meta       json.RawMessage `json:"meta"`
 	}
 
-	if err := json.Unmarshal(data, &partialEvent); err != nil {
+	if err := json.Unmarshal(data, &event); err != nil {
 		return err
 	}
 
 	var (
-		metadata discord.RateLimitedMetadata
-		err      error
+		meta RateLimitedMetadata
+		err  error
 	)
 
-	switch partialEvent.Opcode {
+	switch event.Opcode {
 	case OpcodeRequestGuildMembers:
-		v := discord.RequestGuildMemberRateLimitedMetadata{}
-		err = json.Unmarshal(partialEvent.RawMetadata, &v)
-		metadata = v
+		var v RateLimitedMetadataRequestGuildMembers
+		err = json.Unmarshal(event.Meta, &v)
+		meta = v
 
 	default:
-		err = fmt.Errorf("unknown ratelimited event for opcode %d received", partialEvent.Opcode)
+		meta = RateLimitedMetadataUnknown{}
 	}
 
-	e.Opcode = partialEvent.Opcode
-	e.RetryAfter = partialEvent.RetryAfter
-	e.Metadata = metadata
+	if err != nil {
+		return err
+	}
 
-	return err
+	e.Opcode = event.Opcode
+	e.RetryAfter = event.RetryAfter
+	e.Meta = meta
+
+	return nil
 }
 
 func (EventRateLimited) messageData() {}
