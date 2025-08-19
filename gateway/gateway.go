@@ -168,6 +168,7 @@ type gatewayImpl struct {
 	closeHandlerFunc CloseHandlerFunc
 	token            string
 
+	readyOnce       sync.Once
 	conn            *websocket.Conn
 	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
@@ -258,8 +259,13 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusWaitingForHello
 	g.statusMu.Unlock()
 
-	readyChan := make(chan error)
-	go g.listen(conn, readyChan)
+	readyChan := make(chan error, 1)
+	go g.listen(conn, func(err error) {
+		g.readyOnce.Do(func() {
+			readyChan <- err
+			close(readyChan)
+		})
+	})
 
 	select {
 	case <-ctx.Done():
@@ -500,7 +506,7 @@ func (g *gatewayImpl) resume() error {
 	return nil
 }
 
-func (g *gatewayImpl) listen(conn *websocket.Conn, readyChan chan<- error) {
+func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 	defer g.config.Logger.Debug("exiting listen goroutine")
 loop:
 	for {
@@ -509,8 +515,7 @@ loop:
 			g.statusMu.Lock()
 			if g.status != StatusReady {
 				g.statusMu.Unlock()
-				readyChan <- err
-				close(readyChan)
+				ready(err)
 				break loop
 			}
 			g.statusMu.Unlock()
@@ -583,8 +588,7 @@ loop:
 				err = g.resume()
 			}
 			if err != nil {
-				readyChan <- err
-				close(readyChan)
+				ready(err)
 				return
 			}
 
@@ -605,15 +609,13 @@ loop:
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
-				readyChan <- nil
-				close(readyChan)
+				ready(nil)
 			} else if _, ok = eventData.(EventResumed); ok {
 				g.config.Logger.Debug("resume message received")
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
-				readyChan <- nil
-				close(readyChan)
+				ready(nil)
 			}
 
 			// push message to the command manager
@@ -641,6 +643,8 @@ loop:
 			break loop
 
 		case OpcodeInvalidSession:
+			ready(nil)
+
 			canResume := message.D.(MessageDataInvalidSession)
 
 			code := websocket.CloseNormalClosure
