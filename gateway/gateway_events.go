@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	"io"
 	"time"
 
@@ -49,6 +50,71 @@ type EventResumed struct{}
 
 func (EventResumed) messageData() {}
 func (EventResumed) eventData()   {}
+
+// RateLimitedMetadata is an interface for all ratelimited metadatas.
+// [RateLimitedMetadataRequestGuildMembers]
+// [RateLimitedMetadataUnknown]
+type RateLimitedMetadata interface {
+	// ratelimitedmetadata is a marker to simulate unions.
+	ratelimitedmetadata()
+}
+
+type RateLimitedMetadataRequestGuildMembers struct {
+	GuildID snowflake.ID `json:"guild_id"`
+	Nonce   string       `json:"nonce"`
+}
+
+func (RateLimitedMetadataRequestGuildMembers) ratelimitedmetadata() {}
+
+type RateLimitedMetadataUnknown json.RawMessage
+
+func (RateLimitedMetadataUnknown) ratelimitedmetadata() {}
+
+type EventRateLimited struct {
+	Opcode     Opcode              `json:"opcode"`
+	RetryAfter float64             `json:"retry_after"`
+	Meta       RateLimitedMetadata `json:"meta"`
+}
+
+func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
+	var event struct {
+		Opcode     Opcode          `json:"opcode"`
+		RetryAfter float64         `json:"retry_after"`
+		Meta       json.RawMessage `json:"meta"`
+	}
+
+	if err := json.Unmarshal(data, &event); err != nil {
+		return err
+	}
+
+	var (
+		meta RateLimitedMetadata
+		err  error
+	)
+
+	switch event.Opcode {
+	case OpcodeRequestGuildMembers:
+		var v RateLimitedMetadataRequestGuildMembers
+		err = json.Unmarshal(event.Meta, &v)
+		meta = v
+
+	default:
+		meta = RateLimitedMetadataUnknown{}
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to deserialize metadata payload for opcode %d: %w", event.Opcode, err)
+	}
+
+	e.Opcode = event.Opcode
+	e.RetryAfter = event.RetryAfter
+	e.Meta = meta
+
+	return nil
+}
+
+func (EventRateLimited) messageData() {}
+func (EventRateLimited) eventData()   {}
 
 type EventApplicationCommandPermissionsUpdate struct {
 	discord.ApplicationCommandPermissions

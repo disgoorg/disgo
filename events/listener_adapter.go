@@ -17,6 +17,9 @@ type ListenerAdapter struct {
 	// heartbeat ack event
 	OnHeartbeatAck func(event *HeartbeatAck)
 
+	// gateway ratelimited event
+	OnGatewayRateLimited func(event *GatewayRateLimited)
+
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
 
@@ -215,6 +218,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 
 	case *HeartbeatAck:
 		if listener := l.OnHeartbeatAck; listener != nil {
+			listener(e)
+		}
+
+	case *GatewayRateLimited:
+		if listener := l.OnGatewayRateLimited; listener != nil {
 			listener(e)
 		}
 
