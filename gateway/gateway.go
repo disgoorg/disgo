@@ -114,6 +114,9 @@ type Gateway interface {
 	// This may be nil if the Gateway was never connected to Discord, was gracefully closed with websocket.CloseNormalClosure or websocket.CloseGoingAway.
 	LastSequenceReceived() *int
 
+	// ResumeURL returns the resume url that was received by the Gateway
+	ResumeURL() *string
+
 	// Intents returns the Intents that are used by this Gateway.
 	Intents() Intents
 
@@ -189,6 +192,10 @@ func (g *gatewayImpl) SessionID() *string {
 
 func (g *gatewayImpl) LastSequenceReceived() *int {
 	return g.config.LastSequenceReceived
+}
+
+func (g *gatewayImpl) ResumeURL() *string {
+	return g.config.ResumeURL
 }
 
 func (g *gatewayImpl) Intents() Intents {
