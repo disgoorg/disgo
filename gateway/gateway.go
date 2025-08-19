@@ -201,7 +201,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 }
 
 func (g *gatewayImpl) open(ctx context.Context) error {
-	g.config.Logger.Debug("opening gateway connection")
+	g.config.Logger.DebugContext(ctx, "opening gateway connection")
 
 	g.connMu.Lock()
 	if g.conn != nil {
@@ -227,12 +227,12 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 			}()
 			rawBody, bErr := io.ReadAll(rs.Body)
 			if bErr != nil {
-				g.config.Logger.Error("error while reading response body", slog.Any("err", bErr))
+				g.config.Logger.ErrorContext(ctx, "error while reading response body", slog.Any("err", bErr))
 			}
 			body = string(rawBody)
 		}
 
-		g.config.Logger.Error("error connecting to the gateway", slog.Any("err", err), slog.String("url", gatewayURL), slog.String("body", body))
+		g.config.Logger.ErrorContext(ctx, "error connecting to the gateway", slog.Any("err", err), slog.String("url", gatewayURL), slog.String("body", body))
 		g.connMu.Unlock()
 		return err
 	}
@@ -278,7 +278,7 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
 	if g.heartbeatCancel != nil {
-		g.config.Logger.Debug("closing heartbeat goroutines...")
+		g.config.Logger.DebugContext(ctx, "closing heartbeat goroutines...")
 		g.heartbeatCancel()
 	}
 
@@ -286,9 +286,9 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 	defer g.connMu.Unlock()
 	if g.conn != nil {
 		g.config.RateLimiter.Close(ctx)
-		g.config.Logger.Debug("closing gateway connection", slog.Int("code", code), slog.String("message", message))
+		g.config.Logger.DebugContext(ctx, "closing gateway connection", slog.Int("code", code), slog.String("message", message))
 		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
-			g.config.Logger.Debug("error writing close code", slog.Any("err", err))
+			g.config.Logger.DebugContext(ctx, "error writing close code", slog.Any("err", err))
 		}
 		_ = g.conn.Close()
 		g.conn = nil
@@ -344,9 +344,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 	}
 
 	defer g.config.RateLimiter.Unlock()
-	if g.config.Logger.Enabled(ctx, slog.LevelDebug) {
-		g.config.Logger.Debug("sending gateway command", slog.String("data", string(data)))
-	}
+	g.config.Logger.DebugContext(ctx, "sending gateway command", slog.String("data", string(data)))
 	return g.conn.WriteMessage(messageType, data)
 }
 
@@ -385,7 +383,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 			return err
 		}
 
-		g.config.Logger.Error("failed to reconnect gateway", slog.Any("err", err))
+		g.config.Logger.ErrorContext(ctx, "failed to reconnect gateway", slog.Any("err", err), slog.Int("try", try), slog.Duration("delay", delay))
 		g.statusMu.Lock()
 		g.status = StatusDisconnected
 		g.statusMu.Unlock()
@@ -395,8 +393,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 }
 
 func (g *gatewayImpl) reconnect() {
-	err := g.reconnectTry(context.Background(), 0)
-	if err != nil {
+	if err := g.reconnectTry(context.Background(), 0); err != nil {
 		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
 		g.closeHandlerFunc(g, err, false)
 	}
