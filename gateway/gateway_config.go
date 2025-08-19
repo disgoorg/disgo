@@ -128,6 +128,13 @@ func WithURL(url string) ConfigOpt {
 	}
 }
 
+// WithResumeURL sets the Gateway Resume URL for the Gateway.
+func WithResumeURL(url string) ConfigOpt {
+	return func(config *config) {
+		config.ResumeURL = &url
+	}
+}
+
 // WithShardID sets the shard ID for the Gateway.
 // See here for more information on sharding: https://discord.com/developers/docs/topics/gateway#sharding
 func WithShardID(shardID int) ConfigOpt {

@@ -158,6 +158,9 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 			if shardState.Sequence != 0 {
 				opts = append(opts, gateway.WithSequence(shardState.Sequence))
 			}
+			if shardState.ResumeURL != "" {
+				opts = append(opts, gateway.WithResumeURL(shardState.ResumeURL))
+			}
 
 			shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, opts...)
 
