@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	"io"
 	"time"
 
@@ -50,6 +51,25 @@ type EventResumed struct{}
 func (EventResumed) messageData() {}
 func (EventResumed) eventData()   {}
 
+// RateLimitedMetadata is an interface for all ratelimited metadatas.
+// [RateLimitedMetadataRequestGuildMembers]
+// [RateLimitedMetadataUnknown]
+type RateLimitedMetadata interface {
+	// ratelimitedmetadata is a marker to simulate unions.
+	ratelimitedmetadata()
+}
+
+type RateLimitedMetadataRequestGuildMembers struct {
+	GuildID snowflake.ID `json:"guild_id"`
+	Nonce   string       `json:"nonce"`
+}
+
+func (RateLimitedMetadataRequestGuildMembers) ratelimitedmetadata() {}
+
+type RateLimitedMetadataUnknown json.RawMessage
+
+func (RateLimitedMetadataUnknown) ratelimitedmetadata() {}
+
 type EventRateLimited struct {
 	Opcode     Opcode              `json:"opcode"`
 	RetryAfter float64             `json:"retry_after"`
@@ -83,7 +103,7 @@ func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
 	}
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to deserialize metadata payload for opcode %d: %w", event.Opcode, err)
 	}
 
 	e.Opcode = event.Opcode
