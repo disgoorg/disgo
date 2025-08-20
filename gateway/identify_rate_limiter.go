@@ -131,7 +131,7 @@ func (r *identifyRateLimiterImpl) Unlock(shardID int) {
 	b.reset = time.Now().Add(r.config.Wait)
 }
 
-// bucket represents a rate-limiting bucket for a shard group.
+// identifyBucket represents a rate-limiting bucket for a shard group.
 type identifyBucket struct {
 	mu    csync.Mutex
 	key   int

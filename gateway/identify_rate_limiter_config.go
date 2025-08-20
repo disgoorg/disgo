@@ -36,7 +36,7 @@ func WithIdentifyRateLimiterLogger(logger *slog.Logger) IdentifyRateLimiterConfi
 	}
 }
 
-// WithIdentifyMaxConcurrency sets the maximum number of concurrent identifies in 5 seconds.
+// WithIdentifyMaxConcurrency sets the maximum number of concurrent identifies allowed per window duration (default is 5 seconds, configurable via WithIdentifyWait).
 func WithIdentifyMaxConcurrency(maxConcurrency int) IdentifyRateLimiterConfigOpt {
 	return func(config *identifyRateLimiterConfig) {
 		config.MaxConcurrency = maxConcurrency
