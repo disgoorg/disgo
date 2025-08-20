@@ -1,4 +1,4 @@
-package sharding
+package gateway
 
 import (
 	"context"
@@ -9,50 +9,50 @@ import (
 	"github.com/sasha-s/go-csync"
 )
 
-// MaxConcurrency is the default number of shards that can log in at the same time.
-const MaxConcurrency = 1
+// DefaultMaxConcurrency is the default number of shards that can log in at the same time.
+const DefaultMaxConcurrency = 1
 
-// RateLimiter limits how many shards can log in to Discord at the same time.
-type RateLimiter interface {
+// IdentifyRateLimiter limits how many shards can log in to Discord at the same time.
+type IdentifyRateLimiter interface {
 	// Close gracefully closes the RateLimiter.
 	// If the context deadline is exceeded, the RateLimiter will be closed immediately.
 	Close(ctx context.Context)
 
-	// WaitBucket waits for the given shardID bucket to be available for new logins.
-	// If the context deadline is exceeded, WaitBucket will return immediately and no login will be attempted.
-	WaitBucket(ctx context.Context, shardID int) error
+	// Wait waits for the given shardID bucket to be available for new logins.
+	// If the context deadline is exceeded, Wait will return immediately and no login will be attempted.
+	Wait(ctx context.Context, shardID int) error
 
-	// UnlockBucket unlocks the given shardID bucket.
-	// If WaitBucket fails, UnlockBucket should not be called.
-	UnlockBucket(shardID int)
+	// Unlock unlocks the given shardID bucket.
+	// If Wait fails, Unlock should not be called.
+	Unlock(shardID int)
 }
 
-// ShardMaxConcurrencyKey returns the bucket the given shardID with maxConcurrency belongs to.
-func ShardMaxConcurrencyKey(shardID int, maxConcurrency int) int {
+// MaxConcurrencyKey returns the bucket the given shardID with maxConcurrency belongs to.
+func MaxConcurrencyKey(shardID int, maxConcurrency int) int {
 	return shardID % maxConcurrency
 }
 
-var _ RateLimiter = (*rateLimiterImpl)(nil)
+var _ IdentifyRateLimiter = (*identifyRateLimiterImpl)(nil)
 
-// NewRateLimiter creates a new default RateLimiter with the given RateLimiterConfigOpt(s).
-func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
-	cfg := defaultRateLimiterConfig()
+// NewIdentifyRateLimiter creates a new default RateLimiter with the given IdentifyRateLimiterConfigOpt(s).
+func NewIdentifyRateLimiter(opts ...IdentifyRateLimiterConfigOpt) IdentifyRateLimiter {
+	cfg := defaultIdentifyRateLimiterConfig()
 	cfg.apply(opts)
 
-	return &rateLimiterImpl{
-		buckets: make(map[int]*bucket),
+	return &identifyRateLimiterImpl{
+		buckets: make(map[int]*identifyBucket),
 		config:  cfg,
 	}
 }
 
-type rateLimiterImpl struct {
+type identifyRateLimiterImpl struct {
 	mu sync.Mutex
 
-	buckets map[int]*bucket
-	config  rateLimiterConfig
+	buckets map[int]*identifyBucket
+	config  identifyRateLimiterConfig
 }
 
-func (r *rateLimiterImpl) Close(ctx context.Context) {
+func (r *identifyRateLimiterImpl) Close(ctx context.Context) {
 	r.config.Logger.Debug("closing shard rate limiter")
 	var wg sync.WaitGroup
 	r.mu.Lock()
@@ -71,7 +71,7 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 	wg.Wait()
 }
 
-func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
+func (r *identifyRateLimiterImpl) getBucket(shardID int, create bool) *identifyBucket {
 	r.config.Logger.Debug("locking shard rate limiter")
 	r.mu.Lock()
 	defer func() {
@@ -79,20 +79,20 @@ func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
 		r.mu.Unlock()
 	}()
 
-	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
+	key := MaxConcurrencyKey(shardID, r.config.MaxConcurrency)
 	b, ok := r.buckets[key]
 	if !ok {
 		if !create {
 			return nil
 		}
 
-		b = &bucket{key: key}
+		b = &identifyBucket{key: key}
 		r.buckets[key] = b
 	}
 	return b
 }
 
-func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
+func (r *identifyRateLimiterImpl) Wait(ctx context.Context, shardID int) error {
 	b := r.getBucket(shardID, true)
 	r.config.Logger.Debug("locking shard bucket", slog.Int("key", b.key))
 	if err := b.mu.CLock(ctx); err != nil {
@@ -118,7 +118,7 @@ func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 	}
 }
 
-func (r *rateLimiterImpl) UnlockBucket(shardID int) {
+func (r *identifyRateLimiterImpl) Unlock(shardID int) {
 	b := r.getBucket(shardID, false)
 	if b == nil {
 		return
@@ -128,11 +128,11 @@ func (r *rateLimiterImpl) UnlockBucket(shardID int) {
 		r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.key), slog.Time("reset", b.reset))
 		b.mu.Unlock()
 	}()
-	b.reset = time.Now().Add(r.config.IdentifyWait)
+	b.reset = time.Now().Add(r.config.Wait)
 }
 
 // bucket represents a rate-limiting bucket for a shard group.
-type bucket struct {
+type identifyBucket struct {
 	mu    csync.Mutex
 	key   int
 	reset time.Time

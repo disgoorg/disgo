@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+var _ RateLimiter = (*noopRateLimiter)(nil)
+
 // NewNoopRateLimiter return a new noop RateLimiter.
 func NewNoopRateLimiter() RateLimiter {
 	return &noopRateLimiter{}
@@ -18,6 +20,6 @@ func (l *noopRateLimiter) Close(_ context.Context) {}
 
 func (l *noopRateLimiter) Reset() {}
 
-func (l *noopRateLimiter) WaitBucket(_ context.Context, _ *CompiledEndpoint) error { return nil }
+func (l *noopRateLimiter) Wait(_ context.Context, _ *CompiledEndpoint) error { return nil }
 
-func (l *noopRateLimiter) UnlockBucket(_ *CompiledEndpoint, _ *http.Response) error { return nil }
+func (l *noopRateLimiter) Unlock(_ *CompiledEndpoint, _ *http.Response) error { return nil }

@@ -25,8 +25,8 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithShardManagerConfigOpts(
-			sharding.WithShardIDs(0, 1),
-			sharding.WithShardCount(2),
+			sharding.WithShardIDs(0, 1), // Remove this to use discord's default recommended shard count
+			sharding.WithShardCount(2),  // Remove this to use discord's default recommended shard count
 			sharding.WithAutoScaling(true),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentDirectMessages),

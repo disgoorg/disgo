@@ -220,6 +220,15 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusConnecting
 	g.statusMu.Unlock()
 
+	if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
+		if err := g.config.IdentifyRateLimiter.Wait(ctx, g.config.ShardID); err != nil {
+			g.config.Logger.ErrorContext(ctx, "failed to wait for identify rate limiter", slog.Any("err", err))
+			g.connMu.Unlock()
+			return fmt.Errorf("failed to wait for identify rate limiter: %w", err)
+		}
+		defer g.config.IdentifyRateLimiter.Unlock(g.config.ShardID)
+	}
+
 	wsURL := g.config.URL
 	if g.config.ResumeURL != nil && g.config.EnableResumeURL {
 		wsURL = *g.config.ResumeURL
