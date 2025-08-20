@@ -145,6 +145,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 		go func() {
 			defer wg.Done()
 
+			// TODO: pass sharding rate limiter into the shard to properly rate limit shards opening & reconnecting
 			if err := m.config.RateLimiter.WaitBucket(ctx, shardID); err != nil {
 				m.config.Logger.Error("failed to wait shard bucket", slog.Any("err", err), slog.Int("shard_id", shardID))
 				return
@@ -171,6 +172,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 			if err := shard.Open(ctx); err != nil {
 				m.config.Logger.Error("failed to open shard", slog.Any("err", err), slog.Int("shard_id", shardID))
 			}
+			m.config.Logger.Debug("opened shard", slog.Int("shard_id", shardID))
 		}()
 	}
 	wg.Wait()
