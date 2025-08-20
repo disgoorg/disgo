@@ -65,6 +65,7 @@ const (
 	_
 	PermissionSendPolls
 	PermissionUseExternalApps
+	PermissionPinMessages
 
 	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -76,7 +77,8 @@ const (
 		PermissionMentionEveryone |
 		PermissionSendVoiceMessages |
 		PermissionSendPolls |
-		PermissionUseExternalApps
+		PermissionUseExternalApps |
+		PermissionPinMessages
 
 	PermissionsAllThread = PermissionManageThreads |
 		PermissionCreatePublicThreads |
@@ -176,6 +178,7 @@ var permissions = map[Permissions]string{
 	PermissionSendVoiceMessages:                "Send Voice Messages",
 	PermissionSendPolls:                        "Create Polls",
 	PermissionUseExternalApps:                  "Use External Apps",
+	PermissionPinMessages:                      "Pin Messages",
 }
 
 func (p Permissions) String() string {
