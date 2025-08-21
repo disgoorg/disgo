@@ -315,9 +315,9 @@ func BuildClient(
 				gateway.WithDevice(name),
 			),
 			sharding.WithLogger(cfg.Logger),
-			sharding.WithDefaultRateLimiterConfigOpt(
-				sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency),
-				sharding.WithRateLimiterLogger(cfg.Logger),
+			sharding.WithDefaultIdentifyRateLimiterConfigOpt(
+				gateway.WithIdentifyMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency),
+				gateway.WithIdentifyRateLimiterLogger(cfg.Logger),
 			),
 		}, cfg.ShardManagerConfigOpts...)
 

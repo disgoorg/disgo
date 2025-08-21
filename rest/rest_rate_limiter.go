@@ -31,11 +31,11 @@ type RateLimiter interface {
 	// Reset resets the rate limiter to its initial state
 	Reset()
 
-	// WaitBucket waits for the given bucket to be available for new requests & locks it
-	WaitBucket(ctx context.Context, endpoint *CompiledEndpoint) error
+	// Wait waits for the given bucket to be available for new requests & locks it
+	Wait(ctx context.Context, endpoint *CompiledEndpoint) error
 
-	// UnlockBucket unlocks the given bucket and calculates the rate limit for the next request
-	UnlockBucket(endpoint *CompiledEndpoint, rs *http.Response) error
+	// Unlock unlocks the given bucket and calculates the rate limit for the next request
+	Unlock(endpoint *CompiledEndpoint, rs *http.Response) error
 }
 
 // NewRateLimiter return a new default RateLimiter with the given RateLimiterConfigOpt(s).
@@ -164,7 +164,7 @@ func (l *rateLimiterImpl) getBucket(endpoint *CompiledEndpoint, create bool) *bu
 	return b
 }
 
-func (l *rateLimiterImpl) WaitBucket(ctx context.Context, endpoint *CompiledEndpoint) error {
+func (l *rateLimiterImpl) Wait(ctx context.Context, endpoint *CompiledEndpoint) error {
 	b := l.getBucket(endpoint, true)
 	l.config.Logger.Debug("locking rest bucket", slog.String("id", b.ID), slog.Int("limit", b.Limit), slog.Int("remaining", b.Remaining), slog.Time("reset", b.Reset))
 	if err := b.mu.CLock(ctx); err != nil {
@@ -197,7 +197,7 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, endpoint *CompiledEndp
 	return nil
 }
 
-func (l *rateLimiterImpl) UnlockBucket(endpoint *CompiledEndpoint, rs *http.Response) error {
+func (l *rateLimiterImpl) Unlock(endpoint *CompiledEndpoint, rs *http.Response) error {
 	b := l.getBucket(endpoint, false)
 	if b == nil {
 		return nil
