@@ -205,7 +205,7 @@ func (g *gatewayImpl) Intents() Intents {
 }
 
 func (g *gatewayImpl) Open(ctx context.Context) error {
-	return g.reconnectTry(ctx, 0)
+	return g.doReconnect(ctx)
 }
 
 func (g *gatewayImpl) open(ctx context.Context) error {
@@ -268,7 +268,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusWaitingForHello
 	g.statusMu.Unlock()
 
-	readyChan := make(chan error, 1)
+	readyChan := make(chan error)
 	go g.listen(conn, func(err error) {
 		g.readyOnce.Do(func() {
 			readyChan <- err
@@ -378,22 +378,31 @@ func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
 	return g.config.Presence
 }
 
-func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
-	delay := time.Duration(try) * 2 * time.Second
-	if delay > 30*time.Second {
-		delay = 30 * time.Second
-	}
+// FIXME: Removed the recursiveness here
+func (g *gatewayImpl) doReconnect(ctx context.Context) error {
+	try := 0
 
-	timer := time.NewTimer(delay)
-	defer timer.Stop()
-	select {
-	case <-ctx.Done():
+	for {
+		delay := time.Duration(try) * 2 * time.Second
+		if delay > 30*time.Second {
+			delay = 30 * time.Second
+		}
+
+		timer := time.NewTimer(delay)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return ctx.Err()
+		case <-timer.C:
+		}
 		timer.Stop()
-		return ctx.Err()
-	case <-timer.C:
-	}
 
-	if err := g.open(ctx); err != nil {
+		err := g.open(ctx)
+		if err == nil {
+			// Successfully connected, our job here is done
+			return nil
+		}
+
 		var closeError *websocket.CloseError
 		if errors.As(err, &closeError) {
 			closeCode := CloseEventCodeByCode(closeError.Code)
@@ -409,15 +418,19 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 		g.statusMu.Lock()
 		g.status = StatusDisconnected
 		g.statusMu.Unlock()
-		return g.reconnectTry(ctx, try+1)
+
+		try += 1
 	}
-	return nil
 }
 
 func (g *gatewayImpl) reconnect() {
-	if err := g.reconnectTry(context.Background(), 0); err != nil {
+	if err := g.doReconnect(context.Background()); err != nil {
 		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
-		g.closeHandlerFunc(g, err, false)
+
+		// FIXME: Fix 2
+		if g.closeHandlerFunc != nil {
+			g.closeHandlerFunc(g, err, false)
+		}
 	}
 }
 
@@ -517,7 +530,10 @@ func (g *gatewayImpl) resume() error {
 
 func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 	defer g.config.Logger.Debug("exiting listen goroutine")
-loop:
+
+	// Ensure that we never this function without calling ready
+	defer ready(nil)
+
 	for {
 		mt, r, err := conn.NextReader()
 		if err != nil {
@@ -525,7 +541,7 @@ loop:
 			if g.status != StatusReady {
 				g.statusMu.Unlock()
 				ready(err)
-				break loop
+				return
 			}
 			g.statusMu.Unlock()
 			g.connMu.Lock()
@@ -576,7 +592,7 @@ loop:
 				go g.closeHandlerFunc(g, err, reconnect)
 			}
 
-			break loop
+			return
 		}
 
 		message, err := g.parseMessage(mt, r)
@@ -642,6 +658,7 @@ loop:
 			g.eventHandlerFunc(g, message.T, message.S, eventData)
 
 		case OpcodeHeartbeat:
+			// FIXME: Potential issue here, as sendHeartbeat() might close the connection
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
@@ -649,7 +666,7 @@ loop:
 			g.CloseWithCode(ctx, websocket.CloseServiceRestart, "received reconnect")
 			cancel()
 			go g.reconnect()
-			break loop
+			return
 
 		case OpcodeInvalidSession:
 			ready(nil)
@@ -670,7 +687,7 @@ loop:
 			g.CloseWithCode(ctx, code, "invalid session")
 			cancel()
 			go g.reconnect()
-			break loop
+			return
 
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now().UTC()
@@ -681,7 +698,6 @@ loop:
 			g.lastHeartbeatReceived = newHeartbeat
 
 		default:
-
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
 		}
 	}
