@@ -168,7 +168,6 @@ type gatewayImpl struct {
 	closeHandlerFunc CloseHandlerFunc
 	token            string
 
-	readyOnce       sync.Once
 	conn            *websocket.Conn
 	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
@@ -268,9 +267,10 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusWaitingForHello
 	g.statusMu.Unlock()
 
+	var readyOnce sync.Once
 	readyChan := make(chan error)
 	go g.listen(conn, func(err error) {
-		g.readyOnce.Do(func() {
+		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)
 		})
@@ -658,10 +658,12 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.eventHandlerFunc(g, message.T, message.S, eventData)
 
 		case OpcodeHeartbeat:
-			// FIXME: Potential issue here, as sendHeartbeat() might close the connection
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
+			// We might receive a reconnect as the first opcode (even before HELLO), so ensure we always set ready
+			ready(nil)
+
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			g.CloseWithCode(ctx, websocket.CloseServiceRestart, "received reconnect")
 			cancel()
