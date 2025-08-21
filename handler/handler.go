@@ -83,7 +83,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 	case CommandHandler:
 		return handler(&CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
-				GenericEvent:                  event.GenericEvent,
+				Event:                         event.Event,
+				GatewayEvent:                  event.GatewayEvent,
 				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
 				Respond:                       event.Respond,
 			},
@@ -94,7 +95,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
 		return handler(commandInteraction.Data.(discord.SlashCommandInteractionData), &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
-				GenericEvent:                  event.GenericEvent,
+				Event:                         event.Event,
+				GatewayEvent:                  event.GatewayEvent,
 				ApplicationCommandInteraction: commandInteraction,
 				Respond:                       event.Respond,
 			},
@@ -105,7 +107,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
 		return handler(commandInteraction.Data.(discord.UserCommandInteractionData), &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
-				GenericEvent:                  event.GenericEvent,
+				Event:                         event.Event,
+				GatewayEvent:                  event.GatewayEvent,
 				ApplicationCommandInteraction: commandInteraction,
 				Respond:                       event.Respond,
 			},
@@ -116,7 +119,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
 		return handler(commandInteraction.Data.(discord.MessageCommandInteractionData), &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
-				GenericEvent:                  event.GenericEvent,
+				Event:                         event.Event,
+				GatewayEvent:                  event.GatewayEvent,
 				ApplicationCommandInteraction: commandInteraction,
 				Respond:                       event.Respond,
 			},
@@ -127,7 +131,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
 		return handler(commandInteraction.Data.(discord.EntryPointCommandInteractionData), &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
-				GenericEvent:                  event.GenericEvent,
+				Event:                         event.Event,
+				GatewayEvent:                  event.GatewayEvent,
 				ApplicationCommandInteraction: commandInteraction,
 				Respond:                       event.Respond,
 			},
@@ -137,7 +142,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 	case AutocompleteHandler:
 		return handler(&AutocompleteEvent{
 			AutocompleteInteractionCreate: &events.AutocompleteInteractionCreate{
-				GenericEvent:            event.GenericEvent,
+				Event:                   event.Event,
+				GatewayEvent:            event.GatewayEvent,
 				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
 				Respond:                 event.Respond,
 			},
@@ -147,7 +153,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 	case ComponentHandler:
 		return handler(&ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
-				GenericEvent:         event.GenericEvent,
+				Event:                event.Event,
+				GatewayEvent:         event.GatewayEvent,
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
 				Respond:              event.Respond,
 			},
@@ -158,7 +165,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		componentInteraction := event.Interaction.(discord.ComponentInteraction)
 		return handler(componentInteraction.Data.(discord.ButtonInteractionData), &ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
-				GenericEvent:         event.GenericEvent,
+				Event:                event.Event,
+				GatewayEvent:         event.GatewayEvent,
 				ComponentInteraction: componentInteraction,
 				Respond:              event.Respond,
 			},
@@ -169,7 +177,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		componentInteraction := event.Interaction.(discord.ComponentInteraction)
 		return handler(componentInteraction.Data.(discord.SelectMenuInteractionData), &ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
-				GenericEvent:         event.GenericEvent,
+				Event:                event.Event,
+				GatewayEvent:         event.GatewayEvent,
 				ComponentInteraction: componentInteraction,
 				Respond:              event.Respond,
 			},
@@ -179,7 +188,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 	case ModalHandler:
 		return handler(&ModalEvent{
 			ModalSubmitInteractionCreate: &events.ModalSubmitInteractionCreate{
-				GenericEvent:           event.GenericEvent,
+				Event:                  event.Event,
+				GatewayEvent:           event.GatewayEvent,
 				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),
 				Respond:                event.Respond,
 			},

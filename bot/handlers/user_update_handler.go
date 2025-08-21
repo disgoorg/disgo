@@ -11,7 +11,8 @@ func gatewayHandlerUserUpdate(client *bot.Client, sequenceNumber int, shardID in
 	client.Caches.SetSelfUser(event.OAuth2User)
 
 	client.EventManager.DispatchEvent(&events.SelfUpdate{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		SelfUser:     event.OAuth2User,
 		OldSelfUser:  oldUser,
 	})

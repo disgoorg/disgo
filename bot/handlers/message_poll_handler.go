@@ -7,11 +7,10 @@ import (
 )
 
 func gatewayHandlerMessagePollVoteAdd(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessagePollVoteAdd) {
-	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
-
 	client.EventManager.DispatchEvent(&events.MessagePollVoteAdd{
 		GenericMessagePollVote: &events.GenericMessagePollVote{
-			GenericEvent: genericEvent,
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			UserID:       event.UserID,
 			ChannelID:    event.ChannelID,
 			MessageID:    event.MessageID,
@@ -23,7 +22,8 @@ func gatewayHandlerMessagePollVoteAdd(client *bot.Client, sequenceNumber int, sh
 	if event.GuildID == nil {
 		client.EventManager.DispatchEvent(&events.DMMessagePollVoteAdd{
 			GenericDMMessagePollVote: &events.GenericDMMessagePollVote{
-				GenericEvent: genericEvent,
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				UserID:       event.UserID,
 				ChannelID:    event.ChannelID,
 				MessageID:    event.MessageID,
@@ -33,7 +33,8 @@ func gatewayHandlerMessagePollVoteAdd(client *bot.Client, sequenceNumber int, sh
 	} else {
 		client.EventManager.DispatchEvent(&events.GuildMessagePollVoteAdd{
 			GenericGuildMessagePollVote: &events.GenericGuildMessagePollVote{
-				GenericEvent: genericEvent,
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				UserID:       event.UserID,
 				ChannelID:    event.ChannelID,
 				MessageID:    event.MessageID,
@@ -45,11 +46,10 @@ func gatewayHandlerMessagePollVoteAdd(client *bot.Client, sequenceNumber int, sh
 }
 
 func gatewayHandlerMessagePollVoteRemove(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessagePollVoteRemove) {
-	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
-
 	client.EventManager.DispatchEvent(&events.MessagePollVoteRemove{
 		GenericMessagePollVote: &events.GenericMessagePollVote{
-			GenericEvent: genericEvent,
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			UserID:       event.UserID,
 			ChannelID:    event.ChannelID,
 			MessageID:    event.MessageID,
@@ -61,7 +61,8 @@ func gatewayHandlerMessagePollVoteRemove(client *bot.Client, sequenceNumber int,
 	if event.GuildID == nil {
 		client.EventManager.DispatchEvent(&events.DMMessagePollVoteRemove{
 			GenericDMMessagePollVote: &events.GenericDMMessagePollVote{
-				GenericEvent: genericEvent,
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				UserID:       event.UserID,
 				ChannelID:    event.ChannelID,
 				MessageID:    event.MessageID,
@@ -71,7 +72,8 @@ func gatewayHandlerMessagePollVoteRemove(client *bot.Client, sequenceNumber int,
 	} else {
 		client.EventManager.DispatchEvent(&events.GuildMessagePollVoteRemove{
 			GenericGuildMessagePollVote: &events.GenericGuildMessagePollVote{
-				GenericEvent: genericEvent,
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				UserID:       event.UserID,
 				ChannelID:    event.ChannelID,
 				MessageID:    event.MessageID,

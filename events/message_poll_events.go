@@ -8,7 +8,8 @@ import (
 
 // GenericMessagePollVote is a generic poll vote event (requires gateway.IntentGuildMessagePolls and/or gateway.IntentDirectMessagePolls)
 type GenericMessagePollVote struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	UserID    snowflake.ID
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
