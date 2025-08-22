@@ -661,8 +661,14 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
-			// We might receive a reconnect as the first opcode (even before HELLO), so ensure we always set ready
-			ready(nil)
+			// We might receive a reconnect as the first opcode (even before HELLO)
+			g.statusMu.Lock()
+			if g.status != StatusReady {
+				g.statusMu.Unlock()
+				ready(fmt.Errorf("instructed to reconnect"))
+				return
+			}
+			g.statusMu.Unlock()
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			g.CloseWithCode(ctx, websocket.CloseServiceRestart, "received reconnect")
@@ -671,8 +677,6 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			return
 
 		case OpcodeInvalidSession:
-			ready(nil)
-
 			canResume := message.D.(MessageDataInvalidSession)
 
 			code := websocket.CloseNormalClosure
@@ -684,6 +688,14 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				g.config.LastSequenceReceived = nil
 				g.config.ResumeURL = nil
 			}
+
+			g.statusMu.Lock()
+			if g.status != StatusReady {
+				g.statusMu.Unlock()
+				ready(fmt.Errorf("invalid session"))
+				return
+			}
+			g.statusMu.Unlock()
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			g.CloseWithCode(ctx, code, "invalid session")
