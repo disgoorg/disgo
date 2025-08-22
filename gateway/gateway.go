@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"math"
 	"net"
 	"sync"
 	"syscall"
@@ -380,11 +381,15 @@ func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
 
 func (g *gatewayImpl) doReconnect(ctx context.Context) error {
 	try := 0
+	backoffIncrement := 0
 
 	for {
-		delay := time.Duration(try) * 2 * time.Second
-		if delay > 30*time.Second {
-			delay = 30 * time.Second
+		// Exponentially backoff up to a limit of 10s
+		delay := time.Duration(math.Pow(2, float64(backoffIncrement))*1000) * time.Millisecond
+		if delay > 10*time.Second {
+			delay = 10 * time.Second
+		} else {
+			backoffIncrement++
 		}
 
 		timer := time.NewTimer(delay)
@@ -569,7 +574,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 					slog.String("error", closeError.Text),
 				}
 				if reconnect {
-					g.config.Logger.Debug(msg, args...)
+					g.config.Logger.Info(msg, args...)
 				} else {
 					g.config.Logger.Error(msg, args...)
 				}
@@ -577,7 +582,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Debug("failed to read next message from gateway", slog.Any("err", err))
+				g.config.Logger.Warn("failed to read next message from gateway", slog.Any("err", err))
 			}
 
 			// make sure the connection is properly closed
