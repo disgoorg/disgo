@@ -574,7 +574,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 					slog.String("error", closeError.Text),
 				}
 				if reconnect {
-					g.config.Logger.Info(msg, args...)
+					g.config.Logger.Warn(msg, args...)
 				} else {
 					g.config.Logger.Error(msg, args...)
 				}
