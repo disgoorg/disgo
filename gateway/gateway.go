@@ -176,6 +176,7 @@ type gatewayImpl struct {
 	statusMu        sync.Mutex
 
 	heartbeatInterval     time.Duration
+	heartbeatLatency      time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
 }
@@ -372,7 +373,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
-	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
+	return g.heartbeatLatency
 }
 
 func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
@@ -457,7 +458,17 @@ func (g *gatewayImpl) heartbeat() {
 }
 
 func (g *gatewayImpl) sendHeartbeat() {
-	g.config.Logger.Debug("sending heartbeat")
+	if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
+		// Connection went zombie
+		g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie")
+		closeCtx, closeCancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer closeCancel()
+		g.CloseWithCode(closeCtx, websocket.CloseServiceRestart, "heartbeat ACK not received")
+		go g.reconnect()
+		return
+	}
+
+	g.config.Logger.Info("sending heartbeat")
 
 	sequence := 0
 	if g.config.LastSequenceReceived != nil {
@@ -717,6 +728,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				NewHeartbeat:  newHeartbeat,
 			})
 			g.lastHeartbeatReceived = newHeartbeat
+			g.heartbeatLatency = g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 
 		default:
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
