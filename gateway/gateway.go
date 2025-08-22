@@ -378,7 +378,6 @@ func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
 	return g.config.Presence
 }
 
-// FIXME: Removed the recursiveness here
 func (g *gatewayImpl) doReconnect(ctx context.Context) error {
 	try := 0
 
@@ -427,7 +426,6 @@ func (g *gatewayImpl) reconnect() {
 	if err := g.doReconnect(context.Background()); err != nil {
 		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
 
-		// FIXME: Fix 2
 		if g.closeHandlerFunc != nil {
 			g.closeHandlerFunc(g, err, false)
 		}
@@ -630,13 +628,13 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			if readyEvent, ok := eventData.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
 				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
-				g.config.Logger.Debug("ready message received")
+				g.config.Logger.Info("succesfully started", slog.String("sessionID", *g.config.SessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
 				ready(nil)
 			} else if _, ok = eventData.(EventResumed); ok {
-				g.config.Logger.Debug("resume message received")
+				g.config.Logger.Info("successfully resumed", slog.String("sessionID", *g.config.SessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
