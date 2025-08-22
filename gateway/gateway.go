@@ -279,13 +279,13 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	select {
 	case <-ctx.Done():
-		closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		closeCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
 		g.Close(closeCtx)
 		return ctx.Err()
 	case err = <-readyChan:
 		if err != nil {
-			closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			closeCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer cancel()
 			g.Close(closeCtx)
 			return fmt.Errorf("failed to open gateway connection: %w", err)
@@ -471,7 +471,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 			return
 		}
 		g.config.Logger.Error("failed to send heartbeat", slog.Any("err", err))
-		closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		closeCtx, closeCancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer closeCancel()
 		g.CloseWithCode(closeCtx, websocket.CloseServiceRestart, "heartbeat timeout")
 		go g.reconnect()
@@ -500,7 +500,7 @@ func (g *gatewayImpl) identify() error {
 		Shard:          &[2]int{g.ShardID(), g.ShardCount()},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := g.sendInternal(ctx, OpcodeIdentify, identify); err != nil {
 		return err
@@ -523,7 +523,7 @@ func (g *gatewayImpl) resume() error {
 	}
 	g.config.Logger.Debug("sending Resume command")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := g.sendInternal(ctx, OpcodeResume, resume); err != nil {
 		return err
@@ -586,7 +586,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			}
 
 			// make sure the connection is properly closed
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 			g.CloseWithCode(ctx, websocket.CloseServiceRestart, "reconnecting")
 			cancel()
 			if g.config.AutoReconnect && reconnect {
@@ -675,7 +675,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			}
 			g.statusMu.Unlock()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 			g.CloseWithCode(ctx, websocket.CloseServiceRestart, "received reconnect")
 			cancel()
 			go g.reconnect()
@@ -704,7 +704,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			}
 			g.statusMu.Unlock()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 			g.CloseWithCode(ctx, code, "invalid session")
 			cancel()
 			go g.reconnect()
