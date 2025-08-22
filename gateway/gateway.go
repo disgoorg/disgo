@@ -468,7 +468,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 		return
 	}
 
-	g.config.Logger.Info("sending heartbeat")
+	g.config.Logger.Debug("sending heartbeat")
 
 	sequence := 0
 	if g.config.LastSequenceReceived != nil {
