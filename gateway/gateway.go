@@ -661,6 +661,8 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
+			g.config.Logger.Info("received instruction to reconnect")
+
 			// We might receive a reconnect as the first opcode (even before HELLO)
 			g.statusMu.Lock()
 			if g.status != StatusReady {
@@ -688,6 +690,8 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				g.config.LastSequenceReceived = nil
 				g.config.ResumeURL = nil
 			}
+
+			g.config.Logger.Warn("received invalid session", slog.Bool("canResume", bool(canResume)))
 
 			g.statusMu.Lock()
 			if g.status != StatusReady {
