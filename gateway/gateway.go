@@ -23,6 +23,8 @@ import (
 // Version defines which discord API version disgo should use to connect to discord.
 const Version = 10
 
+var maximumConnectDelay = 10 * time.Second
+
 // Status is the state that the client is currently in.
 type Status int
 
@@ -386,8 +388,8 @@ func (g *gatewayImpl) doReconnect(ctx context.Context) error {
 	for {
 		// Exponentially backoff up to a limit of 10s
 		delay := time.Duration(1<<backoffIncrement) * time.Second
-		if delay > 10*time.Second {
-			delay = 10 * time.Second
+		if delay > maximumConnectDelay {
+			delay = maximumConnectDelay
 		} else {
 			backoffIncrement++
 		}
@@ -598,7 +600,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Warn("failed to read next message from gateway", slog.Any("err", err))
+				g.config.Logger.Error("failed to read next message from gateway", slog.Any("err", err))
 			}
 
 			// make sure the connection is properly closed
@@ -649,7 +651,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			if readyEvent, ok := eventData.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
 				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
-				g.config.Logger.Debug("successfully started", slog.String("session_id", *g.config.SessionID))
+				g.config.Logger.Debug("successfully identified", slog.String("session_id", *g.config.SessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
@@ -686,7 +688,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.statusMu.Lock()
 			if g.status != StatusReady {
 				g.statusMu.Unlock()
-				ready(fmt.Errorf("instructed to reconnect"))
+				ready(errors.New("instructed to reconnect"))
 				return
 			}
 			g.statusMu.Unlock()
