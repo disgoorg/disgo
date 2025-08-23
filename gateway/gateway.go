@@ -176,7 +176,6 @@ type gatewayImpl struct {
 	statusMu        sync.Mutex
 
 	heartbeatInterval     time.Duration
-	heartbeatLatency      time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
 }
@@ -373,7 +372,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
-	return g.heartbeatLatency
+	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
 func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
@@ -650,13 +649,13 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			if readyEvent, ok := eventData.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
 				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
-				g.config.Logger.Info("successfully started", slog.String("session_id", *g.config.SessionID))
+				g.config.Logger.Debug("successfully started", slog.String("session_id", *g.config.SessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
 				ready(nil)
 			} else if _, ok = eventData.(EventResumed); ok {
-				g.config.Logger.Info("successfully resumed", slog.String("session_id", *g.config.SessionID))
+				g.config.Logger.Debug("successfully resumed", slog.String("session_id", *g.config.SessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
@@ -681,7 +680,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
-			g.config.Logger.Info("received instruction to reconnect")
+			g.config.Logger.Debug("received instruction to reconnect")
 
 			// We might receive a reconnect as the first opcode (even before HELLO)
 			g.statusMu.Lock()
@@ -734,7 +733,6 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				NewHeartbeat:  newHeartbeat,
 			})
 			g.lastHeartbeatReceived = newHeartbeat
-			g.heartbeatLatency = g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 
 		default:
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
