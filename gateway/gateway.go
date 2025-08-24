@@ -600,7 +600,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Error("failed to read next message from gateway", slog.Any("err", err))
+				g.config.Logger.Warn("failed to read next message from gateway", slog.Any("err", err))
 			}
 
 			// make sure the connection is properly closed
