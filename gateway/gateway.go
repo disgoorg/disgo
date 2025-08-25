@@ -682,13 +682,13 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
-			g.config.Logger.Debug("received instruction to reconnect")
+			g.config.Logger.Debug("received reconnect")
 
 			// We might receive a reconnect as the first opcode (even before HELLO)
 			g.statusMu.Lock()
 			if g.status != StatusReady {
 				g.statusMu.Unlock()
-				ready(errors.New("instructed to reconnect"))
+				ready(errors.New("received reconnect"))
 				return
 			}
 			g.statusMu.Unlock()
