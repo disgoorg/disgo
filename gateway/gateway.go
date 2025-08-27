@@ -239,19 +239,22 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
-		body := ""
-		if rs != nil && rs.Body != nil {
+		var body []byte
+		if rs != nil {
 			defer func() {
 				_ = rs.Body.Close()
 			}()
-			rawBody, bErr := io.ReadAll(rs.Body)
-			if bErr != nil {
-				g.config.Logger.ErrorContext(ctx, "error while reading response body", slog.Any("err", bErr))
+			body, err = io.ReadAll(rs.Body)
+			if err != nil {
+				g.config.Logger.ErrorContext(ctx, "error while reading response body", slog.Any("err", err))
 			}
-			body = string(rawBody)
 		}
 
-		g.config.Logger.ErrorContext(ctx, "error connecting to the gateway", slog.Any("err", err), slog.String("url", gatewayURL), slog.String("body", body))
+		g.config.Logger.ErrorContext(ctx, "error connecting to the gateway",
+			slog.Any("err", err),
+			slog.String("url", gatewayURL),
+			slog.String("body", string(body)),
+		)
 		g.connMu.Unlock()
 		return err
 	}
@@ -303,7 +306,7 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
 	if g.heartbeatCancel != nil {
-		g.config.Logger.DebugContext(ctx, "closing heartbeat goroutines...")
+		g.config.Logger.DebugContext(ctx, "closing heartbeat goroutine")
 		g.heartbeatCancel()
 	}
 
@@ -382,8 +385,10 @@ func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
 }
 
 func (g *gatewayImpl) doReconnect(ctx context.Context) error {
-	try := 0
-	backoffIncrement := 0
+	var (
+		try              int
+		backoffIncrement int
+	)
 
 	for {
 		// Exponentially backoff up to a limit of 10s
