@@ -21,6 +21,7 @@ var (
 	_ Component            = (*StringSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*StringSelectMenuComponent)(nil)
 	_ SelectMenuComponent  = (*StringSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*StringSelectMenuComponent)(nil)
 )
 
 // NewStringSelectMenu builds a new SelectMenuComponent from the provided values
@@ -43,10 +44,11 @@ type StringSelectMenuComponent struct {
 	// MaxValues is the maximum number of options that can be selected.
 	// Defaults to 1. Maximum is 25.
 	MaxValues int                      `json:"max_values,omitempty"`
-	Disabled  bool                     `json:"disabled,omitempty"`
 	Options   []StringSelectMenuOption `json:"options,omitempty"`
 	// Required Indicates if the select menu is required to submit the Modal.
-	Required bool `json:"required,omitempty"`
+	Required bool `json:"required"`
+	// Disabled whether the select menu is disabled (only supported in messages)
+	Disabled bool `json:"disabled"`
 	// Values is only set when the StringSelectMenuComponent is received from an InteractionTypeModalSubmit
 	Values []string `json:"values,omitempty"`
 }
@@ -153,8 +155,8 @@ func (c StringSelectMenuComponent) RemoveOption(index int) StringSelectMenuCompo
 }
 
 // WithID returns a new StringSelectMenuComponent with the provided ID
-func (c StringSelectMenuComponent) WithID(i int) StringSelectMenuComponent {
-	c.ID = i
+func (c StringSelectMenuComponent) WithID(id int) StringSelectMenuComponent {
+	c.ID = id
 	return c
 }
 
@@ -216,6 +218,7 @@ var (
 	_ Component            = (*UserSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*UserSelectMenuComponent)(nil)
 	_ SelectMenuComponent  = (*UserSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*UserSelectMenuComponent)(nil)
 )
 
 // NewUserSelectMenu builds a new SelectMenuComponent from the provided values
@@ -233,7 +236,10 @@ type UserSelectMenuComponent struct {
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
-	Disabled      bool                     `json:"disabled,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
+	// Disabled whether the select menu is disabled (only supported in messages)
+	Disabled bool `json:"disabled"`
 }
 
 func (c UserSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -262,6 +268,7 @@ func (c UserSelectMenuComponent) GetCustomID() string {
 func (UserSelectMenuComponent) component()            {}
 func (UserSelectMenuComponent) interactiveComponent() {}
 func (UserSelectMenuComponent) selectMenuComponent()  {}
+func (UserSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new UserSelectMenuComponent with the provided customID
 func (c UserSelectMenuComponent) WithCustomID(customID string) UserSelectMenuComponent {
@@ -329,10 +336,23 @@ func (c UserSelectMenuComponent) RemoveDefaultValue(index int) UserSelectMenuCom
 	return c
 }
 
+// WithID returns a new UserSelectMenuComponent with the provided ID
+func (c UserSelectMenuComponent) WithID(id int) UserSelectMenuComponent {
+	c.ID = id
+	return c
+}
+
+// WithRequired returns a new UserSelectMenuComponent with the provided required value
+func (c UserSelectMenuComponent) WithRequired(required bool) UserSelectMenuComponent {
+	c.Required = required
+	return c
+}
+
 var (
-	_ Component            = (*UserSelectMenuComponent)(nil)
-	_ InteractiveComponent = (*UserSelectMenuComponent)(nil)
-	_ SelectMenuComponent  = (*UserSelectMenuComponent)(nil)
+	_ Component            = (*RoleSelectMenuComponent)(nil)
+	_ InteractiveComponent = (*RoleSelectMenuComponent)(nil)
+	_ SelectMenuComponent  = (*RoleSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*RoleSelectMenuComponent)(nil)
 )
 
 // NewRoleSelectMenu builds a new SelectMenuComponent from the provided values
@@ -350,7 +370,10 @@ type RoleSelectMenuComponent struct {
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
-	Disabled      bool                     `json:"disabled,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
+	// Disabled whether the select menu is disabled (only supported in messages)
+	Disabled bool `json:"disabled"`
 }
 
 func (c RoleSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -379,6 +402,7 @@ func (c RoleSelectMenuComponent) GetCustomID() string {
 func (RoleSelectMenuComponent) component()            {}
 func (RoleSelectMenuComponent) interactiveComponent() {}
 func (RoleSelectMenuComponent) selectMenuComponent()  {}
+func (RoleSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new RoleSelectMenuComponent with the provided customID
 func (c RoleSelectMenuComponent) WithCustomID(customID string) RoleSelectMenuComponent {
@@ -446,10 +470,23 @@ func (c RoleSelectMenuComponent) RemoveDefaultValue(index int) RoleSelectMenuCom
 	return c
 }
 
+// WithID returns a new RoleSelectMenuComponent with the provided ID
+func (c RoleSelectMenuComponent) WithID(id int) RoleSelectMenuComponent {
+	c.ID = id
+	return c
+}
+
+// WithRequired returns a new RoleSelectMenuComponent with the provided required value
+func (c RoleSelectMenuComponent) WithRequired(required bool) RoleSelectMenuComponent {
+	c.Required = required
+	return c
+}
+
 var (
 	_ Component            = (*MentionableSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*MentionableSelectMenuComponent)(nil)
 	_ SelectMenuComponent  = (*MentionableSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*MentionableSelectMenuComponent)(nil)
 )
 
 // NewMentionableSelectMenu builds a new SelectMenuComponent from the provided values
@@ -467,7 +504,10 @@ type MentionableSelectMenuComponent struct {
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
-	Disabled      bool                     `json:"disabled,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
+	// Disabled whether the select menu is disabled (only supported in messages)
+	Disabled bool `json:"disabled"`
 }
 
 func (c MentionableSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -496,6 +536,7 @@ func (c MentionableSelectMenuComponent) GetCustomID() string {
 func (MentionableSelectMenuComponent) component()            {}
 func (MentionableSelectMenuComponent) interactiveComponent() {}
 func (MentionableSelectMenuComponent) selectMenuComponent()  {}
+func (MentionableSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new MentionableSelectMenuComponent with the provided customID
 func (c MentionableSelectMenuComponent) WithCustomID(customID string) MentionableSelectMenuComponent {
@@ -560,10 +601,23 @@ func (c MentionableSelectMenuComponent) RemoveDefaultValue(index int) Mentionabl
 	return c
 }
 
+// WithID returns a new MentionableSelectMenuComponent with the provided ID
+func (c MentionableSelectMenuComponent) WithID(id int) MentionableSelectMenuComponent {
+	c.ID = id
+	return c
+}
+
+// WithRequired returns a new MentionableSelectMenuComponent with the provided required value
+func (c MentionableSelectMenuComponent) WithRequired(required bool) MentionableSelectMenuComponent {
+	c.Required = required
+	return c
+}
+
 var (
 	_ Component            = (*ChannelSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*ChannelSelectMenuComponent)(nil)
 	_ SelectMenuComponent  = (*ChannelSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*ChannelSelectMenuComponent)(nil)
 )
 
 // NewChannelSelectMenu builds a new SelectMenuComponent from the provided values
@@ -581,8 +635,11 @@ type ChannelSelectMenuComponent struct {
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
-	Disabled      bool                     `json:"disabled,omitempty"`
 	ChannelTypes  []ChannelType            `json:"channel_types,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
+	// Disabled whether the select menu is disabled (only supported in messages)
+	Disabled bool `json:"disabled"`
 }
 
 func (c ChannelSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -611,6 +668,7 @@ func (c ChannelSelectMenuComponent) GetCustomID() string {
 func (ChannelSelectMenuComponent) component()            {}
 func (ChannelSelectMenuComponent) interactiveComponent() {}
 func (ChannelSelectMenuComponent) selectMenuComponent()  {}
+func (ChannelSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new ChannelSelectMenuComponent with the provided customID
 func (c ChannelSelectMenuComponent) WithCustomID(customID string) ChannelSelectMenuComponent {
@@ -684,9 +742,21 @@ func (c ChannelSelectMenuComponent) RemoveDefaultValue(index int) ChannelSelectM
 	return c
 }
 
+// WithID returns a new ChannelSelectMenuComponent with the provided ID
+func (c ChannelSelectMenuComponent) WithID(id int) ChannelSelectMenuComponent {
+	c.ID = id
+	return c
+}
+
+// WithRequired returns a new ChannelSelectMenuComponent with the provided required value
+func (c ChannelSelectMenuComponent) WithRequired(required bool) ChannelSelectMenuComponent {
+	c.Required = required
+	return c
+}
+
 type SelectMenuDefaultValue struct {
-	ID   snowflake.ID               `json:"id"`
 	Type SelectMenuDefaultValueType `json:"type"`
+	ID   snowflake.ID               `json:"id"`
 }
 
 type SelectMenuDefaultValueType string
@@ -700,23 +770,23 @@ const (
 // NewSelectMenuDefaultUser returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeUser
 func NewSelectMenuDefaultUser(id snowflake.ID) SelectMenuDefaultValue {
 	return SelectMenuDefaultValue{
-		ID:   id,
 		Type: SelectMenuDefaultValueTypeUser,
+		ID:   id,
 	}
 }
 
 // NewSelectMenuDefaultRole returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeRole
 func NewSelectMenuDefaultRole(id snowflake.ID) SelectMenuDefaultValue {
 	return SelectMenuDefaultValue{
-		ID:   id,
 		Type: SelectMenuDefaultValueTypeRole,
+		ID:   id,
 	}
 }
 
 // NewSelectMenuDefaultChannel returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeChannel
 func NewSelectMenuDefaultChannel(id snowflake.ID) SelectMenuDefaultValue {
 	return SelectMenuDefaultValue{
-		ID:   id,
 		Type: SelectMenuDefaultValueTypeChannel,
+		ID:   id,
 	}
 }

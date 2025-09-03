@@ -136,6 +136,11 @@ type ContainerSubComponent interface {
 // LabelSubComponent is an interface for all components that can be present in a [LabelComponent].
 // [StringSelectMenuComponent]
 // [TextInputComponent]
+// [UserSelectMenuComponent]
+// [RoleSelectMenuComponent]
+// [MentionableSelectMenuComponent]
+// [ChannelSelectMenuComponent]
+// [UnknownComponent]
 type LabelSubComponent interface {
 	Component
 	// labelSubComponent is a marker to simulate unions.
@@ -608,16 +613,14 @@ var (
 //
 // [Discord Docs]: https://discord.com/developers/docs/interactions/message-components#text-inputs
 type TextInputComponent struct {
-	ID       int            `json:"id,omitempty"`
-	CustomID string         `json:"custom_id"`
-	Style    TextInputStyle `json:"style"`
-	// Deprecated: Label is deprecated and will be removed in a future version. Use [LabelComponent] instead.
-	Label       string `json:"label,omitempty"`
-	MinLength   *int   `json:"min_length,omitempty"`
-	MaxLength   int    `json:"max_length,omitempty"`
-	Required    bool   `json:"required"`
-	Placeholder string `json:"placeholder,omitempty"`
-	Value       string `json:"value,omitempty"`
+	ID          int            `json:"id,omitempty"`
+	CustomID    string         `json:"custom_id"`
+	Style       TextInputStyle `json:"style"`
+	MinLength   *int           `json:"min_length,omitempty"`
+	MaxLength   int            `json:"max_length,omitempty"`
+	Required    bool           `json:"required"`
+	Placeholder string         `json:"placeholder,omitempty"`
+	Value       string         `json:"value,omitempty"`
 }
 
 func (c TextInputComponent) MarshalJSON() ([]byte, error) {
@@ -1410,6 +1413,7 @@ var (
 	_ SectionSubComponent       = (*UnknownComponent)(nil)
 	_ SectionAccessoryComponent = (*UnknownComponent)(nil)
 	_ ContainerSubComponent     = (*UnknownComponent)(nil)
+	_ LabelSubComponent         = (*UnknownComponent)(nil)
 )
 
 // UnknownComponent is a component that is not recognized by the library.
@@ -1475,3 +1479,4 @@ func (UnknownComponent) selectMenuComponent()       {}
 func (UnknownComponent) containerSubComponent()     {}
 func (UnknownComponent) sectionSubComponent()       {}
 func (UnknownComponent) sectionAccessoryComponent() {}
+func (UnknownComponent) labelSubComponent()         {}
