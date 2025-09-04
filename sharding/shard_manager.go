@@ -48,7 +48,13 @@ type ShardManager interface {
 }
 
 // ShardIDByGuild returns the shard ID for the given guildID and shardCount.
+// Note: shardCount must be > 0 otherwise this function will panic.
+// Added defensive check to prevent divide-by-zero.
 func ShardIDByGuild(guildID snowflake.ID, shardCount int) int {
+	if shardCount <= 0 {
+		// defensive check: invalid shardCount, return 0 by default to avoid panic
+		return 0
+	}
 	return int((uint64(guildID) >> 22) % uint64(shardCount))
 }
 
@@ -58,6 +64,11 @@ var _ ShardManager = (*shardManagerImpl)(nil)
 func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...ConfigOpt) ShardManager {
 	cfg := defaultConfig()
 	cfg.apply(opts)
+
+	// defensive check: ensure shard split count is never < 1
+	if cfg.ShardSplitCount <= 0 {
+		cfg.ShardSplitCount = DefaultShardSplitCount
+	}
 
 	return &shardManagerImpl{
 		shards:           map[int]gateway.Gateway{},
@@ -132,7 +143,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 		}
 
 		wg.Add(1)
-		go func() {
+		go func(shardID int, shardState ShardState) {
 			defer wg.Done()
 
 			if err := m.openShard(ctx, shardID, m.config.ShardCount, shardState); err != nil {
@@ -140,7 +151,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 			}
 
 			m.config.Logger.Debug("opened shard", slog.Int("shard_id", shardID), slog.Int("shard_count", m.config.ShardCount))
-		}()
+		}(shardID, shardState)
 	}
 	wg.Wait()
 }
@@ -153,16 +164,22 @@ func (m *shardManagerImpl) Close(ctx context.Context) {
 	defer m.shardsMu.Unlock()
 	for _, shard := range m.shards {
 		wg.Add(1)
-		go func() {
+		go func(shard gateway.Gateway) {
 			defer wg.Done()
-			shard.Close(ctx)
-		}()
+			if shard != nil { // defensive nil check
+				shard.Close(ctx)
+			}
+		}(shard)
 	}
 	wg.Wait()
 	m.shards = map[int]gateway.Gateway{}
 }
 
 func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
+	if m.config.ShardCount <= 0 {
+		// defensive check: cannot open shards if no shardCount is configured
+		return fmt.Errorf("invalid shard count: %d", m.config.ShardCount)
+	}
 	if err := m.openShard(ctx, shardID, m.config.ShardCount, ShardState{}); err != nil {
 		m.config.Logger.Error("failed to open shard", slog.Any("err", err), slog.Int("shard_id", shardID))
 		return err
@@ -173,6 +190,10 @@ func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 }
 
 func (m *shardManagerImpl) ResumeShard(ctx context.Context, shardID int, state ShardState) error {
+	if m.config.ShardCount <= 0 {
+		// defensive check: cannot resume shards if no shardCount is configured
+		return fmt.Errorf("invalid shard count: %d", m.config.ShardCount)
+	}
 	if err := m.openShard(ctx, shardID, m.config.ShardCount, state); err != nil {
 		m.config.Logger.Error("failed to resume shard",
 			slog.Any("err", err),
@@ -203,6 +224,11 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 		slog.String("resume_url", state.ResumeURL),
 	)
 
+	if shardCount <= 0 {
+		// defensive check: shardCount must be > 0
+		return fmt.Errorf("invalid shard count: %d", shardCount)
+	}
+
 	opts := append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(shardCount), gateway.WithIdentifyRateLimiter(m.config.IdentifyRateLimiter))
 	if state.SessionID != "" {
 		opts = append(opts, gateway.WithSessionID(state.SessionID))
@@ -228,7 +254,7 @@ func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
 	m.shardsMu.Lock()
 	defer m.shardsMu.Unlock()
 	shard, ok := m.shards[shardID]
-	if ok {
+	if ok && shard != nil { // defensive nil check
 		shard.Close(ctx)
 		delete(m.shards, shardID)
 	}
@@ -236,9 +262,15 @@ func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
 
 func (m *shardManagerImpl) ShardByGuildID(guildId snowflake.ID) gateway.Gateway {
 	shardCount := m.config.ShardCount
+	if shardCount <= 0 {
+		// defensive check: if no shards are configured just return nil
+		return nil
+	}
 	var shard gateway.Gateway
-	for shard == nil || shardCount != 0 {
+	// loop until we find a valid shard AND shardCount is not exhausted
+	for shard == nil && shardCount != 0 {
 		shard = m.Shard(ShardIDByGuild(guildId, shardCount))
+		// prevent infinite loops by reducing shardCount each step
 		shardCount /= m.config.ShardSplitCount
 	}
 	return shard
@@ -247,7 +279,11 @@ func (m *shardManagerImpl) ShardByGuildID(guildId snowflake.ID) gateway.Gateway 
 func (m *shardManagerImpl) Shard(shardID int) gateway.Gateway {
 	m.shardsMu.Lock()
 	defer m.shardsMu.Unlock()
-	return m.shards[shardID]
+	// defensive check: return nil if shardID not found
+	if shard, ok := m.shards[shardID]; ok {
+		return shard
+	}
+	return nil
 }
 
 func (m *shardManagerImpl) Shards() iter.Seq[gateway.Gateway] {
@@ -256,6 +292,9 @@ func (m *shardManagerImpl) Shards() iter.Seq[gateway.Gateway] {
 		defer m.shardsMu.Unlock()
 
 		for _, shard := range m.shards {
+			if shard == nil { // defensive nil check
+				continue
+			}
 			if !yield(shard) {
 				return
 			}
