@@ -89,6 +89,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, _ bool
 	delete(m.shards, shard.ShardID())
 	defer m.shardsMu.Unlock()
 
+	oldShardCount := m.config.ShardCount
 	newShardCount := shard.ShardCount() * m.config.ShardSplitCount
 	if newShardCount > m.config.ShardCount {
 		m.config.ShardCount = newShardCount
@@ -96,9 +97,9 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, _ bool
 
 	newShardID := shard.ShardID()
 	var newShardIDs []int
-	for len(newShardIDs) < m.config.ShardSplitCount {
+	for range m.config.ShardSplitCount {
 		newShardIDs = append(newShardIDs, newShardID)
-		newShardID += m.config.ShardSplitCount
+		newShardID += oldShardCount
 	}
 
 	var wg sync.WaitGroup
