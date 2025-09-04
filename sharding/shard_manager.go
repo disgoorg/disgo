@@ -237,7 +237,7 @@ func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
 func (m *shardManagerImpl) ShardByGuildID(guildId snowflake.ID) gateway.Gateway {
 	shardCount := m.config.ShardCount
 	var shard gateway.Gateway
-	for shard == nil || shardCount != 0 {
+	for shard == nil && shardCount != 0 {
 		shard = m.Shard(ShardIDByGuild(guildId, shardCount))
 		shardCount /= m.config.ShardSplitCount
 	}
