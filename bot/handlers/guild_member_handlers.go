@@ -16,7 +16,8 @@ func gatewayHandlerGuildMemberAdd(client *bot.Client, sequenceNumber int, shardI
 
 	client.EventManager.DispatchEvent(&events.GuildMemberJoin{
 		GenericGuildMember: &events.GenericGuildMember{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			GuildID:      event.GuildID,
 			Member:       event.Member,
 		},
@@ -29,7 +30,8 @@ func gatewayHandlerGuildMemberUpdate(client *bot.Client, sequenceNumber int, sha
 
 	client.EventManager.DispatchEvent(&events.GuildMemberUpdate{
 		GenericGuildMember: &events.GenericGuildMember{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			GuildID:      event.GuildID,
 			Member:       event.Member,
 		},
@@ -46,7 +48,8 @@ func gatewayHandlerGuildMemberRemove(client *bot.Client, sequenceNumber int, sha
 	member, _ := client.Caches.RemoveMember(event.GuildID, event.User.ID)
 
 	client.EventManager.DispatchEvent(&events.GuildMemberLeave{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		GuildID:      event.GuildID,
 		User:         event.User,
 		Member:       member,

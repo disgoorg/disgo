@@ -8,13 +8,15 @@ import (
 )
 
 type PresenceUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	gateway.EventPresenceUpdate
 }
 
 // GenericUserActivity generic Activity event
 type GenericUserActivity struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	UserID   snowflake.ID
 	GuildID  snowflake.ID
 	Activity discord.Activity

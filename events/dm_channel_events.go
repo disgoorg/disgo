@@ -8,14 +8,16 @@ import (
 
 // DMChannelPinsUpdate indicates that a discord.Message got pinned or unpinned.
 type DMChannelPinsUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	ChannelID           snowflake.ID
 	NewLastPinTimestamp *time.Time
 }
 
 // DMUserTypingStart indicates that a discord.User started typing in a discord.DMChannel(requires gateway.IntentDirectMessageTyping).
 type DMUserTypingStart struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	ChannelID snowflake.ID
 	UserID    snowflake.ID
 	Timestamp time.Time

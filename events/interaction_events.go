@@ -10,7 +10,8 @@ type InteractionResponderFunc func(responseType discord.InteractionResponseType,
 
 // InteractionCreate indicates that a new interaction has been created.
 type InteractionCreate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.Interaction
 	Respond InteractionResponderFunc
 }
@@ -27,7 +28,8 @@ func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 
 // ApplicationCommandInteractionCreate is the base struct for all application command interaction create events.
 type ApplicationCommandInteractionCreate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.ApplicationCommandInteraction
 	Respond InteractionResponderFunc
 }
@@ -87,7 +89,8 @@ func (e *ApplicationCommandInteractionCreate) LaunchActivity(opts ...rest.Reques
 
 // ComponentInteractionCreate indicates that a new component interaction has been created.
 type ComponentInteractionCreate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.ComponentInteraction
 	Respond InteractionResponderFunc
 }
@@ -157,7 +160,8 @@ func (e *ComponentInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) err
 
 // AutocompleteInteractionCreate indicates that a new autocomplete interaction has been created.
 type AutocompleteInteractionCreate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.AutocompleteInteraction
 	Respond InteractionResponderFunc
 }
@@ -198,7 +202,8 @@ func (e *AutocompleteInteractionCreate) AutocompleteResult(choices []discord.Aut
 
 // ModalSubmitInteractionCreate indicates that a new modal submit interaction has been created.
 type ModalSubmitInteractionCreate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.ModalSubmitInteraction
 	Respond InteractionResponderFunc
 }

@@ -8,7 +8,8 @@ import (
 
 // GenericGuildMessagePollVote is called upon receiving GuildMessagePollVoteAdd or GuildMessagePollVoteRemove (requires gateway.IntentGuildMessagePolls)
 type GenericGuildMessagePollVote struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	UserID    snowflake.ID
 	ChannelID snowflake.ID
 	MessageID snowflake.ID

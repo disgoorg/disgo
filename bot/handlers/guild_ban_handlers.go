@@ -8,7 +8,8 @@ import (
 
 func gatewayHandlerGuildBanAdd(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildBanAdd) {
 	genericGuildEvent := &events.GenericGuild{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		GuildID:      event.GuildID,
 	}
 
@@ -20,7 +21,8 @@ func gatewayHandlerGuildBanAdd(client *bot.Client, sequenceNumber int, shardID i
 
 func gatewayHandlerGuildBanRemove(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildBanRemove) {
 	genericGuildEvent := &events.GenericGuild{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		GuildID:      event.GuildID,
 	}
 
