@@ -121,7 +121,10 @@ type MemberUpdate struct {
 
 // CurrentMemberUpdate is used to update the current member
 type CurrentMemberUpdate struct {
-	Nick string `json:"nick"`
+	Nick   *string          `json:"nick,omitempty"`
+	Banner omit.Omit[*Icon] `json:"banner,omitzero"`
+	Avatar omit.Omit[*Icon] `json:"avatar,omitzero"`
+	Bio    *string          `json:"bio,omitempty"`
 }
 
 type MemberFlags int
