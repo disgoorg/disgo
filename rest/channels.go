@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"time"
+
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -44,7 +46,7 @@ type Channels interface {
 	// Deprecated: Use GetChannelPins instead
 	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
 
-	GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (*discord.ChannelPins, error)
+	GetChannelPins(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (*discord.ChannelPins, error)
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 
@@ -216,10 +218,10 @@ func (s *channelImpl) GetPinnedMessages(channelID snowflake.ID, opts ...RequestO
 	return
 }
 
-func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before snowflake.ID, limit int, opts ...RequestOpt) (pins *discord.ChannelPins, err error) {
+func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (pins *discord.ChannelPins, err error) {
 	values := discord.QueryValues{}
-	if before != 0 {
-		values["before"] = before
+	if !before.IsZero() {
+		values["before"] = before.Format(time.RFC3339)
 	}
 	if limit != 0 {
 		values["limit"] = limit
