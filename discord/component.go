@@ -1410,6 +1410,7 @@ var (
 	_ SectionSubComponent       = (*UnknownComponent)(nil)
 	_ SectionAccessoryComponent = (*UnknownComponent)(nil)
 	_ ContainerSubComponent     = (*UnknownComponent)(nil)
+	_ LabelSubComponent         = (*UnknownComponent)(nil)
 )
 
 // UnknownComponent is a component that is not recognized by the library.
@@ -1475,3 +1476,4 @@ func (UnknownComponent) selectMenuComponent()       {}
 func (UnknownComponent) containerSubComponent()     {}
 func (UnknownComponent) sectionSubComponent()       {}
 func (UnknownComponent) sectionAccessoryComponent() {}
+func (UnknownComponent) labelSubComponent()         {}
