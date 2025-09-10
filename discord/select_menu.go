@@ -218,6 +218,7 @@ var (
 	_ Component            = (*UserSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*UserSelectMenuComponent)(nil)
 	_ SelectMenuComponent  = (*UserSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*UserSelectMenuComponent)(nil)
 )
 
 // NewUserSelectMenu builds a new SelectMenuComponent from the provided values
@@ -235,6 +236,8 @@ type UserSelectMenuComponent struct {
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
 }
@@ -265,6 +268,7 @@ func (c UserSelectMenuComponent) GetCustomID() string {
 func (UserSelectMenuComponent) component()            {}
 func (UserSelectMenuComponent) interactiveComponent() {}
 func (UserSelectMenuComponent) selectMenuComponent()  {}
+func (UserSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new UserSelectMenuComponent with the provided customID
 func (c UserSelectMenuComponent) WithCustomID(customID string) UserSelectMenuComponent {
@@ -338,10 +342,17 @@ func (c UserSelectMenuComponent) WithID(id int) UserSelectMenuComponent {
 	return c
 }
 
+// WithRequired returns a new UserSelectMenuComponent with the provided required value
+func (c UserSelectMenuComponent) WithRequired(required bool) UserSelectMenuComponent {
+	c.Required = required
+	return c
+}
+
 var (
-	_ Component            = (*UserSelectMenuComponent)(nil)
-	_ InteractiveComponent = (*UserSelectMenuComponent)(nil)
-	_ SelectMenuComponent  = (*UserSelectMenuComponent)(nil)
+	_ Component            = (*RoleSelectMenuComponent)(nil)
+	_ InteractiveComponent = (*RoleSelectMenuComponent)(nil)
+	_ SelectMenuComponent  = (*RoleSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*RoleSelectMenuComponent)(nil)
 )
 
 // NewRoleSelectMenu builds a new SelectMenuComponent from the provided values
@@ -359,6 +370,8 @@ type RoleSelectMenuComponent struct {
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
 }
@@ -389,6 +402,7 @@ func (c RoleSelectMenuComponent) GetCustomID() string {
 func (RoleSelectMenuComponent) component()            {}
 func (RoleSelectMenuComponent) interactiveComponent() {}
 func (RoleSelectMenuComponent) selectMenuComponent()  {}
+func (RoleSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new RoleSelectMenuComponent with the provided customID
 func (c RoleSelectMenuComponent) WithCustomID(customID string) RoleSelectMenuComponent {
@@ -462,10 +476,17 @@ func (c RoleSelectMenuComponent) WithID(id int) RoleSelectMenuComponent {
 	return c
 }
 
+// WithRequired returns a new RoleSelectMenuComponent with the provided required value
+func (c RoleSelectMenuComponent) WithRequired(required bool) RoleSelectMenuComponent {
+	c.Required = required
+	return c
+}
+
 var (
 	_ Component            = (*MentionableSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*MentionableSelectMenuComponent)(nil)
 	_ SelectMenuComponent  = (*MentionableSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*MentionableSelectMenuComponent)(nil)
 )
 
 // NewMentionableSelectMenu builds a new SelectMenuComponent from the provided values
@@ -483,6 +504,8 @@ type MentionableSelectMenuComponent struct {
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
 }
@@ -513,6 +536,7 @@ func (c MentionableSelectMenuComponent) GetCustomID() string {
 func (MentionableSelectMenuComponent) component()            {}
 func (MentionableSelectMenuComponent) interactiveComponent() {}
 func (MentionableSelectMenuComponent) selectMenuComponent()  {}
+func (MentionableSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new MentionableSelectMenuComponent with the provided customID
 func (c MentionableSelectMenuComponent) WithCustomID(customID string) MentionableSelectMenuComponent {
@@ -583,10 +607,17 @@ func (c MentionableSelectMenuComponent) WithID(id int) MentionableSelectMenuComp
 	return c
 }
 
+// WithRequired returns a new MentionableSelectMenuComponent with the provided required value
+func (c MentionableSelectMenuComponent) WithRequired(required bool) MentionableSelectMenuComponent {
+	c.Required = required
+	return c
+}
+
 var (
 	_ Component            = (*ChannelSelectMenuComponent)(nil)
 	_ InteractiveComponent = (*ChannelSelectMenuComponent)(nil)
 	_ SelectMenuComponent  = (*ChannelSelectMenuComponent)(nil)
+	_ LabelSubComponent    = (*ChannelSelectMenuComponent)(nil)
 )
 
 // NewChannelSelectMenu builds a new SelectMenuComponent from the provided values
@@ -605,6 +636,8 @@ type ChannelSelectMenuComponent struct {
 	MinValues     *int                     `json:"min_values,omitempty"`
 	MaxValues     int                      `json:"max_values,omitempty"`
 	ChannelTypes  []ChannelType            `json:"channel_types,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
 }
@@ -635,6 +668,7 @@ func (c ChannelSelectMenuComponent) GetCustomID() string {
 func (ChannelSelectMenuComponent) component()            {}
 func (ChannelSelectMenuComponent) interactiveComponent() {}
 func (ChannelSelectMenuComponent) selectMenuComponent()  {}
+func (ChannelSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new ChannelSelectMenuComponent with the provided customID
 func (c ChannelSelectMenuComponent) WithCustomID(customID string) ChannelSelectMenuComponent {
@@ -711,6 +745,12 @@ func (c ChannelSelectMenuComponent) RemoveDefaultValue(index int) ChannelSelectM
 // WithID returns a new ChannelSelectMenuComponent with the provided ID
 func (c ChannelSelectMenuComponent) WithID(id int) ChannelSelectMenuComponent {
 	c.ID = id
+	return c
+}
+
+// WithRequired returns a new ChannelSelectMenuComponent with the provided required value
+func (c ChannelSelectMenuComponent) WithRequired(required bool) ChannelSelectMenuComponent {
+	c.Required = required
 	return c
 }
 

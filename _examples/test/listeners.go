@@ -55,7 +55,6 @@ func componentListener(event *events.ComponentInteractionCreate) {
 						discord.TextInputComponent{
 							CustomID:    "test_input",
 							Style:       discord.TextInputStyleShort,
-							Label:       "qwq",
 							Required:    true,
 							Placeholder: "test placeholder",
 							Value:       "uwu",
