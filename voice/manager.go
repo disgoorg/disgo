@@ -49,7 +49,7 @@ func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts 
 		config:               cfg,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		userID:               userID,
-		conns:                map[snowflake.ID]Conn{},
+		conns:                make(map[snowflake.ID]Conn),
 	}
 }
 
@@ -83,13 +83,13 @@ func (m *managerImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpd
 }
 
 func (m *managerImpl) CreateConn(guildID snowflake.ID) Conn {
-	m.config.Logger.Debug("Creating new voice conn", slog.Int64("guild_id", int64(guildID)))
-	if conn := m.GetConn(guildID); conn != nil {
-		return conn
-	}
-
 	m.connsMu.Lock()
 	defer m.connsMu.Unlock()
+
+	m.config.Logger.Debug("Creating new voice conn", slog.Int64("guild_id", int64(guildID)))
+	if conn, ok := m.conns[guildID]; ok {
+		return conn
+	}
 
 	var once sync.Once
 	removeFunc := func() { once.Do(func() { m.RemoveConn(guildID) }) }
@@ -119,13 +119,15 @@ func (m *managerImpl) Conns() iter.Seq[Conn] {
 }
 
 func (m *managerImpl) RemoveConn(guildID snowflake.ID) {
-	m.config.Logger.Debug("Removing voice conn", slog.Int64("guild_id", int64(guildID)))
-	conn := m.GetConn(guildID)
-	if conn == nil {
-		return
-	}
 	m.connsMu.Lock()
 	defer m.connsMu.Unlock()
+
+	m.config.Logger.Debug("Removing voice conn", slog.Int64("guild_id", int64(guildID)))
+
+	if _, ok := m.conns[guildID]; !ok {
+		return
+	}
+
 	delete(m.conns, guildID)
 }
 
