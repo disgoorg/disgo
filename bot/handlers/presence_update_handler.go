@@ -13,10 +13,9 @@ import (
 )
 
 func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventPresenceUpdate) {
-	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
-
 	client.EventManager.DispatchEvent(&events.PresenceUpdate{
-		GenericEvent:        genericEvent,
+		Event:               events.NewEvent(client),
+		GatewayEvent:        events.NewGatewayEvent(sequenceNumber, shardID),
 		EventPresenceUpdate: event,
 	})
 
@@ -40,7 +39,8 @@ func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardI
 
 	if oldStatus != event.Status {
 		client.EventManager.DispatchEvent(&events.UserStatusUpdate{
-			GenericEvent: genericEvent,
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			UserID:       event.PresenceUser.ID,
 			OldStatus:    oldStatus,
 			Status:       event.Status,
@@ -49,7 +49,8 @@ func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardI
 
 	if oldClientStatus.Desktop != event.ClientStatus.Desktop || oldClientStatus.Mobile != event.ClientStatus.Mobile || oldClientStatus.Web != event.ClientStatus.Web {
 		client.EventManager.DispatchEvent(&events.UserClientStatusUpdate{
-			GenericEvent:    genericEvent,
+			Event:           events.NewEvent(client),
+			GatewayEvent:    events.NewGatewayEvent(sequenceNumber, shardID),
 			UserID:          event.PresenceUser.ID,
 			OldClientStatus: oldClientStatus,
 			ClientStatus:    event.ClientStatus,
@@ -57,7 +58,8 @@ func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardI
 	}
 
 	genericUserActivityEvent := events.GenericUserActivity{
-		GenericEvent: genericEvent,
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		UserID:       event.PresenceUser.ID,
 		GuildID:      event.GuildID,
 	}

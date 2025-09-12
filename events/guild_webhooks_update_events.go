@@ -8,7 +8,8 @@ import (
 
 // WebhooksUpdate indicates that a guilds webhooks were updated.
 type WebhooksUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildId   snowflake.ID
 	ChannelID snowflake.ID
 }

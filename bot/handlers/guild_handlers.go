@@ -69,7 +69,8 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 	}
 
 	genericGuildEvent := &events.GenericGuild{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		GuildID:      event.ID,
 	}
 
@@ -81,7 +82,8 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 		})
 		if len(client.Caches.UnreadyGuildIDs()) == 0 {
 			client.EventManager.DispatchEvent(&events.GuildsReady{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			})
 		}
 		if client.MemberChunkingManager.MemberChunkingFilter()(event.ID) {
@@ -114,7 +116,8 @@ func gatewayHandlerGuildUpdate(client *bot.Client, sequenceNumber int, shardID i
 
 	client.EventManager.DispatchEvent(&events.GuildUpdate{
 		GenericGuild: &events.GenericGuild{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			GuildID:      event.ID,
 		},
 		Guild:    event.Guild,
@@ -147,7 +150,8 @@ func gatewayHandlerGuildDelete(client *bot.Client, sequenceNumber int, shardID i
 	client.Caches.RemoveMessagesByGuildID(event.ID)
 
 	genericGuildEvent := &events.GenericGuild{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		GuildID:      event.ID,
 	}
 
@@ -165,13 +169,12 @@ func gatewayHandlerGuildDelete(client *bot.Client, sequenceNumber int, shardID i
 }
 
 func gatewayHandlerGuildAuditLogEntryCreate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildAuditLogEntryCreate) {
-	genericGuildEvent := &events.GenericGuild{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-		GuildID:      event.GuildID,
-	}
-
 	client.EventManager.DispatchEvent(&events.GuildAuditLogEntryCreate{
-		GenericGuild:  genericGuildEvent,
+		GenericGuild: &events.GenericGuild{
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
+			GuildID:      event.GuildID,
+		},
 		AuditLogEntry: event.AuditLogEntry,
 	})
 }
