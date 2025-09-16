@@ -143,6 +143,7 @@ type ChannelCache interface {
 
 	Channel(channelID snowflake.ID) (discord.GuildChannel, bool)
 	Channels() iter.Seq[discord.GuildChannel]
+	ChannelsForGuild(guildID snowflake.ID) iter.Seq[discord.GuildChannel]
 	ChannelsLen() int
 	AddChannel(channel discord.GuildChannel)
 	RemoveChannel(channelID snowflake.ID) (discord.GuildChannel, bool)
@@ -169,6 +170,18 @@ func (c *channelCacheImpl) Channel(channelID snowflake.ID) (discord.GuildChannel
 
 func (c *channelCacheImpl) Channels() iter.Seq[discord.GuildChannel] {
 	return c.cache.All()
+}
+
+func (c *channelCacheImpl) ChannelsForGuild(guildID snowflake.ID) iter.Seq[discord.GuildChannel] {
+	return func(yield func(discord.GuildChannel) bool) {
+		for channel := range c.Channels() {
+			if channel.GuildID() == guildID {
+				if !yield(channel) {
+					return
+				}
+			}
+		}
+	}
 }
 
 func (c *channelCacheImpl) ChannelsLen() int {
