@@ -32,7 +32,7 @@ func (e GuildScheduledEvent) CreatedAt() time.Time {
 	return e.ID.Time()
 }
 
-// CoverURL returns the cover URL if set or nil
+// CoverURL returns the cover InteractionURL if set or nil
 func (e GuildScheduledEvent) CoverURL(opts ...CDNOpt) *string {
 	if e.Image == nil {
 		return nil

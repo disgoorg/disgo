@@ -13,7 +13,8 @@ func gatewayHandlerThreadCreate(client *bot.Client, sequenceNumber int, shardID 
 
 	client.EventManager.DispatchEvent(&events.ThreadCreate{
 		GenericThread: &events.GenericThread{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			ThreadID:     event.ID(),
 			GuildID:      event.GuildID(),
 			Thread:       event.GuildThread,
@@ -29,7 +30,8 @@ func gatewayHandlerThreadUpdate(client *bot.Client, sequenceNumber int, shardID 
 
 	client.EventManager.DispatchEvent(&events.ThreadUpdate{
 		GenericThread: &events.GenericThread{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			Thread:       event.GuildThread,
 			ThreadID:     event.ID(),
 			GuildID:      event.GuildID(),
@@ -48,7 +50,8 @@ func gatewayHandlerThreadDelete(client *bot.Client, sequenceNumber int, shardID 
 
 	client.EventManager.DispatchEvent(&events.ThreadDelete{
 		GenericThread: &events.GenericThread{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+			Event:        events.NewEvent(client),
+			GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 			ThreadID:     event.ID,
 			GuildID:      event.GuildID,
 			ParentID:     event.ParentID,
@@ -62,7 +65,8 @@ func gatewayHandlerThreadListSync(client *bot.Client, sequenceNumber int, shardI
 		client.Caches.AddChannel(thread)
 		client.EventManager.DispatchEvent(&events.ThreadShow{
 			GenericThread: &events.GenericThread{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+				Event:        events.NewEvent(client),
+				GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 				Thread:       thread,
 				ThreadID:     thread.ID(),
 				GuildID:      event.GuildID,
@@ -76,8 +80,6 @@ func gatewayHandlerThreadMemberUpdate(_ *bot.Client, _ int, _ int, _ gateway.Eve
 }
 
 func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadMembersUpdate) {
-	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
-
 	if thread, ok := client.Caches.GuildThread(event.ID); ok {
 		thread.MemberCount = event.MemberCount
 		client.Caches.AddChannel(thread)
@@ -94,7 +96,8 @@ func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, s
 
 		client.EventManager.DispatchEvent(&events.ThreadMemberAdd{
 			GenericThreadMember: &events.GenericThreadMember{
-				GenericEvent:   genericEvent,
+				Event:          events.NewEvent(client),
+				GatewayEvent:   events.NewGatewayEvent(sequenceNumber, shardID),
 				GuildID:        event.GuildID,
 				ThreadID:       event.ID,
 				ThreadMemberID: addedMember.UserID,
@@ -110,7 +113,8 @@ func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, s
 
 		client.EventManager.DispatchEvent(&events.ThreadMemberRemove{
 			GenericThreadMember: &events.GenericThreadMember{
-				GenericEvent:   genericEvent,
+				Event:          events.NewEvent(client),
+				GatewayEvent:   events.NewGatewayEvent(sequenceNumber, shardID),
 				GuildID:        event.GuildID,
 				ThreadID:       event.ID,
 				ThreadMemberID: removedMemberID,

@@ -7,15 +7,17 @@ import (
 )
 
 func gatewayHandlerRaw(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventRaw) {
-	client.EventManager.DispatchEvent(&events.Raw{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+	client.EventManager.DispatchEvent(&events.GatewayRaw{
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		EventRaw:     event,
 	})
 }
 
 func gatewayHandlerHeartbeatAck(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventHeartbeatAck) {
 	client.EventManager.DispatchEvent(&events.HeartbeatAck{
-		GenericEvent:      events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:             events.NewEvent(client),
+		GatewayEvent:      events.NewGatewayEvent(sequenceNumber, shardID),
 		EventHeartbeatAck: event,
 	})
 }
@@ -28,13 +30,15 @@ func gatewayHandlerReady(client *bot.Client, sequenceNumber int, shardID int, ev
 	}
 
 	client.EventManager.DispatchEvent(&events.Ready{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		EventReady:   event,
 	})
 }
 
 func gatewayHandlerResumed(client *bot.Client, sequenceNumber int, shardID int, _ gateway.EventData) {
 	client.EventManager.DispatchEvent(&events.Resumed{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 	})
 }

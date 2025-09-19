@@ -502,7 +502,7 @@ func (c GroupDMChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
-// IconURL returns the icon URL of this group DM or nil if not set
+// IconURL returns the icon InteractionURL of this group DM or nil if not set
 func (c GroupDMChannel) IconURL(opts ...CDNOpt) *string {
 	if c.icon == nil {
 		return nil

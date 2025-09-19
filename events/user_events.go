@@ -10,7 +10,8 @@ import (
 
 // GenericUser is called upon receiving UserUpdate or UserTypingStart
 type GenericUser struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	UserID snowflake.ID
 	User   discord.User
 }
@@ -23,7 +24,8 @@ type UserUpdate struct {
 
 // UserTypingStart indicates that a discord.User started typing in a discord.DMChannel or discord.MessageChanel(requires the gateway.IntentDirectMessageTyping and/or gateway.IntentGuildMessageTyping)
 type UserTypingStart struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	ChannelID snowflake.ID
 	GuildID   *snowflake.ID
 	UserID    snowflake.ID
