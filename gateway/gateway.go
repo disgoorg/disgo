@@ -268,18 +268,18 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		return nil
 	})
 
-	var trans transport
+	var t transport
 	switch g.config.Compression {
 	case ZlibStreamCompression:
-		trans = newZlibStreamTransport(conn)
+		t = newZlibStreamTransport(conn)
 		break
 	case ZstdStreamCompression:
-		trans = newZstdStreamTransport(conn)
+		t = newZstdStreamTransport(conn)
 		break
 	default:
-		trans = newZlibPayloadTransport(conn)
+		t = newZlibPayloadTransport(conn)
 	}
-	g.transport = trans
+	g.transport = t
 	g.transportMu.Unlock()
 
 	// reset rate limiter when connecting
@@ -291,7 +291,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	var readyOnce sync.Once
 	readyChan := make(chan error)
-	go g.listen(trans, func(err error) {
+	go g.listen(t, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)
