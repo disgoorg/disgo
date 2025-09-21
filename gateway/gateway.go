@@ -238,10 +238,8 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	switch g.config.Compression {
 	case ZlibStreamCompression:
 		gatewayURL += "&compress=zlib-stream"
-		break
 	case ZstdStreamCompression:
 		gatewayURL += "&compress=zstd-stream"
-		break
 	}
 
 	g.lastHeartbeatSent = time.Now().UTC()
@@ -273,12 +271,12 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	case ZstdStreamCompression:
 		g.config.Logger.Debug("using zstd stream compression")
 		t = newZstdStreamTransport(conn, g.config.Logger)
-		break
 	case ZlibStreamCompression:
 		g.config.Logger.Debug("using zlib stream compression")
 		t = newZlibStreamTransport(conn, g.config.Logger)
-		break
 	default:
+		// zlibPayloadTransport supports both compressed (using zlib)
+		// and uncompressed payloads
 		g.config.Logger.Debug("using no stream compression")
 		t = newZlibPayloadTransport(conn, g.config.Logger)
 	}
@@ -638,7 +636,7 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 			return
 		}
 		if parseErr != nil {
-			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", connErr))
+			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", parseErr))
 			continue
 		}
 

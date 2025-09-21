@@ -13,7 +13,7 @@ func defaultConfig() config {
 		LargeThreshold:      50,
 		Intents:             IntentsDefault,
 		Compress:            true,
-		Compression:         ZstdStreamCompression,
+		Compression:         ZlibStreamCompression,
 		URL:                 "wss://gateway.discord.gg",
 		ShardID:             0,
 		ShardCount:          1,
