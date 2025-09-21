@@ -125,6 +125,13 @@ func WithIntents(intents ...Intents) ConfigOpt {
 // Deprecated: Use WithCompression instead
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *config) {
+		if compress {
+			config.Compression = ZlibPayloadCompression
+		} else {
+			config.Compression = NoCompression
+		}
+
+		// Set the deprecated field too
 		config.Compress = compress
 	}
 }
