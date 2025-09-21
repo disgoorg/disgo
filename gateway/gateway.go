@@ -277,6 +277,9 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	default:
 		// zlibPayloadTransport supports both compressed (using zlib)
 		// and uncompressed payloads
+		//
+		// The identify payload will state whether (some) payloads
+		// will be compressed or not
 		g.config.Logger.Debug("using no stream compression")
 		t = newZlibPayloadTransport(conn, g.config.Logger)
 	}
