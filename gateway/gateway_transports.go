@@ -3,9 +3,12 @@ package gateway
 import (
 	"bytes"
 	"compress/zlib"
+	"context"
 	"fmt"
 	"io"
+	"log/slog"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/gorilla/websocket"
 	"github.com/klauspost/compress/zstd"
 )
@@ -25,23 +28,42 @@ var syncFlush = []byte{0x00, 0x00, 0xff, 0xff}
 // [zlibStreamTransport]: for connections using zlib-stream compression
 // [zlibPayloadTransport]: for connections using zlib payload compression or no compression
 type transport interface {
-	NextReader() (io.Reader, error)
+	ReceiveMessage() (Message, error, error)
 	WriteMessage(messageType int, data []byte) error
 	Close() error
 }
 
+func parseMessage(r io.Reader, logger *slog.Logger) (Message, error) {
+	if logger.Enabled(context.Background(), slog.LevelDebug) {
+		buff := new(bytes.Buffer)
+		r = io.TeeReader(r, buff)
+		// This might seem a bit weird, but it's done such that it will print the
+		// same data that the json decoder used, as not all data will end with an EOF
+		defer func() {
+			if buff.Len() > 0 {
+				logger.Debug("received gateway message", slog.String("data", buff.String()))
+			}
+		}()
+	}
+
+	var message Message
+	return message, json.NewDecoder(r).Decode(&message)
+}
+
 type zstdStreamTransport struct {
 	conn      *websocket.Conn
+	logger    *slog.Logger
 	inflator  *zstd.Decoder
 	pipeWrite *io.PipeWriter
 }
 
-func newZstdStreamTransport(conn *websocket.Conn) *zstdStreamTransport {
+func newZstdStreamTransport(conn *websocket.Conn, logger *slog.Logger) *zstdStreamTransport {
 	pRead, pWrite := io.Pipe()
 	inflator, _ := zstd.NewReader(pRead, zstd.WithDecoderConcurrency(0))
 
 	return &zstdStreamTransport{
 		conn:      conn,
+		logger:    logger,
 		pipeWrite: pWrite,
 		inflator:  inflator,
 	}
@@ -57,31 +79,33 @@ func (t *zstdStreamTransport) WriteMessage(messageType int, data []byte) error {
 	return t.conn.WriteMessage(messageType, data)
 }
 
-func (t *zstdStreamTransport) NextReader() (io.Reader, error) {
+func (t *zstdStreamTransport) ReceiveMessage() (Message, error, error) {
 	mt, r, err := t.conn.NextReader()
 	if err != nil {
-		return nil, err
+		return Message{}, err, nil
 	}
 
 	if mt != websocket.BinaryMessage {
-		return nil, fmt.Errorf("expected binary message, received %d", mt)
+		return Message{}, fmt.Errorf("expected binary message, received %d", mt), nil
 	}
 
 	_, err = io.Copy(t.pipeWrite, r)
 	if err != nil {
-		return nil, err
+		return Message{}, err, nil
 	}
 
-	return t.inflator, nil
+	message, err := parseMessage(t.inflator, t.logger)
+	return message, nil, err
 }
 
 type zlibStreamTransport struct {
 	conn     *websocket.Conn
+	logger   *slog.Logger
 	inflator io.ReadCloser
 	buffer   *bytes.Buffer
 }
 
-func newZlibStreamTransport(conn *websocket.Conn) *zlibStreamTransport {
+func newZlibStreamTransport(conn *websocket.Conn, logger *slog.Logger) *zlibStreamTransport {
 	buffer := new(bytes.Buffer)
 	// The inflator cannot be created here because the creation will try
 	// to consume the buffer, which is empty
@@ -89,6 +113,7 @@ func newZlibStreamTransport(conn *websocket.Conn) *zlibStreamTransport {
 
 	return &zlibStreamTransport{
 		conn:   conn,
+		logger: logger,
 		buffer: buffer,
 	}
 }
@@ -109,16 +134,16 @@ func isFrameEnd(data []byte) bool {
 	return bytes.Equal(data[len(data)-4:], syncFlush)
 }
 
-func (t *zlibStreamTransport) NextReader() (io.Reader, error) {
+func (t *zlibStreamTransport) ReceiveMessage() (Message, error, error) {
 	t.buffer.Reset()
 
 	for {
 		mt, data, err := t.conn.ReadMessage()
 		if err != nil {
-			return nil, err
+			return Message{}, err, nil
 		}
 		if mt != websocket.BinaryMessage {
-			return nil, fmt.Errorf("expected binary message, received %d", mt)
+			return Message{}, fmt.Errorf("expected binary message, received %d", mt), nil
 		}
 
 		t.buffer.Write(data)
@@ -134,16 +159,19 @@ func (t *zlibStreamTransport) NextReader() (io.Reader, error) {
 		t.inflator, err = zlib.NewReader(t.buffer)
 	}
 
-	return t.inflator, err
+	message, err := parseMessage(t.inflator, t.logger)
+	return message, nil, err
 }
 
 type zlibPayloadTransport struct {
-	conn *websocket.Conn
+	conn   *websocket.Conn
+	logger *slog.Logger
 }
 
-func newZlibPayloadTransport(conn *websocket.Conn) *zlibPayloadTransport {
+func newZlibPayloadTransport(conn *websocket.Conn, logger *slog.Logger) *zlibPayloadTransport {
 	return &zlibPayloadTransport{
-		conn: conn,
+		conn:   conn,
+		logger: logger,
 	}
 }
 
@@ -155,20 +183,21 @@ func (t *zlibPayloadTransport) WriteMessage(messageType int, data []byte) error 
 	return t.conn.WriteMessage(messageType, data)
 }
 
-func (t *zlibPayloadTransport) NextReader() (io.Reader, error) {
+func (t *zlibPayloadTransport) ReceiveMessage() (Message, error, error) {
 	mt, r, err := t.conn.NextReader()
 	if err != nil {
-		return nil, err
+		return Message{}, err, nil
 	}
 
 	if mt == websocket.BinaryMessage {
 		reader, err := zlib.NewReader(r)
 		if err != nil {
-			return nil, fmt.Errorf("failed to decompress zlib: %w", err)
+			return Message{}, fmt.Errorf("failed to decompress zlib: %w", err), nil
 		}
 		defer reader.Close()
 		r = reader
 	}
 
-	return r, nil
+	message, err := parseMessage(r, t.logger)
+	return message, nil, err
 }

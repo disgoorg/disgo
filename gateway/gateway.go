@@ -271,13 +271,13 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	var t transport
 	switch g.config.Compression {
 	case ZlibStreamCompression:
-		t = newZlibStreamTransport(conn)
+		t = newZlibStreamTransport(conn, g.config.Logger)
 		break
 	case ZstdStreamCompression:
-		t = newZstdStreamTransport(conn)
+		t = newZstdStreamTransport(conn, g.config.Logger)
 		break
 	default:
-		t = newZlibPayloadTransport(conn)
+		t = newZlibPayloadTransport(conn, g.config.Logger)
 	}
 	g.transport = t
 	g.transportMu.Unlock()
@@ -575,12 +575,12 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 	defer ready(nil)
 
 	for {
-		reader, err := transport.NextReader()
-		if err != nil {
+		message, connErr, parseErr := transport.ReceiveMessage()
+		if connErr != nil {
 			g.statusMu.Lock()
 			if g.status != StatusReady {
 				g.statusMu.Unlock()
-				ready(err)
+				ready(connErr)
 				return
 			}
 			g.statusMu.Unlock()
@@ -595,7 +595,7 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 
 			reconnect := true
 			var closeError *websocket.CloseError
-			if errors.As(err, &closeError) {
+			if errors.As(connErr, &closeError) {
 				closeCode := CloseEventCodeByCode(closeError.Code)
 				reconnect = closeCode.Reconnect
 
@@ -615,11 +615,11 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 				} else {
 					g.config.Logger.Error(msg, args...)
 				}
-			} else if errors.Is(err, net.ErrClosed) {
+			} else if errors.Is(connErr, net.ErrClosed) {
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Warn("failed to read next message from gateway", slog.Any("err", err))
+				g.config.Logger.Warn("failed to read next message from gateway", slog.Any("err", connErr))
 			}
 
 			// make sure the connection is properly closed
@@ -629,15 +629,13 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect()
 			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err, reconnect)
+				go g.closeHandlerFunc(g, connErr, reconnect)
 			}
 
 			return
 		}
-
-		message, err := g.parseMessage(reader)
-		if err != nil {
-			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", err))
+		if parseErr != nil {
+			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", connErr))
 			continue
 		}
 
@@ -648,12 +646,12 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 			go g.heartbeat()
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
-				err = g.identify()
+				connErr = g.identify()
 			} else {
-				err = g.resume()
+				connErr = g.resume()
 			}
-			if err != nil {
-				ready(err)
+			if connErr != nil {
+				ready(connErr)
 				return
 			}
 
@@ -759,21 +757,4 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
 		}
 	}
-}
-
-func (g *gatewayImpl) parseMessage(r io.Reader) (Message, error) {
-	if g.config.Logger.Enabled(context.Background(), slog.LevelDebug) {
-		buff := new(bytes.Buffer)
-		r = io.TeeReader(r, buff)
-		// This might seem a bit weird, but it's done such that it will print the
-		// same data that the json decoder used, as not all data will end with an EOF
-		defer func() {
-			if buff.Len() > 0 {
-				g.config.Logger.Debug("received gateway message", slog.String("data", buff.String()))
-			}
-		}()
-	}
-
-	var message Message
-	return message, json.NewDecoder(r).Decode(&message)
 }
