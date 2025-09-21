@@ -270,13 +270,16 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	var t transport
 	switch g.config.Compression {
-	case ZlibStreamCompression:
-		t = newZlibStreamTransport(conn, g.config.Logger)
-		break
 	case ZstdStreamCompression:
+		g.config.Logger.Debug("using zstd stream compression")
 		t = newZstdStreamTransport(conn, g.config.Logger)
 		break
+	case ZlibStreamCompression:
+		g.config.Logger.Debug("using zlib stream compression")
+		t = newZlibStreamTransport(conn, g.config.Logger)
+		break
 	default:
+		g.config.Logger.Debug("using no stream compression")
 		t = newZlibPayloadTransport(conn, g.config.Logger)
 	}
 	g.transport = t
