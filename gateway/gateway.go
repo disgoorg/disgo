@@ -637,7 +637,8 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 
 		message, err := g.parseMessage(reader)
 		if err != nil {
-			g.config.Logger.Warn("failed to parse message", slog.Any("err", err))
+			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", err))
+			continue
 		}
 
 		switch message.Op {
