@@ -22,10 +22,12 @@ const (
 	CompressionZstdStream                  = "zstd-stream"
 )
 
+// IsStreamCompression returns whether the compression affects the whole stream
 func (t CompressionType) IsStreamCompression() bool {
 	return t == CompressionZstdStream || t == CompressionZlibStream
 }
 
+// IsPayloadCompression returns whether the compression affects only payloads
 func (t CompressionType) IsPayloadCompression() bool {
 	return t == CompressionZlibPayload
 }
@@ -55,11 +57,11 @@ func newTransport(typ CompressionType, conn *websocket.Conn, logger *slog.Logger
 
 var syncFlush = []byte{0x00, 0x00, 0xff, 0xff}
 
-// transport is an abstraction over the underlying websocket connection to handle payload decompression
+// transport is an abstraction over the underlying websocket connection to handle payload decompression.
 //
-//   - [zstdStreamTransport]: for connections using zstd-stream compression
-//   - [zlibStreamTransport]: for connections using zlib-stream compression
-//   - [zlibPayloadTransport]: for connections using zlib payload compression or no compression
+//   - [zstdStreamTransport]: for connections using zstd-stream compression.
+//   - [zlibStreamTransport]: for connections using zlib-stream compression.
+//   - [zlibPayloadTransport]: for connections using zlib payload compression or no compression.
 type transport interface {
 	// ReceiveMessage returns the complete received [Message]. Message will be nil if it failed to parse it
 	ReceiveMessage() (*Message, error)
@@ -114,15 +116,15 @@ func (t *baseTransport) WriteClose(code int, message string) error {
 }
 
 // pipeBuffer acts like a buffered pipe: it will return all the stored information, but
-// avoid sending an EOF, as there can be more information still to come
+// avoid sending an EOF, as there can be more information still to come.
 //
 // It is important we don't embed bytes.Buffer, otherwise certain libs (ie, compress/zstd)
 // will try to optimize the decompression using the .Bytes() and .Len() methods available
-// in bytes.Buffer, making it impossible for us to prevent reporting an EOF
+// in bytes.Buffer, making it impossible for us to prevent reporting an EOF.
 type pipeBuffer struct{ buffer bytes.Buffer }
 
 // Read reads the next len(p) bytes from the buffer or until the buffer
-// is drained. The return value n is the number of bytes read; err is always nil
+// is drained. The return value n is the number of bytes read; err is always nil.
 func (r *pipeBuffer) Read(p []byte) (int, error) {
 	n, err := r.buffer.Read(p)
 	if err == io.EOF {
@@ -138,13 +140,13 @@ func (r *pipeBuffer) Write(p []byte) (int, error) {
 	return r.buffer.Write(p)
 }
 
-// Reset resets the buffer to be empty,
-// but it retains the underlying storage for use by future writes.
+// Reset resets the buffer to be empty, but it retains the underlying
+// storage for use by future writes.
 func (r *pipeBuffer) Reset() {
 	r.buffer.Reset()
 }
 
-// zstdStreamTransport implements zstd-stream compression
+// zstdStreamTransport implements zstd-stream compression.
 // See https://discord.com/developers/docs/events/gateway#zstdstream
 type zstdStreamTransport struct {
 	baseTransport
@@ -194,7 +196,7 @@ func (t *zstdStreamTransport) Close() error {
 	return t.conn.Close()
 }
 
-// zlibStreamTransport implements zlib-stream compression
+// zlibStreamTransport implements zlib-stream compression.
 // See https://discord.com/developers/docs/events/gateway#zlibstream
 type zlibStreamTransport struct {
 	baseTransport
@@ -255,7 +257,7 @@ func (t *zlibStreamTransport) Close() error {
 	return t.conn.Close()
 }
 
-// zlibPayloadTransport implements both no compression and payload zlib compression
+// zlibPayloadTransport implements both no compression and payload zlib compression.
 // See https://discord.com/developers/docs/events/gateway#payload-compression
 type zlibPayloadTransport struct {
 	baseTransport
