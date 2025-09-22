@@ -16,7 +16,7 @@ import (
 type CompressionType string
 
 const (
-	CompressionNone        CompressionType = "none"
+	CompressionNone        CompressionType = ""
 	CompressionZlibPayload                 = "zlib-payload"
 	CompressionZlibStream                  = "zlib-stream"
 	CompressionZstdStream                  = "zstd-stream"
@@ -28,6 +28,13 @@ func (t CompressionType) IsStreamCompression() bool {
 
 func (t CompressionType) IsPayloadCompression() bool {
 	return t == CompressionZlibPayload
+}
+
+func (t CompressionType) String() string {
+	if t == CompressionNone {
+		return "none"
+	}
+	return string(t)
 }
 
 func newTransport(typ CompressionType, conn *websocket.Conn, logger *slog.Logger) transport {
