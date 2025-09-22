@@ -15,7 +15,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/json/v2"
 	"github.com/gorilla/websocket"
 
 	"github.com/disgoorg/disgo/discord"
@@ -324,7 +323,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 	if g.conn != nil {
 		g.config.RateLimiter.Close(ctx)
 		g.config.Logger.DebugContext(ctx, "closing gateway connection", slog.Int("code", code), slog.String("message", message))
-		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
+		if err := g.conn.WriteClose(code, message); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
 			g.config.Logger.DebugContext(ctx, "error writing close code", slog.Any("err", err))
 		}
 		_ = g.conn.Close()
@@ -359,17 +358,11 @@ func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d MessageData) error 
 }
 
 func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d MessageData) error {
-	data, err := json.Marshal(Message{
+	data := Message{
 		Op: op,
 		D:  d,
-	})
-	if err != nil {
-		return err
 	}
-	return g.send(ctx, websocket.TextMessage, data)
-}
 
-func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
 	g.connMu.Lock()
 	defer g.connMu.Unlock()
 	if g.conn == nil {
@@ -381,8 +374,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 	}
 
 	defer g.config.RateLimiter.Unlock()
-	g.config.Logger.DebugContext(ctx, "sending gateway command", slog.String("data", string(data)))
-	return g.conn.WriteMessage(messageType, data)
+	return g.conn.WriteMessage(data)
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
@@ -568,12 +560,12 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 	defer ready(nil)
 
 	for {
-		message, connErr, parseErr := conn.ReceiveMessage()
-		if connErr != nil {
+		message, err := conn.ReceiveMessage()
+		if err != nil {
 			g.statusMu.Lock()
 			if g.status != StatusReady {
 				g.statusMu.Unlock()
-				ready(connErr)
+				ready(err)
 				return
 			}
 			g.statusMu.Unlock()
@@ -588,7 +580,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 
 			reconnect := true
 			var closeError *websocket.CloseError
-			if errors.As(connErr, &closeError) {
+			if errors.As(err, &closeError) {
 				closeCode := CloseEventCodeByCode(closeError.Code)
 				reconnect = closeCode.Reconnect
 
@@ -608,11 +600,11 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 				} else {
 					g.config.Logger.Error(msg, args...)
 				}
-			} else if errors.Is(connErr, net.ErrClosed) {
+			} else if errors.Is(err, net.ErrClosed) {
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Warn("failed to read next message from gateway", slog.Any("err", connErr))
+				g.config.Logger.Warn("failed to read next message from gateway", slog.Any("err", err))
 			}
 
 			// make sure the connection is properly closed
@@ -622,13 +614,13 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect()
 			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, connErr, reconnect)
+				go g.closeHandlerFunc(g, err, reconnect)
 			}
 
 			return
 		}
-		if parseErr != nil {
-			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", parseErr))
+		if message == nil {
+			// No message (probably parsing error), just continue as the transport already logged it
 			continue
 		}
 
@@ -639,12 +631,12 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			go g.heartbeat()
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
-				connErr = g.identify()
+				err = g.identify()
 			} else {
-				connErr = g.resume()
+				err = g.resume()
 			}
-			if connErr != nil {
-				ready(connErr)
+			if err != nil {
+				ready(err)
 				return
 			}
 
