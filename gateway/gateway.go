@@ -240,7 +240,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	values.Set("v", strconv.Itoa(Version))
 	values.Set("encoding", "json")
 
-	if g.config.Compression.isStreamCompression() {
+	if g.config.Compression.IsStreamCompression() {
 		values.Set("compress", string(g.config.Compression))
 	}
 
@@ -270,7 +270,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		return nil
 	})
 
-	t := g.config.Compression.newTransport(conn, g.config.Logger)
+	t := newTransport(g.config.Compression, conn, g.config.Logger)
 	g.conn = t
 	g.connMu.Unlock()
 
@@ -515,7 +515,7 @@ func (g *gatewayImpl) identify() error {
 			Browser: g.config.Browser,
 			Device:  g.config.Device,
 		},
-		Compress:       g.config.Compression.isPayloadCompression(),
+		Compress:       g.config.Compression.IsPayloadCompression(),
 		LargeThreshold: g.config.LargeThreshold,
 		Intents:        g.config.Intents,
 		Presence:       g.config.Presence,

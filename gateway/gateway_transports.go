@@ -22,16 +22,16 @@ const (
 	CompressionZstdStream                  = "zstd-stream"
 )
 
-func (t CompressionType) isStreamCompression() bool {
+func (t CompressionType) IsStreamCompression() bool {
 	return t == CompressionZstdStream || t == CompressionZlibStream
 }
 
-func (t CompressionType) isPayloadCompression() bool {
+func (t CompressionType) IsPayloadCompression() bool {
 	return t == CompressionZlibPayload
 }
 
-func (t CompressionType) newTransport(conn *websocket.Conn, logger *slog.Logger) transport {
-	switch t {
+func newTransport(typ CompressionType, conn *websocket.Conn, logger *slog.Logger) transport {
+	switch typ {
 	case CompressionZlibStream:
 		return newZlibStreamTransport(conn, logger)
 	case CompressionZstdStream:
@@ -58,7 +58,7 @@ type transport interface {
 	ReceiveMessage() (*Message, error)
 	// WriteMessage writes a byte message to the underlying connection
 	WriteMessage(message Message) error
-	// WriteClose will free all resources and close the underlying connection
+	// WriteClose writes a close message to the underlying connection
 	WriteClose(code int, message string) error
 	// Close will free all resources and close the underlying connection
 	Close() error
