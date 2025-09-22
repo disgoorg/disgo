@@ -173,7 +173,7 @@ type gatewayImpl struct {
 	token            string
 
 	conn            transport
-	connMux         sync.Mutex
+	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
 	status          Status
 	statusMu        sync.Mutex
@@ -214,9 +214,9 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 func (g *gatewayImpl) open(ctx context.Context) error {
 	g.config.Logger.DebugContext(ctx, "opening gateway connection")
 
-	g.connMux.Lock()
+	g.connMu.Lock()
 	if g.conn != nil {
-		g.connMux.Unlock()
+		g.connMu.Unlock()
 		return discord.ErrGatewayAlreadyConnected
 	}
 	g.statusMu.Lock()
@@ -226,7 +226,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
 		if err := g.config.IdentifyRateLimiter.Wait(ctx, g.config.ShardID); err != nil {
 			g.config.Logger.ErrorContext(ctx, "failed to wait for identify rate limiter", slog.Any("err", err))
-			g.connMux.Unlock()
+			g.connMu.Unlock()
 			return fmt.Errorf("failed to wait for identify rate limiter: %w", err)
 		}
 		defer g.config.IdentifyRateLimiter.Unlock(g.config.ShardID)
@@ -263,7 +263,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		}
 
 		g.config.Logger.ErrorContext(ctx, "error connecting to the gateway", slog.Any("err", err), slog.String("url", gatewayURL), slog.String("body", body))
-		g.connMux.Unlock()
+		g.connMu.Unlock()
 		return err
 	}
 
@@ -272,8 +272,10 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	})
 
 	g.config.Logger.DebugContext(ctx, "using compression", slog.String("compressionType", string(g.config.Compression)))
-	g.conn = g.config.Compression.newTransport(conn, g.config.Logger)
-	g.connMux.Unlock()
+	t := g.config.Compression.newTransport(conn, g.config.Logger)
+
+	g.conn = t
+	g.connMu.Unlock()
 
 	// reset rate limiter when connecting
 	g.config.RateLimiter.Reset()
@@ -284,7 +286,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	var readyOnce sync.Once
 	readyChan := make(chan error)
-	go g.listen(g.conn, func(err error) {
+	go g.listen(t, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)
@@ -319,8 +321,8 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 		g.heartbeatCancel()
 	}
 
-	g.connMux.Lock()
-	defer g.connMux.Unlock()
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn != nil {
 		g.config.RateLimiter.Close(ctx)
 		g.config.Logger.DebugContext(ctx, "closing gateway connection", slog.Int("code", code), slog.String("message", message))
@@ -370,8 +372,8 @@ func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d MessageData
 }
 
 func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
-	g.connMux.Lock()
-	defer g.connMux.Unlock()
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -561,14 +563,14 @@ func (g *gatewayImpl) resume() error {
 	return nil
 }
 
-func (g *gatewayImpl) listen(transport transport, ready func(error)) {
+func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 	defer g.config.Logger.Debug("exiting listen goroutine")
 
 	// Ensure that we never leave this function without calling ready
 	defer ready(nil)
 
 	for {
-		message, connErr, parseErr := transport.ReceiveMessage()
+		message, connErr, parseErr := conn.ReceiveMessage()
 		if connErr != nil {
 			g.statusMu.Lock()
 			if g.status != StatusReady {
@@ -577,9 +579,9 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 				return
 			}
 			g.statusMu.Unlock()
-			g.connMux.Lock()
-			sameConn := g.conn == transport
-			g.connMux.Unlock()
+			g.connMu.Lock()
+			sameConn := g.conn == conn
+			g.connMu.Unlock()
 
 			// if sameConnection is false, it means the connection has been closed by the user, and we can just exit
 			if !sameConn {

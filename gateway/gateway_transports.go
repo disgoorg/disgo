@@ -52,8 +52,11 @@ var syncFlush = []byte{0x00, 0x00, 0xff, 0xff}
 // [zlibStreamTransport]: for connections using zlib-stream compression
 // [zlibPayloadTransport]: for connections using zlib payload compression or no compression
 type transport interface {
+	// ReceiveMessage returns the complete received [Message]. Errors are returned as (connectionError, parserError)
 	ReceiveMessage() (Message, error, error)
+	// WriteMessage writes a byte message to the underlying connection
 	WriteMessage(messageType int, data []byte) error
+	// Close will free all resources and close the underlying connection
 	Close() error
 }
 
