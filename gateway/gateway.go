@@ -271,7 +271,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		return nil
 	})
 
-	g.config.Logger.DebugContext(ctx, "using compression", slog.String("compressionType", string(g.config.Compression)))
+	g.config.Logger.DebugContext(ctx, "using compression", slog.String("compression", string(g.config.Compression)))
 	t := g.config.Compression.newTransport(conn, g.config.Logger)
 
 	g.conn = t
