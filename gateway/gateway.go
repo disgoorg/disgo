@@ -212,7 +212,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 }
 
 func (g *gatewayImpl) open(ctx context.Context) error {
-	g.config.Logger.DebugContext(ctx, "opening gateway connection")
+	g.config.Logger.DebugContext(ctx, "opening gateway connection", slog.String("compression", string(g.config.Compression)))
 
 	g.connMu.Lock()
 	if g.conn != nil {
@@ -271,9 +271,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		return nil
 	})
 
-	g.config.Logger.DebugContext(ctx, "using compression", slog.String("compression", string(g.config.Compression)))
 	t := g.config.Compression.newTransport(conn, g.config.Logger)
-
 	g.conn = t
 	g.connMu.Unlock()
 
