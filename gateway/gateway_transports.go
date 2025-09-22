@@ -76,7 +76,7 @@ type baseTransport struct {
 	logger *slog.Logger
 }
 
-func (t *baseTransport) parseMessage(r io.Reader) *Message {
+func (t *baseTransport) parseMessage(r io.Reader) (*Message, error) {
 	if t.logger.Enabled(context.Background(), slog.LevelDebug) {
 		buff := new(bytes.Buffer)
 		r = io.TeeReader(r, buff)
@@ -93,10 +93,10 @@ func (t *baseTransport) parseMessage(r io.Reader) *Message {
 	err := json.NewDecoder(r).Decode(&message)
 	if err != nil {
 		t.logger.Error("error while parsing gateway message", slog.Any("err", err))
-		return nil
+		return nil, err
 	}
 
-	return &message
+	return &message, nil
 }
 
 func (t *baseTransport) WriteMessage(message Message) error {
@@ -119,6 +119,7 @@ type zstdStreamTransport struct {
 	baseTransport
 
 	inflator  *zstd.Decoder
+	pipeRead  *io.PipeReader
 	pipeWrite *io.PipeWriter
 }
 
@@ -132,6 +133,7 @@ func newZstdStreamTransport(conn *websocket.Conn, logger *slog.Logger) *zstdStre
 			logger: logger,
 		},
 		pipeWrite: pWrite,
+		pipeRead:  pRead,
 		inflator:  inflator,
 	}
 }
@@ -151,12 +153,13 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 		return nil, err
 	}
 
-	return t.parseMessage(t.inflator), nil
+	return t.parseMessage(t.inflator)
 }
 
 func (t *zstdStreamTransport) Close() error {
 	_ = t.pipeWrite.Close()
 	t.inflator.Close()
+	_ = t.pipeRead.Close()
 	return t.conn.Close()
 }
 
@@ -189,8 +192,6 @@ func isFrameEnd(data []byte) bool {
 }
 
 func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
-	t.buffer.Reset()
-
 	for {
 		mt, data, err := t.conn.ReadMessage()
 		if err != nil {
@@ -206,6 +207,7 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 			break
 		}
 	}
+	defer t.buffer.Reset()
 
 	if t.inflator == nil {
 		var err error
@@ -216,7 +218,7 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 		}
 	}
 
-	return t.parseMessage(t.inflator), nil
+	return t.parseMessage(t.inflator)
 }
 
 func (t *zlibStreamTransport) Close() error {
@@ -257,7 +259,7 @@ func (t *zlibPayloadTransport) ReceiveMessage() (*Message, error) {
 		r = reader
 	}
 
-	return t.parseMessage(r), nil
+	return t.parseMessage(r)
 }
 
 func (t *zlibPayloadTransport) Close() error {
