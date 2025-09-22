@@ -125,7 +125,7 @@ type zstdStreamTransport struct {
 
 func newZstdStreamTransport(conn *websocket.Conn, logger *slog.Logger) *zstdStreamTransport {
 	pRead, pWrite := io.Pipe()
-	inflator, _ := zstd.NewReader(pRead, zstd.WithDecoderConcurrency(0))
+	inflator, _ := zstd.NewReader(pRead, zstd.WithDecoderConcurrency(1))
 
 	return &zstdStreamTransport{
 		baseTransport: baseTransport{
