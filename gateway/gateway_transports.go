@@ -48,9 +48,11 @@ func (t CompressionType) newTransport(conn *websocket.Conn, logger *slog.Logger)
 
 var syncFlush = []byte{0x00, 0x00, 0xff, 0xff}
 
-// [zstdStreamTransport]: for connections using zstd-stream compression
-// [zlibStreamTransport]: for connections using zlib-stream compression
-// [zlibPayloadTransport]: for connections using zlib payload compression or no compression
+// transport is an abstraction over the underlying websocket connection to handle payload decompression
+//
+//   - [zstdStreamTransport]: for connections using zstd-stream compression
+//   - [zlibStreamTransport]: for connections using zlib-stream compression
+//   - [zlibPayloadTransport]: for connections using zlib payload compression or no compression
 type transport interface {
 	// ReceiveMessage returns the complete received [Message]. Message will be nil if it failed to parse it
 	ReceiveMessage() (*Message, error)
@@ -104,6 +106,8 @@ func (t *baseTransport) WriteClose(code int, message string) error {
 	return t.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
 }
 
+// zstdStreamTransport implements zstd-stream compression
+// See https://discord.com/developers/docs/events/gateway#zstdstream
 type zstdStreamTransport struct {
 	baseTransport
 
@@ -149,6 +153,8 @@ func (t *zstdStreamTransport) Close() error {
 	return t.conn.Close()
 }
 
+// zlibStreamTransport implements zlib-stream compression
+// See https://discord.com/developers/docs/events/gateway#zlibstream
 type zlibStreamTransport struct {
 	baseTransport
 
@@ -214,6 +220,8 @@ func (t *zlibStreamTransport) Close() error {
 	return t.conn.Close()
 }
 
+// zlibPayloadTransport implements both no compression and payload zlib compression
+// See https://discord.com/developers/docs/events/gateway#payload-compression
 type zlibPayloadTransport struct {
 	baseTransport
 }
