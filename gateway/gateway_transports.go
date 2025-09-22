@@ -113,33 +113,58 @@ func (t *baseTransport) WriteClose(code int, message string) error {
 	return t.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
 }
 
+// pipeBuffer acts like a buffered pipe: it will return all the stored information, but
+// avoid sending an EOF, as there can be more information still to come
+//
+// It is important we don't embed bytes.Buffer, otherwise certain libs (ie, compress/zstd)
+// will try to optimize the decompression using the .Bytes() and .Len() methods available
+// in bytes.Buffer, making it impossible for us to prevent reporting an EOF
+type pipeBuffer struct{ buffer bytes.Buffer }
+
+// Read reads the next len(p) bytes from the buffer or until the buffer
+// is drained. The return value n is the number of bytes read; err is always nil
+func (r *pipeBuffer) Read(p []byte) (int, error) {
+	n, err := r.buffer.Read(p)
+	if err == io.EOF {
+		return n, nil
+	}
+	return n, err
+}
+
+// Write appends the contents of p to the buffer, growing the buffer as
+// needed. The return value n is the length of p; err is always nil. If the
+// buffer becomes too large, Write will panic with [ErrTooLarge].
+func (r *pipeBuffer) Write(p []byte) (int, error) {
+	return r.buffer.Write(p)
+}
+
+// Reset resets the buffer to be empty,
+// but it retains the underlying storage for use by future writes.
+func (r *pipeBuffer) Reset() {
+	r.buffer.Reset()
+}
+
 // zstdStreamTransport implements zstd-stream compression
 // See https://discord.com/developers/docs/events/gateway#zstdstream
 type zstdStreamTransport struct {
 	baseTransport
 
-	inflator  *zstd.Decoder
-	pipeRead  *io.PipeReader
-	pipeWrite *io.PipeWriter
+	inflator *zstd.Decoder
+	buffer   *pipeBuffer
 }
 
 func newZstdStreamTransport(conn *websocket.Conn, logger *slog.Logger) *zstdStreamTransport {
-	pRead, pWrite := io.Pipe()
-	inflator, _ := zstd.NewReader(pRead, zstd.WithDecoderConcurrency(1))
-
 	return &zstdStreamTransport{
 		baseTransport: baseTransport{
 			conn:   conn,
 			logger: logger,
 		},
-		pipeWrite: pWrite,
-		pipeRead:  pRead,
-		inflator:  inflator,
+		buffer: new(pipeBuffer),
 	}
 }
 
 func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
-	mt, r, err := t.conn.NextReader()
+	mt, data, err := t.conn.ReadMessage()
 	if err != nil {
 		return nil, err
 	}
@@ -148,18 +173,24 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 		return nil, fmt.Errorf("expected binary message, received %d", mt)
 	}
 
-	_, err = io.Copy(t.pipeWrite, r)
-	if err != nil {
-		return nil, err
+	t.buffer.Write(data)
+
+	if t.inflator == nil {
+		t.inflator, err = zstd.NewReader(t.buffer, zstd.WithDecoderConcurrency(1))
+		if err != nil {
+			return nil, err
+		}
 	}
 
+	defer t.buffer.Reset()
 	return t.parseMessage(t.inflator)
 }
 
 func (t *zstdStreamTransport) Close() error {
-	_ = t.pipeWrite.Close()
-	t.inflator.Close()
-	_ = t.pipeRead.Close()
+	t.buffer.Reset()
+	if t.inflator != nil {
+		t.inflator.Close()
+	}
 	return t.conn.Close()
 }
 
@@ -169,21 +200,16 @@ type zlibStreamTransport struct {
 	baseTransport
 
 	inflator io.ReadCloser
-	buffer   *bytes.Buffer
+	buffer   *pipeBuffer
 }
 
 func newZlibStreamTransport(conn *websocket.Conn, logger *slog.Logger) *zlibStreamTransport {
-	buffer := new(bytes.Buffer)
-	// The inflator cannot be created here because the creation will try
-	// to consume the buffer, which is empty
-	// see: https://github.com/golang/go/issues/58992
-
 	return &zlibStreamTransport{
 		baseTransport: baseTransport{
 			conn:   conn,
 			logger: logger,
 		},
-		buffer: buffer,
+		buffer: new(pipeBuffer),
 	}
 }
 
@@ -207,7 +233,6 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 			break
 		}
 	}
-	defer t.buffer.Reset()
 
 	if t.inflator == nil {
 		var err error
@@ -218,6 +243,7 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 		}
 	}
 
+	defer t.buffer.Reset()
 	return t.parseMessage(t.inflator)
 }
 
