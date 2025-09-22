@@ -9,13 +9,16 @@ import (
 	"log/slog"
 	"math/rand/v2"
 	"net"
+	"net/url"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json/v2"
 	"github.com/gorilla/websocket"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // Version defines which discord API version disgo should use to connect to discord.
@@ -169,8 +172,8 @@ type gatewayImpl struct {
 	closeHandlerFunc CloseHandlerFunc
 	token            string
 
-	transport       transport
-	transportMu     sync.Mutex
+	conn            transport
+	connMux         sync.Mutex
 	heartbeatCancel context.CancelFunc
 	status          Status
 	statusMu        sync.Mutex
@@ -211,9 +214,9 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 func (g *gatewayImpl) open(ctx context.Context) error {
 	g.config.Logger.DebugContext(ctx, "opening gateway connection")
 
-	g.transportMu.Lock()
-	if g.transport != nil {
-		g.transportMu.Unlock()
+	g.connMux.Lock()
+	if g.conn != nil {
+		g.connMux.Unlock()
 		return discord.ErrGatewayAlreadyConnected
 	}
 	g.statusMu.Lock()
@@ -223,7 +226,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
 		if err := g.config.IdentifyRateLimiter.Wait(ctx, g.config.ShardID); err != nil {
 			g.config.Logger.ErrorContext(ctx, "failed to wait for identify rate limiter", slog.Any("err", err))
-			g.transportMu.Unlock()
+			g.connMux.Unlock()
 			return fmt.Errorf("failed to wait for identify rate limiter: %w", err)
 		}
 		defer g.config.IdentifyRateLimiter.Unlock(g.config.ShardID)
@@ -233,14 +236,16 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	if g.config.ResumeURL != nil && g.config.EnableResumeURL {
 		wsURL = *g.config.ResumeURL
 	}
-	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", wsURL, Version)
 
-	switch g.config.Compression {
-	case ZlibStreamCompression:
-		gatewayURL += "&compress=zlib-stream"
-	case ZstdStreamCompression:
-		gatewayURL += "&compress=zstd-stream"
+	values := url.Values{}
+	values.Set("v", strconv.Itoa(Version))
+	values.Set("encoding", "json")
+
+	if g.config.Compression.isStreamCompression() {
+		values.Set("compress", string(g.config.Compression))
 	}
+
+	gatewayURL := wsURL + "?" + values.Encode()
 
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
@@ -258,7 +263,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		}
 
 		g.config.Logger.ErrorContext(ctx, "error connecting to the gateway", slog.Any("err", err), slog.String("url", gatewayURL), slog.String("body", body))
-		g.transportMu.Unlock()
+		g.connMux.Unlock()
 		return err
 	}
 
@@ -266,25 +271,9 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		return nil
 	})
 
-	var t transport
-	switch g.config.Compression {
-	case ZstdStreamCompression:
-		g.config.Logger.Debug("using zstd stream compression")
-		t = newZstdStreamTransport(conn, g.config.Logger)
-	case ZlibStreamCompression:
-		g.config.Logger.Debug("using zlib stream compression")
-		t = newZlibStreamTransport(conn, g.config.Logger)
-	default:
-		// zlibPayloadTransport supports both compressed (using zlib)
-		// and uncompressed payloads
-		//
-		// The identify payload will state whether (some) payloads
-		// will be compressed or not
-		g.config.Logger.Debug("using no stream compression")
-		t = newZlibPayloadTransport(conn, g.config.Logger)
-	}
-	g.transport = t
-	g.transportMu.Unlock()
+	g.config.Logger.DebugContext(ctx, "using compression", slog.String("compressionType", string(g.config.Compression)))
+	g.conn = g.config.Compression.newTransport(conn, g.config.Logger)
+	g.connMux.Unlock()
 
 	// reset rate limiter when connecting
 	g.config.RateLimiter.Reset()
@@ -295,7 +284,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	var readyOnce sync.Once
 	readyChan := make(chan error)
-	go g.listen(t, func(err error) {
+	go g.listen(g.conn, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)
@@ -330,16 +319,16 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 		g.heartbeatCancel()
 	}
 
-	g.transportMu.Lock()
-	defer g.transportMu.Unlock()
-	if g.transport != nil {
+	g.connMux.Lock()
+	defer g.connMux.Unlock()
+	if g.conn != nil {
 		g.config.RateLimiter.Close(ctx)
 		g.config.Logger.DebugContext(ctx, "closing gateway connection", slog.Int("code", code), slog.String("message", message))
-		if err := g.transport.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
+		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
 			g.config.Logger.DebugContext(ctx, "error writing close code", slog.Any("err", err))
 		}
-		_ = g.transport.Close()
-		g.transport = nil
+		_ = g.conn.Close()
+		g.conn = nil
 
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
@@ -381,9 +370,9 @@ func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d MessageData
 }
 
 func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
-	g.transportMu.Lock()
-	defer g.transportMu.Unlock()
-	if g.transport == nil {
+	g.connMux.Lock()
+	defer g.connMux.Unlock()
+	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
 
@@ -393,7 +382,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 
 	defer g.config.RateLimiter.Unlock()
 	g.config.Logger.DebugContext(ctx, "sending gateway command", slog.String("data", string(data)))
-	return g.transport.WriteMessage(messageType, data)
+	return g.conn.WriteMessage(messageType, data)
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
@@ -534,7 +523,7 @@ func (g *gatewayImpl) identify() error {
 			Browser: g.config.Browser,
 			Device:  g.config.Device,
 		},
-		Compress:       g.config.Compression == ZlibPayloadCompression,
+		Compress:       g.config.Compression.isPayloadCompression(),
 		LargeThreshold: g.config.LargeThreshold,
 		Intents:        g.config.Intents,
 		Presence:       g.config.Presence,
@@ -588,9 +577,9 @@ func (g *gatewayImpl) listen(transport transport, ready func(error)) {
 				return
 			}
 			g.statusMu.Unlock()
-			g.transportMu.Lock()
-			sameConn := g.transport == transport
-			g.transportMu.Unlock()
+			g.connMux.Lock()
+			sameConn := g.conn == transport
+			g.connMux.Unlock()
 
 			// if sameConnection is false, it means the connection has been closed by the user, and we can just exit
 			if !sameConn {

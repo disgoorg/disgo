@@ -13,14 +13,38 @@ import (
 	"github.com/klauspost/compress/zstd"
 )
 
-type CompressionType int
+type CompressionType string
 
 const (
-	NoCompression CompressionType = iota
-	ZlibPayloadCompression
-	ZlibStreamCompression
-	ZstdStreamCompression
+	CompressionNone        CompressionType = "none"
+	CompressionZlibPayload                 = "zlib-payload"
+	CompressionZlibStream                  = "zlib-stream"
+	CompressionZstdStream                  = "zstd-stream"
 )
+
+func (t CompressionType) isStreamCompression() bool {
+	return t == CompressionZstdStream || t == CompressionZlibStream
+}
+
+func (t CompressionType) isPayloadCompression() bool {
+	return t == CompressionZlibPayload
+}
+
+func (t CompressionType) newTransport(conn *websocket.Conn, logger *slog.Logger) transport {
+	switch t {
+	case CompressionZlibStream:
+		return newZlibStreamTransport(conn, logger)
+	case CompressionZstdStream:
+		return newZstdStreamTransport(conn, logger)
+	default:
+		// zlibPayloadTransport supports both compressed (using zlib)
+		// and uncompressed payloads
+		//
+		// The identify payload will state whether (some) payloads
+		// will be compressed or not
+		return newZlibPayloadTransport(conn, logger)
+	}
+}
 
 var syncFlush = []byte{0x00, 0x00, 0xff, 0xff}
 
@@ -153,10 +177,13 @@ func (t *zlibStreamTransport) ReceiveMessage() (Message, error, error) {
 		}
 	}
 
-	var err error
-
 	if t.inflator == nil {
+		var err error
+
 		t.inflator, err = zlib.NewReader(t.buffer)
+		if err != nil {
+			return Message{}, err, nil
+		}
 	}
 
 	message, err := parseMessage(t.inflator, t.logger)

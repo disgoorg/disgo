@@ -30,7 +30,7 @@ func main() {
 			sharding.WithAutoScaling(true),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentDirectMessages),
-				gateway.WithCompression(gateway.ZstdStreamCompression),
+				gateway.WithCompression(gateway.CompressionZstdStream),
 			),
 		),
 		bot.WithEventListeners(&events.ListenerAdapter{

@@ -13,7 +13,7 @@ func defaultConfig() config {
 		LargeThreshold:      50,
 		Intents:             IntentsDefault,
 		Compress:            true,
-		Compression:         ZlibStreamCompression,
+		Compression:         CompressionZstdStream,
 		URL:                 "wss://gateway.discord.gg",
 		ShardID:             0,
 		ShardCount:          1,
@@ -126,9 +126,9 @@ func WithIntents(intents ...Intents) ConfigOpt {
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *config) {
 		if compress {
-			config.Compression = ZlibPayloadCompression
+			config.Compression = CompressionZlibPayload
 		} else {
-			config.Compression = NoCompression
+			config.Compression = CompressionNone
 		}
 
 		// Set the deprecated field too
@@ -143,7 +143,7 @@ func WithCompression(compression CompressionType) ConfigOpt {
 		config.Compression = compression
 
 		// Set the deprecated field too
-		config.Compress = compression == ZlibPayloadCompression
+		config.Compress = compression == CompressionZlibPayload
 	}
 }
 
