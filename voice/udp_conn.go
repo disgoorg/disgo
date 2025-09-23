@@ -2,7 +2,6 @@ package voice
 
 import (
 	"context"
-	"crypto/cipher"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -13,14 +12,25 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/crypto/chacha20poly1305"
-	"golang.org/x/crypto/nacl/secretbox"
 )
 
 const (
-	// OpusPacketHeaderSize is the size of the opus packet header.
-	OpusPacketHeaderSize = 12
+	// RTPHeaderSize is the size of the opus packet header.
+	RTPHeaderSize = 12
+
+	// RTPVersionPadExtend is the first byte of the RTP header.
+	// Bit index 0 and 1 represent the RTP Protocol version used. Discord uses the latest RTP protocol version, 2.
+	// Bit index 2 represents whether we pad. Opus uses an internal padding system, so RTP padding is not used.
+	// Bit index 3 represents if we use extensions.
+	// Bit index 4 to 7 represent the CC or CSRC count. CSRC is Combined SSRC.
+	RTPVersionPadExtend = 0x80
+
+	// RTPPayloadType is Discord's RTP Profile Payload type.
+	// I've yet to find actual documentation on what the bits inside this value represent.
+	RTPPayloadType = 0x78
+
+	// MaxOpusFrameSize is the max size of an opus frame in bytes.
+	MaxOpusFrameSize = 1400
 
 	// UDPTimeout is the timeout for UDP connections.
 	UDPTimeout = 30 * time.Second
@@ -51,7 +61,7 @@ type (
 		RemoteAddr() net.Addr
 
 		// SetSecretKey sets the secret key used to encrypt packets.
-		SetSecretKey(encryptionMode EncryptionMode, secretKey []byte)
+		SetSecretKey(encryptionMode EncryptionMode, secretKey []byte) error
 
 		SetDeadline(t time.Time) error
 
@@ -79,12 +89,18 @@ type (
 
 	// Packet is a voice packet received from discord.
 	Packet struct {
+		Type byte
 		// Sequence is the sequence number of the packet.
 		Sequence uint16
 		// Timestamp is the timestamp of the packet.
 		Timestamp uint32
 		// SSRC is the users SSRC of the packet.
-		SSRC uint32
+		SSRC         uint32
+		HasExtension bool
+		ExtensionID  int
+		Extension    []byte
+		CSRC         []uint32
+		HeaderSize   int
 		// Opus is the actual opus data of the packet.
 		Opus []byte
 	}
@@ -107,17 +123,12 @@ type udpConnImpl struct {
 	conn   net.Conn
 	connMu sync.Mutex
 
-	cipher cipher.AEAD
+	encrypter Encrypter
 
-	packet [12]byte
+	header    [12]byte
+	sequence  uint16
+	timestamp uint32
 
-	sequence       uint16
-	i              uint32
-	timestamp      uint32
-	nonce          [24]byte
-	associatedData [12]byte
-
-	receiveNonce  [24]byte
 	receiveBuffer []byte
 }
 
@@ -133,23 +144,14 @@ func (u *udpConnImpl) RemoteAddr() net.Addr {
 	return u.conn.RemoteAddr()
 }
 
-func (u *udpConnImpl) SetSecretKey(encryptionMode EncryptionMode, secretKey []byte) {
-	var (
-		c   cipher.AEAD
-		err error
-	)
-	switch encryptionMode {
-	case EncryptionModeAEADXChaCha20Poly1305RTPSize:
-		c, err = chacha20poly1305.NewX(secretKey)
-	default:
-		u.config.Logger.Error("unknown encryption mode", slog.String("mode", string(encryptionMode)))
-		return
-	}
+func (u *udpConnImpl) SetSecretKey(encryptionMode EncryptionMode, secretKey []byte) error {
+	e, err := NewEncrypter(encryptionMode, secretKey)
 	if err != nil {
-		u.config.Logger.Error("failed to create cipher", slog.Any("err", err))
-		return
+		return fmt.Errorf("failed to create encrypter: %w", err)
 	}
-	u.cipher = c
+
+	u.encrypter = e
+	return nil
 }
 
 func (u *udpConnImpl) SetDeadline(t time.Time) error {
@@ -225,37 +227,29 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 		return "", 0, fmt.Errorf("invalid ssrc in ip discovery response")
 	}
 
-	u.packet = [12]byte{
-		0: 0x80, // Version + Flags
-		1: 0x78, // Payload Type
-		// [2:4] // Sequence
-		// [4:8] // Timestamp
-	}
+	u.header[0] = RTPVersionPadExtend // Version + Flags
+	u.header[1] = RTPPayloadType      // Payload Type
+	// [2:4]  // Sequence
+	// [4:8]  // Timestamp
+	// [8:12] // SSRC
 
-	binary.BigEndian.PutUint32(u.packet[8:12], ssrc) // SSRC
+	binary.BigEndian.PutUint32(u.header[8:], ssrc) // SSRC
 
 	return ourAddress, ourPort, nil
 }
 
 func (u *udpConnImpl) Write(p []byte) (int, error) {
-	binary.BigEndian.PutUint16(u.packet[2:4], u.sequence)
-	u.sequence++
-
-	u.i++
-	binary.BigEndian.PutUint32(u.associatedData[:], u.i)
-
-	binary.BigEndian.PutUint32(u.packet[4:8], u.timestamp)
-	u.timestamp += 960
-
-	// Copy the first 12 bytes from the packet into the nonce.
-	copy(u.nonce[:12], u.packet[:])
-
 	u.connMu.Lock()
 	conn := u.conn
 	u.connMu.Unlock()
 
-	//secretbox.Seal(u.packet[:], p, &u.nonce, &u.secretKey)
-	if _, err := conn.Write(u.cipher.Seal(u.packet[12:], u.nonce[:], p, u.associatedData[:])); err != nil {
+	binary.BigEndian.PutUint16(u.header[2:4], u.sequence)
+	u.sequence++
+
+	binary.BigEndian.PutUint32(u.header[4:8], u.timestamp)
+	u.timestamp += OpusFrameSize
+
+	if _, err := conn.Write(u.encrypter.Encrypt(u.header, p)); err != nil {
 		return 0, fmt.Errorf("failed to write packet: %w", err)
 	}
 	return len(p), nil
@@ -275,37 +269,77 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 	u.connMu.Unlock()
 
 	for {
-		i, err := conn.Read(u.receiveBuffer)
+		n, err := conn.Read(u.receiveBuffer)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read packet: %w", err)
 		}
-		if i < OpusPacketHeaderSize || (u.receiveBuffer[0] != 0x80 && u.receiveBuffer[0] != 0x90) || (u.receiveBuffer[1] != 0x78 && u.receiveBuffer[1] != 0x80) {
+
+		packetType := u.receiveBuffer[1]
+		if packetType != RTPPayloadType {
+			// ignore non-voice packets
 			continue
 		}
 
-		copy(u.receiveNonce[:], u.receiveBuffer[0:OpusPacketHeaderSize])
-
-		opus, ok := secretbox.Open(nil, u.receiveBuffer[OpusPacketHeaderSize:i], &u.receiveNonce, nil)
-		if !ok {
-			return nil, ErrDecryptionFailed
+		hasPadding := (u.receiveBuffer[0] & 0x20) != 0
+		if hasPadding {
+			paddingLen := int(u.receiveBuffer[n-1])
+			u.receiveBuffer = u.receiveBuffer[:n-paddingLen]
+			n -= paddingLen
 		}
 
-		isExtension := u.receiveBuffer[0]&0x10 == 0x10
-		isMarker := u.receiveBuffer[1]&0x80 != 0x0
-
-		if isExtension && !isMarker {
-			extLen := binary.BigEndian.Uint16(opus[2:4])
-			shift := 4 + 4*int(extLen)
-
-			if len(opus) > shift {
-				opus = opus[shift:]
-			}
+		p := Packet{
+			Type:         packetType,
+			Sequence:     binary.BigEndian.Uint16(u.receiveBuffer[2:4]),
+			Timestamp:    binary.BigEndian.Uint32(u.receiveBuffer[4:8]),
+			SSRC:         binary.BigEndian.Uint32(u.receiveBuffer[8:RTPHeaderSize]),
+			HasExtension: (u.receiveBuffer[0] & 0x10) != 0,
+			ExtensionID:  0,
+			Extension:    nil,
+			CSRC:         nil,
+			HeaderSize:   0,
+			Opus:         nil,
 		}
+
+		cc := int(u.receiveBuffer[0] & 0x0F)
+		p.CSRC = make([]uint32, cc)
+		offset := RTPHeaderSize
+		for i := range cc {
+			p.CSRC[i] = binary.BigEndian.Uint32(u.receiveBuffer[offset : offset+4])
+			offset += 4
+		}
+
+		var extensionLen int
+		if p.HasExtension {
+			p.ExtensionID = int(binary.BigEndian.Uint16(u.receiveBuffer[offset : offset+2]))
+			offset += 2
+			extensionLen = int(binary.BigEndian.Uint16(u.receiveBuffer[offset : offset+2]))
+			offset += 2
+		}
+
+		p.HeaderSize = offset
+
+		decrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
+		if err != nil {
+			return nil, fmt.Errorf("failed to decrypt packet: %w", err)
+		}
+
+		var decryptedOffset int
+		if p.HasExtension {
+			extensionLen *= 4 // extension length is in 32-bit words
+			p.Extension = decrypted[decryptedOffset : decryptedOffset+extensionLen]
+			decryptedOffset += extensionLen
+		}
+
 		return &Packet{
-			Sequence:  binary.BigEndian.Uint16(u.receiveBuffer[2:4]),
-			Timestamp: binary.BigEndian.Uint32(u.receiveBuffer[4:8]),
-			SSRC:      binary.BigEndian.Uint32(u.receiveBuffer[8:12]),
-			Opus:      opus,
+			Type:         RTPPayloadType,
+			Sequence:     p.Sequence,
+			Timestamp:    p.Timestamp,
+			SSRC:         p.SSRC,
+			Extension:    p.Extension,
+			HasExtension: p.HasExtension,
+			CSRC:         nil,
+			HeaderSize:   RTPHeaderSize,
+			Opus:         decrypted[decryptedOffset:],
 		}, nil
 	}
 }

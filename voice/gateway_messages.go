@@ -118,10 +118,10 @@ type GatewayMessageDataIdentify struct {
 func (GatewayMessageDataIdentify) voiceGatewayMessageData() {}
 
 type GatewayMessageDataReady struct {
-	SSRC  uint32   `json:"ssrc"`
-	IP    string   `json:"ip"`
-	Port  int      `json:"port"`
-	Modes []string `json:"modes"`
+	SSRC  uint32           `json:"ssrc"`
+	IP    string           `json:"ip"`
+	Port  int              `json:"port"`
+	Modes []EncryptionMode `json:"modes"`
 }
 
 func (GatewayMessageDataReady) voiceGatewayMessageData() {}
@@ -178,21 +178,32 @@ type EncryptionMode string
 
 // All possible EncryptionMode(s) https://discord.com/developers/docs/topics/voice-connections#transport-encryption-and-sending-voice.
 const (
+	// EncryptionModeNone is no encryption. This mode is not supported by Discord.
+	EncryptionModeNone EncryptionMode = ""
 	// EncryptionModeAEADAES256GCMRTPSize is the preferred encryption mode.
 	EncryptionModeAEADAES256GCMRTPSize EncryptionMode = "aead_aes256_gcm_rtpsize"
 	// EncryptionModeAEADXChaCha20Poly1305RTPSize is the required encryption mode.
 	EncryptionModeAEADXChaCha20Poly1305RTPSize EncryptionMode = "aead_xchacha20_poly1305_rtpsize"
-	// Deprecated: EncryptionModeXSalsa20Poly1305LiteRTPSize is deprecated.
-	EncryptionModeXSalsa20Poly1305LiteRTPSize EncryptionMode = "xsalsa20_poly1305_lite_rtpsize"
-	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
-	EncryptionModeAEADAES256GCM EncryptionMode = "aead_aes256_gcm"
-	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
-	EncryptionModeXSalsa20Poly1305 EncryptionMode = "xsalsa20_poly1305"
-	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
-	EncryptionModeXSalsa20Poly1305Suffix EncryptionMode = "xsalsa20_poly1305_suffix"
-	// Deprecated: EncryptionModeXSalsa20Poly1305Lite is deprecated.
-	EncryptionModeXSalsa20Poly1305Lite EncryptionMode = "xsalsa20_poly1305_lite"
 )
+
+// AllEncryptionModes is a list of all supported EncryptionMode(s).
+var AllEncryptionModes = []EncryptionMode{
+	EncryptionModeAEADAES256GCMRTPSize,         // preferred
+	EncryptionModeAEADXChaCha20Poly1305RTPSize, // required
+}
+
+// ChooseEncryptionMode chooses the best supported encryption mode from the given list of modes.
+// It returns an error if no supported mode is found.
+func ChooseEncryptionMode(modes []EncryptionMode) (EncryptionMode, error) {
+	for _, preferred := range AllEncryptionModes {
+		for _, mode := range modes {
+			if mode == preferred {
+				return mode, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no supported encryption mode found in %v", modes)
+}
 
 type GatewayMessageDataSpeaking struct {
 	Speaking SpeakingFlags `json:"speaking"`

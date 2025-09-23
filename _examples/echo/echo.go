@@ -23,6 +23,7 @@ var (
 	token     = os.Getenv("disgo_token")
 	guildID   = snowflake.GetEnv("disgo_guild_id")
 	channelID = snowflake.GetEnv("disgo_channel_id")
+	userID    = snowflake.GetEnv("disgo_user_id")
 )
 
 func main() {
@@ -76,6 +77,7 @@ func play(client *bot.Client) {
 	if _, err := conn.UDP().Write(voice.SilenceAudioFrame); err != nil {
 		panic("error sending silence: " + err.Error())
 	}
+
 	for {
 		packet, err := conn.UDP().ReadPacket()
 		if err != nil {
@@ -84,6 +86,9 @@ func play(client *bot.Client) {
 				return
 			}
 			slog.Info("error while reading from reader", slog.Any("err", err))
+			continue
+		}
+		if voiceUserID := conn.UserIDBySSRC(packet.SSRC); voiceUserID != userID {
 			continue
 		}
 		if _, err = conn.UDP().Write(packet.Opus); err != nil {

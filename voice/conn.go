@@ -204,19 +204,28 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 			c.config.Logger.Error("voice: failed to open voiceudp conn", slog.Any("err", err))
 			break
 		}
+
+		encryptionMode, err := ChooseEncryptionMode(d.Modes)
+		if err != nil {
+			c.config.Logger.Error("voice: failed to choose encryption mode", slog.Any("err", err))
+			break
+		}
+
 		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
 			Protocol: ProtocolUDP,
 			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
 				Port:    ourPort,
-				Mode:    EncryptionModeAEADXChaCha20Poly1305RTPSize,
+				Mode:    encryptionMode,
 			},
 		}); err != nil {
 			c.config.Logger.Error("voice: failed to send select protocol", slog.Any("err", err))
 		}
 
 	case GatewayMessageDataSessionDescription:
-		c.udp.SetSecretKey(d.Mode, d.SecretKey)
+		if err := c.udp.SetSecretKey(d.Mode, d.SecretKey); err != nil {
+			c.config.Logger.Error("voice: failed to set secret key", slog.Any("err", err))
+		}
 		c.openedChan <- struct{}{}
 
 	case GatewayMessageDataSpeaking:
