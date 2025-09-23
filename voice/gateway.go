@@ -492,6 +492,10 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			continue
 		}
 
+		if message.Seq > 0 {
+			g.seq = message.Seq
+		}
+
 		switch message.Op {
 		case OpcodeHello:
 			d := message.D.(GatewayMessageDataHello)
