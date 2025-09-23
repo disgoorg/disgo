@@ -194,7 +194,7 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 	}()
 }
 
-func (c *connImpl) handleMessage(gateway Gateway, op Opcode, data GatewayMessageData) {
+func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int, data GatewayMessageData) {
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -238,7 +238,7 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, data GatewayMessage
 		}
 	}
 	if c.config.EventHandlerFunc != nil {
-		c.config.EventHandlerFunc(c.gateway, op, data)
+		c.config.EventHandlerFunc(gateway, op, sequenceNumber, data)
 	}
 }
 

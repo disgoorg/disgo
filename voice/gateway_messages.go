@@ -1,21 +1,26 @@
 package voice
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 // GatewayMessage represents a voice gateway message
 type GatewayMessage struct {
-	Op Opcode             `json:"op"`
-	D  GatewayMessageData `json:"d,omitempty"`
+	Op   Opcode             `json:"op"`
+	D    GatewayMessageData `json:"d,omitempty"`
+	RawD json.RawMessage    `json:"-"`
+	Seq  int                `json:"s,omitempty"`
 }
 
 // UnmarshalJSON unmarshalls the GatewayMessage from json
 func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Op Opcode          `json:"op"`
-		D  json.RawMessage `json:"d"`
+		Op  Opcode          `json:"op"`
+		D   json.RawMessage `json:"d"`
+		Seq int             `json:"s,omitempty"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -73,7 +78,7 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeResumed:
-		// no data
+		messageData = GatewayMessageDataResumed{}
 
 	case OpcodeClientDisconnect:
 		var d GatewayMessageDataClientDisconnect
@@ -81,7 +86,7 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeGuildSync:
-		// ignore this opcode
+		messageData = GatewayMessageDataGuildSync{}
 
 	default:
 		var d GatewayMessageDataUnknown
@@ -89,10 +94,12 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		messageData = d
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal voice gateway message data: %s: %w", string(data), err)
 	}
 	m.Op = v.Op
 	m.D = messageData
+	m.RawD = v.D
+	m.Seq = v.Seq
 	return nil
 }
 
@@ -125,7 +132,18 @@ type GatewayMessageDataHello struct {
 
 func (GatewayMessageDataHello) voiceGatewayMessageData() {}
 
-type GatewayMessageDataHeartbeat int64
+type GatewayMessageDataResumed struct{}
+
+func (GatewayMessageDataResumed) voiceGatewayMessageData() {}
+
+type GatewayMessageDataGuildSync struct{}
+
+func (GatewayMessageDataGuildSync) voiceGatewayMessageData() {}
+
+type GatewayMessageDataHeartbeat struct {
+	T      int64 `json:"t"`
+	SeqAck int   `json:"seq_ack"`
+}
 
 func (GatewayMessageDataHeartbeat) voiceGatewayMessageData() {}
 
@@ -187,11 +205,14 @@ type GatewayMessageDataResume struct {
 	GuildID   snowflake.ID `json:"server_id"` // wtf is this?
 	SessionID string       `json:"session_id"`
 	Token     string       `json:"token"`
+	SeqAck    int          `json:"seq"`
 }
 
 func (GatewayMessageDataResume) voiceGatewayMessageData() {}
 
-type GatewayMessageDataHeartbeatACK int64
+type GatewayMessageDataHeartbeatACK struct {
+	T int64 `json:"t"`
+}
 
 func (GatewayMessageDataHeartbeatACK) voiceGatewayMessageData() {}
 
