@@ -32,6 +32,44 @@ type ThreadChannelPost struct {
 	Message Message `json:"message"`
 }
 
+func (c *ThreadChannelPost) UnmarshalJSON(data []byte) error {
+	var thread GuildThread
+	if err := json.Unmarshal(data, &thread); err != nil {
+		return err
+	}
+
+	c.GuildThread = thread
+
+	var v struct {
+		Message Message `json:"message"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.GuildThread = thread
+	c.Message = v.Message
+	return nil
+}
+
+func (c ThreadChannelPost) MarshalJSON() ([]byte, error) {
+	data1, err := json.Marshal(c.GuildThread)
+	if err != nil {
+		return nil, err
+	}
+
+	data2, err := json.Marshal(struct {
+		Message Message `json:"message"`
+	}{
+		Message: c.Message,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Merge(data1, data2)
+}
+
 type ThreadCreate interface {
 	json.Marshaler
 	Type() ChannelType

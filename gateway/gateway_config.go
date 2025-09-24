@@ -8,16 +8,17 @@ import (
 
 func defaultConfig() config {
 	return config{
-		Logger:          slog.Default(),
-		Dialer:          websocket.DefaultDialer,
-		LargeThreshold:  50,
-		Intents:         IntentsDefault,
-		Compress:        true,
-		URL:             "wss://gateway.discord.gg",
-		ShardID:         0,
-		ShardCount:      1,
-		AutoReconnect:   true,
-		EnableResumeURL: true,
+		Logger:              slog.Default(),
+		Dialer:              websocket.DefaultDialer,
+		LargeThreshold:      50,
+		Intents:             IntentsDefault,
+		Compress:            true,
+		URL:                 "wss://gateway.discord.gg",
+		ShardID:             0,
+		ShardCount:          1,
+		AutoReconnect:       true,
+		EnableResumeURL:     true,
+		IdentifyRateLimiter: NewNoopIdentifyRateLimiter(),
 	}
 }
 
@@ -55,6 +56,8 @@ type config struct {
 	RateLimiter RateLimiter
 	// RateLimiterConfigOpts is the RateLimiterConfigOpts of the Gateway. Defaults to nil.
 	RateLimiterConfigOpts []RateLimiterConfigOpt
+	// IdentifyRateLimiter limits the identifies of the Gateway. Defaults to NewNoopIdentifyRateLimiter().
+	IdentifyRateLimiter IdentifyRateLimiter
 	// Presence is the presence it should send on login. Defaults to nil.
 	Presence *MessageDataPresenceUpdate
 	// OS is the OS it should send on login. Defaults to runtime.GOOS.
@@ -125,6 +128,13 @@ func WithCompress(compress bool) ConfigOpt {
 func WithURL(url string) ConfigOpt {
 	return func(config *config) {
 		config.URL = url
+	}
+}
+
+// WithResumeURL sets the Gateway Resume URL for the Gateway.
+func WithResumeURL(url string) ConfigOpt {
+	return func(config *config) {
+		config.ResumeURL = &url
 	}
 }
 
@@ -199,6 +209,13 @@ func WithRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 func WithDefaultRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.RateLimiterConfigOpts = append(opts, config.RateLimiterConfigOpts...)
+	}
+}
+
+// WithIdentifyRateLimiter sets the IdentifyRateLimiter for the Gateway.
+func WithIdentifyRateLimiter(identifyRateLimiter IdentifyRateLimiter) ConfigOpt {
+	return func(config *config) {
+		config.IdentifyRateLimiter = identifyRateLimiter
 	}
 }
 

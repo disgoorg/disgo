@@ -114,7 +114,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 	}
 
 	// wait for rate limits
-	err = c.RateLimiter().WaitBucket(cfg.Ctx, endpoint)
+	err = c.RateLimiter().Wait(cfg.Ctx, endpoint)
 	if err != nil {
 		return fmt.Errorf("error locking bucket in rest client: %w", err)
 	}
@@ -122,18 +122,18 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 
 	for _, check := range cfg.Checks {
 		if !check() {
-			_ = c.RateLimiter().UnlockBucket(endpoint, nil)
+			_ = c.RateLimiter().Unlock(endpoint, nil)
 			return discord.ErrCheckFailed
 		}
 	}
 
 	rs, err := c.HTTPClient().Do(rq)
 	if err != nil {
-		_ = c.RateLimiter().UnlockBucket(endpoint, nil)
+		_ = c.RateLimiter().Unlock(endpoint, nil)
 		return fmt.Errorf("error doing request in rest client: %w", err)
 	}
 
-	if err = c.RateLimiter().UnlockBucket(endpoint, rs); err != nil {
+	if err = c.RateLimiter().Unlock(endpoint, rs); err != nil {
 		return fmt.Errorf("error unlocking bucket in rest client: %w", err)
 	}
 

@@ -54,7 +54,7 @@ func main() {
 				gateway.WithURL(gatewayURL), // set the custom gateway url
 				gateway.WithCompress(false), // we don't want compression as that would be additional overhead
 			),
-			sharding.WithRateLimiter(sharding.NewNoopRateLimiter()), // disable sharding rate limiter as the proxy handles it
+			sharding.WithIdentifyRateLimiter(gateway.NewNoopIdentifyRateLimiter()), // disable sharding rate limiter as the proxy handles it
 		),
 		bot.WithRestClientConfigOpts(
 			rest.WithURL(restURL),                           // set the custom rest url

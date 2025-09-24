@@ -12,6 +12,7 @@ const (
 
 	EventTypeReady                               EventType = "READY"
 	EventTypeResumed                             EventType = "RESUMED"
+	EventTypeRateLimited                         EventType = "RATE_LIMITED"
 	EventTypeApplicationCommandPermissionsUpdate EventType = "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
 	EventTypeAutoModerationRuleCreate            EventType = "AUTO_MODERATION_RULE_CREATE"
 	EventTypeAutoModerationRuleUpdate            EventType = "AUTO_MODERATION_RULE_UPDATE"

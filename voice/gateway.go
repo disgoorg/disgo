@@ -19,6 +19,11 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
+// GatewayVersion is the version of the voice gateway we are using.
+const GatewayVersion = 8
+
+const maximumConnectDelay = 10 * time.Second
+
 var (
 	// ErrGatewayNotConnected is returned when the gateway is not connected and a message is attempted to be sent.
 	ErrGatewayNotConnected = fmt.Errorf("voice gateway not connected")
@@ -26,9 +31,6 @@ var (
 	// ErrGatewayAlreadyConnected is returned when the gateway is already connected and a connection is attempted to be opened.
 	ErrGatewayAlreadyConnected = fmt.Errorf("voice gateway already connected")
 )
-
-// GatewayVersion is the version of the voice gateway we are using.
-const GatewayVersion = 4
 
 // Status returns the current status of the gateway.
 type Status int
@@ -46,13 +48,13 @@ const (
 
 type (
 	// EventHandlerFunc is a function that handles a voice gateway event.
-	EventHandlerFunc func(gateway Gateway, opCode Opcode, data GatewayMessageData)
-
-	// CloseHandlerFunc is a function that handles a voice gateway close.
-	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
+	EventHandlerFunc func(gateway Gateway, opCode Opcode, sequenceNumber int, data GatewayMessageData)
 
 	// GatewayCreateFunc is a function that creates a new voice gateway.
 	GatewayCreateFunc func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
+
+	// CloseHandlerFunc is a function that handles a voice gateway close.
+	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
 
 	// StateProviderFunc is a function that provides the current conn state of the voice gateway.
 	StateProviderFunc func() State
@@ -74,9 +76,6 @@ type Gateway interface {
 	// SSRC returns the SSRC of the current voice connection.
 	SSRC() uint32
 
-	// Latency returns the current latency of the voice gateway connection.
-	Latency() time.Duration
-
 	// Open opens a new websocket connection to the voice gateway.
 	Open(ctx context.Context, state State) error
 
@@ -86,8 +85,14 @@ type Gateway interface {
 	// CloseWithCode closes the websocket connection to the voice gateway with a specific close code.
 	CloseWithCode(code int, message string)
 
+	// Status returns the Status of the Gateway.
+	Status() Status
+
 	// Send sends a message to the voice gateway.
 	Send(ctx context.Context, opCode Opcode, data GatewayMessageData) error
+
+	// Latency returns the current latency of the voice gateway connection.
+	Latency() time.Duration
 }
 
 // NewGateway creates a new voice Gateway.
@@ -109,12 +114,14 @@ type gatewayImpl struct {
 
 	ssrc  uint32
 	state State
+	seq   int
 
-	conn   *websocket.Conn
-	connMu sync.Mutex
-	status Status
+	conn            *websocket.Conn
+	connMu          sync.Mutex
+	heartbeatCancel context.CancelFunc
+	status          Status
+	statusMu        sync.Mutex
 
-	heartbeatTicker       *time.Ticker
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
@@ -126,26 +133,45 @@ func (g *gatewayImpl) SSRC() uint32 {
 }
 
 func (g *gatewayImpl) Open(ctx context.Context, state State) error {
+	return g.doReconnect(ctx, state)
+}
+
+func (g *gatewayImpl) open(ctx context.Context, state State) error {
 	g.config.Logger.Debug("opening voice gateway connection")
-	g.state = state
 
 	g.connMu.Lock()
-	defer g.connMu.Unlock()
 	if g.conn != nil {
+		g.connMu.Unlock()
 		return ErrGatewayAlreadyConnected
 	}
+
+	g.state = state
+	g.statusMu.Lock()
 	g.status = StatusConnecting
+	g.statusMu.Unlock()
 
 	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, GatewayVersion)
-	g.config.Logger.Debug("connecting to voice gateway at", slog.String("url", gatewayURL))
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
-		g.Close()
+		var body []byte
 		if rs != nil {
-			defer rs.Body.Close()
+			defer func() {
+				_ = rs.Body.Close()
+			}()
+			body, err = io.ReadAll(rs.Body)
+			if err != nil {
+				g.config.Logger.ErrorContext(ctx, "error while reading response body", slog.Any("err", err))
+			}
 		}
-		return fmt.Errorf("error connecting to voice gateway: %w", err)
+
+		g.config.Logger.ErrorContext(ctx, "error connecting to the voice gateway",
+			slog.Any("err", err),
+			slog.String("url", gatewayURL),
+			slog.String("body", string(body)),
+		)
+		g.connMu.Unlock()
+		return err
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
@@ -153,9 +179,32 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	})
 
 	g.conn = conn
-	g.status = StatusWaitingForHello
+	g.connMu.Unlock()
 
-	go g.listen(g.conn)
+	g.statusMu.Lock()
+	g.status = StatusWaitingForHello
+	g.statusMu.Unlock()
+
+	var readyOnce sync.Once
+	readyChan := make(chan error)
+	go g.listen(g.conn, func(err error) {
+		readyOnce.Do(func() {
+			readyChan <- err
+			close(readyChan)
+		})
+	})
+
+	select {
+	case <-ctx.Done():
+		g.Close()
+		return ctx.Err()
+	case err = <-readyChan:
+		if err != nil {
+			g.Close()
+			return fmt.Errorf("failed to open voice gateway connection: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -164,10 +213,9 @@ func (g *gatewayImpl) Close() {
 }
 
 func (g *gatewayImpl) CloseWithCode(code int, message string) {
-	if g.heartbeatTicker != nil {
-		g.config.Logger.Debug("closing heartbeat goroutines")
-		g.heartbeatTicker.Stop()
-		g.heartbeatTicker = nil
+	if g.heartbeatCancel != nil {
+		g.config.Logger.Debug("closing heartbeat goroutine")
+		g.heartbeatCancel()
 	}
 
 	g.connMu.Lock()
@@ -183,26 +231,144 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
 			g.ssrc = 0
+			g.seq = 0
+		}
+	}
+	g.statusMu.Lock()
+	g.status = StatusDisconnected
+	g.statusMu.Unlock()
+}
+
+func (g *gatewayImpl) Status() Status {
+	g.statusMu.Lock()
+	defer g.statusMu.Unlock()
+	return g.status
+}
+
+func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d GatewayMessageData) error {
+	g.statusMu.Lock()
+	defer g.statusMu.Unlock()
+	if g.status != StatusReady {
+		return discord.ErrShardNotReady
+	}
+
+	return g.sendInternal(ctx, op, d)
+}
+
+func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d GatewayMessageData) error {
+	data, err := json.Marshal(GatewayMessage{
+		Op: op,
+		D:  d,
+	})
+	if err != nil {
+		return err
+	}
+	return g.send(ctx, websocket.TextMessage, data)
+}
+
+func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
+	if g.conn == nil {
+		return ErrGatewayNotConnected
+	}
+
+	g.config.Logger.DebugContext(ctx, "sending voice gateway command", slog.String("data", string(data)))
+	return g.conn.WriteMessage(messageType, data)
+}
+
+func (g *gatewayImpl) Latency() time.Duration {
+	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
+}
+
+func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
+	var (
+		try              int
+		backoffIncrement int
+	)
+
+	for {
+		// Exponentially backoff up to a limit of 10s
+		delay := time.Duration(1<<backoffIncrement) * time.Second
+		if delay > maximumConnectDelay {
+			delay = maximumConnectDelay
+		} else {
+			backoffIncrement++
+		}
+
+		timer := time.NewTimer(time.Duration(try) * delay)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-timer.C:
+		}
+
+		err := g.open(ctx, state)
+		if err == nil {
+			// Successfully connected, our job here is done
+			return nil
+		}
+
+		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
+			return err
+		}
+		g.config.Logger.Error("failed to reconnect voice gateway", slog.Any("err", err), slog.Int("try", try), slog.Duration("delay", delay))
+		g.statusMu.Lock()
+		g.status = StatusDisconnected
+		g.statusMu.Unlock()
+
+		try++
+	}
+}
+
+func (g *gatewayImpl) reconnect() {
+	if err := g.doReconnect(context.Background(), g.state); err != nil {
+		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
+
+		if g.closeHandlerFunc != nil {
+			g.closeHandlerFunc(g, err, false)
 		}
 	}
 }
 
 func (g *gatewayImpl) heartbeat() {
-	g.heartbeatTicker = time.NewTicker(g.heartbeatInterval)
-	defer g.heartbeatTicker.Stop()
 	defer g.config.Logger.Debug("exiting voice heartbeat goroutine")
 
-	for range g.heartbeatTicker.C {
-		g.sendHeartbeat()
+	ctx, cancel := context.WithCancel(context.Background())
+	g.heartbeatCancel = cancel
+
+	g.sendHeartbeat()
+
+	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case <-heartbeatTicker.C:
+			if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
+				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie")
+				g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat ACK not received")
+				go g.reconnect()
+				return
+			}
+
+			g.sendHeartbeat()
+		}
 	}
 }
 
 func (g *gatewayImpl) sendHeartbeat() {
+	g.config.Logger.Debug("sending heartbeat")
+
 	g.lastNonce = time.Now().UnixMilli()
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
 
-	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat(g.lastNonce)); err != nil {
+	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat{
+		T:      g.lastNonce,
+		SeqAck: g.seq,
+	}); err != nil {
 		if !errors.Is(err, ErrGatewayNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
@@ -214,12 +380,68 @@ func (g *gatewayImpl) sendHeartbeat() {
 	g.lastHeartbeatSent = time.Now().UTC()
 }
 
-func (g *gatewayImpl) listen(conn *websocket.Conn) {
+func (g *gatewayImpl) identify() error {
+	g.statusMu.Lock()
+	g.status = StatusIdentifying
+	g.statusMu.Unlock()
+	g.config.Logger.Debug("sending Identify command")
+
+	identify := GatewayMessageDataIdentify{
+		GuildID:   g.state.GuildID,
+		UserID:    g.state.UserID,
+		SessionID: g.state.SessionID,
+		Token:     g.state.Token,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := g.sendInternal(ctx, OpcodeIdentify, identify); err != nil {
+		return err
+	}
+
+	g.statusMu.Lock()
+	g.status = StatusWaitingForReady
+	g.statusMu.Unlock()
+	return nil
+}
+
+func (g *gatewayImpl) resume() error {
+	g.statusMu.Lock()
+	g.status = StatusResuming
+	g.statusMu.Unlock()
+
+	resume := GatewayMessageDataResume{
+		GuildID:   g.state.GuildID,
+		SessionID: g.state.SessionID,
+		Token:     g.state.Token,
+		SeqAck:    g.seq,
+	}
+	g.config.Logger.Debug("sending Resume command")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := g.sendInternal(ctx, OpcodeResume, resume); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 	defer g.config.Logger.Debug("exiting listen goroutine")
-loop:
+
+	// Ensure that we never leave this function without calling ready
+	defer ready(nil)
+
 	for {
-		_, reader, err := conn.NextReader()
+		mt, reader, err := conn.NextReader()
 		if err != nil {
+			g.statusMu.Lock()
+			if g.status != StatusReady {
+				g.statusMu.Unlock()
+				ready(err)
+				return
+			}
+			g.statusMu.Unlock()
 			g.connMu.Lock()
 			sameConn := g.conn == conn
 			g.connMu.Unlock()
@@ -242,7 +464,7 @@ loop:
 					slog.String("error", closeError.Text),
 				}
 				if reconnect {
-					g.config.Logger.Debug(msg, args...)
+					g.config.Logger.Warn(msg, args...)
 				} else {
 					g.config.Logger.Error(msg, args...)
 				}
@@ -250,7 +472,7 @@ loop:
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Debug("failed to read next message from gateway", slog.Any("err", err))
+				g.config.Logger.Warn("failed to read next message from voice gateway", slog.Any("err", err))
 			}
 
 			// make sure the connection is properly closed
@@ -261,138 +483,80 @@ loop:
 				go g.closeHandlerFunc(g, err, reconnect)
 			}
 
-			break loop
+			return
 		}
 
-		message, err := g.parseMessage(reader)
+		message, err := g.parseMessage(mt, reader)
 		if err != nil {
 			g.config.Logger.Error("error while parsing voice gateway event", slog.Any("err", err))
 			continue
 		}
 
-		switch d := message.D.(type) {
-		case GatewayMessageDataHello:
-			g.status = StatusWaitingForReady
-			g.lastHeartbeatReceived = time.Now().UTC()
+		if message.Seq > 0 {
+			g.seq = message.Seq
+		}
+
+		switch message.Op {
+		case OpcodeHello:
+			d := message.D.(GatewayMessageDataHello)
 			g.heartbeatInterval = time.Duration(d.HeartbeatInterval) * time.Millisecond
+			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			if g.ssrc == 0 {
-				g.status = StatusIdentifying
-				err = g.Send(ctx, OpcodeIdentify, GatewayMessageDataIdentify{
-					GuildID:   g.state.GuildID,
-					UserID:    g.state.UserID,
-					SessionID: g.state.SessionID,
-					Token:     g.state.Token,
-				})
+			if g.ssrc == 0 || g.seq == 0 {
+				err = g.identify()
 			} else {
-				g.status = StatusResuming
-				err = g.Send(ctx, OpcodeResume, GatewayMessageDataResume{
-					GuildID:   g.state.GuildID,
-					SessionID: g.state.SessionID,
-					Token:     g.state.Token,
-				})
+				err = g.resume()
 			}
-			cancel()
 			if err != nil {
-				g.CloseWithCode(websocket.CloseServiceRestart, "failed to send identify or resume")
-				go g.reconnect()
+				ready(err)
 				return
 			}
 
-		case GatewayMessageDataReady:
+		case OpcodeReady:
+			g.statusMu.Lock()
 			g.status = StatusReady
+			g.statusMu.Unlock()
+			d := message.D.(GatewayMessageDataReady)
 			g.ssrc = d.SSRC
+			ready(nil)
 
-		case GatewayMessageDataHeartbeatACK:
-			if int64(d) != g.lastNonce {
-				g.config.Logger.Error("received heartbeat ack with nonce", slog.Int64("nonce", int64(d)), slog.Int64("last_nonce", g.lastNonce))
+		case OpcodeResumed:
+			g.statusMu.Lock()
+			g.status = StatusReady
+			g.statusMu.Unlock()
+			ready(nil)
+
+		case OpcodeHeartbeatACK:
+			d := message.D.(GatewayMessageDataHeartbeatACK)
+			if d.T != g.lastNonce {
+				g.config.Logger.Error("received heartbeat ack with nonce", slog.Int64("nonce", d.T), slog.Int64("last_nonce", g.lastNonce))
 				go g.reconnect()
-				break loop
+				return
 			}
 			g.lastHeartbeatReceived = time.Now().UTC()
 		}
-		g.eventHandlerFunc(g, message.Op, message.D)
+
+		g.eventHandlerFunc(g, message.Op, message.Seq, message.D)
 	}
 }
 
-func (g *gatewayImpl) Latency() time.Duration {
-	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
-}
-
-func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d GatewayMessageData) error {
-	data, err := json.Marshal(GatewayMessage{
-		Op: op,
-		D:  d,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to marshal voice gateway message: %w", err)
-	}
-	return g.send(ctx, websocket.TextMessage, data)
-}
-
-func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
-	g.connMu.Lock()
-	defer g.connMu.Unlock()
-	if g.conn == nil {
-		return ErrGatewayNotConnected
+func (g *gatewayImpl) parseMessage(mt int, r io.Reader) (GatewayMessage, error) {
+	if mt != websocket.TextMessage {
+		return GatewayMessage{}, fmt.Errorf("unsupported message type: %d", mt)
 	}
 
-	g.config.Logger.Debug("sending message to voice gateway", slog.String("data", string(data)))
-	deadline, ok := ctx.Deadline()
-	if ok {
-		if err := g.conn.SetWriteDeadline(deadline); err != nil {
-			return err
+	if g.config.Logger.Enabled(context.Background(), slog.LevelDebug) {
+		buff := new(bytes.Buffer)
+		tr := io.TeeReader(r, buff)
+		data, err := io.ReadAll(tr)
+		if err != nil {
+			return GatewayMessage{}, fmt.Errorf("failed to read message: %w", err)
 		}
+		g.config.Logger.Debug("received voice gateway message", slog.String("data", string(data)))
+		r = buff
 	}
-	if err := g.conn.WriteMessage(messageType, data); err != nil {
-		return fmt.Errorf("failed to send message to voice gateway: %w", err)
-	}
-	return nil
-}
-
-func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
-	delay := time.Duration(try) * 2 * time.Second
-	if delay > 30*time.Second {
-		delay = 30 * time.Second
-	}
-
-	timer := time.NewTimer(time.Duration(try) * delay)
-	defer timer.Stop()
-	select {
-	case <-ctx.Done():
-		timer.Stop()
-		return ctx.Err()
-	case <-timer.C:
-	}
-
-	g.config.Logger.Debug("reconnecting voice gateway")
-	if err := g.Open(ctx, g.state); err != nil {
-		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
-			return err
-		}
-		g.config.Logger.Error("failed to reconnect voice gateway", slog.Any("err", err))
-		g.status = StatusDisconnected
-		return g.reconnectTry(ctx, try+1)
-	}
-	return nil
-}
-
-func (g *gatewayImpl) reconnect() {
-	if err := g.reconnectTry(context.Background(), 0); err != nil {
-		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
-	}
-}
-
-func (g *gatewayImpl) parseMessage(r io.Reader) (GatewayMessage, error) {
-	buff := &bytes.Buffer{}
-	data, _ := io.ReadAll(io.TeeReader(r, buff))
-	g.config.Logger.Debug("received message from voice gateway", slog.String("data", string(data)))
 
 	var message GatewayMessage
-	if err := json.NewDecoder(buff).Decode(&message); err != nil {
-		return GatewayMessage{}, err
-	}
-	return message, nil
+	return message, json.NewDecoder(r).Decode(&message)
 }

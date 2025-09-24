@@ -31,6 +31,7 @@ const (
 	// ComponentTypeContentInventoryEntry cannot be used by bots.
 	ComponentTypeContentInventoryEntry
 	ComponentTypeContainer
+	ComponentTypeLabel
 )
 
 // Component is an interface for all components.
@@ -92,6 +93,7 @@ type InteractiveComponent interface {
 // [FileComponent]
 // [SeparatorComponent]
 // [ContainerComponent]
+// [LabelComponent] Only supported in modals.
 // [UnknownComponent]
 type LayoutComponent interface {
 	Component
@@ -129,6 +131,20 @@ type ContainerSubComponent interface {
 	Component
 	// containerSubComponent is a marker to simulate unions.
 	containerSubComponent()
+}
+
+// LabelSubComponent is an interface for all components that can be present in a [LabelComponent].
+// [StringSelectMenuComponent]
+// [TextInputComponent]
+// [UserSelectMenuComponent]
+// [RoleSelectMenuComponent]
+// [MentionableSelectMenuComponent]
+// [ChannelSelectMenuComponent]
+// [UnknownComponent]
+type LabelSubComponent interface {
+	Component
+	// labelSubComponent is a marker to simulate unions.
+	labelSubComponent()
 }
 
 type UnmarshalComponent struct {
@@ -222,6 +238,11 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 
 	case ComponentTypeContainer:
 		var v ContainerComponent
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeLabel:
+		var v LabelComponent
 		err = json.Unmarshal(data, &v)
 		component = v
 
@@ -565,26 +586,27 @@ const (
 )
 
 // NewTextInput creates a new [TextInputComponent] with the provided parameters.
-func NewTextInput(customID string, style TextInputStyle, label string) TextInputComponent {
+func NewTextInput(customID string, style TextInputStyle) TextInputComponent {
 	return TextInputComponent{
 		CustomID: customID,
 		Style:    style,
-		Label:    label,
 	}
 }
 
 // NewShortTextInput creates a new [TextInputComponent] with [TextInputStyleShort] & the provided parameters
-func NewShortTextInput(customID string, label string) TextInputComponent {
-	return NewTextInput(customID, TextInputStyleShort, label)
+func NewShortTextInput(customID string) TextInputComponent {
+	return NewTextInput(customID, TextInputStyleShort)
 }
 
 // NewParagraphTextInput creates a new [TextInputComponent] with [TextInputStyleParagraph] & the provided parameters
-func NewParagraphTextInput(customID string, label string) TextInputComponent {
-	return NewTextInput(customID, TextInputStyleParagraph, label)
+func NewParagraphTextInput(customID string) TextInputComponent {
+	return NewTextInput(customID, TextInputStyleParagraph)
 }
 
 var (
-	_ Component = (*TextInputComponent)(nil)
+	_ Component            = (*TextInputComponent)(nil)
+	_ InteractiveComponent = (*TextInputComponent)(nil)
+	_ LabelSubComponent    = (*TextInputComponent)(nil)
 )
 
 // TextInputComponent is a component that allows users to input text. [Discord Docs]
@@ -594,7 +616,6 @@ type TextInputComponent struct {
 	ID          int            `json:"id,omitempty"`
 	CustomID    string         `json:"custom_id"`
 	Style       TextInputStyle `json:"style"`
-	Label       string         `json:"label"`
 	MinLength   *int           `json:"min_length,omitempty"`
 	MaxLength   int            `json:"max_length,omitempty"`
 	Required    bool           `json:"required"`
@@ -627,6 +648,7 @@ func (c TextInputComponent) GetCustomID() string {
 
 func (TextInputComponent) component()            {}
 func (TextInputComponent) interactiveComponent() {}
+func (TextInputComponent) labelSubComponent()    {}
 
 // WithID returns a new TextInputComponent with the provided id
 func (c TextInputComponent) WithID(id int) TextInputComponent {
@@ -1280,6 +1302,100 @@ func (c ContainerComponent) RemoveComponent(id int) ContainerComponent {
 	return c
 }
 
+// NewLabel creates a new [LabelComponent] with the provided label and subcomponent.
+func NewLabel(label string, component LabelSubComponent) LabelComponent {
+	return LabelComponent{
+		Label:     label,
+		Component: component,
+	}
+}
+
+var (
+	_ Component       = (*LabelComponent)(nil)
+	_ LayoutComponent = (*LabelComponent)(nil)
+)
+
+// LabelComponent is a component that displays a label with an optional description and subcomponent.
+// Only supported in [ModalCreate].
+type LabelComponent struct {
+	ID          int               `json:"id,omitempty"`
+	Label       string            `json:"label"`
+	Description string            `json:"description,omitempty"`
+	Component   LabelSubComponent `json:"component"`
+}
+
+func (c LabelComponent) MarshalJSON() ([]byte, error) {
+	type labelComponent LabelComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		labelComponent
+	}{
+		Type:           c.Type(),
+		labelComponent: labelComponent(c),
+	})
+}
+
+func (c *LabelComponent) UnmarshalJSON(data []byte) error {
+	var labelComponent struct {
+		ID          int                `json:"id,omitempty"`
+		Label       string             `json:"label"`
+		Description string             `json:"description,omitempty"`
+		Component   UnmarshalComponent `json:"component"`
+	}
+	if err := json.Unmarshal(data, &labelComponent); err != nil {
+		return err
+	}
+
+	c.ID = labelComponent.ID
+	c.Label = labelComponent.Label
+	c.Description = labelComponent.Description
+	c.Component = labelComponent.Component.Component.(LabelSubComponent)
+	return nil
+}
+
+func (LabelComponent) Type() ComponentType {
+	return ComponentTypeLabel
+}
+
+func (c LabelComponent) GetID() int {
+	return c.ID
+}
+
+func (LabelComponent) component()       {}
+func (LabelComponent) layoutComponent() {}
+
+// SubComponents returns an [iter.Seq[Component]] over the sub Component of the LabelComponent.
+func (c LabelComponent) SubComponents() iter.Seq[Component] {
+	return func(yield func(Component) bool) {
+		if c.Component != nil {
+			yield(c.Component)
+		}
+	}
+}
+
+func (c LabelComponent) WithID(id int) LabelComponent {
+	c.ID = id
+	return c
+}
+
+// WithLabel returns a new LabelComponent with the provided label
+func (c LabelComponent) WithLabel(label string) LabelComponent {
+	c.Label = label
+	return c
+}
+
+// WithDescription returns a new LabelComponent with the provided description
+func (c LabelComponent) WithDescription(description string) LabelComponent {
+	c.Description = description
+	return c
+}
+
+// WithComponent returns a new LabelComponent with the provided subcomponent
+func (c LabelComponent) WithComponent(component LabelSubComponent) LabelComponent {
+	c.Component = component
+	return c
+}
+
 // NewUnknownComponent creates a new [UnknownComponent] with the provided type and data.
 // This is useful for handling unknown components, but should be avoided if possible.
 func NewUnknownComponent(componentType ComponentType, data json.RawMessage) UnknownComponent {
@@ -1297,6 +1413,7 @@ var (
 	_ SectionSubComponent       = (*UnknownComponent)(nil)
 	_ SectionAccessoryComponent = (*UnknownComponent)(nil)
 	_ ContainerSubComponent     = (*UnknownComponent)(nil)
+	_ LabelSubComponent         = (*UnknownComponent)(nil)
 )
 
 // UnknownComponent is a component that is not recognized by the library.
@@ -1362,3 +1479,4 @@ func (UnknownComponent) selectMenuComponent()       {}
 func (UnknownComponent) containerSubComponent()     {}
 func (UnknownComponent) sectionSubComponent()       {}
 func (UnknownComponent) sectionAccessoryComponent() {}
+func (UnknownComponent) labelSubComponent()         {}

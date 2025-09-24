@@ -1,21 +1,26 @@
 package voice
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 // GatewayMessage represents a voice gateway message
 type GatewayMessage struct {
-	Op Opcode             `json:"op"`
-	D  GatewayMessageData `json:"d,omitempty"`
+	Op   Opcode             `json:"op"`
+	D    GatewayMessageData `json:"d,omitempty"`
+	RawD json.RawMessage    `json:"-"`
+	Seq  int                `json:"s,omitempty"`
 }
 
 // UnmarshalJSON unmarshalls the GatewayMessage from json
 func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Op Opcode          `json:"op"`
-		D  json.RawMessage `json:"d"`
+		Op  Opcode          `json:"op"`
+		D   json.RawMessage `json:"d"`
+		Seq int             `json:"s,omitempty"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -73,7 +78,7 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeResumed:
-		// no data
+		messageData = GatewayMessageDataResumed{}
 
 	case OpcodeClientDisconnect:
 		var d GatewayMessageDataClientDisconnect
@@ -81,7 +86,7 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeGuildSync:
-		// ignore this opcode
+		messageData = GatewayMessageDataGuildSync{}
 
 	default:
 		var d GatewayMessageDataUnknown
@@ -89,10 +94,12 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		messageData = d
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal voice gateway message data: %s: %w", string(data), err)
 	}
 	m.Op = v.Op
 	m.D = messageData
+	m.RawD = v.D
+	m.Seq = v.Seq
 	return nil
 }
 
@@ -111,10 +118,10 @@ type GatewayMessageDataIdentify struct {
 func (GatewayMessageDataIdentify) voiceGatewayMessageData() {}
 
 type GatewayMessageDataReady struct {
-	SSRC  uint32   `json:"ssrc"`
-	IP    string   `json:"ip"`
-	Port  int      `json:"port"`
-	Modes []string `json:"modes"`
+	SSRC  uint32           `json:"ssrc"`
+	IP    string           `json:"ip"`
+	Port  int              `json:"port"`
+	Modes []EncryptionMode `json:"modes"`
 }
 
 func (GatewayMessageDataReady) voiceGatewayMessageData() {}
@@ -125,13 +132,24 @@ type GatewayMessageDataHello struct {
 
 func (GatewayMessageDataHello) voiceGatewayMessageData() {}
 
-type GatewayMessageDataHeartbeat int64
+type GatewayMessageDataResumed struct{}
+
+func (GatewayMessageDataResumed) voiceGatewayMessageData() {}
+
+type GatewayMessageDataGuildSync struct{}
+
+func (GatewayMessageDataGuildSync) voiceGatewayMessageData() {}
+
+type GatewayMessageDataHeartbeat struct {
+	T      int64 `json:"t"`
+	SeqAck int   `json:"seq_ack"`
+}
 
 func (GatewayMessageDataHeartbeat) voiceGatewayMessageData() {}
 
 type GatewayMessageDataSessionDescription struct {
-	Mode      string   `json:"mode"`
-	SecretKey [32]byte `json:"secret_key"`
+	Mode      EncryptionMode `json:"mode"`
+	SecretKey []byte         `json:"secret_key"`
 }
 
 func (GatewayMessageDataSessionDescription) voiceGatewayMessageData() {}
@@ -158,12 +176,34 @@ type GatewayMessageDataSelectProtocolData struct {
 // EncryptionMode is the encryption mode used for voice data.
 type EncryptionMode string
 
-// All possible EncryptionMode(s) https://discord.com/developers/docs/topics/voice-connections#establishing-a-voice-udp-connection-encryption-modes.
+// All possible EncryptionMode(s) https://discord.com/developers/docs/topics/voice-connections#transport-encryption-and-sending-voice.
 const (
-	EncryptionModeNormal EncryptionMode = "xsalsa20_poly1305"
-	EncryptionModeSuffix EncryptionMode = "xsalsa20_poly1305_suffix"
-	EncryptionModeLite   EncryptionMode = "xsalsa20_poly1305_lite"
+	// EncryptionModeNone is no encryption. This mode is not supported by Discord.
+	EncryptionModeNone EncryptionMode = ""
+	// EncryptionModeAEADAES256GCMRTPSize is the preferred encryption mode.
+	EncryptionModeAEADAES256GCMRTPSize EncryptionMode = "aead_aes256_gcm_rtpsize"
+	// EncryptionModeAEADXChaCha20Poly1305RTPSize is the required encryption mode.
+	EncryptionModeAEADXChaCha20Poly1305RTPSize EncryptionMode = "aead_xchacha20_poly1305_rtpsize"
 )
+
+// AllEncryptionModes is a list of all supported EncryptionMode(s).
+var AllEncryptionModes = []EncryptionMode{
+	EncryptionModeAEADAES256GCMRTPSize,         // preferred
+	EncryptionModeAEADXChaCha20Poly1305RTPSize, // required
+}
+
+// ChooseEncryptionMode chooses the best supported encryption mode from the given list of modes.
+// It returns an error if no supported mode is found.
+func ChooseEncryptionMode(modes []EncryptionMode) (EncryptionMode, error) {
+	for _, preferred := range AllEncryptionModes {
+		for _, mode := range modes {
+			if mode == preferred {
+				return mode, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no supported encryption mode found in %v", modes)
+}
 
 type GatewayMessageDataSpeaking struct {
 	Speaking SpeakingFlags `json:"speaking"`
@@ -187,11 +227,14 @@ type GatewayMessageDataResume struct {
 	GuildID   snowflake.ID `json:"server_id"` // wtf is this?
 	SessionID string       `json:"session_id"`
 	Token     string       `json:"token"`
+	SeqAck    int          `json:"seq"`
 }
 
 func (GatewayMessageDataResume) voiceGatewayMessageData() {}
 
-type GatewayMessageDataHeartbeatACK int64
+type GatewayMessageDataHeartbeatACK struct {
+	T int64 `json:"t"`
+}
 
 func (GatewayMessageDataHeartbeatACK) voiceGatewayMessageData() {}
 

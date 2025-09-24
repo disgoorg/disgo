@@ -65,6 +65,7 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeReconnect:
+		messageData = MessageDataReconnect{}
 
 	case OpcodeRequestGuildMembers:
 		var d MessageDataRequestGuildMembers
@@ -82,6 +83,7 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeHeartbeatACK:
+		messageData = MessageDataHeartbeatACK{}
 
 	case OpcodeRequestSoundboardSounds:
 		var d MessageDataRequestSoundboardSounds
@@ -122,6 +124,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeResumed:
 		eventData = EventResumed{}
+
+	case EventTypeRateLimited:
+		var d EventRateLimited
+		err = json.Unmarshal(data, &d)
+		eventData = d
 
 	case EventTypeApplicationCommandPermissionsUpdate:
 		var d EventApplicationCommandPermissionsUpdate
@@ -653,6 +660,10 @@ type MessageDataResume struct {
 
 func (MessageDataResume) messageData() {}
 
+type MessageDataReconnect struct{}
+
+func (MessageDataReconnect) messageData() {}
+
 // MessageDataRequestGuildMembers is used for fetching all the members of a guild_events. It is recommended you have a strict
 // member caching policy when using this.
 type MessageDataRequestGuildMembers struct {
@@ -675,6 +686,10 @@ type MessageDataHello struct {
 }
 
 func (MessageDataHello) messageData() {}
+
+type MessageDataHeartbeatACK struct{}
+
+func (MessageDataHeartbeatACK) messageData() {}
 
 type MessageDataRequestSoundboardSounds struct {
 	GuildIDs []snowflake.ID `json:"guild_ids"`

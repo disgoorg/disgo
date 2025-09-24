@@ -194,7 +194,7 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 	}()
 }
 
-func (c *connImpl) handleMessage(gateway Gateway, op Opcode, data GatewayMessageData) {
+func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int, data GatewayMessageData) {
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -204,19 +204,28 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, data GatewayMessage
 			c.config.Logger.Error("voice: failed to open voiceudp conn", slog.Any("err", err))
 			break
 		}
+
+		encryptionMode, err := ChooseEncryptionMode(d.Modes)
+		if err != nil {
+			c.config.Logger.Error("voice: failed to choose encryption mode", slog.Any("err", err))
+			break
+		}
+
 		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
 			Protocol: ProtocolUDP,
 			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
 				Port:    ourPort,
-				Mode:    EncryptionModeNormal,
+				Mode:    encryptionMode,
 			},
 		}); err != nil {
 			c.config.Logger.Error("voice: failed to send select protocol", slog.Any("err", err))
 		}
 
 	case GatewayMessageDataSessionDescription:
-		c.udp.SetSecretKey(d.SecretKey)
+		if err := c.udp.SetSecretKey(d.Mode, d.SecretKey); err != nil {
+			c.config.Logger.Error("voice: failed to set secret key", slog.Any("err", err))
+		}
 		c.openedChan <- struct{}{}
 
 	case GatewayMessageDataSpeaking:
@@ -238,7 +247,7 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, data GatewayMessage
 		}
 	}
 	if c.config.EventHandlerFunc != nil {
-		c.config.EventHandlerFunc(c.gateway, op, data)
+		c.config.EventHandlerFunc(gateway, op, sequenceNumber, data)
 	}
 }
 
