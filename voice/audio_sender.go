@@ -14,10 +14,10 @@ var SilenceAudioFrame = []byte{0xF8, 0xFF, 0xFE}
 
 const (
 	// OpusFrameSizeMs is the size of an opus frame in milliseconds.
-	OpusFrameSizeMs int = 20
+	OpusFrameSizeMs = 20
 
 	// OpusFrameSize is the size of an opus frame in bytes.
-	OpusFrameSize int = 960
+	OpusFrameSize = 960
 
 	// OpusFrameSizeBytes is the size of an opus frame in bytes.
 	OpusFrameSizeBytes = OpusFrameSize * 2 * 2
