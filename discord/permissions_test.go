@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/disgoorg/json/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 type permissionTestStruct struct {
@@ -17,30 +16,52 @@ func TestPermissions_MarshalJSON(t *testing.T) {
 	}
 
 	jsonPerms, err := json.Marshal(someStruct)
-	assert.NoError(t, err)
-	assert.Equal(t, "{\"permissions\":\"67108928\"}", string(jsonPerms))
+	if err != nil {
+		t.Fatalf("unexpected error marshaling: %v", err)
+	}
+
+	expected := `{"permissions":"67108928"}`
+	if string(jsonPerms) != expected {
+		t.Errorf("expected %s, got %s", expected, string(jsonPerms))
+	}
 }
 
 func TestPermissions_UnmarshalJSON(t *testing.T) {
 	var someStruct permissionTestStruct
 
-	err := json.Unmarshal([]byte("{\"permissions\":\"67108928\"}"), &someStruct)
-	assert.NoError(t, err)
-	assert.Equal(t, permissionTestStruct{Permissions: PermissionAddReactions | PermissionChangeNickname}, someStruct)
+	err := json.Unmarshal([]byte(`{"permissions":"67108928"}`), &someStruct)
+	if err != nil {
+		t.Fatalf("unexpected error unmarshaling: %v", err)
+	}
+
+	expected := permissionTestStruct{Permissions: PermissionAddReactions | PermissionChangeNickname}
+	if someStruct != expected {
+		t.Errorf("expected %+v, got %+v", expected, someStruct)
+	}
 }
 
 func TestPermissions_Add(t *testing.T) {
-	assert.Equal(t, PermissionAddReactions, Permissions.Add(PermissionAddReactions))
+	got := Permissions.Add(PermissionAddReactions)
+	if got != PermissionAddReactions {
+		t.Errorf("expected %v, got %v", PermissionAddReactions, got)
+	}
 }
 
 func TestPermissions_Remove(t *testing.T) {
-	assert.Equal(t, PermissionManageChannels, (PermissionAddReactions | PermissionManageChannels).Remove(PermissionAddReactions))
+	got := (PermissionAddReactions | PermissionManageChannels).Remove(PermissionAddReactions)
+	if got != PermissionManageChannels {
+		t.Errorf("expected %v, got %v", PermissionManageChannels, got)
+	}
 }
 
 func TestPermissions_Has(t *testing.T) {
-	assert.True(t, PermissionAddReactions.Has(PermissionAddReactions))
+	if !PermissionAddReactions.Has(PermissionAddReactions) {
+		t.Errorf("expected PermissionAddReactions to have PermissionAddReactions")
+	}
 }
 
 func TestPermissions_Missing(t *testing.T) {
-	assert.True(t, PermissionManageChannels.Missing(PermissionAddReactions))
+	if !PermissionManageChannels.Missing(PermissionAddReactions) {
+		t.Errorf("expected PermissionManageChannels to be missing PermissionAddReactions")
+	}
 }

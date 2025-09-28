@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/disgoorg/json/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 type iconTest struct {
@@ -20,13 +19,21 @@ func TestIcon_MarshalJSON(t *testing.T) {
 	}
 
 	data, err := json.Marshal(v)
-	assert.NoError(t, err)
-	assert.Equal(t, `{"icon":"data:image/jpeg;base64,data"}`, string(data))
-
-	v = iconTest{
-		Icon: nil,
+	if err != nil {
+		t.Fatalf("unexpected error marshaling: %v", err)
 	}
+	expected := `{"icon":"data:image/jpeg;base64,data"}`
+	if string(data) != expected {
+		t.Errorf("expected %s, got %s", expected, string(data))
+	}
+
+	v = iconTest{Icon: nil}
 	data, err = json.Marshal(v)
-	assert.NoError(t, err)
-	assert.Equal(t, "{}", string(data))
+	if err != nil {
+		t.Fatalf("unexpected error marshaling: %v", err)
+	}
+	expected = "{}"
+	if string(data) != expected {
+		t.Errorf("expected %s, got %s", expected, string(data))
+	}
 }

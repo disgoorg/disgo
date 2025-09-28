@@ -3,9 +3,8 @@ package handler
 import (
 	"maps"
 	"os"
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
@@ -30,16 +29,24 @@ func (i *InteractionResponseRecorder) Respond(responseType discord.InteractionRe
 
 func TestCommandMux(t *testing.T) {
 	slashData, err := os.ReadFile("testdata/command/slash_command.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read slash command data: %v", err)
+	}
 
 	userData, err := os.ReadFile("testdata/command/user_command.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read user command data: %v", err)
+	}
 
 	messageData, err := os.ReadFile("testdata/command/message_command.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read message command data: %v", err)
+	}
 
 	entryPointData, err := os.ReadFile("testdata/command/entry_point_command.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read entry point command data: %v", err)
+	}
 
 	data := []struct {
 		data     []byte
@@ -49,65 +56,51 @@ func TestCommandMux(t *testing.T) {
 			data: slashData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "bar",
-				},
+				Data: discord.MessageCreate{Content: "bar"},
 			},
 		},
 		{
 			data: userData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "bar2",
-				},
+				Data: discord.MessageCreate{Content: "bar2"},
 			},
 		},
 		{
 			data: messageData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "bar3",
-				},
+				Data: discord.MessageCreate{Content: "bar3"},
 			},
 		},
 		{
 			data: entryPointData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "bar4",
-				},
+				Data: discord.MessageCreate{Content: "bar4"},
 			},
 		},
 	}
 
 	mux := New()
 	mux.SlashCommand("/foo", func(data discord.SlashCommandInteractionData, e *CommandEvent) error {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: "bar",
-		})
+		return e.CreateMessage(discord.MessageCreate{Content: "bar"})
 	})
 	mux.UserCommand("/foo", func(data discord.UserCommandInteractionData, e *CommandEvent) error {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: "bar2",
-		})
+		return e.CreateMessage(discord.MessageCreate{Content: "bar2"})
 	})
 	mux.MessageCommand("/foo", func(data discord.MessageCommandInteractionData, e *CommandEvent) error {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: "bar3",
-		})
+		return e.CreateMessage(discord.MessageCreate{Content: "bar3"})
 	})
 	mux.EntryPointCommand("/foo", func(data discord.EntryPointCommandInteractionData, e *CommandEvent) error {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: "bar4",
-		})
+		return e.CreateMessage(discord.MessageCreate{Content: "bar4"})
 	})
 
 	for _, d := range data {
 		interaction, err := discord.UnmarshalInteraction(d.data)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatalf("failed to unmarshal interaction: %v", err)
+		}
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
@@ -115,16 +108,23 @@ func TestCommandMux(t *testing.T) {
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})
-		assert.Equal(t, d.expected, recorder.Response)
+
+		if !reflect.DeepEqual(d.expected, recorder.Response) {
+			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
+		}
 	}
 }
 
 func TestComponentMux(t *testing.T) {
 	buttonData, err := os.ReadFile("testdata/component/button_component.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read button component data: %v", err)
+	}
 
 	selectMenuData, err := os.ReadFile("testdata/component/select_menu_component.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read select menu component data: %v", err)
+	}
 
 	data := []struct {
 		data     []byte
@@ -134,37 +134,31 @@ func TestComponentMux(t *testing.T) {
 			data: buttonData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "bar",
-				},
+				Data: discord.MessageCreate{Content: "bar"},
 			},
 		},
 		{
 			data: selectMenuData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "bar2",
-				},
+				Data: discord.MessageCreate{Content: "bar2"},
 			},
 		},
 	}
 
 	mux := New()
 	mux.ButtonComponent("/foo", func(data discord.ButtonInteractionData, e *ComponentEvent) error {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: "bar",
-		})
+		return e.CreateMessage(discord.MessageCreate{Content: "bar"})
 	})
 	mux.SelectMenuComponent("/foo", func(data discord.SelectMenuInteractionData, e *ComponentEvent) error {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: "bar2",
-		})
+		return e.CreateMessage(discord.MessageCreate{Content: "bar2"})
 	})
 
 	for _, d := range data {
 		interaction, err := discord.UnmarshalInteraction(d.data)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatalf("failed to unmarshal interaction: %v", err)
+		}
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
@@ -172,13 +166,18 @@ func TestComponentMux(t *testing.T) {
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})
-		assert.Equal(t, d.expected, recorder.Response)
+
+		if !reflect.DeepEqual(d.expected, recorder.Response) {
+			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
+		}
 	}
 }
 
 func TestMiddlewareMux(t *testing.T) {
 	slashData, err := os.ReadFile("testdata/middleware/slash_command.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read slash command data: %v", err)
+	}
 
 	data := []struct {
 		data          []byte
@@ -191,9 +190,7 @@ func TestMiddlewareMux(t *testing.T) {
 			data: slashData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "bar",
-				},
+				Data: discord.MessageCreate{Content: "bar"},
 			},
 			expectedVars1: map[string]string{},
 			expectedVars2: map[string]string{"bar": "bar"},
@@ -223,15 +220,15 @@ func TestMiddlewareMux(t *testing.T) {
 		})
 		r.Command("/baz", func(e *CommandEvent) error {
 			maps.Copy(dataVars3, e.Vars)
-			return e.CreateMessage(discord.MessageCreate{
-				Content: "bar",
-			})
+			return e.CreateMessage(discord.MessageCreate{Content: "bar"})
 		})
 	})
 
 	for _, d := range data {
 		interaction, err := discord.UnmarshalInteraction(d.data)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatalf("failed to unmarshal interaction: %v", err)
+		}
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
@@ -239,19 +236,32 @@ func TestMiddlewareMux(t *testing.T) {
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})
-		assert.Equal(t, d.expected, recorder.Response)
-		assert.Equal(t, d.expectedVars1, dataVars1)
-		assert.Equal(t, d.expectedVars2, dataVars2)
-		assert.Equal(t, d.expectedVars3, dataVars3)
+
+		if !reflect.DeepEqual(d.expected, recorder.Response) {
+			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
+		}
+		if !reflect.DeepEqual(d.expectedVars1, dataVars1) {
+			t.Errorf("expected vars1 %+v, got %+v", d.expectedVars1, dataVars1)
+		}
+		if !reflect.DeepEqual(d.expectedVars2, dataVars2) {
+			t.Errorf("expected vars2 %+v, got %+v", d.expectedVars2, dataVars2)
+		}
+		if !reflect.DeepEqual(d.expectedVars3, dataVars3) {
+			t.Errorf("expected vars3 %+v, got %+v", d.expectedVars3, dataVars3)
+		}
 	}
 }
 
 func TestMux(t *testing.T) {
 	buttonFooData, err := os.ReadFile("testdata/mux/button_foo_component.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read button foo data: %v", err)
+	}
 
 	buttonFooBarData, err := os.ReadFile("testdata/mux/button_foo_bar_component.json")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to read button foo bar data: %v", err)
+	}
 
 	data := []struct {
 		data     []byte
@@ -261,18 +271,14 @@ func TestMux(t *testing.T) {
 			data: buttonFooData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "/foo/",
-				},
+				Data: discord.MessageCreate{Content: "/foo/"},
 			},
 		},
 		{
 			data: buttonFooBarData,
 			expected: &discord.InteractionResponse{
 				Type: discord.InteractionResponseTypeCreateMessage,
-				Data: discord.MessageCreate{
-					Content: "/foo/bar",
-				},
+				Data: discord.MessageCreate{Content: "/foo/bar"},
 			},
 		},
 	}
@@ -280,20 +286,18 @@ func TestMux(t *testing.T) {
 	mux := New()
 	mux.Route("/foo", func(r Router) {
 		r.ButtonComponent("/", func(data discord.ButtonInteractionData, e *ComponentEvent) error {
-			return e.CreateMessage(discord.MessageCreate{
-				Content: "/foo/",
-			})
+			return e.CreateMessage(discord.MessageCreate{Content: "/foo/"})
 		})
 		r.ButtonComponent("/bar", func(data discord.ButtonInteractionData, e *ComponentEvent) error {
-			return e.CreateMessage(discord.MessageCreate{
-				Content: "/foo/bar",
-			})
+			return e.CreateMessage(discord.MessageCreate{Content: "/foo/bar"})
 		})
 	})
 
 	for _, d := range data {
 		interaction, err := discord.UnmarshalInteraction(d.data)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatalf("failed to unmarshal interaction: %v", err)
+		}
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
@@ -301,6 +305,9 @@ func TestMux(t *testing.T) {
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})
-		assert.Equal(t, d.expected, recorder.Response)
+
+		if !reflect.DeepEqual(d.expected, recorder.Response) {
+			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
+		}
 	}
 }
