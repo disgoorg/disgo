@@ -92,6 +92,10 @@ func has4BitHeaders(file *os.File) (bool, error) {
 	return false, nil
 }
 
+// writeOpus reads from the included `nico.dca` file in the [DCA0] file format
+// and writes its Opus frames to the io.Writer.
+//
+// [DCA0]: https://github.com/bwmarrin/dca/wiki/DCA0-specification
 func writeOpus(w io.Writer) {
 	file, err := os.Open("nico.dca")
 	if err != nil {
