@@ -5,8 +5,6 @@ import (
 	"sync"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestIdentifyRateLimiterImpl(t *testing.T) {
@@ -19,17 +17,21 @@ func TestIdentifyRateLimiterImpl(t *testing.T) {
 	var wg sync.WaitGroup
 	for shardID := range 3 {
 		wg.Add(1)
-		go func() {
+		go func(id int) {
 			defer wg.Done()
-			err := r.Wait(context.Background(), shardID)
-			assert.NoError(t, err)
-			r.Unlock(shardID)
-		}()
+			err := r.Wait(context.Background(), id)
+			if err != nil {
+				t.Errorf("unexpected error for shard %d: %v", id, err)
+			}
+			r.Unlock(id)
+		}(shardID)
 	}
 	wg.Wait()
 
 	expected := start.Add(200 * time.Millisecond)
-	assert.WithinDuration(t, expected, time.Now(), 10*time.Millisecond)
+	if !time.Now().After(expected.Add(-10*time.Millisecond)) || !time.Now().Before(expected.Add(10*time.Millisecond)) {
+		t.Errorf("expected current time to be within 10ms of %v, got %v", expected, time.Now())
+	}
 }
 
 func TestIdentifyRateLimiterImpl_WithMaxConcurrency(t *testing.T) {
@@ -42,17 +44,21 @@ func TestIdentifyRateLimiterImpl_WithMaxConcurrency(t *testing.T) {
 	var wg sync.WaitGroup
 	for shardID := range 6 {
 		wg.Add(1)
-		go func() {
+		go func(id int) {
 			defer wg.Done()
-			err := r.Wait(context.Background(), shardID)
-			assert.NoError(t, err)
-			r.Unlock(shardID)
-		}()
+			err := r.Wait(context.Background(), id)
+			if err != nil {
+				t.Errorf("unexpected error for shard %d: %v", id, err)
+			}
+			r.Unlock(id)
+		}(shardID)
 	}
 	wg.Wait()
 
 	expected := start.Add(100 * time.Millisecond)
-	assert.WithinDuration(t, expected, time.Now(), 10*time.Millisecond)
+	if !time.Now().After(expected.Add(-10*time.Millisecond)) || !time.Now().Before(expected.Add(10*time.Millisecond)) {
+		t.Errorf("expected current time to be within 10ms of %v, got %v", expected, time.Now())
+	}
 }
 
 func TestIdentifyRateLimiterImpl_WaitWithTimeout(t *testing.T) {
@@ -64,11 +70,15 @@ func TestIdentifyRateLimiterImpl_WaitWithTimeout(t *testing.T) {
 	defer cancel()
 
 	err := r.Wait(ctx, 0)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("unexpected error on first wait: %v", err)
+	}
 
 	err = r.Wait(ctx, 0)
-	if assert.Error(t, err) {
-		assert.Equal(t, context.DeadlineExceeded, err)
+	if err == nil {
+		t.Errorf("expected error on second wait due to timeout, got nil")
+	} else if err != context.DeadlineExceeded {
+		t.Errorf("expected DeadlineExceeded error, got %v", err)
 	}
 
 	r.Unlock(0)
