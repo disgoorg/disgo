@@ -13,6 +13,7 @@ func defaultConfig() config {
 		LargeThreshold:      50,
 		Intents:             IntentsDefault,
 		Compress:            true,
+		Compression:         CompressionZstdStream,
 		URL:                 "wss://gateway.discord.gg",
 		ShardID:             0,
 		ShardCount:          1,
@@ -33,7 +34,10 @@ type config struct {
 	// Intents is the Intents for the Gateway. Defaults to IntentsNone.
 	Intents Intents
 	// Compress is whether the Gateway should compress payloads. Defaults to true.
+	// Deprecated: Use Compression instead
 	Compress bool
+	// Compression is the compression type to use for the gateway. Defaults to ZstdCompression.
+	Compression CompressionType
 	// URL is the URL of the Gateway. Defaults to fetch from Discord.
 	URL string
 	// ShardID is the shardID of the Gateway. Defaults to 0.
@@ -118,9 +122,28 @@ func WithIntents(intents ...Intents) ConfigOpt {
 
 // WithCompress sets whether this Gateway supports compression.
 // See here for more information: https://discord.com/developers/docs/topics/gateway#encoding-and-compression
+// Deprecated: Use WithCompression instead
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *config) {
+		if compress {
+			config.Compression = CompressionZlibPayload
+		} else {
+			config.Compression = CompressionNone
+		}
+
+		// Set the deprecated field too
 		config.Compress = compress
+	}
+}
+
+// WithCompression sets the compression mechanism to use.
+// See here for more information: https://discord.com/developers/docs/topics/gateway#encoding-and-compression
+func WithCompression(compression CompressionType) ConfigOpt {
+	return func(config *config) {
+		config.Compression = compression
+
+		// Set the deprecated field too
+		config.Compress = compression == CompressionZlibPayload
 	}
 }
 

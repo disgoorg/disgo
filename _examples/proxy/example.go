@@ -51,8 +51,8 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithShardManagerConfigOpts(
 			sharding.WithGatewayConfigOpts( // gateway intents are set in the proxy not here
-				gateway.WithURL(gatewayURL), // set the custom gateway url
-				gateway.WithCompress(false), // we don't want compression as that would be additional overhead
+				gateway.WithURL(gatewayURL),                      // set the custom gateway url
+				gateway.WithCompression(gateway.CompressionNone), // we don't want compression as that would be additional overhead
 			),
 			sharding.WithIdentifyRateLimiter(gateway.NewNoopIdentifyRateLimiter()), // disable sharding rate limiter as the proxy handles it
 		),
