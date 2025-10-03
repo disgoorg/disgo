@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/binary"
 	"io"
@@ -79,19 +78,6 @@ func play(client *bot.Client, closeChan chan os.Signal) {
 	closeChan <- syscall.SIGTERM
 }
 
-// Test if the header is 4 bytes in size for some obscure and unknown reason.
-func has4BitHeaders(file *os.File) (bool, error) {
-	var pad [2]byte
-	_, err := file.ReadAt(pad[:], 2)
-	if err != nil {
-		return false, err
-	}
-	if bytes.Equal(pad[:], []byte{0, 0}) {
-		return true, nil
-	}
-	return false, nil
-}
-
 // writeOpus reads from the included `nico.dca` file in the [DCA0] file format
 // and writes its Opus frames to the io.Writer.
 //
@@ -104,21 +90,10 @@ func writeOpus(w io.Writer) {
 	ticker := time.NewTicker(time.Millisecond * 20)
 	defer ticker.Stop()
 
-	// support flag for skipping 2 bytes after each header
-	h4, err := has4BitHeaders(file)
-	if err != nil {
-		panic("error reading file: " + err.Error())
-	}
-
 	var frameLen int16
 	// Don't wait for the first tick, run immediately.
 	for ; true; <-ticker.C {
 		err = binary.Read(file, binary.LittleEndian, &frameLen)
-
-		if err == nil && h4 {
-			_, err = file.Seek(2, io.SeekCurrent)
-		}
-
 		if err != nil {
 			if err == io.EOF {
 				_ = file.Close()
