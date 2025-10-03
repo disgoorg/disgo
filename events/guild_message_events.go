@@ -8,7 +8,8 @@ import (
 
 // GenericGuildMessage is called upon receiving GuildMessageCreate , GuildMessageUpdate or GuildMessageDelete
 type GenericGuildMessage struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	MessageID snowflake.ID
 	Message   discord.Message
 	ChannelID snowflake.ID

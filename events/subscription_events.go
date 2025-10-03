@@ -3,7 +3,8 @@ package events
 import "github.com/disgoorg/disgo/discord"
 
 type GenericSubscriptionEvent struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.Subscription
 }
 

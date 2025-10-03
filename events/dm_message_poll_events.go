@@ -6,7 +6,8 @@ import (
 
 // GenericDMMessagePollVote is called upon receiving DMMessagePollVoteAdd or DMMessagePollVoteRemove (requires gateway.IntentDirectMessagePolls)
 type GenericDMMessagePollVote struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	UserID    snowflake.ID
 	ChannelID snowflake.ID
 	MessageID snowflake.ID

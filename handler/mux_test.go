@@ -104,7 +104,8 @@ func TestCommandMux(t *testing.T) {
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Event:        events.NewEvent(nil),
+			GatewayEvent: events.NewGatewayEvent(0, 0),
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})
@@ -162,7 +163,8 @@ func TestComponentMux(t *testing.T) {
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Event:        events.NewEvent(nil),
+			GatewayEvent: events.NewGatewayEvent(0, 0),
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})
@@ -232,7 +234,8 @@ func TestMiddlewareMux(t *testing.T) {
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Event:        events.NewEvent(nil),
+			GatewayEvent: events.NewGatewayEvent(0, 0),
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})
@@ -301,7 +304,8 @@ func TestMux(t *testing.T) {
 
 		recorder := NewRecorder()
 		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Event:        events.NewEvent(nil),
+			GatewayEvent: events.NewGatewayEvent(0, 0),
 			Interaction:  interaction,
 			Respond:      recorder.Respond,
 		})

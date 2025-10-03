@@ -6,8 +6,10 @@ type EventType string
 // Constants for the gateway events
 const (
 	// EventTypeRaw is not a real event type, but is used to pass raw payloads to the bot.EventManager
-	EventTypeRaw                                 EventType = "__RAW__"
-	EventTypeHeartbeatAck                        EventType = "__HEARTBEAT_ACK__"
+	EventTypeRaw EventType = "__RAW__"
+	// EventTypeHeartbeatAck is not a real event type, but is used to pass heartbeat acknowledgments to the bot.EventManager
+	EventTypeHeartbeatAck EventType = "__HEARTBEAT_ACK__"
+
 	EventTypeReady                               EventType = "READY"
 	EventTypeResumed                             EventType = "RESUMED"
 	EventTypeRateLimited                         EventType = "RATE_LIMITED"
