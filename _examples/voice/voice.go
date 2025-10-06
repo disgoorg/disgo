@@ -78,6 +78,10 @@ func play(client *bot.Client, closeChan chan os.Signal) {
 	closeChan <- syscall.SIGTERM
 }
 
+// writeOpus reads from the included `nico.dca` file in the [DCA0] file format
+// and writes its Opus frames to the io.Writer.
+//
+// [DCA0]: https://github.com/bwmarrin/dca/wiki/DCA0-specification
 func writeOpus(w io.Writer) {
 	file, err := os.Open("nico.dca")
 	if err != nil {
@@ -86,9 +90,10 @@ func writeOpus(w io.Writer) {
 	ticker := time.NewTicker(time.Millisecond * 20)
 	defer ticker.Stop()
 
-	var lenBuf [4]byte
-	for range ticker.C {
-		_, err = io.ReadFull(file, lenBuf[:])
+	var frameLen int16
+	// Don't wait for the first tick, run immediately.
+	for ; true; <-ticker.C {
+		err = binary.Read(file, binary.LittleEndian, &frameLen)
 		if err != nil {
 			if err == io.EOF {
 				_ = file.Close()
@@ -98,11 +103,8 @@ func writeOpus(w io.Writer) {
 			return
 		}
 
-		// Read the integer
-		frameLen := int64(binary.LittleEndian.Uint32(lenBuf[:]))
-
 		// Copy the frame.
-		_, err = io.CopyN(w, file, frameLen)
+		_, err = io.CopyN(w, file, int64(frameLen))
 		if err != nil && err != io.EOF {
 			_ = file.Close()
 			return
