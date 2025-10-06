@@ -14,7 +14,7 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/httpinteraction"
 )
 
 var (
@@ -44,7 +44,7 @@ var (
 
 type customVerifier struct{}
 
-func (customVerifier) Verify(publicKey httpserver.PublicKey, message, sig []byte) bool {
+func (customVerifier) Verify(publicKey httpinteraction.PublicKey, message, sig []byte) bool {
 	return ed25519.Verify(publicKey, message, sig)
 }
 
@@ -57,11 +57,11 @@ func main() {
 	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
-		bot.WithHTTPServerConfigOpts(publicKey,
-			httpserver.WithURL("/interactions/callback"),
-			httpserver.WithAddress(":80"),
+		bot.WithAddress(":80"),
+		bot.WithHTTPInteractionConfigOpts(publicKey,
+			httpinteraction.WithEndpoint("/interactions/callback"),
 			// use custom ed25519 verify implementation
-			httpserver.WithVerifier(customVerifier{}),
+			httpinteraction.WithVerifier(customVerifier{}),
 		),
 		bot.WithEventListenerFunc(commandListener),
 	)

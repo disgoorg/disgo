@@ -2,8 +2,6 @@ package bot
 
 import (
 	"log/slog"
-
-	"github.com/disgoorg/disgo/gateway"
 )
 
 func defaultEventManagerConfig() eventManagerConfig {
@@ -17,8 +15,9 @@ type eventManagerConfig struct {
 	EventListeners     []EventListener
 	AsyncEventsEnabled bool
 
-	GatewayHandlers   map[gateway.EventType]GatewayEventHandler
-	HTTPServerHandler HTTPServerEventHandler
+	GatewayHandler         GatewayEventHandler
+	HTTPInteractionHandler HTTPInteractionEventHandler
+	HTTPGatewayHandler     HTTPGatewayEventHandler
 }
 
 // EventManagerConfigOpt is a functional option for configuring an EventManager.
@@ -63,15 +62,22 @@ func WithAsyncEventsEnabled() EventManagerConfigOpt {
 }
 
 // WithGatewayHandlers overrides the default GatewayEventHandler(s) in the eventManagerConfig.
-func WithGatewayHandlers(handlers map[gateway.EventType]GatewayEventHandler) EventManagerConfigOpt {
+func WithGatewayHandlers(handler GatewayEventHandler) EventManagerConfigOpt {
 	return func(config *eventManagerConfig) {
-		config.GatewayHandlers = handlers
+		config.GatewayHandler = handler
 	}
 }
 
-// WithHTTPServerHandler overrides the given HTTPServerEventHandler in the eventManagerConfig.
-func WithHTTPServerHandler(handler HTTPServerEventHandler) EventManagerConfigOpt {
+// WithHTTPServerHandler overrides the given HTTPInteractionEventHandler in the eventManagerConfig.
+func WithHTTPServerHandler(handler HTTPInteractionEventHandler) EventManagerConfigOpt {
 	return func(config *eventManagerConfig) {
-		config.HTTPServerHandler = handler
+		config.HTTPInteractionHandler = handler
+	}
+}
+
+// WithHTTPGatewayHandler overrides the given HTTPGatewayEventHandler in the eventManagerConfig.
+func WithHTTPGatewayHandler(handler HTTPGatewayEventHandler) EventManagerConfigOpt {
+	return func(config *eventManagerConfig) {
+		config.HTTPGatewayHandler = handler
 	}
 }

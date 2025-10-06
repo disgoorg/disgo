@@ -8,7 +8,8 @@ import (
 
 // GenericThread is the base struct for all Thread events.
 type GenericThread struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	Thread   discord.GuildThread
 	ThreadID snowflake.ID
 	GuildID  snowflake.ID
@@ -45,7 +46,8 @@ type ThreadHide struct {
 
 // GenericThreadMember is the base struct for all ThreadMember events.
 type GenericThreadMember struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID        snowflake.ID
 	ThreadID       snowflake.ID
 	ThreadMemberID snowflake.ID

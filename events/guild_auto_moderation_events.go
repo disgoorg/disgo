@@ -6,7 +6,8 @@ import (
 )
 
 type GenericAutoModerationRule struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	discord.AutoModerationRule
 }
 
@@ -29,7 +30,8 @@ type AutoModerationRuleDelete struct {
 }
 
 type AutoModerationActionExecution struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	gateway.EventAutoModerationActionExecution
 }
 

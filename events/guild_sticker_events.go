@@ -10,13 +10,15 @@ import (
 // StickersUpdate is dispatched when a guild's stickers are updated.
 // This event does not depend on a cache like StickerCreate, StickerUpdate or StickerDelete.
 type StickersUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	gateway.EventGuildStickersUpdate
 }
 
 // GenericSticker is called upon receiving StickerCreate , StickerUpdate or StickerDelete (requires gateway.IntentGuildExpressions)
 type GenericSticker struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID snowflake.ID
 	Sticker discord.Sticker
 }

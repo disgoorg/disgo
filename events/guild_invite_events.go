@@ -9,7 +9,8 @@ import (
 
 // InviteCreate is called upon creation of a new discord.Invite (requires gateway.IntentGuildInvites)
 type InviteCreate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 
 	gateway.EventInviteCreate
 }
@@ -28,7 +29,8 @@ func (e *InviteCreate) Guild() (discord.Guild, bool) {
 
 // InviteDelete is called upon deletion of a discord.Invite (requires gateway.IntentGuildInvites)
 type InviteDelete struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 
 	GuildID   *snowflake.ID
 	ChannelID snowflake.ID

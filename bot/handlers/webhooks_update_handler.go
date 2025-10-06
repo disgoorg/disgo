@@ -8,7 +8,8 @@ import (
 
 func gatewayHandlerWebhooksUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventWebhooksUpdate) {
 	client.EventManager.DispatchEvent(&events.WebhooksUpdate{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		GuildId:      event.GuildID,
 		ChannelID:    event.ChannelID,
 	})

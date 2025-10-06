@@ -8,7 +8,8 @@ import (
 
 // GenericIntegration is called upon receiving IntegrationCreate, IntegrationUpdate or IntegrationDelete(requires the gateway.IntentGuildIntegrations)
 type GenericIntegration struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID     snowflake.ID
 	Integration discord.Integration
 }
@@ -31,7 +32,8 @@ type IntegrationUpdate struct {
 
 // IntegrationDelete indicates that an Integration was deleted from a Guild
 type IntegrationDelete struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	ID            snowflake.ID
 	GuildID       snowflake.ID
 	ApplicationID *snowflake.ID
@@ -39,12 +41,14 @@ type IntegrationDelete struct {
 
 // GuildIntegrationsUpdate indicates that a Guild's integrations were updated
 type GuildIntegrationsUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	GuildID snowflake.ID
 }
 
 // GuildApplicationCommandPermissionsUpdate indicates that a Guild's application's permissions were updated
 type GuildApplicationCommandPermissionsUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	Permissions discord.ApplicationCommandPermissions
 }

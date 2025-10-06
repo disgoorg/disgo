@@ -4,45 +4,14 @@ import (
 	"log/slog"
 	"runtime/debug"
 	"sync"
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/httpinteraction"
+	"github.com/disgoorg/disgo/webhookevent"
 )
-
-var _ EventManager = (*eventManagerImpl)(nil)
-
-// NewEventManager returns a new EventManager with the EventManagerConfigOpt(s) applied.
-func NewEventManager(client *Client, opts ...EventManagerConfigOpt) EventManager {
-	cfg := defaultEventManagerConfig()
-	cfg.apply(opts)
-
-	return &eventManagerImpl{
-		client:             client,
-		logger:             cfg.Logger,
-		eventListeners:     cfg.EventListeners,
-		asyncEventsEnabled: cfg.AsyncEventsEnabled,
-		gatewayHandlers:    cfg.GatewayHandlers,
-		httpServerHandler:  cfg.HTTPServerHandler,
-	}
-}
-
-// EventManager lets you listen for specific events triggered by raw Gateway events
-type EventManager interface {
-	// AddEventListeners adds one or more EventListener(s) to the EventManager
-	AddEventListeners(eventListeners ...EventListener)
-
-	// RemoveEventListeners removes one or more EventListener(s) from the EventManager
-	RemoveEventListeners(eventListeners ...EventListener)
-
-	// HandleGatewayEvent calls the correct GatewayEventHandler for the payload
-	HandleGatewayEvent(gateway gateway.Gateway, eventType gateway.EventType, sequenceNumber int, event gateway.EventData)
-
-	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
-	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
-
-	// DispatchEvent dispatches a new Event to the Client's EventListener(s)
-	DispatchEvent(event Event)
-}
 
 // EventListener is used to create new EventListener to listen to events
 type EventListener interface {
@@ -79,69 +48,115 @@ func (l *listenerChan[E]) OnEvent(e Event) {
 	}
 }
 
-// Event the basic interface each event implement
+// Event is the basic interface each event implement
 type Event interface {
 	Client() *Client
+}
+
+// GatewayEvent contains the basic information of an event which originates from the [gateway.Gateway].
+type GatewayEvent interface {
+	Event
+
 	SequenceNumber() int
+	ShardID() int
+}
+
+// WebhookEvent contains the basic information of an event which originates from the [httpgateway.Gateway].
+type WebhookEvent interface {
+	Event
+
+	Version() int
+	ApplicationID() snowflake.ID
+	Timestamp() time.Time
 }
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
-	EventType() gateway.EventType
-	HandleGatewayEvent(client *Client, sequenceNumber int, shardID int, event gateway.EventData)
+	HandleGatewayEvent(client *Client, shardID int, message gateway.Message)
 }
 
-// NewGatewayEventHandler returns a new GatewayEventHandler for the given gateway.EventType and handler func
-func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client *Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
-	return &genericGatewayEventHandler[T]{eventType: eventType, handleFunc: handleFunc}
+// HTTPInteractionEventHandler is used to handle HTTP Event(s)
+type HTTPInteractionEventHandler interface {
+	HandleHTTPInteraction(client *Client, respond httpinteraction.RespondFunc, event httpinteraction.EventInteractionCreate)
 }
 
-type genericGatewayEventHandler[T gateway.EventData] struct {
-	eventType  gateway.EventType
-	handleFunc func(client *Client, sequenceNumber int, shardID int, event T)
+type HTTPGatewayEventHandler interface {
+	HandleHTTPGatewayEvent(client *Client, message webhookevent.Message)
 }
 
-func (h *genericGatewayEventHandler[T]) EventType() gateway.EventType {
-	return h.eventType
+// EventManager lets you listen for specific events triggered by raw Gateway events
+type EventManager interface {
+	// AddEventListeners adds one or more EventListener(s) to the EventManager
+	AddEventListeners(eventListeners ...EventListener)
+
+	// RemoveEventListeners removes one or more EventListener(s) from the EventManager
+	RemoveEventListeners(eventListeners ...EventListener)
+
+	// HandleGatewayEvent calls the correct GatewayEventHandler for the payload
+	HandleGatewayEvent(gateway gateway.Gateway, message gateway.Message)
+
+	// HandleHTTPInteractionEvent calls the HTTPInteractionEventHandler for the payload
+	HandleHTTPInteractionEvent(respond httpinteraction.RespondFunc, event httpinteraction.EventInteractionCreate)
+
+	// HandleHTTPGatewayEvent calls the HTTPInteractionEventHandler for the payload
+	HandleHTTPGatewayEvent(ack func(), message webhookevent.Message)
+
+	// DispatchEvent dispatches a new Event to the Client's EventListener(s)
+	DispatchEvent(event Event)
 }
 
-func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client *Client, sequenceNumber int, shardID int, event gateway.EventData) {
-	if e, ok := event.(T); ok {
-		h.handleFunc(client, sequenceNumber, shardID, e)
+var _ EventManager = (*eventManagerImpl)(nil)
+
+// NewEventManager returns a new EventManager with the EventManagerConfigOpt(s) applied.
+func NewEventManager(client *Client, opts ...EventManagerConfigOpt) EventManager {
+	cfg := defaultEventManagerConfig()
+	cfg.apply(opts)
+
+	return &eventManagerImpl{
+		client:                 client,
+		logger:                 cfg.Logger,
+		asyncEventsEnabled:     cfg.AsyncEventsEnabled,
+		eventListeners:         cfg.EventListeners,
+		gatewayHandler:         cfg.GatewayHandler,
+		httpInteractionHandler: cfg.HTTPInteractionHandler,
+		httpGatewayHandler:     cfg.HTTPGatewayHandler,
 	}
-}
-
-// HTTPServerEventHandler is used to handle HTTP Event(s)
-type HTTPServerEventHandler interface {
-	HandleHTTPEvent(client *Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 }
 
 type eventManagerImpl struct {
-	mu sync.Mutex
+	client *Client
+	logger *slog.Logger
 
-	client             *Client
-	logger             *slog.Logger
+	asyncEventsEnabled bool
 	eventListenerMu    sync.Mutex
 	eventListeners     []EventListener
-	asyncEventsEnabled bool
-	gatewayHandlers    map[gateway.EventType]GatewayEventHandler
-	httpServerHandler  HTTPServerEventHandler
+
+	mu                     sync.Mutex
+	gatewayHandler         GatewayEventHandler
+	httpInteractionHandler HTTPInteractionEventHandler
+	httpGatewayHandler     HTTPGatewayEventHandler
 }
 
-func (e *eventManagerImpl) HandleGatewayEvent(gateway gateway.Gateway, eventType gateway.EventType, sequenceNumber int, event gateway.EventData) {
+func (e *eventManagerImpl) HandleGatewayEvent(gateway gateway.Gateway, message gateway.Message) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if handler, ok := e.gatewayHandlers[eventType]; ok {
-		handler.HandleGatewayEvent(e.client, sequenceNumber, gateway.ShardID(), event)
-	} else {
-		e.logger.Warn("no handler for Gateway event found", slog.Any("event_type", eventType))
-	}
+
+	e.gatewayHandler.HandleGatewayEvent(e.client, gateway.ShardID(), message)
 }
 
-func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
+func (e *eventManagerImpl) HandleHTTPInteractionEvent(respond httpinteraction.RespondFunc, event httpinteraction.EventInteractionCreate) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	e.httpServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
+
+	e.httpInteractionHandler.HandleHTTPInteraction(e.client, respond, event)
+}
+
+func (e *eventManagerImpl) HandleHTTPGatewayEvent(ack func(), message webhookevent.Message) {
+	ack()
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	e.httpGatewayHandler.HandleHTTPGatewayEvent(e.client, message)
 }
 
 func (e *eventManagerImpl) DispatchEvent(event Event) {

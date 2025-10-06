@@ -8,7 +8,8 @@ import (
 
 func gatewayHandlerApplicationCommandPermissionsUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventApplicationCommandPermissionsUpdate) {
 	client.EventManager.DispatchEvent(&events.GuildApplicationCommandPermissionsUpdate{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		Permissions:  event.ApplicationCommandPermissions,
 	})
 }

@@ -7,13 +7,15 @@ import (
 
 // GuildVoiceChannelEffectSend indicates that a discord.Member sent an effect in a discord.GuildVoiceChannel (requires gateway.IntentGuildVoiceStates)
 type GuildVoiceChannelEffectSend struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	gateway.EventVoiceChannelEffectSend
 }
 
 // GenericGuildVoiceState is called upon receiving GuildVoiceJoin, GuildVoiceMove and GuildVoiceLeave
 type GenericGuildVoiceState struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	VoiceState discord.VoiceState
 	Member     discord.Member
 }
@@ -43,6 +45,7 @@ type GuildVoiceLeave struct {
 
 // VoiceServerUpdate indicates that a voice server the bot is connected to has been changed
 type VoiceServerUpdate struct {
-	*GenericEvent
+	*Event
+	*GatewayEvent
 	gateway.EventVoiceServerUpdate
 }

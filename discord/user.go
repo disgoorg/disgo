@@ -103,7 +103,7 @@ func (u User) EffectiveName() string {
 	return u.Username
 }
 
-// EffectiveAvatarURL returns the avatar URL of the user if set, falling back to the default avatar URL
+// EffectiveAvatarURL returns the avatar InteractionURL of the user if set, falling back to the default avatar InteractionURL
 func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(opts...)
@@ -111,7 +111,7 @@ func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(UserAvatar, opts, u.ID, *u.Avatar)
 }
 
-// AvatarURL returns the avatar URL of the user if set or nil
+// AvatarURL returns the avatar InteractionURL of the user if set or nil
 func (u User) AvatarURL(opts ...CDNOpt) *string {
 	if u.Avatar == nil {
 		return nil
@@ -120,7 +120,7 @@ func (u User) AvatarURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-// DefaultAvatarURL calculates and returns the default avatar URL
+// DefaultAvatarURL calculates and returns the default avatar InteractionURL
 func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 	discriminator, err := strconv.Atoi(u.Discriminator)
 	if err != nil {
@@ -133,7 +133,7 @@ func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, index)
 }
 
-// BannerURL returns the banner URL if set or nil
+// BannerURL returns the banner InteractionURL if set or nil
 func (u User) BannerURL(opts ...CDNOpt) *string {
 	if u.Banner == nil {
 		return nil
@@ -142,7 +142,7 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-// AvatarDecorationURL returns the avatar decoration URL if set or nil
+// AvatarDecorationURL returns the avatar decoration InteractionURL if set or nil
 func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 	if u.AvatarDecorationData == nil {
 		return nil
@@ -151,7 +151,7 @@ func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-// GuildTagURL returns the server tag badge URL if the user has a primary discord.Guild or nil
+// GuildTagURL returns the server tag badge InteractionURL if the user has a primary discord.Guild or nil
 func (u User) GuildTagURL(opts ...CDNOpt) *string {
 	if u.PrimaryGuild == nil {
 		return nil

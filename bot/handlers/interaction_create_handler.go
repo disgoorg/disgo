@@ -8,7 +8,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/httpinteraction"
 	"github.com/disgoorg/disgo/rest"
 )
 
@@ -16,55 +16,58 @@ func gatewayHandlerInteractionCreate(client *bot.Client, sequenceNumber int, sha
 	handleInteraction(client, sequenceNumber, shardID, nil, event.Interaction)
 }
 
-func respond(client *bot.Client, respondFunc httpserver.RespondFunc, interaction discord.Interaction) events.InteractionResponderFunc {
+func respondFunc(client *bot.Client, respond httpinteraction.RespondFunc, interaction discord.Interaction) events.InteractionResponderFunc {
 	return func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
 		response := discord.InteractionResponse{
 			Type: responseType,
 			Data: data,
 		}
-		if respondFunc != nil {
-			return respondFunc(response)
+		if respond != nil {
+			return respond(response)
 		}
 		return client.Rest.CreateInteractionResponse(interaction.ID(), interaction.Token(), response, opts...)
 	}
 }
 
-func handleInteraction(client *bot.Client, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, interaction discord.Interaction) {
-	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
-
+func handleInteraction(client *bot.Client, sequenceNumber int, shardID int, respond httpinteraction.RespondFunc, interaction discord.Interaction) {
 	client.EventManager.DispatchEvent(&events.InteractionCreate{
-		GenericEvent: genericEvent,
+		Event:        events.NewEvent(client),
+		GatewayEvent: events.NewGatewayEvent(sequenceNumber, shardID),
 		Interaction:  interaction,
-		Respond:      respond(client, respondFunc, interaction),
+		Respond:      respondFunc(client, respond, interaction),
 	})
 
 	switch i := interaction.(type) {
 	case discord.ApplicationCommandInteraction:
 		client.EventManager.DispatchEvent(&events.ApplicationCommandInteractionCreate{
-			GenericEvent:                  genericEvent,
+			Event:                         events.NewEvent(client),
+			GatewayEvent:                  events.NewGatewayEvent(sequenceNumber, shardID),
 			ApplicationCommandInteraction: i,
-			Respond:                       respond(client, respondFunc, interaction),
+			Respond:                       respondFunc(client, respond, interaction),
 		})
 
 	case discord.ComponentInteraction:
 		client.EventManager.DispatchEvent(&events.ComponentInteractionCreate{
-			GenericEvent:         genericEvent,
+			Event:                events.NewEvent(client),
+			GatewayEvent:         events.NewGatewayEvent(sequenceNumber, shardID),
 			ComponentInteraction: i,
-			Respond:              respond(client, respondFunc, interaction),
+			Respond:              respondFunc(client, respond, interaction),
 		})
 
 	case discord.AutocompleteInteraction:
 		client.EventManager.DispatchEvent(&events.AutocompleteInteractionCreate{
-			GenericEvent:            genericEvent,
+			Event:                   events.NewEvent(client),
+			GatewayEvent:            events.NewGatewayEvent(sequenceNumber, shardID),
 			AutocompleteInteraction: i,
-			Respond:                 respond(client, respondFunc, interaction),
+			Respond:                 respondFunc(client, respond, interaction),
 		})
 
 	case discord.ModalSubmitInteraction:
 		client.EventManager.DispatchEvent(&events.ModalSubmitInteractionCreate{
-			GenericEvent:           genericEvent,
+			Event:                  events.NewEvent(client),
+			GatewayEvent:           events.NewGatewayEvent(sequenceNumber, shardID),
 			ModalSubmitInteraction: i,
-			Respond:                respond(client, respondFunc, interaction),
+			Respond:                respondFunc(client, respond, interaction),
 		})
 
 	default:

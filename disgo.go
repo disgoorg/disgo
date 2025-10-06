@@ -6,7 +6,7 @@
 //
 // # Bot
 //
-// Package bot connects the Gateway/Sharding, HTTPServer, Cache, Rest & Events packages into a single high level client interface.
+// Package bot connects the Gateway/Sharding, HTTPGateway, Cache, Rest & Events packages into a single high level client interface.
 //
 // # Gateway
 //
@@ -20,7 +20,7 @@
 //
 // Package cache provides a generic cache interface for Discord entities.
 //
-// # HTTPServer
+// # HTTPGateway
 //
 // Package httpserver is used to interact with the Discord outgoing webhooks for interactions.
 //
@@ -85,8 +85,9 @@ func getVersion() string {
 func New(token string, opts ...bot.ConfigOpt) (*bot.Client, error) {
 	return bot.BuildClient(token,
 		opts,
-		handlers.GetGatewayHandlers(),
-		handlers.GetHTTPServerHandler(),
+		handlers.GetGatewayHandler(),
+		handlers.GetHTTPInteractionHandler(),
+		handlers.GetHTTPGatewayHandler(),
 		runtime.GOOS,
 		Name,
 		GitHub,

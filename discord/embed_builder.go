@@ -68,7 +68,7 @@ func (b *EmbedBuilder) SetAuthorNamef(name string, a ...any) *EmbedBuilder {
 	return b.SetAuthorName(fmt.Sprintf(name, a...))
 }
 
-// SetAuthorURL sets the author URL of the EmbedBuilder
+// SetAuthorURL sets the author InteractionURL of the EmbedBuilder
 func (b *EmbedBuilder) SetAuthorURL(url string) *EmbedBuilder {
 	if b.Author == nil {
 		b.Author = &EmbedAuthor{}
@@ -77,7 +77,7 @@ func (b *EmbedBuilder) SetAuthorURL(url string) *EmbedBuilder {
 	return b
 }
 
-// SetAuthorURLf sets the author URL of the EmbedBuilder with format
+// SetAuthorURLf sets the author InteractionURL of the EmbedBuilder with format
 func (b *EmbedBuilder) SetAuthorURLf(url string, a ...any) *EmbedBuilder {
 	return b.SetAuthorURL(fmt.Sprintf(url, a...))
 }
@@ -174,13 +174,13 @@ func (b *EmbedBuilder) SetThumbnailf(url string, a ...any) *EmbedBuilder {
 	return b.SetThumbnail(fmt.Sprintf(url, a...))
 }
 
-// SetURL sets the URL of the EmbedBuilder
+// SetURL sets the InteractionURL of the EmbedBuilder
 func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
 	b.URL = url
 	return b
 }
 
-// SetURLf sets the URL of the EmbedBuilder with format
+// SetURLf sets the InteractionURL of the EmbedBuilder with format
 func (b *EmbedBuilder) SetURLf(url string, a ...any) *EmbedBuilder {
 	return b.SetURL(fmt.Sprintf(url, a...))
 }
