@@ -176,7 +176,7 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 		return nil, fmt.Errorf("expected binary message, received %d", mt)
 	}
 
-	t.buffer.Write(data)
+	_, _ = t.buffer.Write(data)
 
 	if t.inflator == nil {
 		t.inflator, err = zstd.NewReader(t.buffer, zstd.WithDecoderConcurrency(1))
@@ -234,7 +234,7 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 			return nil, fmt.Errorf("expected binary message, received %d", mt)
 		}
 
-		t.buffer.Write(data)
+		_, _ = t.buffer.Write(data)
 
 		if isFrameEnd(data) {
 			break
