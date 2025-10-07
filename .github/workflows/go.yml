@@ -16,7 +16,16 @@ on:
       - '.github/workflows/go.yml'
 
 jobs:
+  should_run:
+    # Do not run the workflow if it's from a pull request from the directory the pull request is targeted towards
+    # as it will already run on 'push'
+    if: !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner == github.repository_owner)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running pipeline"
+
   build:
+    needs: [should_run]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v5
@@ -27,6 +36,7 @@ jobs:
         run: go build -v ./...
 
   test:
+    needs: [should_run]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v5
@@ -37,6 +47,7 @@ jobs:
         run: go test -v ./...
 
   golangci:
+    needs: [should_run]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v5
