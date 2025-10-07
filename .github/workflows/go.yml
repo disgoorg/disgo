@@ -1,6 +1,13 @@
 name: Go
 
 on:
+  pull_request:
+    paths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/go.yml'
+
   push:
     paths:
       - '**/*.go'
@@ -8,8 +15,12 @@ on:
       - '**/go.sum'
       - '.github/workflows/go.yml'
 
+
+# The if of each job prevents running the workflow if it's from a pull request from the directory the pull request is targeted towards
+# as it will already run on 'push'
 jobs:
   build:
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v5
@@ -20,6 +31,7 @@ jobs:
         run: go build -v ./...
 
   test:
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v5
@@ -30,6 +42,7 @@ jobs:
         run: go test -v ./...
 
   golangci:
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v5
