@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"bytes"
-	"compress/zlib"
 	"context"
 	"errors"
 	"fmt"
@@ -10,11 +9,12 @@ import (
 	"log/slog"
 	"math/rand/v2"
 	"net"
+	"net/url"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/json/v2"
 	"github.com/gorilla/websocket"
 
 	"github.com/disgoorg/disgo/discord"
@@ -171,7 +171,7 @@ type gatewayImpl struct {
 	closeHandlerFunc CloseHandlerFunc
 	token            string
 
-	conn            *websocket.Conn
+	conn            transport
 	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
 	status          Status
@@ -211,7 +211,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 }
 
 func (g *gatewayImpl) open(ctx context.Context) error {
-	g.config.Logger.DebugContext(ctx, "opening gateway connection")
+	g.config.Logger.DebugContext(ctx, "opening gateway connection", slog.String("compression", g.config.Compression.String()))
 
 	g.connMu.Lock()
 	if g.conn != nil {
@@ -235,7 +235,17 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	if g.config.ResumeURL != nil && g.config.EnableResumeURL {
 		wsURL = *g.config.ResumeURL
 	}
-	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", wsURL, Version)
+
+	values := url.Values{}
+	values.Set("v", strconv.Itoa(Version))
+	values.Set("encoding", "json")
+
+	if g.config.Compression.IsStreamCompression() {
+		values.Set("compress", string(g.config.Compression))
+	}
+
+	gatewayURL := wsURL + "?" + values.Encode()
+
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
@@ -263,7 +273,8 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		return nil
 	})
 
-	g.conn = conn
+	t := newTransport(g.config.Compression, conn, g.config.Logger)
+	g.conn = t
 	g.connMu.Unlock()
 
 	// reset rate limiter when connecting
@@ -275,7 +286,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	var readyOnce sync.Once
 	readyChan := make(chan error)
-	go g.listen(conn, func(err error) {
+	go g.listen(t, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)
@@ -315,7 +326,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 	if g.conn != nil {
 		g.config.RateLimiter.Close(ctx)
 		g.config.Logger.DebugContext(ctx, "closing gateway connection", slog.Int("code", code), slog.String("message", message))
-		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
+		if err := g.conn.WriteClose(code, message); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
 			g.config.Logger.DebugContext(ctx, "error writing close code", slog.Any("err", err))
 		}
 		_ = g.conn.Close()
@@ -350,17 +361,11 @@ func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d MessageData) error 
 }
 
 func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d MessageData) error {
-	data, err := json.Marshal(Message{
+	data := Message{
 		Op: op,
 		D:  d,
-	})
-	if err != nil {
-		return err
 	}
-	return g.send(ctx, websocket.TextMessage, data)
-}
 
-func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
 	g.connMu.Lock()
 	defer g.connMu.Unlock()
 	if g.conn == nil {
@@ -372,8 +377,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 	}
 
 	defer g.config.RateLimiter.Unlock()
-	g.config.Logger.DebugContext(ctx, "sending gateway command", slog.String("data", string(data)))
-	return g.conn.WriteMessage(messageType, data)
+	return g.conn.WriteMessage(data)
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
@@ -516,7 +520,7 @@ func (g *gatewayImpl) identify() error {
 			Browser: g.config.Browser,
 			Device:  g.config.Device,
 		},
-		Compress:       g.config.Compress,
+		Compress:       g.config.Compression.IsPayloadCompression(),
 		LargeThreshold: g.config.LargeThreshold,
 		Intents:        g.config.Intents,
 		Presence:       g.config.Presence,
@@ -554,14 +558,14 @@ func (g *gatewayImpl) resume() error {
 	return nil
 }
 
-func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
+func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 	defer g.config.Logger.Debug("exiting listen goroutine")
 
 	// Ensure that we never leave this function without calling ready
 	defer ready(nil)
 
 	for {
-		mt, r, err := conn.NextReader()
+		message, err := conn.ReceiveMessage()
 		if err != nil {
 			g.statusMu.Lock()
 			if g.status != StatusReady {
@@ -620,10 +624,8 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 
 			return
 		}
-
-		message, err := g.parseMessage(mt, r)
-		if err != nil {
-			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", err))
+		if message == nil {
+			// No message (probably parsing error), just continue as the transport already logged it
 			continue
 		}
 
@@ -745,31 +747,4 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
 		}
 	}
-}
-
-func (g *gatewayImpl) parseMessage(mt int, r io.Reader) (Message, error) {
-	if mt == websocket.BinaryMessage {
-		g.config.Logger.Debug("binary message received. decompressing")
-
-		reader, err := zlib.NewReader(r)
-		if err != nil {
-			return Message{}, fmt.Errorf("failed to decompress zlib: %w", err)
-		}
-		defer reader.Close()
-		r = reader
-	}
-
-	if g.config.Logger.Enabled(context.Background(), slog.LevelDebug) {
-		buff := new(bytes.Buffer)
-		tr := io.TeeReader(r, buff)
-		data, err := io.ReadAll(tr)
-		if err != nil {
-			return Message{}, fmt.Errorf("failed to read message: %w", err)
-		}
-		g.config.Logger.Debug("received gateway message", slog.String("data", string(data)))
-		r = buff
-	}
-
-	var message Message
-	return message, json.NewDecoder(r).Decode(&message)
 }
