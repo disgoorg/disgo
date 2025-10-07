@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"bytes"
-	"compress/zlib"
 	"context"
 	"fmt"
 	"io"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/disgoorg/json/v2"
 	"github.com/gorilla/websocket"
+	"github.com/klauspost/compress/zlib"
 	"github.com/klauspost/compress/zstd"
 )
 
