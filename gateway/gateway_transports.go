@@ -13,13 +13,14 @@ import (
 	"github.com/klauspost/compress/zstd"
 )
 
+// CompressionType defines the compression mechanism to use for a gateway connection
 type CompressionType string
 
 const (
 	CompressionNone        CompressionType = ""
-	CompressionZlibPayload                 = "zlib-payload"
-	CompressionZlibStream                  = "zlib-stream"
-	CompressionZstdStream                  = "zstd-stream"
+	CompressionZlibPayload CompressionType = "zlib-payload"
+	CompressionZlibStream  CompressionType = "zlib-stream"
+	CompressionZstdStream  CompressionType = "zstd-stream"
 )
 
 // IsStreamCompression returns whether the compression affects the whole stream
@@ -216,6 +217,10 @@ func newZlibStreamTransport(conn *websocket.Conn, logger *slog.Logger) *zlibStre
 }
 
 func isFrameEnd(data []byte) bool {
+	if len(data) < 4 {
+		return false
+	}
+
 	return bytes.Equal(data[len(data)-4:], syncFlush)
 }
 
