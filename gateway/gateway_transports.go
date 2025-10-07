@@ -135,10 +135,9 @@ func (r *pipeBuffer) Read(p []byte) (int, error) {
 }
 
 // Write appends the contents of p to the buffer, growing the buffer as
-// needed. The return value n is the length of p; err is always nil. If the
-// buffer becomes too large, Write will panic with [ErrTooLarge].
-func (r *pipeBuffer) Write(p []byte) (int, error) {
-	return r.buffer.Write(p)
+// needed. If the buffer becomes too large, Write will panic with [ErrTooLarge].
+func (r *pipeBuffer) Write(p []byte) {
+	_, _ = r.buffer.Write(p)
 }
 
 // Reset resets the buffer to be empty, but it retains the underlying
@@ -176,7 +175,7 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 		return nil, fmt.Errorf("expected binary message, received %d", mt)
 	}
 
-	_, _ = t.buffer.Write(data)
+	t.buffer.Write(data)
 
 	if t.inflator == nil {
 		t.inflator, err = zstd.NewReader(t.buffer, zstd.WithDecoderConcurrency(1))
@@ -234,7 +233,7 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 			return nil, fmt.Errorf("expected binary message, received %d", mt)
 		}
 
-		_, _ = t.buffer.Write(data)
+		t.buffer.Write(data)
 
 		if isFrameEnd(data) {
 			break
