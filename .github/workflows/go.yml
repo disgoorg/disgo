@@ -19,7 +19,7 @@ jobs:
   should_run:
     # Do not run the workflow if it's from a pull request from the directory the pull request is targeted towards
     # as it will already run on 'push'
-    if: !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner == github.repository_owner)
+    if: !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       - run: echo "Running pipeline"
