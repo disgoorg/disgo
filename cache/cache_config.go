@@ -127,6 +127,13 @@ func WithCaches(flags ...Flags) ConfigOpt {
 	}
 }
 
+// WithSelfUserCache sets the SelfUserCache of the config.
+func WithSelfUserCache(cache SelfUserCache) ConfigOpt {
+	return func(config *config) {
+		config.SelfUserCache = cache
+	}
+}
+
 // WithGuildCachePolicy sets the Policy[discord.Guild] of the config.
 func WithGuildCachePolicy(policy Policy[discord.Guild]) ConfigOpt {
 	return func(config *config) {
@@ -180,6 +187,13 @@ func WithGuildScheduledEventCachePolicy(policy Policy[discord.GuildScheduledEven
 func WithGuildScheduledEventCache(guildScheduledEventCache GuildScheduledEventCache) ConfigOpt {
 	return func(config *config) {
 		config.GuildScheduledEventCache = guildScheduledEventCache
+	}
+}
+
+// WithGuildSoundboardSoundCachePolicy sets the Policy[discord.SoundboardSound] of the config.
+func WithGuildSoundboardSoundCachePolicy(policy Policy[discord.SoundboardSound]) ConfigOpt {
+	return func(config *config) {
+		config.GuildSoundboardSoundCachePolicy = policy
 	}
 }
 
