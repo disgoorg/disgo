@@ -32,6 +32,7 @@ const (
 	ComponentTypeContentInventoryEntry
 	ComponentTypeContainer
 	ComponentTypeLabel
+	ComponentTypeFileUpload
 )
 
 // Component is an interface for all components.
@@ -50,6 +51,7 @@ const (
 // [FileComponent]
 // [SeparatorComponent]
 // [ContainerComponent]
+// [FileUploadComponent]
 // [UnknownComponent]
 type Component interface {
 	json.Marshaler
@@ -76,6 +78,7 @@ type ComponentIter interface {
 // [ChannelSelectMenuComponent]
 // [ButtonComponent]
 // [SelectMenuComponent]
+// [FileUploadComponent]
 // [UnknownComponent]
 type InteractiveComponent interface {
 	Component
@@ -140,6 +143,7 @@ type ContainerSubComponent interface {
 // [RoleSelectMenuComponent]
 // [MentionableSelectMenuComponent]
 // [ChannelSelectMenuComponent]
+// [FileUploadComponent]
 // [UnknownComponent]
 type LabelSubComponent interface {
 	Component
@@ -243,6 +247,11 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 
 	case ComponentTypeLabel:
 		var v LabelComponent
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeFileUpload:
+		var v FileUploadComponent
 		err = json.Unmarshal(data, &v)
 		component = v
 
@@ -1394,6 +1403,90 @@ func (c LabelComponent) WithDescription(description string) LabelComponent {
 func (c LabelComponent) WithComponent(component LabelSubComponent) LabelComponent {
 	c.Component = component
 	return c
+}
+
+// NewFileUpload creates a new [FileUploadComponent].
+func NewFileUpload(customID string) FileUploadComponent {
+	return FileUploadComponent{
+		CustomID: customID,
+	}
+}
+
+var (
+	_ Component            = (*FileUploadComponent)(nil)
+	_ InteractiveComponent = (*FileUploadComponent)(nil)
+	_ LabelSubComponent    = (*FileUploadComponent)(nil)
+)
+
+// FileUploadComponent is a component that allows users to upload files via modals.
+type FileUploadComponent struct {
+	// ID is the identifier for the file upload component.
+	ID int `json:"id,omitempty"`
+	// CustomID is the custom identifier for the file upload component.
+	CustomID string `json:"custom_id"`
+	// MinValues is the minimum number of files that must be uploaded. (default: 1, min: 0, max: 10)
+	MinValues *int `json:"min_values,omitempty"`
+	// MaxValues is the maximum number of files that can be uploaded. (default: 1, min: 1, max: 10)
+	MaxValues int `json:"max_values,omitempty"`
+	// Required specifies whether the file upload is required. (default: false)
+	Required bool `json:"required"`
+}
+
+func (f FileUploadComponent) component()            {}
+func (f FileUploadComponent) interactiveComponent() {}
+func (f FileUploadComponent) labelSubComponent()    {}
+
+func (f FileUploadComponent) MarshalJSON() ([]byte, error) {
+	type fileUploadComponent FileUploadComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		fileUploadComponent
+	}{
+		Type:                f.Type(),
+		fileUploadComponent: fileUploadComponent(f),
+	})
+}
+
+func (FileUploadComponent) Type() ComponentType {
+	return ComponentTypeFileUpload
+}
+
+func (f FileUploadComponent) GetID() int {
+	return f.ID
+}
+
+func (f FileUploadComponent) GetCustomID() string {
+	return f.CustomID
+}
+
+// WithID returns a new FileUploadComponent with the provided id
+func (f FileUploadComponent) WithID(id int) FileUploadComponent {
+	f.ID = id
+	return f
+}
+
+// WithCustomID returns a new FileUploadComponent with the provided customID
+func (f FileUploadComponent) WithCustomID(customID string) FileUploadComponent {
+	f.CustomID = customID
+	return f
+}
+
+// WithMinValues returns a new FileUploadComponent with the provided minValues
+func (f FileUploadComponent) WithMinValues(minValues int) FileUploadComponent {
+	f.MinValues = &minValues
+	return f
+}
+
+// WithMaxValues returns a new FileUploadComponent with the provided maxValues
+func (f FileUploadComponent) WithMaxValues(maxValues int) FileUploadComponent {
+	f.MaxValues = maxValues
+	return f
+}
+
+// WithRequired returns a new FileUploadComponent with the provided required
+func (f FileUploadComponent) WithRequired(required bool) FileUploadComponent {
+	f.Required = required
+	return f
 }
 
 // NewUnknownComponent creates a new [UnknownComponent] with the provided type and data.
