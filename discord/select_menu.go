@@ -240,6 +240,8 @@ type UserSelectMenuComponent struct {
 	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
+	// Values is only set when the UserSelectMenuComponent is received from an InteractionTypeModalSubmit
+	Values []snowflake.ID `json:"values,omitempty"`
 }
 
 func (c UserSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -374,6 +376,8 @@ type RoleSelectMenuComponent struct {
 	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
+	// Values is only set when the RoleSelectMenuComponent is received from an InteractionTypeModalSubmit
+	Values []snowflake.ID `json:"values,omitempty"`
 }
 
 func (c RoleSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -508,6 +512,8 @@ type MentionableSelectMenuComponent struct {
 	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
+	// Values is only set when the MentionableSelectMenuComponent is received from an InteractionTypeModalSubmit
+	Values []snowflake.ID `json:"values,omitempty"`
 }
 
 func (c MentionableSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -640,6 +646,8 @@ type ChannelSelectMenuComponent struct {
 	Required bool `json:"required"`
 	// Disabled whether the select menu is disabled (only supported in messages)
 	Disabled bool `json:"disabled"`
+	// Values is only set when the ChannelSelectMenuComponent is received from an InteractionTypeModalSubmit
+	Values []snowflake.ID `json:"values,omitempty"`
 }
 
 func (c ChannelSelectMenuComponent) MarshalJSON() ([]byte, error) {

@@ -80,6 +80,8 @@ type User struct {
 	PrimaryGuild         *PrimaryGuild         `json:"primary_guild"`
 }
 
+func (User) isMentionableValue() {}
+
 // String returns a mention of the user
 func (u User) String() string {
 	return UserMention(u.ID)

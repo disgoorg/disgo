@@ -1430,6 +1430,8 @@ type FileUploadComponent struct {
 	MaxValues int `json:"max_values,omitempty"`
 	// Required specifies whether the file upload is required. (default: false)
 	Required bool `json:"required"`
+	// Values is only set when the FileUploadComponent is received from an InteractionTypeModalSubmit
+	Values []snowflake.ID `json:"values,omitempty"`
 }
 
 func (f FileUploadComponent) component()            {}

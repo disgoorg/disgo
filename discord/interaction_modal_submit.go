@@ -20,8 +20,9 @@ type ModalSubmitInteraction struct {
 func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	var interaction struct {
 		rawInteraction
-		Data    ModalSubmitInteractionData `json:"data"`
-		Message *Message                   `json:"message,omitempty"`
+		Data     ModalSubmitInteractionData `json:"data"`
+		Message  *Message                   `json:"message,omitempty"`
+		Resolved ResolvedData
 	}
 	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
@@ -96,6 +97,7 @@ func (ModalSubmitInteraction) interaction() {}
 type ModalSubmitInteractionData struct {
 	CustomID   string            `json:"custom_id"`
 	Components []LayoutComponent `json:"components"`
+	Resolved   ResolvedData      `json:"resolved"`
 }
 
 func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
@@ -131,7 +133,7 @@ func (d ModalSubmitInteractionData) Component(customID string) (InteractiveCompo
 	return nil, false
 }
 
-func (d ModalSubmitInteractionData) TextInputComponent(customID string) (TextInputComponent, bool) {
+func (d ModalSubmitInteractionData) TextInput(customID string) (TextInputComponent, bool) {
 	if component, ok := d.Component(customID); ok {
 		textInputComponent, ok := component.(TextInputComponent)
 		return textInputComponent, ok
@@ -140,7 +142,7 @@ func (d ModalSubmitInteractionData) TextInputComponent(customID string) (TextInp
 }
 
 func (d ModalSubmitInteractionData) OptText(customID string) (string, bool) {
-	if textInputComponent, ok := d.TextInputComponent(customID); ok {
+	if textInputComponent, ok := d.TextInput(customID); ok {
 		return textInputComponent.Value, true
 	}
 	return "", false
@@ -153,7 +155,7 @@ func (d ModalSubmitInteractionData) Text(customID string) string {
 	return ""
 }
 
-func (d ModalSubmitInteractionData) StringSelectMenuComponent(customID string) (StringSelectMenuComponent, bool) {
+func (d ModalSubmitInteractionData) StringSelectMenu(customID string) (StringSelectMenuComponent, bool) {
 	if component, ok := d.Component(customID); ok {
 		selectMenuComponent, ok := component.(StringSelectMenuComponent)
 		return selectMenuComponent, ok
@@ -162,7 +164,7 @@ func (d ModalSubmitInteractionData) StringSelectMenuComponent(customID string) (
 }
 
 func (d ModalSubmitInteractionData) OptStringValues(customID string) ([]string, bool) {
-	if selectMenuComponent, ok := d.StringSelectMenuComponent(customID); ok {
+	if selectMenuComponent, ok := d.StringSelectMenu(customID); ok {
 		return selectMenuComponent.Values, true
 	}
 	return nil, false
@@ -171,6 +173,160 @@ func (d ModalSubmitInteractionData) OptStringValues(customID string) ([]string, 
 func (d ModalSubmitInteractionData) StringValues(customID string) []string {
 	if text, ok := d.OptStringValues(customID); ok {
 		return text
+	}
+	return nil
+}
+
+func (d ModalSubmitInteractionData) UserSelectMenu(customID string) (UserSelectMenuComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		selectMenuComponent, ok := component.(UserSelectMenuComponent)
+		return selectMenuComponent, ok
+	}
+	return UserSelectMenuComponent{}, false
+}
+
+func (d ModalSubmitInteractionData) OptUsers(customID string) ([]User, bool) {
+	if selectMenuComponent, ok := d.UserSelectMenu(customID); ok {
+		users := make([]User, 0, len(selectMenuComponent.Values))
+		for _, userID := range selectMenuComponent.Values {
+			if user, ok := d.Resolved.Users[userID]; ok {
+				users = append(users, user)
+			}
+		}
+		return users, true
+	}
+	return nil, false
+}
+
+func (d ModalSubmitInteractionData) Users(customID string) []User {
+	if users, ok := d.OptUsers(customID); ok {
+		return users
+	}
+	return nil
+}
+
+func (d ModalSubmitInteractionData) RoleSelectMenu(customID string) (RoleSelectMenuComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		selectMenuComponent, ok := component.(RoleSelectMenuComponent)
+		return selectMenuComponent, ok
+	}
+	return RoleSelectMenuComponent{}, false
+}
+
+func (d ModalSubmitInteractionData) OptRoles(customID string) ([]Role, bool) {
+	if selectMenuComponent, ok := d.RoleSelectMenu(customID); ok {
+		roles := make([]Role, 0, len(selectMenuComponent.Values))
+		for _, roleID := range selectMenuComponent.Values {
+			if role, ok := d.Resolved.Roles[roleID]; ok {
+				roles = append(roles, role)
+			}
+		}
+		return roles, true
+	}
+	return nil, false
+}
+
+func (d ModalSubmitInteractionData) Roles(customID string) []Role {
+	if roles, ok := d.OptRoles(customID); ok {
+		return roles
+	}
+	return nil
+}
+
+// MentionableValue is an interface for all values a [MentionableSelectMenuComponent] can return.
+// [User]
+// [ResolvedMember]
+// [Role]
+// [ResolvedChannel]
+type MentionableValue interface {
+	isMentionableValue()
+}
+
+func (d ModalSubmitInteractionData) MentionableSelectMenu(customID string) (MentionableSelectMenuComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		selectMenuComponent, ok := component.(MentionableSelectMenuComponent)
+		return selectMenuComponent, ok
+	}
+	return MentionableSelectMenuComponent{}, false
+}
+
+func (d ModalSubmitInteractionData) OptMentionables(customID string) ([]Mentionable, bool) {
+	if selectMenuComponent, ok := d.MentionableSelectMenu(customID); ok {
+		mentionables := make([]Mentionable, 0, len(selectMenuComponent.Values))
+		for _, id := range selectMenuComponent.Values {
+			if user, ok := d.Resolved.Users[id]; ok {
+				mentionables = append(mentionables, user)
+				continue
+			}
+			if role, ok := d.Resolved.Roles[id]; ok {
+				mentionables = append(mentionables, role)
+				continue
+			}
+		}
+		return mentionables, true
+	}
+	return nil, false
+}
+
+func (d ModalSubmitInteractionData) Mentionables(customID string) []Mentionable {
+	if mentionables, ok := d.OptMentionables(customID); ok {
+		return mentionables
+	}
+	return nil
+}
+
+func (d ModalSubmitInteractionData) ChannelSelectMenu(customID string) (ChannelSelectMenuComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		selectMenuComponent, ok := component.(ChannelSelectMenuComponent)
+		return selectMenuComponent, ok
+	}
+	return ChannelSelectMenuComponent{}, false
+}
+
+func (d ModalSubmitInteractionData) OptChannels(customID string) ([]ResolvedChannel, bool) {
+	if selectMenuComponent, ok := d.ChannelSelectMenu(customID); ok {
+		channels := make([]ResolvedChannel, 0, len(selectMenuComponent.Values))
+		for _, channelID := range selectMenuComponent.Values {
+			if channel, ok := d.Resolved.Channels[channelID]; ok {
+				channels = append(channels, channel)
+			}
+		}
+		return channels, true
+	}
+	return nil, false
+}
+
+func (d ModalSubmitInteractionData) Channels(customID string) []ResolvedChannel {
+	if channels, ok := d.OptChannels(customID); ok {
+		return channels
+	}
+	return nil
+}
+
+func (d ModalSubmitInteractionData) FileUpload(customID string) (FileUploadComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		fileUploadComponent, ok := component.(FileUploadComponent)
+		return fileUploadComponent, ok
+	}
+	return FileUploadComponent{}, false
+}
+
+func (d ModalSubmitInteractionData) OptAttachments(customID string) ([]Attachment, bool) {
+	if fileUploadComponent, ok := d.FileUpload(customID); ok {
+		attachments := make([]Attachment, 0, len(fileUploadComponent.Values))
+		for _, attachmentID := range fileUploadComponent.Values {
+			if attachment, ok := d.Resolved.Attachments[attachmentID]; ok {
+				attachments = append(attachments, attachment)
+			}
+		}
+		return attachments, true
+	}
+	return nil, false
+}
+
+func (d ModalSubmitInteractionData) Attachments(customID string) []Attachment {
+	if attachments, ok := d.OptAttachments(customID); ok {
+		return attachments
 	}
 	return nil
 }

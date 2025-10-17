@@ -151,6 +151,8 @@ type ResolvedMember struct {
 	Permissions Permissions `json:"permissions,omitempty"`
 }
 
+func (ResolvedMember) isMentionableValue() {}
+
 type ResolvedChannel struct {
 	ID             snowflake.ID   `json:"id"`
 	Name           string         `json:"name"`
@@ -159,6 +161,8 @@ type ResolvedChannel struct {
 	ThreadMetadata ThreadMetadata `json:"thread_metadata"`
 	ParentID       snowflake.ID   `json:"parent_id"`
 }
+
+func (ResolvedChannel) isMentionableValue() {}
 
 type InteractionChannel struct {
 	MessageChannel

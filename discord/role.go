@@ -28,6 +28,8 @@ type Role struct {
 	Flags       RoleFlags    `json:"flags"`
 }
 
+func (Role) isMentionableValue() {}
+
 func (r Role) String() string {
 	return RoleMention(r.ID)
 }
