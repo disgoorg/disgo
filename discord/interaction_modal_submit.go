@@ -20,9 +20,8 @@ type ModalSubmitInteraction struct {
 func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
 	var interaction struct {
 		rawInteraction
-		Data     ModalSubmitInteractionData `json:"data"`
-		Message  *Message                   `json:"message,omitempty"`
-		Resolved ResolvedData
+		Data    ModalSubmitInteractionData `json:"data"`
+		Message *Message                   `json:"message,omitempty"`
 	}
 	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
@@ -104,6 +103,7 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	var iData struct {
 		CustomID   string               `json:"custom_id"`
 		Components []UnmarshalComponent `json:"components"`
+		Resolved   ResolvedData         `json:"resolved"`
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {
@@ -117,6 +117,8 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 		components = append(components, containerComponent.Component.(LayoutComponent))
 	}
 	d.Components = components
+
+	d.Resolved = iData.Resolved
 	return nil
 }
 
