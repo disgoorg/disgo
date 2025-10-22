@@ -1,0 +1,12 @@
+{
+  "code": 50035,
+  "message": "Invalid Form Body",
+  "errors": {
+    "_errors": [
+      {
+        "code": "APPLICATION_COMMAND_TOO_LARGE",
+        "message": "Command exceeds maximum size (8000)"
+      }
+    ]
+  }
+}

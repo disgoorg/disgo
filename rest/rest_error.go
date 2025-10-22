@@ -3,7 +3,10 @@ package rest
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"net/http"
+	"slices"
+	"strings"
 
 	"github.com/disgoorg/json/v2"
 )
@@ -55,7 +58,11 @@ func (e *Error) Is(target error) bool {
 // Error returns the error formatted as string
 func (e *Error) Error() string {
 	if e.Code != 0 {
-		return fmt.Sprintf("%d: %s", e.Code, e.Message)
+		msg := fmt.Sprintf("%d: %s", e.Code, e.Message)
+		if e.Code == 50035 {
+			msg += fmt.Sprintf("\n%s", printErrors(e.Errors))
+		}
+		return msg
 	}
 	return fmt.Sprintf("Status: %s, Body: %s", e.Response.Status, string(e.RsBody))
 }
@@ -63,4 +70,38 @@ func (e *Error) Error() string {
 // Error returns the error formatted as string
 func (e *Error) String() string {
 	return e.Error()
+}
+
+func printErrors(errors json.RawMessage) string {
+	var m map[string]any
+	if err := json.Unmarshal(errors, &m); err != nil {
+		return ""
+	}
+
+	return parseErrors("", m)
+}
+
+func parseErrors(prefix string, err map[string]any) string {
+	if errs, ok := err["_errors"]; ok {
+		var s []string
+		for _, e := range errs.([]any) {
+			m := e.(map[string]any)
+			s = append(s, fmt.Sprintf("%s -> %s: %s", prefix, m["code"], m["message"]))
+		}
+		return strings.Join(s, "\n")
+	}
+
+	var s []string
+	for _, k := range slices.Sorted(maps.Keys(err)) {
+		m := err[k].(map[string]any)
+
+		nextPrefix := prefix
+		if nextPrefix != "" {
+			nextPrefix += " -> "
+		}
+
+		s = append(s, parseErrors(nextPrefix+k, m))
+	}
+
+	return strings.Join(s, "\n")
 }

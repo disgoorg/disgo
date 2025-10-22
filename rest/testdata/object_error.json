@@ -1,0 +1,14 @@
+{
+  "code": 50035,
+  "message": "Invalid Form Body",
+  "errors": {
+    "access_token": {
+      "_errors": [
+        {
+          "code": "BASE_TYPE_REQUIRED",
+          "message": "This field is required"
+        }
+      ]
+    }
+  }
+}
