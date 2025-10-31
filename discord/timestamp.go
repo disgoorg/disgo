@@ -35,6 +35,12 @@ const (
 	// TimestampStyleLongDateTime formats time as Tuesday, 20 April 2021 16:20
 	TimestampStyleLongDateTime TimestampStyle = "F"
 
+	// TimestampStyleShortDateShortTime formats time as 20/04/2021, 16:20
+	TimestampStyleShortDateShortTime TimestampStyle = "s"
+
+	// TimestampStyleShortDateMediumTime formats time as 20/04/2021, 16:20:30
+	TimestampStyleShortDateMediumTime TimestampStyle = "S"
+
 	// TimestampStyleRelative formats time as 2 months ago
 	TimestampStyleRelative TimestampStyle = "R"
 )
