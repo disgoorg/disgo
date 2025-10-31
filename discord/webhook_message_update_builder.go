@@ -14,11 +14,7 @@ type WebhookMessageUpdateBuilder struct {
 
 // NewWebhookMessageUpdateBuilder creates a new WebhookMessageUpdateBuilder to be built later
 func NewWebhookMessageUpdateBuilder() *WebhookMessageUpdateBuilder {
-	return &WebhookMessageUpdateBuilder{
-		WebhookMessageUpdate: WebhookMessageUpdate{
-			AllowedMentions: &DefaultAllowedMentions,
-		},
-	}
+	return &WebhookMessageUpdateBuilder{}
 }
 
 // SetContent sets content of the Message

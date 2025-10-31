@@ -17,7 +17,7 @@ func defaultConfig() config {
 type config struct {
 	Logger                 *slog.Logger
 	RestClient             rest.Client
-	RestClientConfigOpts   []rest.ConfigOpt
+	RestClientConfigOpts   []rest.ClientConfigOpt
 	Webhooks               rest.Webhooks
 	DefaultAllowedMentions *discord.AllowedMentions
 }
@@ -31,7 +31,7 @@ func (c *config) apply(opts []ConfigOpt) {
 	}
 	c.Logger = c.Logger.With(slog.String("name", "webhook"))
 	if c.RestClient == nil {
-		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
+		c.RestClient = rest.NewClient("", append([]rest.ClientConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
 	}
 	if c.Webhooks == nil {
 		c.Webhooks = rest.NewWebhooks(c.RestClient)
@@ -53,7 +53,7 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 }
 
 // WithRestClientConfigOpts sets the rest client configuration for the webhook client
-func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
+func WithRestClientConfigOpts(opts ...rest.ClientConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
