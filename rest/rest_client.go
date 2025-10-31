@@ -16,8 +16,8 @@ import (
 )
 
 // NewClient constructs a new Client with the given config struct
-func NewClient(botToken string, opts ...ConfigOpt) Client {
-	cfg := defaultConfig()
+func NewClient(botToken string, opts ...ClientConfigOpt) Client {
+	cfg := defaultClientConfig()
 	cfg.apply(opts)
 
 	return &clientImpl{
@@ -43,7 +43,7 @@ type Client interface {
 
 type clientImpl struct {
 	botToken string
-	config   config
+	config   clientConfig
 }
 
 func (c *clientImpl) Close(ctx context.Context) {

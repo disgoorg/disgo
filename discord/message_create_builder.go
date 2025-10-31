@@ -14,11 +14,7 @@ type MessageCreateBuilder struct {
 
 // NewMessageCreateBuilder creates a new MessageCreateBuilder to be built later
 func NewMessageCreateBuilder() *MessageCreateBuilder {
-	return &MessageCreateBuilder{
-		MessageCreate: MessageCreate{
-			AllowedMentions: &DefaultAllowedMentions,
-		},
-	}
+	return &MessageCreateBuilder{}
 }
 
 // SetContent sets the content of the Message
