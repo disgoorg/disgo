@@ -204,7 +204,7 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 		slog.String("resume_url", state.ResumeURL),
 	)
 
-	opts := append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(shardCount), gateway.WithIdentifyRateLimiter(m.config.IdentifyRateLimiter))
+	opts := append(slices.Clone(m.config.GatewayConfigOpts), gateway.WithShardID(shardID), gateway.WithShardCount(shardCount), gateway.WithIdentifyRateLimiter(m.config.IdentifyRateLimiter))
 	if state.SessionID != "" {
 		opts = append(opts, gateway.WithSessionID(state.SessionID))
 	}
