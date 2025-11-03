@@ -23,7 +23,7 @@ import (
 // Version defines which discord API version disgo should use to connect to discord.
 const Version = 10
 
-const maximumConnectDelay = 10 * time.Second
+const maximumConnectDelay = 60 * time.Second
 
 // Status is the state that the client is currently in.
 type Status int
