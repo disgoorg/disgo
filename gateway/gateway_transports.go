@@ -189,11 +189,12 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 }
 
 func (t *zstdStreamTransport) Close() error {
+	connClose := t.conn.Close()
 	t.buffer.Reset()
 	if t.inflator != nil {
 		t.inflator.Close()
 	}
-	return t.conn.Close()
+	return connClose
 }
 
 // zlibStreamTransport implements zlib-stream compression.
@@ -254,11 +255,12 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 }
 
 func (t *zlibStreamTransport) Close() error {
+	connClose := t.conn.Close()
 	t.buffer.Reset()
 	if t.inflator != nil {
 		_ = t.inflator.Close()
 	}
-	return t.conn.Close()
+	return connClose
 }
 
 // zlibPayloadTransport implements both no compression and payload zlib compression.
