@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/disgoorg/json/v2"
-	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
 )
@@ -24,14 +23,15 @@ const (
 
 // Activity represents the fields of a user's presence
 type Activity struct {
-	ID                string                     `json:"id"`
-	Name              string                     `json:"name"`
-	Type              ActivityType               `json:"type"`
-	URL               *string                    `json:"url,omitempty"`
-	CreatedAt         time.Time                  `json:"created_at"`
-	Timestamps        *ActivityTimestamps        `json:"timestamps,omitempty"`
-	SyncID            *string                    `json:"sync_id,omitempty"`
-	ApplicationID     snowflake.ID               `json:"application_id,omitempty"`
+	ID         string              `json:"id"`
+	Name       string              `json:"name"`
+	Type       ActivityType        `json:"type"`
+	URL        *string             `json:"url,omitempty"`
+	CreatedAt  time.Time           `json:"created_at"`
+	Timestamps *ActivityTimestamps `json:"timestamps,omitempty"`
+	SyncID     *string             `json:"sync_id,omitempty"`
+	// ApplicationID is usually a snowflake.ID but for some fucking reason Discord sometimes sends it unquoted as an integer, fuck you Discord.
+	ApplicationID     json.Number                `json:"application_id,omitempty"`
 	StatusDisplayType *ActivityStatusDisplayType `json:"status_display_type,omitempty"`
 	Details           *string                    `json:"details,omitempty"`
 	DetailsURL        *string                    `json:"details_url,omitempty"`
