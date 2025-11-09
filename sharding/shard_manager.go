@@ -207,7 +207,15 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 		slog.String("resume_url", state.ResumeURL),
 	)
 
-	opts := append(slices.Clone(m.config.GatewayConfigOpts), gateway.WithShardID(shardID), gateway.WithShardCount(shardCount), gateway.WithIdentifyRateLimiter(m.config.IdentifyRateLimiter))
+	// this looks funny, but basically we want to first pass in the close handler so it can be overwritten by the user config options,
+	// and then we should apply the user config options.
+	// After that we pass in the shardID, shardCount, sessionID, sequence and resumeURL so they can't be overwritten by the user config options.
+	opts := append([]gateway.ConfigOpt{gateway.WithCloseHandler(m.closeHandler), gateway.WithIdentifyRateLimiter(m.config.IdentifyRateLimiter)},
+		append(slices.Clone(m.config.GatewayConfigOpts),
+			gateway.WithShardID(shardID),
+			gateway.WithShardCount(shardCount),
+		)...,
+	)
 	if state.SessionID != "" {
 		opts = append(opts, gateway.WithSessionID(state.SessionID))
 	}
@@ -218,7 +226,7 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 		opts = append(opts, gateway.WithResumeURL(state.ResumeURL))
 	}
 
-	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, opts...)
+	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, opts...)
 
 	m.shardsMu.Lock()
 	m.shards[shardID] = shard

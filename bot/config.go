@@ -288,7 +288,7 @@ func BuildClient(
 			),
 		}, cfg.GatewayConfigOpts...)
 
-		cfg.Gateway = gateway.New(token, defaultGatewayEventHandlerFunc(client), nil, cfg.GatewayConfigOpts...)
+		cfg.Gateway = gateway.New(token, defaultGatewayEventHandlerFunc(client), cfg.GatewayConfigOpts...)
 	}
 	client.Gateway = cfg.Gateway
 

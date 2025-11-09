@@ -95,7 +95,7 @@ type (
 	EventHandlerFunc func(gateway Gateway, eventType EventType, sequenceNumber int, event EventData)
 
 	// CreateFunc is a type that is used to create a new Gateway(s).
-	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway
+	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway
 
 	// CloseHandlerFunc is a function that is called when the Gateway is closed.
 	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
@@ -152,14 +152,13 @@ type Gateway interface {
 var _ Gateway = (*gatewayImpl)(nil)
 
 // New creates a new Gateway instance with the provided token, eventHandlerFunc, closeHandlerFunc and ConfigOpt(s).
-func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
+func New(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway {
 	cfg := defaultConfig()
 	cfg.apply(opts)
 
 	return &gatewayImpl{
 		config:           cfg,
 		eventHandlerFunc: eventHandlerFunc,
-		closeHandlerFunc: closeHandlerFunc,
 		token:            token,
 		status:           StatusUnconnected,
 	}
@@ -168,7 +167,6 @@ func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc Close
 type gatewayImpl struct {
 	config           config
 	eventHandlerFunc EventHandlerFunc
-	closeHandlerFunc CloseHandlerFunc
 	token            string
 
 	conn            transport
@@ -440,8 +438,8 @@ func (g *gatewayImpl) reconnect() {
 	if err := g.doReconnect(context.Background()); err != nil {
 		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
 
-		if g.closeHandlerFunc != nil {
-			g.closeHandlerFunc(g, err, false)
+		if g.config.CloseHandler != nil {
+			g.config.CloseHandler(g, err, false)
 		}
 	}
 }
@@ -618,8 +616,8 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			cancel()
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect()
-			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err, reconnect)
+			} else if g.config.CloseHandler != nil {
+				go g.config.CloseHandler(g, err, reconnect)
 			}
 
 			return
