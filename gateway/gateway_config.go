@@ -69,7 +69,8 @@ type config struct {
 	// Browser is the Browser it should send on login. Defaults to "disgo".
 	Browser string
 	// Device is the Device it should send on login. Defaults to "disgo".
-	Device string
+	Device       string
+	CloseHandler CloseHandlerFunc
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
@@ -274,5 +275,14 @@ func WithBrowser(browser string) ConfigOpt {
 func WithDevice(device string) ConfigOpt {
 	return func(config *config) {
 		config.Device = device
+	}
+}
+
+// WithCloseHandler sets the CloseHandlerFunc for the Gateway.
+// The CloseHandlerFunc is called when the Gateway connection is closed and auto-reconnect is disabled or the close code can't be handled by the Gateway itself.
+// If you are using the sharding package you should use [sharding.WithCloseHandler] instead.
+func WithCloseHandler(closeHandler CloseHandlerFunc) ConfigOpt {
+	return func(config *config) {
+		config.CloseHandler = closeHandler
 	}
 }
