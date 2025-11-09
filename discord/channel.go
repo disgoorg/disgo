@@ -371,7 +371,7 @@ var (
 type DMChannel struct {
 	id               snowflake.ID
 	lastMessageID    *snowflake.ID
-	recipients       []User
+	Recipients       []User
 	lastPinTimestamp *time.Time
 }
 
@@ -383,7 +383,7 @@ func (c *DMChannel) UnmarshalJSON(data []byte) error {
 
 	c.id = v.ID
 	c.lastMessageID = v.LastMessageID
-	c.recipients = v.Recipients
+	c.Recipients = v.Recipients
 	c.lastPinTimestamp = v.LastPinTimestamp
 	return nil
 }
@@ -393,7 +393,7 @@ func (c DMChannel) MarshalJSON() ([]byte, error) {
 		ID:               c.id,
 		Type:             c.Type(),
 		LastMessageID:    c.lastMessageID,
-		Recipients:       c.recipients,
+		Recipients:       c.Recipients,
 		LastPinTimestamp: c.lastPinTimestamp,
 	})
 }
@@ -411,7 +411,7 @@ func (DMChannel) Type() ChannelType {
 }
 
 func (c DMChannel) Name() string {
-	return c.recipients[0].Username
+	return c.Recipients[0].Username
 }
 
 func (c DMChannel) LastMessageID() *snowflake.ID {
