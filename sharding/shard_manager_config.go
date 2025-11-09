@@ -44,6 +44,7 @@ type config struct {
 	IdentifyRateLimiter gateway.IdentifyRateLimiter
 	// IdentifyRateLimiterConfigOpts are the gateway.IdentifyRateLimiterConfigOpt(s) which are applied to the gateway.IdentifyRateLimiter.
 	IdentifyRateLimiterConfigOpts []gateway.IdentifyRateLimiterConfigOpt
+	CloseHandler                  gateway.CloseHandlerFunc
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
@@ -142,5 +143,13 @@ func WithIdentifyRateLimiterConfigOpt(opts ...gateway.IdentifyRateLimiterConfigO
 func WithDefaultIdentifyRateLimiterConfigOpt(opts ...gateway.IdentifyRateLimiterConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.IdentifyRateLimiterConfigOpts = append(opts, config.IdentifyRateLimiterConfigOpts...)
+	}
+}
+
+// WithCloseHandler sets the function which is called when a gateway.Gateway is closed and could not reconnect (or auto reconnecting is disabled).
+// If auto-scaling is enabled and the shard was closed due to [gateway.CloseEventCodeShardingRequired], the closeHandler will not be called.
+func WithCloseHandler(closeHandler gateway.CloseHandlerFunc) ConfigOpt {
+	return func(config *config) {
+		config.CloseHandler = closeHandler
 	}
 }
