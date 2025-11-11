@@ -45,7 +45,6 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 
 	rateLimiter := &rateLimiterImpl{
 		config:  cfg,
-		hashes:  map[*Endpoint]string{},
 		buckets: map[string]*bucket{},
 	}
 
@@ -60,9 +59,6 @@ type rateLimiterImpl struct {
 	// global Rate Limit
 	global time.Time
 
-	// APIRoute -> Hash
-	hashes   map[*Endpoint]string
-	hashesMu sync.Mutex
 	// Hash + Major Parameter -> bucket
 	buckets   map[string]*bucket
 	bucketsMu sync.Mutex
@@ -115,24 +111,15 @@ func (l *rateLimiterImpl) Close(ctx context.Context) {
 
 func (l *rateLimiterImpl) Reset() {
 	l.bucketsMu.Lock()
-	l.hashesMu.Lock()
 	defer l.bucketsMu.Unlock()
-	defer l.hashesMu.Unlock()
 
 	l.global = time.Time{}
 	clear(l.buckets)
-	clear(l.hashes)
 }
 
 func (l *rateLimiterImpl) getRouteHash(endpoint *CompiledEndpoint) string {
-	l.hashesMu.Lock()
-	hash, ok := l.hashes[endpoint.Endpoint]
-	if !ok {
-		// generate routeHash
-		hash = endpoint.Endpoint.Method + "+" + endpoint.Endpoint.Route
-		l.hashes[endpoint.Endpoint] = hash
-	}
-	l.hashesMu.Unlock()
+	hash := endpoint.Endpoint.Method + "+" + endpoint.Endpoint.Route
+
 	if endpoint.MajorParams != "" {
 		hash += "+" + endpoint.MajorParams
 	}
