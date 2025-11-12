@@ -11,27 +11,33 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-func defaultRequestConfig(rq *http.Request) requestConfig {
-	return requestConfig{
+// DefaultRequestConfig creates a new RequestConfig with the given http.Request and a default context
+func DefaultRequestConfig(rq *http.Request) RequestConfig {
+	return RequestConfig{
 		Request: rq,
 		Ctx:     context.TODO(),
 	}
 }
 
-type requestConfig struct {
+// RequestConfig is the configuration for rest requests
+type RequestConfig struct {
+	// Request is the http.Request to be used for the request
 	Request *http.Request
-	Ctx     context.Context
-	Checks  []Check
-	Delay   time.Duration
+	// Ctx applies a custom context to the request
+	Ctx context.Context
+	// Checks is a list of checks to be executed right before a request is made
+	Checks []Check
+	// Delay applies a delay to the request
+	Delay time.Duration
 }
 
 // Check is a function which gets executed right before a request is made
 type Check func() bool
 
 // RequestOpt can be used to supply optional parameters to Client.Do
-type RequestOpt func(config *requestConfig)
+type RequestOpt func(config *RequestConfig)
 
-func (c *requestConfig) apply(opts []RequestOpt) {
+func (c *RequestConfig) apply(opts []RequestOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -42,28 +48,28 @@ func (c *requestConfig) apply(opts []RequestOpt) {
 
 // WithCtx applies a custom context to the request
 func WithCtx(ctx context.Context) RequestOpt {
-	return func(config *requestConfig) {
+	return func(config *RequestConfig) {
 		config.Ctx = ctx
 	}
 }
 
 // WithCheck adds a new check to the request
 func WithCheck(check Check) RequestOpt {
-	return func(config *requestConfig) {
+	return func(config *RequestConfig) {
 		config.Checks = append(config.Checks, check)
 	}
 }
 
 // WithDelay applies a delay to the request
 func WithDelay(delay time.Duration) RequestOpt {
-	return func(config *requestConfig) {
+	return func(config *RequestConfig) {
 		config.Delay = delay
 	}
 }
 
 // WithHeader adds a custom header to the request
 func WithHeader(key string, value string) RequestOpt {
-	return func(config *requestConfig) {
+	return func(config *RequestConfig) {
 		config.Request.Header.Set(key, value)
 	}
 }
@@ -86,7 +92,7 @@ func WithToken(tokenType discord.TokenType, token string) RequestOpt {
 
 // WithQueryParam applies a custom query parameter to the request
 func WithQueryParam(param string, value any) RequestOpt {
-	return func(config *requestConfig) {
+	return func(config *RequestConfig) {
 		values := config.Request.URL.Query()
 		values.Add(param, fmt.Sprint(value))
 		config.Request.URL.RawQuery = values.Encode()
