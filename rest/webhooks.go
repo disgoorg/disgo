@@ -8,8 +8,8 @@ import (
 
 var _ Webhooks = (*webhookImpl)(nil)
 
-func NewWebhooks(client Client) Webhooks {
-	return &webhookImpl{client: client}
+func NewWebhooks(client Client, defaultAllowedMentions discord.AllowedMentions) Webhooks {
+	return &webhookImpl{client: client, defaultAllowedMentions: defaultAllowedMentions}
 }
 
 type Webhooks interface {
@@ -66,7 +66,8 @@ func (p UpdateWebhookMessageParams) ToQueryValues() discord.QueryValues {
 }
 
 type webhookImpl struct {
-	client Client
+	client                 Client
+	defaultAllowedMentions discord.AllowedMentions
 }
 
 func (s *webhookImpl) GetWebhook(webhookID snowflake.ID, opts ...RequestOpt) (webhook discord.Webhook, err error) {
@@ -135,6 +136,10 @@ func (s *webhookImpl) createWebhookMessage(webhookID snowflake.ID, webhookToken 
 }
 
 func (s *webhookImpl) CreateWebhookMessage(webhookID snowflake.ID, webhookToken string, messageCreate discord.WebhookMessageCreate, params CreateWebhookMessageParams, opts ...RequestOpt) (*discord.Message, error) {
+	if messageCreate.AllowedMentions == nil {
+		messageCreate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	return s.createWebhookMessage(webhookID, webhookToken, messageCreate, params, CreateWebhookMessage, opts)
 }
 
@@ -147,6 +152,10 @@ func (s *webhookImpl) CreateWebhookMessageGitHub(webhookID snowflake.ID, webhook
 }
 
 func (s *webhookImpl) UpdateWebhookMessage(webhookID snowflake.ID, webhookToken string, messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, params UpdateWebhookMessageParams, opts ...RequestOpt) (message *discord.Message, err error) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := messageUpdate.ToBody()
 	if err != nil {
 		return
