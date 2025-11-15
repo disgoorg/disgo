@@ -56,8 +56,8 @@ type Applications interface {
 type GetEntitlementsParams struct {
 	UserID         snowflake.ID
 	SkuIDs         []snowflake.ID
-	Before         int
-	After          int
+	Before         snowflake.ID
+	After          snowflake.ID
 	Limit          int
 	GuildID        snowflake.ID
 	ExcludeEnded   bool
