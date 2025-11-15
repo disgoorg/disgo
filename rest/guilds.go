@@ -218,8 +218,10 @@ func (s *guildImpl) DeleteIntegration(guildID snowflake.ID, integrationID snowfl
 
 func (s *guildImpl) GetGuildPruneCount(guildID snowflake.ID, days int, includeRoles []snowflake.ID, opts ...RequestOpt) (result *discord.GuildPruneResult, err error) {
 	values := discord.QueryValues{
-		"days":          days,
-		"include_roles": slicehelper.JoinSnowflakes(includeRoles),
+		"days": days,
+	}
+	if len(includeRoles) > 0 {
+		values["include_roles"] = slicehelper.JoinSnowflakes(includeRoles)
 	}
 	err = s.client.Do(GetGuildPruneCount.Compile(values, guildID), nil, &result, opts...)
 	return

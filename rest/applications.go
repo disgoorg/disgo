@@ -68,7 +68,9 @@ func (p GetEntitlementsParams) ToQueryValues() discord.QueryValues {
 	queryValues := discord.QueryValues{
 		"exclude_ended":   p.ExcludeEnded,
 		"exclude_deleted": p.ExcludeDeleted,
-		"sku_ids":         slicehelper.JoinSnowflakes(p.SkuIDs),
+	}
+	if len(p.SkuIDs) > 0 {
+		queryValues["sku_ids"] = slicehelper.JoinSnowflakes(p.SkuIDs)
 	}
 	if p.UserID != 0 {
 		queryValues["user_id"] = p.UserID
