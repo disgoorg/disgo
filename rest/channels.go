@@ -10,8 +10,8 @@ import (
 
 var _ Channels = (*channelImpl)(nil)
 
-func NewChannels(client Client) Channels {
-	return &channelImpl{client: client}
+func NewChannels(client Client, defaultAllowedMentions discord.AllowedMentions) Channels {
+	return &channelImpl{client: client, defaultAllowedMentions: defaultAllowedMentions}
 }
 
 type Channels interface {
@@ -58,7 +58,8 @@ type Channels interface {
 }
 
 type channelImpl struct {
-	client Client
+	client                 Client
+	defaultAllowedMentions discord.AllowedMentions
 }
 
 func (s *channelImpl) GetChannel(channelID snowflake.ID, opts ...RequestOpt) (channel discord.Channel, err error) {
@@ -148,6 +149,9 @@ func (s *channelImpl) GetMessagesPage(channelID snowflake.ID, startID snowflake.
 }
 
 func (s *channelImpl) CreateMessage(channelID snowflake.ID, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {
+	if messageCreate.AllowedMentions == nil {
+		messageCreate.AllowedMentions = &s.defaultAllowedMentions
+	}
 	body, err := messageCreate.ToBody()
 	if err != nil {
 		return
@@ -157,6 +161,9 @@ func (s *channelImpl) CreateMessage(channelID snowflake.ID, messageCreate discor
 }
 
 func (s *channelImpl) UpdateMessage(channelID snowflake.ID, messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
+	}
 	body, err := messageUpdate.ToBody()
 	if err != nil {
 		return

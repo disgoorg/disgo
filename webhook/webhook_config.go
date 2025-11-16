@@ -5,21 +5,27 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 func defaultConfig() config {
 	return config{
-		Logger:                 slog.Default(),
-		DefaultAllowedMentions: &discord.DefaultAllowedMentions,
+		Logger: slog.Default(),
+		DefaultAllowedMentions: discord.AllowedMentions{
+			Parse:       []discord.AllowedMentionType{discord.AllowedMentionTypeUsers, discord.AllowedMentionTypeRoles, discord.AllowedMentionTypeEveryone},
+			Roles:       []snowflake.ID{},
+			Users:       []snowflake.ID{},
+			RepliedUser: true,
+		},
 	}
 }
 
 type config struct {
 	Logger                 *slog.Logger
 	RestClient             rest.Client
-	RestClientConfigOpts   []rest.ConfigOpt
+	RestClientConfigOpts   []rest.ClientConfigOpt
 	Webhooks               rest.Webhooks
-	DefaultAllowedMentions *discord.AllowedMentions
+	DefaultAllowedMentions discord.AllowedMentions
 }
 
 // ConfigOpt is used to provide optional parameters to the webhook client
@@ -31,10 +37,10 @@ func (c *config) apply(opts []ConfigOpt) {
 	}
 	c.Logger = c.Logger.With(slog.String("name", "webhook"))
 	if c.RestClient == nil {
-		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
+		c.RestClient = rest.NewClient("", append([]rest.ClientConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
 	}
 	if c.Webhooks == nil {
-		c.Webhooks = rest.NewWebhooks(c.RestClient)
+		c.Webhooks = rest.NewWebhooks(c.RestClient, c.DefaultAllowedMentions)
 	}
 }
 
@@ -53,7 +59,7 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 }
 
 // WithRestClientConfigOpts sets the rest client configuration for the webhook client
-func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
+func WithRestClientConfigOpts(opts ...rest.ClientConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
@@ -69,6 +75,6 @@ func WithWebhooks(webhooks rest.Webhooks) ConfigOpt {
 // WithDefaultAllowedMentions sets the default allowed mentions for the webhook client
 func WithDefaultAllowedMentions(allowedMentions discord.AllowedMentions) ConfigOpt {
 	return func(config *config) {
-		config.DefaultAllowedMentions = &allowedMentions
+		config.DefaultAllowedMentions = allowedMentions
 	}
 }

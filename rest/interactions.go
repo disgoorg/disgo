@@ -8,8 +8,8 @@ import (
 
 var _ Interactions = (*interactionImpl)(nil)
 
-func NewInteractions(client Client) Interactions {
-	return &interactionImpl{client: client}
+func NewInteractions(client Client, defaultAllowedMentions discord.AllowedMentions) Interactions {
+	return &interactionImpl{client: client, defaultAllowedMentions: defaultAllowedMentions}
 }
 
 type Interactions interface {
@@ -26,7 +26,8 @@ type Interactions interface {
 }
 
 type interactionImpl struct {
-	client Client
+	client                 Client
+	defaultAllowedMentions discord.AllowedMentions
 }
 
 func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.ID, interactionToken string, opts ...RequestOpt) (message *discord.Message, err error) {
@@ -37,6 +38,11 @@ func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.ID, int
 // CreateInteractionResponse responds to the interaction without returning the callback.
 // If you need the callback, use CreateInteractionResponseWithCallback.
 func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error {
+	messageCreate, ok := interactionResponse.Data.(*discord.MessageCreate)
+	if ok && messageCreate.AllowedMentions == nil {
+		messageCreate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := interactionResponse.ToBody()
 	if err != nil {
 		return err
@@ -46,6 +52,11 @@ func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, 
 }
 
 func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) (callback *discord.InteractionCallbackResponse, err error) {
+	messageCreate, ok := interactionResponse.Data.(*discord.MessageCreate)
+	if ok && messageCreate.AllowedMentions == nil {
+		messageCreate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := interactionResponse.ToBody()
 	if err != nil {
 		return nil, err
@@ -58,6 +69,10 @@ func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID sn
 }
 
 func (s *interactionImpl) UpdateInteractionResponse(applicationID snowflake.ID, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := messageUpdate.ToBody()
 	if err != nil {
 		return
@@ -77,6 +92,10 @@ func (s *interactionImpl) GetFollowupMessage(applicationID snowflake.ID, interac
 }
 
 func (s *interactionImpl) CreateFollowupMessage(applicationID snowflake.ID, interactionToken string, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {
+	if messageCreate.AllowedMentions == nil {
+		messageCreate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := messageCreate.ToBody()
 	if err != nil {
 		return
@@ -87,6 +106,10 @@ func (s *interactionImpl) CreateFollowupMessage(applicationID snowflake.ID, inte
 }
 
 func (s *interactionImpl) UpdateFollowupMessage(applicationID snowflake.ID, interactionToken string, messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := messageUpdate.ToBody()
 	if err != nil {
 		return
