@@ -52,6 +52,11 @@ func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, 
 }
 
 func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) (callback *discord.InteractionCallbackResponse, err error) {
+	messageCreate, ok := interactionResponse.Data.(*discord.MessageCreate)
+	if ok && messageCreate.AllowedMentions == nil {
+		messageCreate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := interactionResponse.ToBody()
 	if err != nil {
 		return nil, err
@@ -87,6 +92,10 @@ func (s *interactionImpl) GetFollowupMessage(applicationID snowflake.ID, interac
 }
 
 func (s *interactionImpl) CreateFollowupMessage(applicationID snowflake.ID, interactionToken string, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {
+	if messageCreate.AllowedMentions == nil {
+		messageCreate.AllowedMentions = &s.defaultAllowedMentions
+	}
+
 	body, err := messageCreate.ToBody()
 	if err != nil {
 		return

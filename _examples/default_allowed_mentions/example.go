@@ -28,7 +28,7 @@ func main() {
 			),
 		),
 		bot.WithRestConfigOpts(
-			rest.WithDefaultAllowedMentions(discord.AllowedMentions{  }),
+			rest.WithDefaultAllowedMentions(discord.AllowedMentions{ Parse: [] }),
 		),
 		bot.WithEventListenerFunc(onMessageCreate),
 	)

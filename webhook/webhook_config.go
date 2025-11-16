@@ -10,7 +10,7 @@ import (
 
 func defaultConfig() config {
 	return config{
-		Logger:                 slog.Default(),
+		Logger: slog.Default(),
 		DefaultAllowedMentions: discord.AllowedMentions{
 			Parse:       []discord.AllowedMentionType{discord.AllowedMentionTypeUsers, discord.AllowedMentionTypeRoles, discord.AllowedMentionTypeEveryone},
 			Roles:       []snowflake.ID{},
