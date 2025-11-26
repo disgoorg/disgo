@@ -42,7 +42,7 @@ type AttachmentUpdate interface {
 }
 
 type AttachmentKeep struct {
-	ID snowflake.ID `json:"id,omitempty"`
+	ID snowflake.ID `json:"id"`
 }
 
 func (AttachmentKeep) attachmentUpdate() {}
