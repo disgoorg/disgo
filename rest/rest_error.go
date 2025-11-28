@@ -380,6 +380,7 @@ func parseErrors(prefix string, err map[string]any) string {
 	return strings.Join(s, "\n")
 }
 
+// IsRestErrorCode returns true if the error is a *Error with one of the given error codes
 func IsRestErrorCode(err error, codes ...ErrorCode) bool {
 	var restErr *Error
 	if ok := errors.As(err, &restErr); !ok {
