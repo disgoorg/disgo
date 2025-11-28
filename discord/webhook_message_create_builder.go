@@ -12,11 +12,7 @@ type WebhookMessageCreateBuilder struct {
 
 // NewWebhookMessageCreateBuilder creates a new WebhookMessageCreateBuilder to be built later
 func NewWebhookMessageCreateBuilder() *WebhookMessageCreateBuilder {
-	return &WebhookMessageCreateBuilder{
-		WebhookMessageCreate: WebhookMessageCreate{
-			AllowedMentions: &DefaultAllowedMentions,
-		},
-	}
+	return &WebhookMessageCreateBuilder{}
 }
 
 // SetContent sets content of the Message

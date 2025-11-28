@@ -26,8 +26,9 @@ type config struct {
 	Logger *slog.Logger
 
 	RestClient           rest.Client
-	RestClientConfigOpts []rest.ConfigOpt
+	RestClientConfigOpts []rest.ClientConfigOpt
 	Rest                 rest.Rest
+	RestConfigOpts       []rest.ConfigOpt
 
 	EventManager           EventManager
 	EventManagerConfigOpts []EventManagerConfigOpt
@@ -77,7 +78,7 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 }
 
 // WithRestClientConfigOpts let's you configure the default rest.Client.
-func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
+func WithRestClientConfigOpts(opts ...rest.ClientConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
@@ -87,6 +88,13 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 func WithRest(rest rest.Rest) ConfigOpt {
 	return func(config *config) {
 		config.Rest = rest
+	}
+}
+
+// WithRestConfigOpts lets you configure the default rest.Rest.
+func WithRestConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
+	return func(config *config) {
+		config.RestConfigOpts = append(config.RestConfigOpts, opts...)
 	}
 }
 
@@ -244,7 +252,7 @@ func BuildClient(
 
 	if cfg.RestClient == nil {
 		// prepend standard user-agent. this can be overridden as it's appended to the front of the slice
-		cfg.RestClientConfigOpts = append([]rest.ConfigOpt{
+		cfg.RestClientConfigOpts = append([]rest.ClientConfigOpt{
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.Logger),
 			rest.WithDefaultRateLimiterConfigOpts(
@@ -256,7 +264,7 @@ func BuildClient(
 	}
 
 	if cfg.Rest == nil {
-		cfg.Rest = rest.New(cfg.RestClient)
+		cfg.Rest = rest.New(cfg.RestClient, cfg.RestConfigOpts...)
 	}
 	client.Rest = cfg.Rest
 

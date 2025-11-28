@@ -29,7 +29,10 @@ type Rest interface {
 var _ Rest = (*restImpl)(nil)
 
 // New returns a new default Rest
-func New(client Client) Rest {
+func New(client Client, opts ...ConfigOpt) Rest {
+	cfg := defaultConfig()
+	cfg.apply(opts)
+
 	return &restImpl{
 		Client:               client,
 		Applications:         NewApplications(client),
@@ -38,14 +41,14 @@ func New(client Client) Rest {
 		Guilds:               NewGuilds(client),
 		AutoModeration:       NewAutoModeration(client),
 		Members:              NewMembers(client),
-		Channels:             NewChannels(client),
+		Channels:             NewChannels(client, cfg.DefaultAllowedMentions),
 		Threads:              NewThreads(client),
-		Interactions:         NewInteractions(client),
+		Interactions:         NewInteractions(client, cfg.DefaultAllowedMentions),
 		Invites:              NewInvites(client),
 		GuildTemplates:       NewGuildTemplates(client),
 		Users:                NewUsers(client),
 		Voice:                NewVoice(client),
-		Webhooks:             NewWebhooks(client),
+		Webhooks:             NewWebhooks(client, cfg.DefaultAllowedMentions),
 		SoundboardSounds:     NewSoundboardSounds(client),
 		StageInstances:       NewStageInstances(client),
 		Emojis:               NewEmojis(client),
