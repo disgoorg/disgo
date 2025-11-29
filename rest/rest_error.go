@@ -11,282 +11,282 @@ import (
 	"github.com/disgoorg/json/v2"
 )
 
-// ErrorCode is the error code returned by the Discord API.
+// JSONErrorCode is the error code returned by the Discord API.
 // See https://discord.com/developers/docs/topics/opcodes-and-status-codes#json-json-error-codes
-type ErrorCode int
+type JSONErrorCode int
 
 const (
 	// General error (such as a malformed request body, amongst other things)
-	ErrorCodeGeneral ErrorCode = 0
+	JSONErrorCodeGeneral JSONErrorCode = 0
 
 	// Unknown resources
-	ErrorCodeUnknownAccount                        ErrorCode = 10001
-	ErrorCodeUnknownApplication                    ErrorCode = 10002
-	ErrorCodeUnknownChannel                        ErrorCode = 10003
-	ErrorCodeUnknownGuild                          ErrorCode = 10004
-	ErrorCodeUnknownIntegration                    ErrorCode = 10005
-	ErrorCodeUnknownInvite                         ErrorCode = 10006
-	ErrorCodeUnknownMember                         ErrorCode = 10007
-	ErrorCodeUnknownMessage                        ErrorCode = 10008
-	ErrorCodeUnknownPermissionOverwrite            ErrorCode = 10009
-	ErrorCodeUnknownProvider                       ErrorCode = 10010
-	ErrorCodeUnknownRole                           ErrorCode = 10011
-	ErrorCodeUnknownToken                          ErrorCode = 10012
-	ErrorCodeUnknownUser                           ErrorCode = 10013
-	ErrorCodeUnknownEmoji                          ErrorCode = 10014
-	ErrorCodeUnknownWebhook                        ErrorCode = 10015
-	ErrorCodeUnknownWebhookService                 ErrorCode = 10016
-	ErrorCodeUnknownSession                        ErrorCode = 10020
-	ErrorCodeUnknownAsset                          ErrorCode = 10021
-	ErrorCodeUnknownBan                            ErrorCode = 10026
-	ErrorCodeUnknownSKU                            ErrorCode = 10027
-	ErrorCodeUnknownStoreListing                   ErrorCode = 10028
-	ErrorCodeUnknownEntitlement                    ErrorCode = 10029
-	ErrorCodeUnknownBuild                          ErrorCode = 10030
-	ErrorCodeUnknownLobby                          ErrorCode = 10031
-	ErrorCodeUnknownBranch                         ErrorCode = 10032
-	ErrorCodeUnknownStoreDirectoryLayout           ErrorCode = 10033
-	ErrorCodeUnknownRedistributable                ErrorCode = 10036
-	ErrorCodeUnknownGiftCode                       ErrorCode = 10038
-	ErrorCodeUnknownStream                         ErrorCode = 10049
-	ErrorCodeUnknownPremiumServerSubscribeCooldown ErrorCode = 10050
-	ErrorCodeUnknownGuildTemplate                  ErrorCode = 10057
-	ErrorCodeUnknownDiscoverableServerCategory     ErrorCode = 10059
-	ErrorCodeUnknownSticker                        ErrorCode = 10060
-	ErrorCodeUnknownStickerPack                    ErrorCode = 10061
-	ErrorCodeUnknownInteraction                    ErrorCode = 10062
-	ErrorCodeUnknownApplicationCommand             ErrorCode = 10063
-	ErrorCodeUnknownVoiceState                     ErrorCode = 10065
-	ErrorCodeUnknownApplicationCommandPermissions  ErrorCode = 10066
-	ErrorCodeUnknownStageInstance                  ErrorCode = 10067
-	ErrorCodeUnknownGuildMemberVerificationForm    ErrorCode = 10068
-	ErrorCodeUnknownGuildWelcomeScreen             ErrorCode = 10069
-	ErrorCodeUnknownGuildScheduledEvent            ErrorCode = 10070
-	ErrorCodeUnknownGuildScheduledEventUser        ErrorCode = 10071
-	ErrorCodeUnknownTag                            ErrorCode = 10087
-	ErrorCodeUnknownSound                          ErrorCode = 10097
+	JSONErrorCodeUnknownAccount                        JSONErrorCode = 10001
+	JSONErrorCodeUnknownApplication                    JSONErrorCode = 10002
+	JSONErrorCodeUnknownChannel                        JSONErrorCode = 10003
+	JSONErrorCodeUnknownGuild                          JSONErrorCode = 10004
+	JSONErrorCodeUnknownIntegration                    JSONErrorCode = 10005
+	JSONErrorCodeUnknownInvite                         JSONErrorCode = 10006
+	JSONErrorCodeUnknownMember                         JSONErrorCode = 10007
+	JSONErrorCodeUnknownMessage                        JSONErrorCode = 10008
+	JSONErrorCodeUnknownPermissionOverwrite            JSONErrorCode = 10009
+	JSONErrorCodeUnknownProvider                       JSONErrorCode = 10010
+	JSONErrorCodeUnknownRole                           JSONErrorCode = 10011
+	JSONErrorCodeUnknownToken                          JSONErrorCode = 10012
+	JSONErrorCodeUnknownUser                           JSONErrorCode = 10013
+	JSONErrorCodeUnknownEmoji                          JSONErrorCode = 10014
+	JSONErrorCodeUnknownWebhook                        JSONErrorCode = 10015
+	JSONErrorCodeUnknownWebhookService                 JSONErrorCode = 10016
+	JSONErrorCodeUnknownSession                        JSONErrorCode = 10020
+	JSONErrorCodeUnknownAsset                          JSONErrorCode = 10021
+	JSONErrorCodeUnknownBan                            JSONErrorCode = 10026
+	JSONErrorCodeUnknownSKU                            JSONErrorCode = 10027
+	JSONErrorCodeUnknownStoreListing                   JSONErrorCode = 10028
+	JSONErrorCodeUnknownEntitlement                    JSONErrorCode = 10029
+	JSONErrorCodeUnknownBuild                          JSONErrorCode = 10030
+	JSONErrorCodeUnknownLobby                          JSONErrorCode = 10031
+	JSONErrorCodeUnknownBranch                         JSONErrorCode = 10032
+	JSONErrorCodeUnknownStoreDirectoryLayout           JSONErrorCode = 10033
+	JSONErrorCodeUnknownRedistributable                JSONErrorCode = 10036
+	JSONErrorCodeUnknownGiftCode                       JSONErrorCode = 10038
+	JSONErrorCodeUnknownStream                         JSONErrorCode = 10049
+	JSONErrorCodeUnknownPremiumServerSubscribeCooldown JSONErrorCode = 10050
+	JSONErrorCodeUnknownGuildTemplate                  JSONErrorCode = 10057
+	JSONErrorCodeUnknownDiscoverableServerCategory     JSONErrorCode = 10059
+	JSONErrorCodeUnknownSticker                        JSONErrorCode = 10060
+	JSONErrorCodeUnknownStickerPack                    JSONErrorCode = 10061
+	JSONErrorCodeUnknownInteraction                    JSONErrorCode = 10062
+	JSONErrorCodeUnknownApplicationCommand             JSONErrorCode = 10063
+	JSONErrorCodeUnknownVoiceState                     JSONErrorCode = 10065
+	JSONErrorCodeUnknownApplicationCommandPermissions  JSONErrorCode = 10066
+	JSONErrorCodeUnknownStageInstance                  JSONErrorCode = 10067
+	JSONErrorCodeUnknownGuildMemberVerificationForm    JSONErrorCode = 10068
+	JSONErrorCodeUnknownGuildWelcomeScreen             JSONErrorCode = 10069
+	JSONErrorCodeUnknownGuildScheduledEvent            JSONErrorCode = 10070
+	JSONErrorCodeUnknownGuildScheduledEventUser        JSONErrorCode = 10071
+	JSONErrorCodeUnknownTag                            JSONErrorCode = 10087
+	JSONErrorCodeUnknownSound                          JSONErrorCode = 10097
 
 	// Authorization/action errors
-	ErrorCodeBotsCannotUseThisEndpoint                   ErrorCode = 20001
-	ErrorCodeOnlyBotsCanUseThisEndpoint                  ErrorCode = 20002
-	ErrorCodeExplicitContentCannotBeSent                 ErrorCode = 20009
-	ErrorCodeNotAuthorizedToPerformThisAction            ErrorCode = 20012
-	ErrorCodeActionCannotBePerformedDueToSlowmode        ErrorCode = 20016
-	ErrorCodeOnlyOwnerCanPerformThisAction               ErrorCode = 20018
-	ErrorCodeMessageCannotBeEditedDueToAnnouncementLimit ErrorCode = 20022
-	ErrorCodeUnderMinimumAge                             ErrorCode = 20024
-	ErrorCodeChannelWriteRateLimit                       ErrorCode = 20028
-	ErrorCodeServerWriteRateLimit                        ErrorCode = 20029
-	ErrorCodeStageTopicServerNameOrChannelNamesBlocked   ErrorCode = 20031
-	ErrorCodeGuildPremiumSubscriptionLevelTooLow         ErrorCode = 20035
+	JSONErrorCodeBotsCannotUseThisEndpoint                   JSONErrorCode = 20001
+	JSONErrorCodeOnlyBotsCanUseThisEndpoint                  JSONErrorCode = 20002
+	JSONErrorCodeExplicitContentCannotBeSent                 JSONErrorCode = 20009
+	JSONErrorCodeNotAuthorizedToPerformThisAction            JSONErrorCode = 20012
+	JSONErrorCodeActionCannotBePerformedDueToSlowmode        JSONErrorCode = 20016
+	JSONErrorCodeOnlyOwnerCanPerformThisAction               JSONErrorCode = 20018
+	JSONErrorCodeMessageCannotBeEditedDueToAnnouncementLimit JSONErrorCode = 20022
+	JSONErrorCodeUnderMinimumAge                             JSONErrorCode = 20024
+	JSONErrorCodeChannelWriteRateLimit                       JSONErrorCode = 20028
+	JSONErrorCodeServerWriteRateLimit                        JSONErrorCode = 20029
+	JSONErrorCodeStageTopicServerNameOrChannelNamesBlocked   JSONErrorCode = 20031
+	JSONErrorCodeGuildPremiumSubscriptionLevelTooLow         JSONErrorCode = 20035
 
 	// Maximum limits
-	ErrorCodeMaximumGuildsReached                          ErrorCode = 30001
-	ErrorCodeMaximumFriendsReached                         ErrorCode = 30002
-	ErrorCodeMaximumPinsReached                            ErrorCode = 30003
-	ErrorCodeMaximumRecipientsReached                      ErrorCode = 30004
-	ErrorCodeMaximumGuildRolesReached                      ErrorCode = 30005
-	ErrorCodeMaximumWebhooksReached                        ErrorCode = 30007
-	ErrorCodeMaximumEmojisReached                          ErrorCode = 30008
-	ErrorCodeMaximumReactionsReached                       ErrorCode = 30010
-	ErrorCodeMaximumGroupDMsReached                        ErrorCode = 30011
-	ErrorCodeMaximumGuildChannelsReached                   ErrorCode = 30013
-	ErrorCodeMaximumAttachmentsInMessageReached            ErrorCode = 30015
-	ErrorCodeMaximumInvitesReached                         ErrorCode = 30016
-	ErrorCodeMaximumAnimatedEmojisReached                  ErrorCode = 30018
-	ErrorCodeMaximumServerMembersReached                   ErrorCode = 30019
-	ErrorCodeMaximumServerCategoriesReached                ErrorCode = 30030
-	ErrorCodeGuildAlreadyHasTemplate                       ErrorCode = 30031
-	ErrorCodeMaximumApplicationCommandsReached             ErrorCode = 30032
-	ErrorCodeMaximumThreadParticipantsReached              ErrorCode = 30033
-	ErrorCodeMaximumDailyApplicationCommandCreatesReached  ErrorCode = 30034
-	ErrorCodeMaximumBansForNonGuildMembersExceeded         ErrorCode = 30035
-	ErrorCodeMaximumBansFetchesReached                     ErrorCode = 30037
-	ErrorCodeMaximumUncompletedGuildScheduledEventsReached ErrorCode = 30038
-	ErrorCodeMaximumStickersReached                        ErrorCode = 30039
-	ErrorCodeMaximumPruneRequestsReached                   ErrorCode = 30040
-	ErrorCodeMaximumGuildWidgetSettingsUpdatesReached      ErrorCode = 30042
-	ErrorCodeMaximumSoundboardSoundsReached                ErrorCode = 30045
-	ErrorCodeMaximumEditsToMessagesOlderThan1HourReached   ErrorCode = 30046
-	ErrorCodeMaximumPinnedThreadsInForumChannelReached     ErrorCode = 30047
-	ErrorCodeMaximumTagsInForumChannelReached              ErrorCode = 30048
-	ErrorCodeBitrateTooHighForChannelType                  ErrorCode = 30052
-	ErrorCodeMaximumPremiumEmojisReached                   ErrorCode = 30056
-	ErrorCodeMaximumWebhooksPerGuildReached                ErrorCode = 30058
-	ErrorCodeMaximumChannelPermissionOverwritesReached     ErrorCode = 30060
-	ErrorCodeChannelsForGuildTooLarge                      ErrorCode = 30061
+	JSONErrorCodeMaximumGuildsReached                          JSONErrorCode = 30001
+	JSONErrorCodeMaximumFriendsReached                         JSONErrorCode = 30002
+	JSONErrorCodeMaximumPinsReached                            JSONErrorCode = 30003
+	JSONErrorCodeMaximumRecipientsReached                      JSONErrorCode = 30004
+	JSONErrorCodeMaximumGuildRolesReached                      JSONErrorCode = 30005
+	JSONErrorCodeMaximumWebhooksReached                        JSONErrorCode = 30007
+	JSONErrorCodeMaximumEmojisReached                          JSONErrorCode = 30008
+	JSONErrorCodeMaximumReactionsReached                       JSONErrorCode = 30010
+	JSONErrorCodeMaximumGroupDMsReached                        JSONErrorCode = 30011
+	JSONErrorCodeMaximumGuildChannelsReached                   JSONErrorCode = 30013
+	JSONErrorCodeMaximumAttachmentsInMessageReached            JSONErrorCode = 30015
+	JSONErrorCodeMaximumInvitesReached                         JSONErrorCode = 30016
+	JSONErrorCodeMaximumAnimatedEmojisReached                  JSONErrorCode = 30018
+	JSONErrorCodeMaximumServerMembersReached                   JSONErrorCode = 30019
+	JSONErrorCodeMaximumServerCategoriesReached                JSONErrorCode = 30030
+	JSONErrorCodeGuildAlreadyHasTemplate                       JSONErrorCode = 30031
+	JSONErrorCodeMaximumApplicationCommandsReached             JSONErrorCode = 30032
+	JSONErrorCodeMaximumThreadParticipantsReached              JSONErrorCode = 30033
+	JSONErrorCodeMaximumDailyApplicationCommandCreatesReached  JSONErrorCode = 30034
+	JSONErrorCodeMaximumBansForNonGuildMembersExceeded         JSONErrorCode = 30035
+	JSONErrorCodeMaximumBansFetchesReached                     JSONErrorCode = 30037
+	JSONErrorCodeMaximumUncompletedGuildScheduledEventsReached JSONErrorCode = 30038
+	JSONErrorCodeMaximumStickersReached                        JSONErrorCode = 30039
+	JSONErrorCodeMaximumPruneRequestsReached                   JSONErrorCode = 30040
+	JSONErrorCodeMaximumGuildWidgetSettingsUpdatesReached      JSONErrorCode = 30042
+	JSONErrorCodeMaximumSoundboardSoundsReached                JSONErrorCode = 30045
+	JSONErrorCodeMaximumEditsToMessagesOlderThan1HourReached   JSONErrorCode = 30046
+	JSONErrorCodeMaximumPinnedThreadsInForumChannelReached     JSONErrorCode = 30047
+	JSONErrorCodeMaximumTagsInForumChannelReached              JSONErrorCode = 30048
+	JSONErrorCodeBitrateTooHighForChannelType                  JSONErrorCode = 30052
+	JSONErrorCodeMaximumPremiumEmojisReached                   JSONErrorCode = 30056
+	JSONErrorCodeMaximumWebhooksPerGuildReached                JSONErrorCode = 30058
+	JSONErrorCodeMaximumChannelPermissionOverwritesReached     JSONErrorCode = 30060
+	JSONErrorCodeChannelsForGuildTooLarge                      JSONErrorCode = 30061
 
 	// Temporary/rate limit errors
-	ErrorCodeUnauthorized                            ErrorCode = 40001
-	ErrorCodeNeedToVerifyAccount                     ErrorCode = 40002
-	ErrorCodeOpeningDirectMessagesTooFast            ErrorCode = 40003
-	ErrorCodeSendMessagesTemporarilyDisabled         ErrorCode = 40004
-	ErrorCodeRequestEntityTooLarge                   ErrorCode = 40005
-	ErrorCodeFeatureTemporarilyDisabled              ErrorCode = 40006
-	ErrorCodeUserBannedFromGuild                     ErrorCode = 40007
-	ErrorCodeConnectionRevoked                       ErrorCode = 40012
-	ErrorCodeOnlyConsumableSKUsCanBeConsumed         ErrorCode = 40018
-	ErrorCodeCanOnlyDeleteSandboxEntitlements        ErrorCode = 40019
-	ErrorCodeTargetUserNotConnectedToVoice           ErrorCode = 40032
-	ErrorCodeMessageAlreadyCrossposted               ErrorCode = 40033
-	ErrorCodeApplicationCommandWithNameAlreadyExists ErrorCode = 40041
-	ErrorCodeApplicationInteractionFailedToSend      ErrorCode = 40043
-	ErrorCodeCannotSendMessageInForumChannel         ErrorCode = 40058
-	ErrorCodeInteractionAlreadyAcknowledged          ErrorCode = 40060
-	ErrorCodeTagNamesMustBeUnique                    ErrorCode = 40061
-	ErrorCodeServiceResourceRateLimited              ErrorCode = 40062
-	ErrorCodeNoTagsAvailableForNonModerators         ErrorCode = 40066
-	ErrorCodeTagRequiredToCreateForumPost            ErrorCode = 40067
-	ErrorCodeEntitlementAlreadyGrantedForResource    ErrorCode = 40074
-	ErrorCodeInteractionMaxFollowUpMessagesReached   ErrorCode = 40094
+	JSONErrorCodeUnauthorized                            JSONErrorCode = 40001
+	JSONErrorCodeNeedToVerifyAccount                     JSONErrorCode = 40002
+	JSONErrorCodeOpeningDirectMessagesTooFast            JSONErrorCode = 40003
+	JSONErrorCodeSendMessagesTemporarilyDisabled         JSONErrorCode = 40004
+	JSONErrorCodeRequestEntityTooLarge                   JSONErrorCode = 40005
+	JSONErrorCodeFeatureTemporarilyDisabled              JSONErrorCode = 40006
+	JSONErrorCodeUserBannedFromGuild                     JSONErrorCode = 40007
+	JSONErrorCodeConnectionRevoked                       JSONErrorCode = 40012
+	JSONErrorCodeOnlyConsumableSKUsCanBeConsumed         JSONErrorCode = 40018
+	JSONErrorCodeCanOnlyDeleteSandboxEntitlements        JSONErrorCode = 40019
+	JSONErrorCodeTargetUserNotConnectedToVoice           JSONErrorCode = 40032
+	JSONErrorCodeMessageAlreadyCrossposted               JSONErrorCode = 40033
+	JSONErrorCodeApplicationCommandWithNameAlreadyExists JSONErrorCode = 40041
+	JSONErrorCodeApplicationInteractionFailedToSend      JSONErrorCode = 40043
+	JSONErrorCodeCannotSendMessageInForumChannel         JSONErrorCode = 40058
+	JSONErrorCodeInteractionAlreadyAcknowledged          JSONErrorCode = 40060
+	JSONErrorCodeTagNamesMustBeUnique                    JSONErrorCode = 40061
+	JSONErrorCodeServiceResourceRateLimited              JSONErrorCode = 40062
+	JSONErrorCodeNoTagsAvailableForNonModerators         JSONErrorCode = 40066
+	JSONErrorCodeTagRequiredToCreateForumPost            JSONErrorCode = 40067
+	JSONErrorCodeEntitlementAlreadyGrantedForResource    JSONErrorCode = 40074
+	JSONErrorCodeInteractionMaxFollowUpMessagesReached   JSONErrorCode = 40094
 
 	// Cloudflare blocking
-	ErrorCodeCloudflareBlockingRequest ErrorCode = 40333
+	JSONErrorCodeCloudflareBlockingRequest JSONErrorCode = 40333
 
 	// Invalid/missing errors
-	ErrorCodeMissingAccess                                ErrorCode = 50001
-	ErrorCodeInvalidAccountType                           ErrorCode = 50002
-	ErrorCodeCannotExecuteActionOnDMChannel               ErrorCode = 50003
-	ErrorCodeGuildWidgetDisabled                          ErrorCode = 50004
-	ErrorCodeCannotEditMessageAuthoredByAnotherUser       ErrorCode = 50005
-	ErrorCodeCannotSendEmptyMessage                       ErrorCode = 50006
-	ErrorCodeCannotSendMessagesToThisUser                 ErrorCode = 50007
-	ErrorCodeCannotSendMessagesInNonTextChannel           ErrorCode = 50008
-	ErrorCodeChannelVerificationLevelTooHigh              ErrorCode = 50009
-	ErrorCodeOAuth2ApplicationDoesNotHaveBot              ErrorCode = 50010
-	ErrorCodeOAuth2ApplicationLimitReached                ErrorCode = 50011
-	ErrorCodeInvalidOAuth2State                           ErrorCode = 50012
-	ErrorCodeLackPermissionsToPerformAction               ErrorCode = 50013
-	ErrorCodeInvalidAuthenticationToken                   ErrorCode = 50014
-	ErrorCodeNoteTooLong                                  ErrorCode = 50015
-	ErrorCodeTooFewOrTooManyMessagesToDelete              ErrorCode = 50016
-	ErrorCodeInvalidMFALevel                              ErrorCode = 50017
-	ErrorCodeMessageCanOnlyBePinnedToOriginalChannel      ErrorCode = 50019
-	ErrorCodeInviteCodeInvalidOrTaken                     ErrorCode = 50020
-	ErrorCodeCannotExecuteActionOnSystemMessage           ErrorCode = 50021
-	ErrorCodeCannotExecuteActionOnThisChannelType         ErrorCode = 50024
-	ErrorCodeInvalidOAuth2AccessToken                     ErrorCode = 50025
-	ErrorCodeMissingRequiredOAuth2Scope                   ErrorCode = 50026
-	ErrorCodeInvalidWebhookToken                          ErrorCode = 50027
-	ErrorCodeInvalidRole                                  ErrorCode = 50028
-	ErrorCodeInvalidRecipients                            ErrorCode = 50033
-	ErrorCodeMessageTooOldToBulkDelete                    ErrorCode = 50034
-	ErrorCodeInvalidFormBody                              ErrorCode = 50035
-	ErrorCodeInviteAcceptedToGuildBotNotIn                ErrorCode = 50036
-	ErrorCodeInvalidActivityAction                        ErrorCode = 50039
-	ErrorCodeInvalidAPIVersion                            ErrorCode = 50041
-	ErrorCodeFileUploadedExceedsMaximumSize               ErrorCode = 50045
-	ErrorCodeInvalidFileUploaded                          ErrorCode = 50046
-	ErrorCodeCannotSelfRedeemGift                         ErrorCode = 50054
-	ErrorCodeInvalidGuild                                 ErrorCode = 50055
-	ErrorCodeInvalidSKU                                   ErrorCode = 50057
-	ErrorCodeInvalidRequestOrigin                         ErrorCode = 50067
-	ErrorCodeInvalidMessageType                           ErrorCode = 50068
-	ErrorCodePaymentSourceRequiredToRedeemGift            ErrorCode = 50070
-	ErrorCodeCannotModifySystemWebhook                    ErrorCode = 50073
-	ErrorCodeCannotDeleteChannelRequiredForCommunity      ErrorCode = 50074
-	ErrorCodeCannotEditStickersWithinMessage              ErrorCode = 50080
-	ErrorCodeInvalidStickerSent                           ErrorCode = 50081
-	ErrorCodeOperationOnArchivedThread                    ErrorCode = 50083
-	ErrorCodeInvalidThreadNotificationSettings            ErrorCode = 50084
-	ErrorCodeBeforeValueEarlierThanThreadCreation         ErrorCode = 50085
-	ErrorCodeCommunityServerChannelsMustBeText            ErrorCode = 50086
-	ErrorCodeEntityTypeDifferentFromEventEntity           ErrorCode = 50091
-	ErrorCodeServerNotAvailableInLocation                 ErrorCode = 50095
-	ErrorCodeServerNeedsMonetizationEnabled               ErrorCode = 50097
-	ErrorCodeServerNeedsMoreBoosts                        ErrorCode = 50101
-	ErrorCodeRequestBodyContainsInvalidJSON               ErrorCode = 50109
-	ErrorCodeProvidedFileInvalid                          ErrorCode = 50110
-	ErrorCodeProvidedFileTypeInvalid                      ErrorCode = 50123
-	ErrorCodeProvidedFileDurationExceedsMaximum           ErrorCode = 50124
-	ErrorCodeOwnerCannotBePendingMember                   ErrorCode = 50131
-	ErrorCodeOwnershipCannotBeTransferredToBot            ErrorCode = 50132
-	ErrorCodeFailedToResizeAssetBelowMaximumSize          ErrorCode = 50138
-	ErrorCodeCannotMixSubscriptionAndNonSubscriptionRoles ErrorCode = 50144
-	ErrorCodeCannotConvertBetweenPremiumAndNormalEmoji    ErrorCode = 50145
-	ErrorCodeUploadedFileNotFound                         ErrorCode = 50146
-	ErrorCodeSpecifiedEmojiInvalid                        ErrorCode = 50151
-	ErrorCodeVoiceMessagesDoNotSupportAdditionalContent   ErrorCode = 50159
-	ErrorCodeVoiceMessagesMustHaveSingleAudioAttachment   ErrorCode = 50160
-	ErrorCodeVoiceMessagesMustHaveSupportingMetadata      ErrorCode = 50161
-	ErrorCodeVoiceMessagesCannotBeEdited                  ErrorCode = 50162
-	ErrorCodeCannotDeleteGuildSubscriptionIntegration     ErrorCode = 50163
-	ErrorCodeCannotSendVoiceMessagesInChannel             ErrorCode = 50173
-	ErrorCodeUserAccountMustFirstBeVerified               ErrorCode = 50178
-	ErrorCodeProvidedFileDoesNotHaveValidDuration         ErrorCode = 50192
+	JSONErrorCodeMissingAccess                                JSONErrorCode = 50001
+	JSONErrorCodeInvalidAccountType                           JSONErrorCode = 50002
+	JSONErrorCodeCannotExecuteActionOnDMChannel               JSONErrorCode = 50003
+	JSONErrorCodeGuildWidgetDisabled                          JSONErrorCode = 50004
+	JSONErrorCodeCannotEditMessageAuthoredByAnotherUser       JSONErrorCode = 50005
+	JSONErrorCodeCannotSendEmptyMessage                       JSONErrorCode = 50006
+	JSONErrorCodeCannotSendMessagesToThisUser                 JSONErrorCode = 50007
+	JSONErrorCodeCannotSendMessagesInNonTextChannel           JSONErrorCode = 50008
+	JSONErrorCodeChannelVerificationLevelTooHigh              JSONErrorCode = 50009
+	JSONErrorCodeOAuth2ApplicationDoesNotHaveBot              JSONErrorCode = 50010
+	JSONErrorCodeOAuth2ApplicationLimitReached                JSONErrorCode = 50011
+	JSONErrorCodeInvalidOAuth2State                           JSONErrorCode = 50012
+	JSONErrorCodeLackPermissionsToPerformAction               JSONErrorCode = 50013
+	JSONErrorCodeInvalidAuthenticationToken                   JSONErrorCode = 50014
+	JSONErrorCodeNoteTooLong                                  JSONErrorCode = 50015
+	JSONErrorCodeTooFewOrTooManyMessagesToDelete              JSONErrorCode = 50016
+	JSONErrorCodeInvalidMFALevel                              JSONErrorCode = 50017
+	JSONErrorCodeMessageCanOnlyBePinnedToOriginalChannel      JSONErrorCode = 50019
+	JSONErrorCodeInviteCodeInvalidOrTaken                     JSONErrorCode = 50020
+	JSONErrorCodeCannotExecuteActionOnSystemMessage           JSONErrorCode = 50021
+	JSONErrorCodeCannotExecuteActionOnThisChannelType         JSONErrorCode = 50024
+	JSONErrorCodeInvalidOAuth2AccessToken                     JSONErrorCode = 50025
+	JSONErrorCodeMissingRequiredOAuth2Scope                   JSONErrorCode = 50026
+	JSONErrorCodeInvalidWebhookToken                          JSONErrorCode = 50027
+	JSONErrorCodeInvalidRole                                  JSONErrorCode = 50028
+	JSONErrorCodeInvalidRecipients                            JSONErrorCode = 50033
+	JSONErrorCodeMessageTooOldToBulkDelete                    JSONErrorCode = 50034
+	JSONErrorCodeInvalidFormBody                              JSONErrorCode = 50035
+	JSONErrorCodeInviteAcceptedToGuildBotNotIn                JSONErrorCode = 50036
+	JSONErrorCodeInvalidActivityAction                        JSONErrorCode = 50039
+	JSONErrorCodeInvalidAPIVersion                            JSONErrorCode = 50041
+	JSONErrorCodeFileUploadedExceedsMaximumSize               JSONErrorCode = 50045
+	JSONErrorCodeInvalidFileUploaded                          JSONErrorCode = 50046
+	JSONErrorCodeCannotSelfRedeemGift                         JSONErrorCode = 50054
+	JSONErrorCodeInvalidGuild                                 JSONErrorCode = 50055
+	JSONErrorCodeInvalidSKU                                   JSONErrorCode = 50057
+	JSONErrorCodeInvalidRequestOrigin                         JSONErrorCode = 50067
+	JSONErrorCodeInvalidMessageType                           JSONErrorCode = 50068
+	JSONErrorCodePaymentSourceRequiredToRedeemGift            JSONErrorCode = 50070
+	JSONErrorCodeCannotModifySystemWebhook                    JSONErrorCode = 50073
+	JSONErrorCodeCannotDeleteChannelRequiredForCommunity      JSONErrorCode = 50074
+	JSONErrorCodeCannotEditStickersWithinMessage              JSONErrorCode = 50080
+	JSONErrorCodeInvalidStickerSent                           JSONErrorCode = 50081
+	JSONErrorCodeOperationOnArchivedThread                    JSONErrorCode = 50083
+	JSONErrorCodeInvalidThreadNotificationSettings            JSONErrorCode = 50084
+	JSONErrorCodeBeforeValueEarlierThanThreadCreation         JSONErrorCode = 50085
+	JSONErrorCodeCommunityServerChannelsMustBeText            JSONErrorCode = 50086
+	JSONErrorCodeEntityTypeDifferentFromEventEntity           JSONErrorCode = 50091
+	JSONErrorCodeServerNotAvailableInLocation                 JSONErrorCode = 50095
+	JSONErrorCodeServerNeedsMonetizationEnabled               JSONErrorCode = 50097
+	JSONErrorCodeServerNeedsMoreBoosts                        JSONErrorCode = 50101
+	JSONErrorCodeRequestBodyContainsInvalidJSON               JSONErrorCode = 50109
+	JSONErrorCodeProvidedFileInvalid                          JSONErrorCode = 50110
+	JSONErrorCodeProvidedFileTypeInvalid                      JSONErrorCode = 50123
+	JSONErrorCodeProvidedFileDurationExceedsMaximum           JSONErrorCode = 50124
+	JSONErrorCodeOwnerCannotBePendingMember                   JSONErrorCode = 50131
+	JSONErrorCodeOwnershipCannotBeTransferredToBot            JSONErrorCode = 50132
+	JSONErrorCodeFailedToResizeAssetBelowMaximumSize          JSONErrorCode = 50138
+	JSONErrorCodeCannotMixSubscriptionAndNonSubscriptionRoles JSONErrorCode = 50144
+	JSONErrorCodeCannotConvertBetweenPremiumAndNormalEmoji    JSONErrorCode = 50145
+	JSONErrorCodeUploadedFileNotFound                         JSONErrorCode = 50146
+	JSONErrorCodeSpecifiedEmojiInvalid                        JSONErrorCode = 50151
+	JSONErrorCodeVoiceMessagesDoNotSupportAdditionalContent   JSONErrorCode = 50159
+	JSONErrorCodeVoiceMessagesMustHaveSingleAudioAttachment   JSONErrorCode = 50160
+	JSONErrorCodeVoiceMessagesMustHaveSupportingMetadata      JSONErrorCode = 50161
+	JSONErrorCodeVoiceMessagesCannotBeEdited                  JSONErrorCode = 50162
+	JSONErrorCodeCannotDeleteGuildSubscriptionIntegration     JSONErrorCode = 50163
+	JSONErrorCodeCannotSendVoiceMessagesInChannel             JSONErrorCode = 50173
+	JSONErrorCodeUserAccountMustFirstBeVerified               JSONErrorCode = 50178
+	JSONErrorCodeProvidedFileDoesNotHaveValidDuration         JSONErrorCode = 50192
 
 	// Permission error
-	ErrorCodeNoPermissionToSendSticker ErrorCode = 50600
+	JSONErrorCodeNoPermissionToSendSticker JSONErrorCode = 50600
 
 	// Two factor required
-	ErrorCodeTwoFactorRequired ErrorCode = 60003
+	JSONErrorCodeTwoFactorRequired JSONErrorCode = 60003
 
 	// No users with DiscordTag
-	ErrorCodeNoUsersWithDiscordTagExist ErrorCode = 80004
+	JSONErrorCodeNoUsersWithDiscordTagExist JSONErrorCode = 80004
 
 	// Reaction errors
-	ErrorCodeReactionBlocked             ErrorCode = 90001
-	ErrorCodeUserCannotUseBurstReactions ErrorCode = 90002
+	JSONErrorCodeReactionBlocked             JSONErrorCode = 90001
+	JSONErrorCodeUserCannotUseBurstReactions JSONErrorCode = 90002
 
 	// Application not available
-	ErrorCodeApplicationNotYetAvailable ErrorCode = 110001
+	JSONErrorCodeApplicationNotYetAvailable JSONErrorCode = 110001
 
 	// API overloaded
-	ErrorCodeAPIResourceOverloaded ErrorCode = 130000
+	JSONErrorCodeAPIResourceOverloaded JSONErrorCode = 130000
 
 	// Stage already open
-	ErrorCodeStageAlreadyOpen ErrorCode = 150006
+	JSONErrorCodeStageAlreadyOpen JSONErrorCode = 150006
 
 	// Thread errors
-	ErrorCodeCannotReplyWithoutReadMessageHistoryPermission ErrorCode = 160002
-	ErrorCodeThreadAlreadyCreatedForMessage                 ErrorCode = 160004
-	ErrorCodeThreadLocked                                   ErrorCode = 160005
-	ErrorCodeMaximumActiveThreadsReached                    ErrorCode = 160006
-	ErrorCodeMaximumActiveAnnouncementThreadsReached        ErrorCode = 160007
+	JSONErrorCodeCannotReplyWithoutReadMessageHistoryPermission JSONErrorCode = 160002
+	JSONErrorCodeThreadAlreadyCreatedForMessage                 JSONErrorCode = 160004
+	JSONErrorCodeThreadLocked                                   JSONErrorCode = 160005
+	JSONErrorCodeMaximumActiveThreadsReached                    JSONErrorCode = 160006
+	JSONErrorCodeMaximumActiveAnnouncementThreadsReached        JSONErrorCode = 160007
 
 	// Lottie/sticker errors
-	ErrorCodeInvalidJSONForUploadedLottieFile             ErrorCode = 170001
-	ErrorCodeUploadedLottiesCannotContainRasterizedImages ErrorCode = 170002
-	ErrorCodeStickerMaximumFramerateExceeded              ErrorCode = 170003
-	ErrorCodeStickerFrameCountExceedsMaximum              ErrorCode = 170004
-	ErrorCodeLottieAnimationMaximumDimensionsExceeded     ErrorCode = 170005
-	ErrorCodeStickerFrameRateTooSmallOrTooLarge           ErrorCode = 170006
-	ErrorCodeStickerAnimationDurationExceedsMaximum       ErrorCode = 170007
+	JSONErrorCodeInvalidJSONForUploadedLottieFile             JSONErrorCode = 170001
+	JSONErrorCodeUploadedLottiesCannotContainRasterizedImages JSONErrorCode = 170002
+	JSONErrorCodeStickerMaximumFramerateExceeded              JSONErrorCode = 170003
+	JSONErrorCodeStickerFrameCountExceedsMaximum              JSONErrorCode = 170004
+	JSONErrorCodeLottieAnimationMaximumDimensionsExceeded     JSONErrorCode = 170005
+	JSONErrorCodeStickerFrameRateTooSmallOrTooLarge           JSONErrorCode = 170006
+	JSONErrorCodeStickerAnimationDurationExceedsMaximum       JSONErrorCode = 170007
 
 	// Event errors
-	ErrorCodeCannotUpdateFinishedEvent        ErrorCode = 180000
-	ErrorCodeFailedToCreateStageForStageEvent ErrorCode = 180002
+	JSONErrorCodeCannotUpdateFinishedEvent        JSONErrorCode = 180000
+	JSONErrorCodeFailedToCreateStageForStageEvent JSONErrorCode = 180002
 
 	// Auto moderation
-	ErrorCodeMessageBlockedByAutomaticModeration ErrorCode = 200000
-	ErrorCodeTitleBlockedByAutomaticModeration   ErrorCode = 200001
+	JSONErrorCodeMessageBlockedByAutomaticModeration JSONErrorCode = 200000
+	JSONErrorCodeTitleBlockedByAutomaticModeration   JSONErrorCode = 200001
 
 	// Webhook errors
-	ErrorCodeWebhooksPostedToForumChannelsMustHaveThreadNameOrID        ErrorCode = 220001
-	ErrorCodeWebhooksPostedToForumChannelsCannotHaveBothThreadNameAndID ErrorCode = 220002
-	ErrorCodeWebhooksCanOnlyCreateThreadsInForumChannels                ErrorCode = 220003
-	ErrorCodeWebhookServicesCannotBeUsedInForumChannels                 ErrorCode = 220004
+	JSONErrorCodeWebhooksPostedToForumChannelsMustHaveThreadNameOrID        JSONErrorCode = 220001
+	JSONErrorCodeWebhooksPostedToForumChannelsCannotHaveBothThreadNameAndID JSONErrorCode = 220002
+	JSONErrorCodeWebhooksCanOnlyCreateThreadsInForumChannels                JSONErrorCode = 220003
+	JSONErrorCodeWebhookServicesCannotBeUsedInForumChannels                 JSONErrorCode = 220004
 
 	// Harmful links
-	ErrorCodeMessageBlockedByHarmfulLinksFilter ErrorCode = 240000
+	JSONErrorCodeMessageBlockedByHarmfulLinksFilter JSONErrorCode = 240000
 
 	// Onboarding errors
-	ErrorCodeCannotEnableOnboardingRequirementsNotMet     ErrorCode = 350000
-	ErrorCodeCannotUpdateOnboardingWhileBelowRequirements ErrorCode = 350001
+	JSONErrorCodeCannotEnableOnboardingRequirementsNotMet     JSONErrorCode = 350000
+	JSONErrorCodeCannotUpdateOnboardingWhileBelowRequirements JSONErrorCode = 350001
 
 	// File upload limit
-	ErrorCodeAccessToFileUploadsLimitedForGuild ErrorCode = 400001
+	JSONErrorCodeAccessToFileUploadsLimitedForGuild JSONErrorCode = 400001
 
 	// Failed to ban users
-	ErrorCodeFailedToBanUsers ErrorCode = 500000
+	JSONErrorCodeFailedToBanUsers JSONErrorCode = 500000
 
 	// Poll errors
-	ErrorCodePollVotingBlocked                 ErrorCode = 520000
-	ErrorCodePollExpired                       ErrorCode = 520001
-	ErrorCodeInvalidChannelTypeForPollCreation ErrorCode = 520002
-	ErrorCodeCannotEditPollMessage             ErrorCode = 520003
-	ErrorCodeCannotUseEmojiIncludedWithPoll    ErrorCode = 520004
-	ErrorCodeCannotExpireNonPollMessage        ErrorCode = 520006
+	JSONErrorCodePollVotingBlocked                 JSONErrorCode = 520000
+	JSONErrorCodePollExpired                       JSONErrorCode = 520001
+	JSONErrorCodeInvalidChannelTypeForPollCreation JSONErrorCode = 520002
+	JSONErrorCodeCannotEditPollMessage             JSONErrorCode = 520003
+	JSONErrorCodeCannotUseEmojiIncludedWithPoll    JSONErrorCode = 520004
+	JSONErrorCodeCannotExpireNonPollMessage        JSONErrorCode = 520006
 )
 
 var _ error = (*Error)(nil)
@@ -299,7 +299,7 @@ type Error struct {
 	Response *http.Response `json:"-"`
 	RsBody   []byte         `json:"-"`
 
-	Code    ErrorCode       `json:"code"`
+	Code    JSONErrorCode   `json:"code"`
 	Errors  json.RawMessage `json:"errors"`
 	Message string          `json:"message"`
 }
@@ -380,8 +380,8 @@ func parseErrors(prefix string, err map[string]any) string {
 	return strings.Join(s, "\n")
 }
 
-// IsRestErrorCode returns true if the error is a *Error with one of the given error codes
-func IsRestErrorCode(err error, codes ...ErrorCode) bool {
+// IsJSONErrorCode returns true if the error is a *Error with one of the given error codes
+func IsJSONErrorCode(err error, codes ...JSONErrorCode) bool {
 	var restErr *Error
 	if ok := errors.As(err, &restErr); !ok {
 		return false
