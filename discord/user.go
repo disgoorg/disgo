@@ -37,7 +37,6 @@ const (
 	UserFlagBotHTTPInteractions
 	_
 	_
-	UserFlagActiveDeveloper
 	UserFlagsNone UserFlags = 0
 )
 
