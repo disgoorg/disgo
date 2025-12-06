@@ -38,7 +38,7 @@ const (
 	AttachmentFlagIsThumbnail
 	AttachmentFlagIsRemix
 	AttachmentFlagIsSpoiler
-	AttachmentFlagContainsExplicitMedia
+	_
 	AttachmentFlagIsAnimated
 	AttachmentFlagsNone AttachmentFlags = 0
 )

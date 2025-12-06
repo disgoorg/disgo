@@ -57,18 +57,20 @@ func (e Embed) FindAllFields(fieldFindFunc func(field EmbedField) bool) []EmbedF
 type EmbedFlags int
 
 const (
-	EmbedFlagContainsExplicitMedia EmbedFlags = 1 << (iota + 4)
-	EmbedFlagIsContentInventoryEntry
-	EmbedFlagsNone EmbedFlags = 0
+	EmbedFlagIsContentInventoryEntry EmbedFlags = 1 << (iota + 5)
+	EmbedFlagsNone                   EmbedFlags = 0
 )
 
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
 type EmbedResource struct {
-	URL      string             `json:"url,omitempty"`
-	ProxyURL string             `json:"proxy_url,omitempty"`
-	Height   int                `json:"height,omitempty"`
-	Width    int                `json:"width,omitempty"`
-	Flags    EmbedResourceFlags `json:"flags,omitempty"`
+	URL                string             `json:"url,omitempty"`
+	ProxyURL           string             `json:"proxy_url,omitempty"`
+	Height             int                `json:"height,omitempty"`
+	Width              int                `json:"width,omitempty"`
+	Placeholder        string             `json:"placeholder,omitempty"`
+	PlaceholderVersion string             `json:"placeholder_version,omitempty"`
+	Description        string             `json:"description,omitempty"`
+	Flags              EmbedResourceFlags `json:"flags,omitempty"`
 }
 
 type EmbedResourceFlags int
