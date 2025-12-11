@@ -15,3 +15,14 @@ func WithCtx(ctx context.Context) AccessOpt {
 		config.Ctx = ctx
 	}
 }
+
+func resolveAccessConfig(opts []AccessOpt) *accessConfig {
+	cfg := &accessConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	if cfg.Ctx == nil {
+		cfg.Ctx = context.Background()
+	}
+	return cfg
+}

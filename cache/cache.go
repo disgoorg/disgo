@@ -3,7 +3,6 @@ package cache
 import (
 	"errors"
 	"iter"
-	"sync"
 
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -52,7 +51,7 @@ func NewCache[T any](flags Flags, neededFlags Flags, policy Policy[T]) Cache[T] 
 
 // DefaultCache is a simple thread safe cache key value store.
 type DefaultCache[T any] struct {
-	mu          sync.RWMutex
+	mu          RWMutex
 	flags       Flags
 	neededFlags Flags
 	policy      Policy[T]
@@ -61,19 +60,11 @@ type DefaultCache[T any] struct {
 
 func (c *DefaultCache[T]) Get(id snowflake.ID, opts ...AccessOpt) (T, error) {
 	var zero T
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return zero, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.RLock()
+	if err := c.mu.RLock(cfg.Ctx); err != nil {
+		return zero, err
+	}
 	defer c.mu.RUnlock()
 	entity, ok := c.cache[id]
 	if !ok {
@@ -83,17 +74,7 @@ func (c *DefaultCache[T]) Get(id snowflake.ID, opts ...AccessOpt) (T, error) {
 }
 
 func (c *DefaultCache[T]) Put(id snowflake.ID, entity T, opts ...AccessOpt) error {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
 	if c.flags.Missing(c.neededFlags) {
 		return nil
@@ -101,7 +82,9 @@ func (c *DefaultCache[T]) Put(id snowflake.ID, entity T, opts ...AccessOpt) erro
 	if c.policy != nil && !c.policy(entity) {
 		return nil
 	}
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
 	defer c.mu.Unlock()
 	c.cache[id] = entity
 	return nil
@@ -109,19 +92,11 @@ func (c *DefaultCache[T]) Put(id snowflake.ID, entity T, opts ...AccessOpt) erro
 
 func (c *DefaultCache[T]) Remove(id snowflake.ID, opts ...AccessOpt) (T, error) {
 	var zero T
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return zero, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return zero, err
+	}
 	defer c.mu.Unlock()
 	entity, ok := c.cache[id]
 	if !ok {
@@ -132,19 +107,11 @@ func (c *DefaultCache[T]) Remove(id snowflake.ID, opts ...AccessOpt) (T, error) 
 }
 
 func (c *DefaultCache[T]) RemoveIf(filterFunc FilterFunc[T], opts ...AccessOpt) error {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
 	defer c.mu.Unlock()
 	for id, entity := range c.cache {
 		if filterFunc(entity) {
@@ -155,47 +122,24 @@ func (c *DefaultCache[T]) RemoveIf(filterFunc FilterFunc[T], opts ...AccessOpt) 
 }
 
 func (c *DefaultCache[T]) Len(opts ...AccessOpt) (int, error) {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return 0, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.RLock()
+	if err := c.mu.RLock(cfg.Ctx); err != nil {
+		return 0, err
+	}
 	defer c.mu.RUnlock()
 	return len(c.cache), nil
 }
 
 func (c *DefaultCache[T]) All(opts ...AccessOpt) (iter.Seq[T], error) {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return nil, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
 	return func(yield func(T) bool) {
-		c.mu.RLock()
+		if err := c.mu.RLock(cfg.Ctx); err != nil {
+			return
+		}
 		defer c.mu.RUnlock()
 		for _, entity := range c.cache {
-			if cfg.Ctx != nil {
-				select {
-				case <-cfg.Ctx.Done():
-					return
-				default:
-				}
-			}
 			if !yield(entity) {
 				break
 			}

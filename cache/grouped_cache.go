@@ -2,7 +2,6 @@ package cache
 
 import (
 	"iter"
-	"sync"
 
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -57,7 +56,7 @@ func NewGroupedCache[T any](flags Flags, neededFlags Flags, policy Policy[T]) Gr
 }
 
 type defaultGroupedCache[T any] struct {
-	mu          sync.RWMutex
+	mu          RWMutex
 	flags       Flags
 	neededFlags Flags
 	policy      Policy[T]
@@ -66,19 +65,11 @@ type defaultGroupedCache[T any] struct {
 
 func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID, opts ...AccessOpt) (T, error) {
 	var zero T
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return zero, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.RLock()
+	if err := c.mu.RLock(cfg.Ctx); err != nil {
+		return zero, err
+	}
 	defer c.mu.RUnlock()
 
 	if groupEntities, ok := c.cache[groupID]; ok {
@@ -91,17 +82,7 @@ func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID, opts
 }
 
 func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T, opts ...AccessOpt) error {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
 	if c.flags.Missing(c.neededFlags) {
 		return nil
@@ -109,7 +90,9 @@ func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, enti
 	if c.policy != nil && !c.policy(entity) {
 		return nil
 	}
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
 	defer c.mu.Unlock()
 
 	if c.cache == nil {
@@ -128,19 +111,11 @@ func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, enti
 
 func (c *defaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID, opts ...AccessOpt) (T, error) {
 	var zero T
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return zero, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return zero, err
+	}
 	defer c.mu.Unlock()
 
 	if groupEntities, ok := c.cache[groupID]; ok {
@@ -153,19 +128,11 @@ func (c *defaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID, o
 }
 
 func (c *defaultGroupedCache[T]) GroupRemove(groupID snowflake.ID, opts ...AccessOpt) error {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
 	defer c.mu.Unlock()
 
 	delete(c.cache, groupID)
@@ -173,19 +140,11 @@ func (c *defaultGroupedCache[T]) GroupRemove(groupID snowflake.ID, opts ...Acces
 }
 
 func (c *defaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T], opts ...AccessOpt) error {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
 	defer c.mu.Unlock()
 
 	for groupID := range c.cache {
@@ -199,19 +158,11 @@ func (c *defaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T], opts 
 }
 
 func (c *defaultGroupedCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T], opts ...AccessOpt) error {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.Lock()
+	if err := c.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
 	defer c.mu.Unlock()
 
 	if groupEntities, ok := c.cache[groupID]; ok {
@@ -225,21 +176,14 @@ func (c *defaultGroupedCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc 
 }
 
 func (c *defaultGroupedCache[T]) Len(opts ...AccessOpt) (int, error) {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
+	cfg := resolveAccessConfig(opts)
+
+	if err := c.mu.RLock(cfg.Ctx); err != nil {
+		return 0, err
 	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return 0, cfg.Ctx.Err()
-		default:
-		}
-	}
+	defer c.mu.RUnlock()
 
 	var totalLen int
-	c.mu.RLock()
-	defer c.mu.RUnlock()
 	for _, groupEntities := range c.cache {
 		totalLen += len(groupEntities)
 	}
@@ -247,19 +191,11 @@ func (c *defaultGroupedCache[T]) Len(opts ...AccessOpt) (int, error) {
 }
 
 func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID, opts ...AccessOpt) (int, error) {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return 0, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
-	c.mu.RLock()
+	if err := c.mu.RLock(cfg.Ctx); err != nil {
+		return 0, err
+	}
 	defer c.mu.RUnlock()
 	if groupEntities, ok := c.cache[groupID]; ok {
 		return len(groupEntities), nil
@@ -268,30 +204,15 @@ func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID, opts ...AccessOp
 }
 
 func (c *defaultGroupedCache[T]) All(opts ...AccessOpt) (iter.Seq2[snowflake.ID, T], error) {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return nil, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
 	return func(yield func(snowflake.ID, T) bool) {
-		c.mu.RLock()
+		if err := c.mu.RLock(cfg.Ctx); err != nil {
+			return
+		}
 		defer c.mu.RUnlock()
 
 		for groupID, groupEntities := range c.cache {
-			if cfg.Ctx != nil {
-				select {
-				case <-cfg.Ctx.Done():
-					return
-				default:
-				}
-			}
 			for _, entity := range groupEntities {
 				if !yield(groupID, entity) {
 					return
@@ -302,31 +223,16 @@ func (c *defaultGroupedCache[T]) All(opts ...AccessOpt) (iter.Seq2[snowflake.ID,
 }
 
 func (c *defaultGroupedCache[T]) GroupAll(groupID snowflake.ID, opts ...AccessOpt) (iter.Seq[T], error) {
-	cfg := &accessConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.Ctx != nil {
-		select {
-		case <-cfg.Ctx.Done():
-			return nil, cfg.Ctx.Err()
-		default:
-		}
-	}
+	cfg := resolveAccessConfig(opts)
 
 	return func(yield func(T) bool) {
-		c.mu.RLock()
+		if err := c.mu.RLock(cfg.Ctx); err != nil {
+			return
+		}
 		defer c.mu.RUnlock()
 
 		if groupEntities, ok := c.cache[groupID]; ok {
 			for _, entity := range groupEntities {
-				if cfg.Ctx != nil {
-					select {
-					case <-cfg.Ctx.Done():
-						return
-					default:
-					}
-				}
 				if !yield(entity) {
 					return
 				}
