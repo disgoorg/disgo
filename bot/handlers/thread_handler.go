@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
@@ -24,7 +27,10 @@ func gatewayHandlerThreadCreate(client *bot.Client, sequenceNumber int, shardID 
 }
 
 func gatewayHandlerThreadUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadUpdate) {
-	oldGuildThread, _ := client.Caches.GuildThread(event.ID())
+	oldGuildThread, err := client.Caches.GuildThread(event.ID())
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("thread_id", event.ID().String()))
+	}
 	client.Caches.AddChannel(event.GuildThread)
 
 	client.EventManager.DispatchEvent(&events.ThreadUpdate{
@@ -41,7 +47,11 @@ func gatewayHandlerThreadUpdate(client *bot.Client, sequenceNumber int, shardID 
 
 func gatewayHandlerThreadDelete(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadDelete) {
 	var thread discord.GuildThread
-	if channel, ok := client.Caches.RemoveChannel(event.ID); ok {
+	channel, err := client.Caches.RemoveChannel(event.ID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to remove channel from cache", slog.Any("err", err), slog.String("channel_id", event.ID.String()))
+	}
+	if err == nil {
 		thread, _ = channel.(discord.GuildThread)
 	}
 	client.Caches.RemoveThreadMembersByThreadID(event.ID)
@@ -78,7 +88,11 @@ func gatewayHandlerThreadMemberUpdate(_ *bot.Client, _ int, _ int, _ gateway.Eve
 func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadMembersUpdate) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	if thread, ok := client.Caches.GuildThread(event.ID); ok {
+	thread, err := client.Caches.GuildThread(event.ID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("thread_id", event.ID.String()))
+	}
+	if err == nil {
 		thread.MemberCount = event.MemberCount
 		client.Caches.AddChannel(thread)
 	}
@@ -106,7 +120,10 @@ func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, s
 	}
 
 	for _, removedMemberID := range event.RemovedMemberIDs {
-		threadMember, _ := client.Caches.RemoveThreadMember(event.ID, removedMemberID)
+		threadMember, err := client.Caches.RemoveThreadMember(event.ID, removedMemberID)
+		if err != nil && err != cache.ErrNotFound {
+			client.Logger.Error("failed to remove thread member from cache", slog.Any("err", err), slog.String("thread_id", event.ID.String()), slog.String("user_id", removedMemberID.String()))
+		}
 
 		client.EventManager.DispatchEvent(&events.ThreadMemberRemove{
 			GenericThreadMember: &events.GenericThreadMember{

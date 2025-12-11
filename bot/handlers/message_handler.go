@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"log/slog"
+
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
@@ -21,14 +24,22 @@ func gatewayHandlerMessageCreate(client *bot.Client, sequenceNumber int, shardID
 
 	client.Caches.AddMessage(event.Message)
 
-	if channel, ok := client.Caches.GuildMessageChannel(event.ChannelID); ok {
+	channel, err := client.Caches.GuildMessageChannel(event.ChannelID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get channel from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
+	}
+	if err == nil {
 		client.Caches.AddChannel(discord.ApplyLastMessageIDToChannel(channel, event.ID))
 	}
 
-	if channel, ok := client.Caches.GuildThread(event.ChannelID); ok {
-		channel.TotalMessageSent++
-		channel.MessageCount++
-		client.Caches.AddChannel(channel)
+	thread, err := client.Caches.GuildThread(event.ChannelID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
+	}
+	if err == nil {
+		thread.TotalMessageSent++
+		thread.MessageCount++
+		client.Caches.AddChannel(thread)
 	}
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
@@ -65,7 +76,10 @@ func gatewayHandlerMessageCreate(client *bot.Client, sequenceNumber int, shardID
 }
 
 func gatewayHandlerMessageUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageUpdate) {
-	oldMessage, _ := client.Caches.Message(event.ChannelID, event.ID)
+	oldMessage, err := client.Caches.Message(event.ChannelID, event.ID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get message from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()), slog.String("message_id", event.ID.String()))
+	}
 	client.Caches.AddMessage(event.Message)
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
@@ -117,13 +131,20 @@ func gatewayHandlerMessageDeleteBulk(client *bot.Client, sequenceNumber int, sha
 func handleMessageDelete(client *bot.Client, sequenceNumber int, shardID int, messageID snowflake.ID, channelID snowflake.ID, guildID *snowflake.ID) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	message, _ := client.Caches.RemoveMessage(channelID, messageID)
+	message, err := client.Caches.RemoveMessage(channelID, messageID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to remove message from cache", slog.Any("err", err), slog.String("channel_id", channelID.String()), slog.String("message_id", messageID.String()))
+	}
 
-	if channel, ok := client.Caches.GuildThread(channelID); ok {
-		if channel.MessageCount > 0 {
-			channel.MessageCount--
+	thread, err := client.Caches.GuildThread(channelID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("channel_id", channelID.String()))
+	}
+	if err == nil {
+		if thread.MessageCount > 0 {
+			thread.MessageCount--
 		}
-		client.Caches.AddChannel(channel)
+		client.Caches.AddChannel(thread)
 	}
 
 	client.EventManager.DispatchEvent(&events.MessageDelete{

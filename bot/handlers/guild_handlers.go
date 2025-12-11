@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
@@ -109,7 +110,10 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 }
 
 func gatewayHandlerGuildUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildUpdate) {
-	oldGuild, _ := client.Caches.Guild(event.ID)
+	oldGuild, err := client.Caches.Guild(event.ID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get guild from cache", slog.Any("err", err), slog.String("guild_id", event.ID.String()))
+	}
 	client.Caches.AddGuild(event.Guild)
 
 	client.EventManager.DispatchEvent(&events.GuildUpdate{
@@ -127,13 +131,19 @@ func gatewayHandlerGuildDelete(client *bot.Client, sequenceNumber int, shardID i
 		client.Caches.SetGuildUnavailable(event.ID, true)
 	}
 
-	guild, _ := client.Caches.RemoveGuild(event.ID)
+	guild, err := client.Caches.RemoveGuild(event.ID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to remove guild from cache", slog.Any("err", err), slog.String("guild_id", event.ID.String()))
+	}
 	client.Caches.RemoveVoiceStatesByGuildID(event.ID)
 	client.Caches.RemovePresencesByGuildID(event.ID)
 	// TODO: figure out a better way to remove thread members from cache via guild id without requiring cached GuildThreads
-	for channel := range client.Caches.Channels() {
-		if guildThread, ok := channel.(discord.GuildThread); ok && guildThread.GuildID() == event.ID {
-			client.Caches.RemoveThreadMembersByThreadID(guildThread.ID())
+	channels, err := client.Caches.Channels()
+	if err == nil {
+		for channel := range channels {
+			if guildThread, ok := channel.(discord.GuildThread); ok && guildThread.GuildID() == event.ID {
+				client.Caches.RemoveThreadMembersByThreadID(guildThread.ID())
+			}
 		}
 	}
 	client.Caches.RemoveChannelsByGuildID(event.ID)

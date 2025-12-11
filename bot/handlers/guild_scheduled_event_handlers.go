@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
@@ -18,7 +21,10 @@ func gatewayHandlerGuildScheduledEventCreate(client *bot.Client, sequenceNumber 
 }
 
 func gatewayHandlerGuildScheduledEventUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventUpdate) {
-	oldGuildScheduledEvent, _ := client.Caches.GuildScheduledEvent(event.GuildID, event.ID)
+	oldGuildScheduledEvent, err := client.Caches.GuildScheduledEvent(event.GuildID, event.ID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get guild scheduled event from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
 	client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent)
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventUpdate{

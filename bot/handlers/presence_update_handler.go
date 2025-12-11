@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"slices"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -30,7 +31,11 @@ func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardI
 		oldActivities   []discord.Activity
 	)
 
-	if oldPresence, ok := client.Caches.Presence(event.GuildID, event.PresenceUser.ID); ok {
+	oldPresence, err := client.Caches.Presence(event.GuildID, event.PresenceUser.ID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get presence from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.PresenceUser.ID.String()))
+	}
+	if err == nil {
 		oldStatus = oldPresence.Status
 		oldClientStatus = oldPresence.ClientStatus
 		oldActivities = oldPresence.Activities

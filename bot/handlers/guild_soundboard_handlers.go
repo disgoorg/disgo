@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
@@ -18,7 +21,10 @@ func gatewayHandlerGuildSoundboardSoundCreate(client *bot.Client, sequenceNumber
 }
 
 func gatewayHandlerGuildSoundboardSoundUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildSoundboardSoundUpdate) {
-	oldSound, _ := client.Caches.GuildSoundboardSound(*event.GuildID, event.SoundID)
+	oldSound, err := client.Caches.GuildSoundboardSound(*event.GuildID, event.SoundID)
+	if err != nil && err != cache.ErrNotFound {
+		client.Logger.Error("failed to get soundboard sound from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("sound_id", event.SoundID.String()))
+	}
 	client.Caches.AddGuildSoundboardSound(event.SoundboardSound)
 
 	client.EventManager.DispatchEvent(&events.GuildSoundboardSoundUpdate{
