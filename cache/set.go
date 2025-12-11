@@ -8,17 +8,17 @@ import (
 // Set is a collection of unique items. It should be thread-safe.
 type Set[T comparable] interface {
 	// Add adds an item to the set.
-	Add(item T, opts ...RequestOpt)
+	Add(item T, opts ...AccessOpt)
 	// Remove removes an item from the set.
-	Remove(item T, opts ...RequestOpt)
+	Remove(item T, opts ...AccessOpt)
 	// Has returns true if the item is in the set, false otherwise.
-	Has(item T, opts ...RequestOpt) bool
+	Has(item T, opts ...AccessOpt) bool
 	// Len returns the number of items in the set.
-	Len(opts ...RequestOpt) int
+	Len(opts ...AccessOpt) int
 	// Clear removes all items from the set.
-	Clear(opts ...RequestOpt)
+	Clear(opts ...AccessOpt)
 	// All returns an iterator over all items in the set.
-	All(opts ...RequestOpt) iter.Seq[T]
+	All(opts ...AccessOpt) iter.Seq[T]
 }
 
 type set[T comparable] struct {
@@ -33,38 +33,38 @@ func NewSet[T comparable]() Set[T] {
 	}
 }
 
-func (s *set[T]) Add(item T, _ ...RequestOpt) {
+func (s *set[T]) Add(item T, _ ...AccessOpt) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.items[item] = struct{}{}
 }
 
-func (s *set[T]) Remove(item T, _ ...RequestOpt) {
+func (s *set[T]) Remove(item T, _ ...AccessOpt) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.items, item)
 }
 
-func (s *set[T]) Has(item T, _ ...RequestOpt) bool {
+func (s *set[T]) Has(item T, _ ...AccessOpt) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	_, ok := s.items[item]
 	return ok
 }
 
-func (s *set[T]) Len(_ ...RequestOpt) int {
+func (s *set[T]) Len(_ ...AccessOpt) int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.items)
 }
 
-func (s *set[T]) Clear(_ ...RequestOpt) {
+func (s *set[T]) Clear(_ ...AccessOpt) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.items = make(map[T]struct{})
 }
 
-func (s *set[T]) All(_ ...RequestOpt) iter.Seq[T] {
+func (s *set[T]) All(_ ...AccessOpt) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		s.mu.RLock()
 		defer s.mu.RUnlock()
