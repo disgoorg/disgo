@@ -164,6 +164,7 @@ var (
 	UpdateRole          = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/roles/{role.id}")
 	UpdateRolePositions = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/roles")
 	DeleteRole          = NewEndpoint(http.MethodDelete, "/guilds/{guild.id}/roles/{role.id}")
+	GetRoleMemberCounts = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/roles/member-counts")
 )
 
 // Channels

@@ -32,6 +32,7 @@ type Guilds interface {
 	UpdateRole(guildID snowflake.ID, roleID snowflake.ID, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRolePositions(guildID snowflake.ID, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, error)
 	DeleteRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
+	GetRoleMemberCounts(guildID snowflake.ID, opts ...RequestOpt) (map[snowflake.ID]int, error)
 
 	GetBans(guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.Ban, error)
 	GetBansPage(guildID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Ban]
@@ -160,6 +161,11 @@ func (s *guildImpl) UpdateRolePositions(guildID snowflake.ID, rolePositionUpdate
 
 func (s *guildImpl) DeleteRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteRole.Compile(nil, guildID, roleID), nil, nil, opts...)
+}
+
+func (s *guildImpl) GetRoleMemberCounts(guildID snowflake.ID, opts ...RequestOpt) (memberCounts map[snowflake.ID]int, err error) {
+	err = s.client.Do(GetRoleMemberCounts.Compile(nil, guildID), nil, &memberCounts, opts...)
+	return
 }
 
 func (s *guildImpl) GetBans(guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) (bans []discord.Ban, err error) {
