@@ -3,6 +3,7 @@ package events
 import (
 	"github.com/disgoorg/snowflake/v2"
 
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 )
 
@@ -17,9 +18,9 @@ type GenericMessagePollVote struct {
 }
 
 // Guild returns the discord.Guild where the GenericMessagePollVote happened or empty if it happened in DMs
-func (e *GenericMessagePollVote) Guild() (discord.Guild, bool) {
+func (e *GenericMessagePollVote) Guild() (discord.Guild, error) {
 	if e.GuildID == nil {
-		return discord.Guild{}, false
+		return discord.Guild{}, cache.ErrNotFound
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }
