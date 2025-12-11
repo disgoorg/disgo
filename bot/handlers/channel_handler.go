@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 	"time"
 
@@ -26,7 +27,7 @@ func gatewayHandlerChannelCreate(client *bot.Client, sequenceNumber int, shardID
 
 func gatewayHandlerChannelUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventChannelUpdate) {
 	oldGuildChannel, err := client.Caches.Channel(event.ID())
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get channel from cache", slog.Any("err", err), slog.String("channel_id", event.ID().String()))
 	}
 	client.Caches.AddChannel(event.GuildChannel)
@@ -43,17 +44,17 @@ func gatewayHandlerChannelUpdate(client *bot.Client, sequenceNumber int, shardID
 
 	if event.Type() == discord.ChannelTypeGuildText || event.Type() == discord.ChannelTypeGuildNews {
 		member, err := client.Caches.Member(event.GuildChannel.GuildID(), client.ID())
-		if err != nil && err != cache.ErrNotFound {
+		if err != nil && !errors.Is(err, cache.ErrNotFound) {
 			client.Logger.Error("failed to get member from cache", slog.Any("err", err), slog.String("guild_id", event.GuildChannel.GuildID().String()), slog.String("user_id", client.ID().String()))
 		}
 		if err == nil {
 			permissions, err := client.Caches.MemberPermissionsInChannel(event.GuildChannel, member)
-			if err != nil && err != cache.ErrNotFound {
+			if err != nil && !errors.Is(err, cache.ErrNotFound) {
 				client.Logger.Error("failed to get member permissions from cache", slog.Any("err", err))
 			}
 			if err == nil && permissions.Missing(discord.PermissionViewChannel) {
 				guildThreads, err := client.Caches.GuildThreadsInChannel(event.ID())
-				if err != nil && err != cache.ErrNotFound {
+				if err != nil && !errors.Is(err, cache.ErrNotFound) {
 					client.Logger.Error("failed to get guild threads from cache", slog.Any("err", err))
 				}
 				if err == nil {
@@ -102,7 +103,7 @@ func gatewayHandlerChannelPinsUpdate(client *bot.Client, sequenceNumber int, sha
 
 	var oldTime *time.Time
 	channel, err := client.Caches.GuildMessageChannel(event.ChannelID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get channel from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
 	}
 	if err == nil {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 	"slices"
 
@@ -32,7 +33,7 @@ func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardI
 	)
 
 	oldPresence, err := client.Caches.Presence(event.GuildID, event.PresenceUser.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get presence from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.PresenceUser.ID.String()))
 	}
 	if err == nil {

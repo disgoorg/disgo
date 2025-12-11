@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
@@ -11,7 +12,7 @@ import (
 
 func gatewayHandlerGuildMemberAdd(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberAdd) {
 	guild, err := client.Caches.Guild(event.GuildID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get guild from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
 	}
 	if err == nil {
@@ -32,7 +33,7 @@ func gatewayHandlerGuildMemberAdd(client *bot.Client, sequenceNumber int, shardI
 
 func gatewayHandlerGuildMemberUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberUpdate) {
 	oldMember, err := client.Caches.Member(event.GuildID, event.User.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get member from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.User.ID.String()))
 	}
 	client.Caches.AddMember(event.Member)
@@ -49,7 +50,7 @@ func gatewayHandlerGuildMemberUpdate(client *bot.Client, sequenceNumber int, sha
 
 func gatewayHandlerGuildMemberRemove(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberRemove) {
 	guild, err := client.Caches.Guild(event.GuildID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get guild from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
 	}
 	if err == nil {
@@ -58,7 +59,7 @@ func gatewayHandlerGuildMemberRemove(client *bot.Client, sequenceNumber int, sha
 	}
 
 	member, err := client.Caches.RemoveMember(event.GuildID, event.User.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to remove member from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.User.ID.String()))
 	}
 

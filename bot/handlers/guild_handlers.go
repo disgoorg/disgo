@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
@@ -111,7 +112,7 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 
 func gatewayHandlerGuildUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildUpdate) {
 	oldGuild, err := client.Caches.Guild(event.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get guild from cache", slog.Any("err", err), slog.String("guild_id", event.ID.String()))
 	}
 	client.Caches.AddGuild(event.Guild)
@@ -132,7 +133,7 @@ func gatewayHandlerGuildDelete(client *bot.Client, sequenceNumber int, shardID i
 	}
 
 	guild, err := client.Caches.RemoveGuild(event.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to remove guild from cache", slog.Any("err", err), slog.String("guild_id", event.ID.String()))
 	}
 	client.Caches.RemoveVoiceStatesByGuildID(event.ID)

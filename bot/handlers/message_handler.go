@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -25,7 +26,7 @@ func gatewayHandlerMessageCreate(client *bot.Client, sequenceNumber int, shardID
 	client.Caches.AddMessage(event.Message)
 
 	channel, err := client.Caches.GuildMessageChannel(event.ChannelID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get channel from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
 	}
 	if err == nil {
@@ -33,7 +34,7 @@ func gatewayHandlerMessageCreate(client *bot.Client, sequenceNumber int, shardID
 	}
 
 	thread, err := client.Caches.GuildThread(event.ChannelID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
 	}
 	if err == nil {
@@ -77,7 +78,7 @@ func gatewayHandlerMessageCreate(client *bot.Client, sequenceNumber int, shardID
 
 func gatewayHandlerMessageUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageUpdate) {
 	oldMessage, err := client.Caches.Message(event.ChannelID, event.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get message from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()), slog.String("message_id", event.ID.String()))
 	}
 	client.Caches.AddMessage(event.Message)
@@ -132,12 +133,12 @@ func handleMessageDelete(client *bot.Client, sequenceNumber int, shardID int, me
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	message, err := client.Caches.RemoveMessage(channelID, messageID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to remove message from cache", slog.Any("err", err), slog.String("channel_id", channelID.String()), slog.String("message_id", messageID.String()))
 	}
 
 	thread, err := client.Caches.GuildThread(channelID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("channel_id", channelID.String()))
 	}
 	if err == nil {

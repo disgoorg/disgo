@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
@@ -28,7 +29,7 @@ func gatewayHandlerThreadCreate(client *bot.Client, sequenceNumber int, shardID 
 
 func gatewayHandlerThreadUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadUpdate) {
 	oldGuildThread, err := client.Caches.GuildThread(event.ID())
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("thread_id", event.ID().String()))
 	}
 	client.Caches.AddChannel(event.GuildThread)
@@ -48,7 +49,7 @@ func gatewayHandlerThreadUpdate(client *bot.Client, sequenceNumber int, shardID 
 func gatewayHandlerThreadDelete(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadDelete) {
 	var thread discord.GuildThread
 	channel, err := client.Caches.RemoveChannel(event.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to remove channel from cache", slog.Any("err", err), slog.String("channel_id", event.ID.String()))
 	}
 	if err == nil {
@@ -89,7 +90,7 @@ func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, s
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	thread, err := client.Caches.GuildThread(event.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("thread_id", event.ID.String()))
 	}
 	if err == nil {
@@ -121,7 +122,7 @@ func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, s
 
 	for _, removedMemberID := range event.RemovedMemberIDs {
 		threadMember, err := client.Caches.RemoveThreadMember(event.ID, removedMemberID)
-		if err != nil && err != cache.ErrNotFound {
+		if err != nil && !errors.Is(err, cache.ErrNotFound) {
 			client.Logger.Error("failed to remove thread member from cache", slog.Any("err", err), slog.String("thread_id", event.ID.String()), slog.String("user_id", removedMemberID.String()))
 		}
 

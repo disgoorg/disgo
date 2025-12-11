@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/binary"
+	"errors"
 	"io"
 	"log/slog"
 	"os"
@@ -95,7 +96,7 @@ func writeOpus(w io.Writer) {
 	for ; true; <-ticker.C {
 		err = binary.Read(file, binary.LittleEndian, &frameLen)
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				_ = file.Close()
 				return
 			}
@@ -105,7 +106,7 @@ func writeOpus(w io.Writer) {
 
 		// Copy the frame.
 		_, err = io.CopyN(w, file, int64(frameLen))
-		if err != nil && err != io.EOF {
+		if err != nil && !errors.Is(err, io.EOF) {
 			_ = file.Close()
 			return
 		}

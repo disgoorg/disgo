@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
@@ -11,7 +12,7 @@ import (
 
 func gatewayHandlerUserUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventUserUpdate) {
 	oldUser, err := client.Caches.SelfUser()
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get self user from cache", slog.Any("err", err))
 	}
 	client.Caches.SetSelfUser(event.OAuth2User)

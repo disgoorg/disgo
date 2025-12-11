@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
@@ -23,7 +24,7 @@ func gatewayHandlerStageInstanceCreate(client *bot.Client, sequenceNumber int, s
 
 func gatewayHandlerStageInstanceUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventStageInstanceUpdate) {
 	oldStageInstance, err := client.Caches.StageInstance(event.GuildID, event.ID)
-	if err != nil && err != cache.ErrNotFound {
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get stage instance from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("stage_instance_id", event.ID.String()))
 	}
 	client.Caches.AddStageInstance(event.StageInstance)
