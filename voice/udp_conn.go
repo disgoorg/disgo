@@ -113,7 +113,7 @@ func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
 
 	return &udpConnImpl{
 		config:        cfg,
-		receiveBuffer: make([]byte, 1400),
+		receiveBuffer: make([]byte, 2000),
 	}
 }
 
