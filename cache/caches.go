@@ -12,8 +12,8 @@ import (
 )
 
 type SelfUserCache interface {
-	SelfUser() (discord.OAuth2User, bool)
-	SetSelfUser(selfUser discord.OAuth2User)
+	SelfUser() (discord.OAuth2User, error)
+	SetSelfUser(selfUser discord.OAuth2User) error
 }
 
 func NewSelfUserCache() SelfUserCache {
@@ -25,21 +25,22 @@ type selfUserCacheImpl struct {
 	selfUser   *discord.OAuth2User
 }
 
-func (c *selfUserCacheImpl) SelfUser() (discord.OAuth2User, bool) {
+func (c *selfUserCacheImpl) SelfUser() (discord.OAuth2User, error) {
 	c.selfUserMu.Lock()
 	defer c.selfUserMu.Unlock()
 
 	if c.selfUser == nil {
-		return discord.OAuth2User{}, false
+		return discord.OAuth2User{}, ErrNotFound
 	}
-	return *c.selfUser, true
+	return *c.selfUser, nil
 }
 
-func (c *selfUserCacheImpl) SetSelfUser(user discord.OAuth2User) {
+func (c *selfUserCacheImpl) SetSelfUser(user discord.OAuth2User) error {
 	c.selfUserMu.Lock()
 	defer c.selfUserMu.Unlock()
 
 	c.selfUser = &user
+	return nil
 }
 
 type GuildCache interface {
@@ -53,11 +54,11 @@ type GuildCache interface {
 	SetGuildUnavailable(guildID snowflake.ID, unavailable bool, opts ...AccessOpt)
 	UnavailableGuildIDs(opts ...AccessOpt) []snowflake.ID
 
-	Guild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, bool)
-	Guilds(opts ...AccessOpt) iter.Seq[discord.Guild]
-	GuildsLen(opts ...AccessOpt) int
-	AddGuild(guild discord.Guild, opts ...AccessOpt)
-	RemoveGuild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, bool)
+	Guild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error)
+	Guilds(opts ...AccessOpt) (iter.Seq2[discord.Guild, error], error)
+	GuildsLen(opts ...AccessOpt) (int, error)
+	AddGuild(guild discord.Guild, opts ...AccessOpt) error
+	RemoveGuild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error)
 }
 
 func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds Set[snowflake.ID], unavailableGuilds Set[snowflake.ID]) GuildCache {
@@ -118,36 +119,36 @@ func (c *guildCacheImpl) UnavailableGuildIDs(opts ...AccessOpt) []snowflake.ID {
 	return guilds
 }
 
-func (c *guildCacheImpl) Guild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, bool) {
+func (c *guildCacheImpl) Guild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error) {
 	return c.cache.Get(guildID, opts...)
 }
 
-func (c *guildCacheImpl) Guilds(opts ...AccessOpt) iter.Seq[discord.Guild] {
+func (c *guildCacheImpl) Guilds(opts ...AccessOpt) (iter.Seq2[discord.Guild, error], error) {
 	return c.cache.All(opts...)
 }
 
-func (c *guildCacheImpl) GuildsLen(opts ...AccessOpt) int {
+func (c *guildCacheImpl) GuildsLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *guildCacheImpl) AddGuild(guild discord.Guild, opts ...AccessOpt) {
-	c.cache.Put(guild.ID, guild, opts...)
+func (c *guildCacheImpl) AddGuild(guild discord.Guild, opts ...AccessOpt) error {
+	return c.cache.Put(guild.ID, guild, opts...)
 }
 
-func (c *guildCacheImpl) RemoveGuild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, bool) {
+func (c *guildCacheImpl) RemoveGuild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error) {
 	return c.cache.Remove(guildID, opts...)
 }
 
 type ChannelCache interface {
 	ChannelCache() Cache[discord.GuildChannel]
 
-	Channel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, bool)
-	Channels(opts ...AccessOpt) iter.Seq[discord.GuildChannel]
-	ChannelsForGuild(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.GuildChannel]
-	ChannelsLen(opts ...AccessOpt) int
-	AddChannel(channel discord.GuildChannel, opts ...AccessOpt)
-	RemoveChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, bool)
-	RemoveChannelsByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	Channel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, error)
+	Channels(opts ...AccessOpt) (iter.Seq2[discord.GuildChannel, error], error)
+	ChannelsForGuild(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.GuildChannel], error)
+	ChannelsLen(opts ...AccessOpt) (int, error)
+	AddChannel(channel discord.GuildChannel, opts ...AccessOpt) error
+	RemoveChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, error)
+	RemoveChannelsByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewChannelCache(cache Cache[discord.GuildChannel]) ChannelCache {
@@ -164,40 +165,44 @@ func (c *channelCacheImpl) ChannelCache() Cache[discord.GuildChannel] {
 	return c.cache
 }
 
-func (c *channelCacheImpl) Channel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, bool) {
+func (c *channelCacheImpl) Channel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, error) {
 	return c.cache.Get(channelID, opts...)
 }
 
-func (c *channelCacheImpl) Channels(opts ...AccessOpt) iter.Seq[discord.GuildChannel] {
+func (c *channelCacheImpl) Channels(opts ...AccessOpt) (iter.Seq2[discord.GuildChannel, error], error) {
 	return c.cache.All(opts...)
 }
 
-func (c *channelCacheImpl) ChannelsForGuild(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.GuildChannel] {
+func (c *channelCacheImpl) ChannelsForGuild(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.GuildChannel], error) {
+	seq, err := c.Channels(opts...)
+	if err != nil {
+		return nil, err
+	}
 	return func(yield func(discord.GuildChannel) bool) {
-		for channel := range c.Channels(opts...) {
+		for channel := range seq {
 			if channel.GuildID() == guildID {
 				if !yield(channel) {
 					return
 				}
 			}
 		}
-	}
+	}, nil
 }
 
-func (c *channelCacheImpl) ChannelsLen(opts ...AccessOpt) int {
+func (c *channelCacheImpl) ChannelsLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *channelCacheImpl) AddChannel(channel discord.GuildChannel, opts ...AccessOpt) {
-	c.cache.Put(channel.ID(), channel, opts...)
+func (c *channelCacheImpl) AddChannel(channel discord.GuildChannel, opts ...AccessOpt) error {
+	return c.cache.Put(channel.ID(), channel, opts...)
 }
 
-func (c *channelCacheImpl) RemoveChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, bool) {
+func (c *channelCacheImpl) RemoveChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, error) {
 	return c.cache.Remove(channelID, opts...)
 }
 
-func (c *channelCacheImpl) RemoveChannelsByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.RemoveIf(func(channel discord.GuildChannel) bool {
+func (c *channelCacheImpl) RemoveChannelsByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.RemoveIf(func(channel discord.GuildChannel) bool {
 		return channel.GuildID() == guildID
 	}, opts...)
 }
@@ -205,13 +210,13 @@ func (c *channelCacheImpl) RemoveChannelsByGuildID(guildID snowflake.ID, opts ..
 type StageInstanceCache interface {
 	StageInstanceCache() GroupedCache[discord.StageInstance]
 
-	StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, bool)
-	StageInstances(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.StageInstance]
-	StageInstancesAllLen(opts ...AccessOpt) int
-	StageInstancesLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddStageInstance(stageInstance discord.StageInstance, opts ...AccessOpt)
-	RemoveStageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, bool)
-	RemoveStageInstancesByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, error)
+	StageInstances(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.StageInstance], error)
+	StageInstancesAllLen(opts ...AccessOpt) (int, error)
+	StageInstancesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddStageInstance(stageInstance discord.StageInstance, opts ...AccessOpt) error
+	RemoveStageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, error)
+	RemoveStageInstancesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewStageInstanceCache(cache GroupedCache[discord.StageInstance]) StageInstanceCache {
@@ -228,44 +233,44 @@ func (c *stageInstanceCacheImpl) StageInstanceCache() GroupedCache[discord.Stage
 	return c.cache
 }
 
-func (c *stageInstanceCacheImpl) StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, bool) {
+func (c *stageInstanceCacheImpl) StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, error) {
 	return c.cache.Get(guildID, stageInstanceID, opts...)
 }
 
-func (c *stageInstanceCacheImpl) StageInstances(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.StageInstance] {
+func (c *stageInstanceCacheImpl) StageInstances(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.StageInstance], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *stageInstanceCacheImpl) StageInstancesAllLen(opts ...AccessOpt) int {
+func (c *stageInstanceCacheImpl) StageInstancesAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *stageInstanceCacheImpl) StageInstancesLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *stageInstanceCacheImpl) StageInstancesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *stageInstanceCacheImpl) AddStageInstance(stageInstance discord.StageInstance, opts ...AccessOpt) {
-	c.cache.Put(stageInstance.GuildID, stageInstance.ID, stageInstance, opts...)
+func (c *stageInstanceCacheImpl) AddStageInstance(stageInstance discord.StageInstance, opts ...AccessOpt) error {
+	return c.cache.Put(stageInstance.GuildID, stageInstance.ID, stageInstance, opts...)
 }
 
-func (c *stageInstanceCacheImpl) RemoveStageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, bool) {
+func (c *stageInstanceCacheImpl) RemoveStageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID, opts ...AccessOpt) (discord.StageInstance, error) {
 	return c.cache.Remove(guildID, stageInstanceID, opts...)
 }
 
-func (c *stageInstanceCacheImpl) RemoveStageInstancesByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *stageInstanceCacheImpl) RemoveStageInstancesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type GuildScheduledEventCache interface {
 	GuildScheduledEventCache() GroupedCache[discord.GuildScheduledEvent]
 
-	GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, bool)
-	GuildScheduledEvents(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.GuildScheduledEvent]
-	GuildScheduledEventsAllLen(opts ...AccessOpt) int
-	GuildScheduledEventsLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, opts ...AccessOpt)
-	RemoveGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, bool)
-	RemoveGuildScheduledEventsByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, error)
+	GuildScheduledEvents(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.GuildScheduledEvent], error)
+	GuildScheduledEventsAllLen(opts ...AccessOpt) (int, error)
+	GuildScheduledEventsLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, opts ...AccessOpt) error
+	RemoveGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, error)
+	RemoveGuildScheduledEventsByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewGuildScheduledEventCache(cache GroupedCache[discord.GuildScheduledEvent]) GuildScheduledEventCache {
@@ -282,43 +287,43 @@ func (c *guildScheduledEventCacheImpl) GuildScheduledEventCache() GroupedCache[d
 	return c.cache
 }
 
-func (c *guildScheduledEventCacheImpl) GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, bool) {
+func (c *guildScheduledEventCacheImpl) GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, error) {
 	return c.cache.Get(guildID, guildScheduledEventID, opts...)
 }
 
-func (c *guildScheduledEventCacheImpl) GuildScheduledEvents(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.GuildScheduledEvent] {
+func (c *guildScheduledEventCacheImpl) GuildScheduledEvents(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.GuildScheduledEvent], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *guildScheduledEventCacheImpl) GuildScheduledEventsAllLen(opts ...AccessOpt) int {
+func (c *guildScheduledEventCacheImpl) GuildScheduledEventsAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *guildScheduledEventCacheImpl) GuildScheduledEventsLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *guildScheduledEventCacheImpl) GuildScheduledEventsLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *guildScheduledEventCacheImpl) AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, opts ...AccessOpt) {
-	c.cache.Put(guildScheduledEvent.GuildID, guildScheduledEvent.ID, guildScheduledEvent, opts...)
+func (c *guildScheduledEventCacheImpl) AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, opts ...AccessOpt) error {
+	return c.cache.Put(guildScheduledEvent.GuildID, guildScheduledEvent.ID, guildScheduledEvent, opts...)
 }
 
-func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, bool) {
+func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...AccessOpt) (discord.GuildScheduledEvent, error) {
 	return c.cache.Remove(guildID, guildScheduledEventID, opts...)
 }
 
-func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEventsByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEventsByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type GuildSoundboardSoundCache interface {
 	GuildSoundboardSoundCache() GroupedCache[discord.SoundboardSound]
-	GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, bool)
-	GuildSoundboardSounds(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.SoundboardSound]
-	GuildSoundboardSoundsAllLen(opts ...AccessOpt) int
-	GuildSoundboardSoundsLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddGuildSoundboardSound(sound discord.SoundboardSound, opts ...AccessOpt)
-	RemoveGuildSoundboardSound(guildID snowflake.ID, sound snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, bool)
-	RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, error)
+	GuildSoundboardSounds(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.SoundboardSound], error)
+	GuildSoundboardSoundsAllLen(opts ...AccessOpt) (int, error)
+	GuildSoundboardSoundsLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddGuildSoundboardSound(sound discord.SoundboardSound, opts ...AccessOpt) error
+	RemoveGuildSoundboardSound(guildID snowflake.ID, sound snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, error)
+	RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewGuildSoundboardSoundCache(cache GroupedCache[discord.SoundboardSound]) GuildSoundboardSoundCache {
@@ -335,44 +340,44 @@ func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundCache() GroupedCache
 	return c.cache
 }
 
-func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, bool) {
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, error) {
 	return c.cache.Get(guildID, soundID, opts...)
 }
 
-func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSounds(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.SoundboardSound] {
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSounds(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.SoundboardSound], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsAllLen(opts ...AccessOpt) int {
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *guildSoundboardSoundCacheImpl) AddGuildSoundboardSound(sound discord.SoundboardSound, opts ...AccessOpt) {
-	c.cache.Put(*sound.GuildID, sound.SoundID, sound, opts...)
+func (c *guildSoundboardSoundCacheImpl) AddGuildSoundboardSound(sound discord.SoundboardSound, opts ...AccessOpt) error {
+	return c.cache.Put(*sound.GuildID, sound.SoundID, sound, opts...)
 }
 
-func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, bool) {
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...AccessOpt) (discord.SoundboardSound, error) {
 	return c.cache.Remove(guildID, soundID, opts...)
 }
 
-func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type RoleCache interface {
 	RoleCache() GroupedCache[discord.Role]
 
-	Role(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, bool)
-	Roles(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Role]
-	RolesAllLen(opts ...AccessOpt) int
-	RolesLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddRole(role discord.Role, opts ...AccessOpt)
-	RemoveRole(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, bool)
-	RemoveRolesByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	Role(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, error)
+	Roles(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Role], error)
+	RolesAllLen(opts ...AccessOpt) (int, error)
+	RolesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddRole(role discord.Role, opts ...AccessOpt) error
+	RemoveRole(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, error)
+	RemoveRolesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewRoleCache(cache GroupedCache[discord.Role]) RoleCache {
@@ -389,44 +394,44 @@ func (c *roleCacheImpl) RoleCache() GroupedCache[discord.Role] {
 	return c.cache
 }
 
-func (c *roleCacheImpl) Role(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, bool) {
+func (c *roleCacheImpl) Role(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, error) {
 	return c.cache.Get(guildID, roleID, opts...)
 }
 
-func (c *roleCacheImpl) Roles(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Role] {
+func (c *roleCacheImpl) Roles(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Role], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *roleCacheImpl) RolesAllLen(opts ...AccessOpt) int {
+func (c *roleCacheImpl) RolesAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *roleCacheImpl) RolesLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *roleCacheImpl) RolesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *roleCacheImpl) AddRole(role discord.Role, opts ...AccessOpt) {
-	c.cache.Put(role.GuildID, role.ID, role, opts...)
+func (c *roleCacheImpl) AddRole(role discord.Role, opts ...AccessOpt) error {
+	return c.cache.Put(role.GuildID, role.ID, role, opts...)
 }
 
-func (c *roleCacheImpl) RemoveRole(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, bool) {
+func (c *roleCacheImpl) RemoveRole(guildID snowflake.ID, roleID snowflake.ID, opts ...AccessOpt) (discord.Role, error) {
 	return c.cache.Remove(guildID, roleID, opts...)
 }
 
-func (c *roleCacheImpl) RemoveRolesByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *roleCacheImpl) RemoveRolesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type MemberCache interface {
 	MemberCache() GroupedCache[discord.Member]
 
-	Member(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, bool)
-	Members(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Member]
-	MembersAllLen(opts ...AccessOpt) int
-	MembersLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddMember(member discord.Member, opts ...AccessOpt)
-	RemoveMember(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, bool)
-	RemoveMembersByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	Member(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, error)
+	Members(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Member], error)
+	MembersAllLen(opts ...AccessOpt) (int, error)
+	MembersLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddMember(member discord.Member, opts ...AccessOpt) error
+	RemoveMember(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, error)
+	RemoveMembersByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewMemberCache(cache GroupedCache[discord.Member]) MemberCache {
@@ -443,44 +448,44 @@ func (c *memberCacheImpl) MemberCache() GroupedCache[discord.Member] {
 	return c.cache
 }
 
-func (c *memberCacheImpl) Member(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, bool) {
+func (c *memberCacheImpl) Member(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, error) {
 	return c.cache.Get(guildID, userID, opts...)
 }
 
-func (c *memberCacheImpl) Members(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Member] {
+func (c *memberCacheImpl) Members(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Member], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *memberCacheImpl) MembersAllLen(opts ...AccessOpt) int {
+func (c *memberCacheImpl) MembersAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *memberCacheImpl) MembersLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *memberCacheImpl) MembersLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *memberCacheImpl) AddMember(member discord.Member, opts ...AccessOpt) {
-	c.cache.Put(member.GuildID, member.User.ID, member, opts...)
+func (c *memberCacheImpl) AddMember(member discord.Member, opts ...AccessOpt) error {
+	return c.cache.Put(member.GuildID, member.User.ID, member, opts...)
 }
 
-func (c *memberCacheImpl) RemoveMember(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, bool) {
+func (c *memberCacheImpl) RemoveMember(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Member, error) {
 	return c.cache.Remove(guildID, userID, opts...)
 }
 
-func (c *memberCacheImpl) RemoveMembersByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *memberCacheImpl) RemoveMembersByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type ThreadMemberCache interface {
 	ThreadMemberCache() GroupedCache[discord.ThreadMember]
 
-	ThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, bool)
-	ThreadMembers(threadID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.ThreadMember]
-	ThreadMembersAllLen(opts ...AccessOpt) int
-	ThreadMembersLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddThreadMember(threadMember discord.ThreadMember, opts ...AccessOpt)
-	RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, bool)
-	RemoveThreadMembersByThreadID(threadID snowflake.ID, opts ...AccessOpt)
+	ThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, error)
+	ThreadMembers(threadID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.ThreadMember], error)
+	ThreadMembersAllLen(opts ...AccessOpt) (int, error)
+	ThreadMembersLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddThreadMember(threadMember discord.ThreadMember, opts ...AccessOpt) error
+	RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, error)
+	RemoveThreadMembersByThreadID(threadID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewThreadMemberCache(cache GroupedCache[discord.ThreadMember]) ThreadMemberCache {
@@ -497,44 +502,44 @@ func (c *threadMemberCacheImpl) ThreadMemberCache() GroupedCache[discord.ThreadM
 	return c.cache
 }
 
-func (c *threadMemberCacheImpl) ThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, bool) {
+func (c *threadMemberCacheImpl) ThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, error) {
 	return c.cache.Get(threadID, userID, opts...)
 }
 
-func (c *threadMemberCacheImpl) ThreadMembers(threadID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.ThreadMember] {
+func (c *threadMemberCacheImpl) ThreadMembers(threadID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.ThreadMember], error) {
 	return c.cache.GroupAll(threadID, opts...)
 }
 
-func (c *threadMemberCacheImpl) ThreadMembersAllLen(opts ...AccessOpt) int {
+func (c *threadMemberCacheImpl) ThreadMembersAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *threadMemberCacheImpl) ThreadMembersLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *threadMemberCacheImpl) ThreadMembersLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *threadMemberCacheImpl) AddThreadMember(threadMember discord.ThreadMember, opts ...AccessOpt) {
-	c.cache.Put(threadMember.ThreadID, threadMember.UserID, threadMember, opts...)
+func (c *threadMemberCacheImpl) AddThreadMember(threadMember discord.ThreadMember, opts ...AccessOpt) error {
+	return c.cache.Put(threadMember.ThreadID, threadMember.UserID, threadMember, opts...)
 }
 
-func (c *threadMemberCacheImpl) RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, bool) {
+func (c *threadMemberCacheImpl) RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.ThreadMember, error) {
 	return c.cache.Remove(threadID, userID, opts...)
 }
 
-func (c *threadMemberCacheImpl) RemoveThreadMembersByThreadID(threadID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(threadID, opts...)
+func (c *threadMemberCacheImpl) RemoveThreadMembersByThreadID(threadID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(threadID, opts...)
 }
 
 type PresenceCache interface {
 	PresenceCache() GroupedCache[discord.Presence]
 
-	Presence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, bool)
-	Presences(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Presence]
-	PresencesAllLen(opts ...AccessOpt) int
-	PresencesLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddPresence(presence discord.Presence, opts ...AccessOpt)
-	RemovePresence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, bool)
-	RemovePresencesByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	Presence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, error)
+	Presences(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Presence], error)
+	PresencesAllLen(opts ...AccessOpt) (int, error)
+	PresencesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddPresence(presence discord.Presence, opts ...AccessOpt) error
+	RemovePresence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, error)
+	RemovePresencesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewPresenceCache(cache GroupedCache[discord.Presence]) PresenceCache {
@@ -551,44 +556,44 @@ func (c *presenceCacheImpl) PresenceCache() GroupedCache[discord.Presence] {
 	return c.cache
 }
 
-func (c *presenceCacheImpl) Presence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, bool) {
+func (c *presenceCacheImpl) Presence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, error) {
 	return c.cache.Get(guildID, userID, opts...)
 }
 
-func (c *presenceCacheImpl) Presences(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Presence] {
+func (c *presenceCacheImpl) Presences(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Presence], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *presenceCacheImpl) PresencesAllLen(opts ...AccessOpt) int {
+func (c *presenceCacheImpl) PresencesAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *presenceCacheImpl) PresencesLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *presenceCacheImpl) PresencesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *presenceCacheImpl) AddPresence(presence discord.Presence, opts ...AccessOpt) {
-	c.cache.Put(presence.GuildID, presence.PresenceUser.ID, presence, opts...)
+func (c *presenceCacheImpl) AddPresence(presence discord.Presence, opts ...AccessOpt) error {
+	return c.cache.Put(presence.GuildID, presence.PresenceUser.ID, presence, opts...)
 }
 
-func (c *presenceCacheImpl) RemovePresence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, bool) {
+func (c *presenceCacheImpl) RemovePresence(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.Presence, error) {
 	return c.cache.Remove(guildID, userID, opts...)
 }
 
-func (c *presenceCacheImpl) RemovePresencesByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *presenceCacheImpl) RemovePresencesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type VoiceStateCache interface {
 	VoiceStateCache() GroupedCache[discord.VoiceState]
 
-	VoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, bool)
-	VoiceStates(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.VoiceState]
-	VoiceStatesAllLen(opts ...AccessOpt) int
-	VoiceStatesLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddVoiceState(voiceState discord.VoiceState, opts ...AccessOpt)
-	RemoveVoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, bool)
-	RemoveVoiceStatesByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	VoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, error)
+	VoiceStates(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.VoiceState], error)
+	VoiceStatesAllLen(opts ...AccessOpt) (int, error)
+	VoiceStatesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddVoiceState(voiceState discord.VoiceState, opts ...AccessOpt) error
+	RemoveVoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, error)
+	RemoveVoiceStatesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewVoiceStateCache(cache GroupedCache[discord.VoiceState]) VoiceStateCache {
@@ -605,45 +610,45 @@ func (c *voiceStateCacheImpl) VoiceStateCache() GroupedCache[discord.VoiceState]
 	return c.cache
 }
 
-func (c *voiceStateCacheImpl) VoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, bool) {
+func (c *voiceStateCacheImpl) VoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, error) {
 	return c.cache.Get(guildID, userID, opts...)
 }
 
-func (c *voiceStateCacheImpl) VoiceStates(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.VoiceState] {
+func (c *voiceStateCacheImpl) VoiceStates(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.VoiceState], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *voiceStateCacheImpl) VoiceStatesAllLen(opts ...AccessOpt) int {
+func (c *voiceStateCacheImpl) VoiceStatesAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *voiceStateCacheImpl) VoiceStatesLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *voiceStateCacheImpl) VoiceStatesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *voiceStateCacheImpl) AddVoiceState(voiceState discord.VoiceState, opts ...AccessOpt) {
-	c.cache.Put(voiceState.GuildID, voiceState.UserID, voiceState, opts...)
+func (c *voiceStateCacheImpl) AddVoiceState(voiceState discord.VoiceState, opts ...AccessOpt) error {
+	return c.cache.Put(voiceState.GuildID, voiceState.UserID, voiceState, opts...)
 }
 
-func (c *voiceStateCacheImpl) RemoveVoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, bool) {
+func (c *voiceStateCacheImpl) RemoveVoiceState(guildID snowflake.ID, userID snowflake.ID, opts ...AccessOpt) (discord.VoiceState, error) {
 	return c.cache.Remove(guildID, userID, opts...)
 }
 
-func (c *voiceStateCacheImpl) RemoveVoiceStatesByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *voiceStateCacheImpl) RemoveVoiceStatesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type MessageCache interface {
 	MessageCache() GroupedCache[discord.Message]
 
-	Message(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, bool)
-	Messages(channelID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Message]
-	MessagesAllLen(opts ...AccessOpt) int
-	MessagesLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddMessage(message discord.Message, opts ...AccessOpt)
-	RemoveMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, bool)
-	RemoveMessagesByChannelID(channelID snowflake.ID, opts ...AccessOpt)
-	RemoveMessagesByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	Message(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, error)
+	Messages(channelID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Message], error)
+	MessagesAllLen(opts ...AccessOpt) (int, error)
+	MessagesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddMessage(message discord.Message, opts ...AccessOpt) error
+	RemoveMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, error)
+	RemoveMessagesByChannelID(channelID snowflake.ID, opts ...AccessOpt) error
+	RemoveMessagesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewMessageCache(cache GroupedCache[discord.Message]) MessageCache {
@@ -660,36 +665,36 @@ func (c *messageCacheImpl) MessageCache() GroupedCache[discord.Message] {
 	return c.cache
 }
 
-func (c *messageCacheImpl) Message(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, bool) {
+func (c *messageCacheImpl) Message(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, error) {
 	return c.cache.Get(channelID, messageID, opts...)
 }
 
-func (c *messageCacheImpl) Messages(channelID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Message] {
+func (c *messageCacheImpl) Messages(channelID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Message], error) {
 	return c.cache.GroupAll(channelID, opts...)
 }
 
-func (c *messageCacheImpl) MessagesAllLen(opts ...AccessOpt) int {
+func (c *messageCacheImpl) MessagesAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *messageCacheImpl) MessagesLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *messageCacheImpl) MessagesLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *messageCacheImpl) AddMessage(message discord.Message, opts ...AccessOpt) {
-	c.cache.Put(message.ChannelID, message.ID, message, opts...)
+func (c *messageCacheImpl) AddMessage(message discord.Message, opts ...AccessOpt) error {
+	return c.cache.Put(message.ChannelID, message.ID, message, opts...)
 }
 
-func (c *messageCacheImpl) RemoveMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, bool) {
+func (c *messageCacheImpl) RemoveMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...AccessOpt) (discord.Message, error) {
 	return c.cache.Remove(channelID, messageID, opts...)
 }
 
-func (c *messageCacheImpl) RemoveMessagesByChannelID(channelID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(channelID, opts...)
+func (c *messageCacheImpl) RemoveMessagesByChannelID(channelID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(channelID, opts...)
 }
 
-func (c *messageCacheImpl) RemoveMessagesByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.RemoveIf(func(_ snowflake.ID, message discord.Message) bool {
+func (c *messageCacheImpl) RemoveMessagesByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.RemoveIf(func(_ snowflake.ID, message discord.Message) bool {
 		return message.GuildID != nil && *message.GuildID == guildID
 	}, opts...)
 }
@@ -697,13 +702,13 @@ func (c *messageCacheImpl) RemoveMessagesByGuildID(guildID snowflake.ID, opts ..
 type EmojiCache interface {
 	EmojiCache() GroupedCache[discord.Emoji]
 
-	Emoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, bool)
-	Emojis(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Emoji]
-	EmojisAllLen(opts ...AccessOpt) int
-	EmojisLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddEmoji(emoji discord.Emoji, opts ...AccessOpt)
-	RemoveEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, bool)
-	RemoveEmojisByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	Emoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, error)
+	Emojis(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Emoji], error)
+	EmojisAllLen(opts ...AccessOpt) (int, error)
+	EmojisLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddEmoji(emoji discord.Emoji, opts ...AccessOpt) error
+	RemoveEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, error)
+	RemoveEmojisByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewEmojiCache(cache GroupedCache[discord.Emoji]) EmojiCache {
@@ -720,44 +725,44 @@ func (c *emojiCacheImpl) EmojiCache() GroupedCache[discord.Emoji] {
 	return c.cache
 }
 
-func (c *emojiCacheImpl) Emoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, bool) {
+func (c *emojiCacheImpl) Emoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, error) {
 	return c.cache.Get(guildID, emojiID, opts...)
 }
 
-func (c *emojiCacheImpl) Emojis(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Emoji] {
+func (c *emojiCacheImpl) Emojis(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Emoji], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *emojiCacheImpl) EmojisAllLen(opts ...AccessOpt) int {
+func (c *emojiCacheImpl) EmojisAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *emojiCacheImpl) EmojisLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *emojiCacheImpl) EmojisLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *emojiCacheImpl) AddEmoji(emoji discord.Emoji, opts ...AccessOpt) {
-	c.cache.Put(emoji.GuildID, emoji.ID, emoji, opts...)
+func (c *emojiCacheImpl) AddEmoji(emoji discord.Emoji, opts ...AccessOpt) error {
+	return c.cache.Put(emoji.GuildID, emoji.ID, emoji, opts...)
 }
 
-func (c *emojiCacheImpl) RemoveEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, bool) {
+func (c *emojiCacheImpl) RemoveEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...AccessOpt) (discord.Emoji, error) {
 	return c.cache.Remove(guildID, emojiID, opts...)
 }
 
-func (c *emojiCacheImpl) RemoveEmojisByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *emojiCacheImpl) RemoveEmojisByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 type StickerCache interface {
 	StickerCache() GroupedCache[discord.Sticker]
 
-	Sticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, bool)
-	Stickers(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Sticker]
-	StickersAllLen(opts ...AccessOpt) int
-	StickersLen(guildID snowflake.ID, opts ...AccessOpt) int
-	AddSticker(sticker discord.Sticker, opts ...AccessOpt)
-	RemoveSticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, bool)
-	RemoveStickersByGuildID(guildID snowflake.ID, opts ...AccessOpt)
+	Sticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, error)
+	Stickers(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Sticker], error)
+	StickersAllLen(opts ...AccessOpt) (int, error)
+	StickersLen(guildID snowflake.ID, opts ...AccessOpt) (int, error)
+	AddSticker(sticker discord.Sticker, opts ...AccessOpt) error
+	RemoveSticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, error)
+	RemoveStickersByGuildID(guildID snowflake.ID, opts ...AccessOpt) error
 }
 
 func NewStickerCache(cache GroupedCache[discord.Sticker]) StickerCache {
@@ -774,35 +779,35 @@ func (c *stickerCacheImpl) StickerCache() GroupedCache[discord.Sticker] {
 	return c.cache
 }
 
-func (c *stickerCacheImpl) Sticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, bool) {
+func (c *stickerCacheImpl) Sticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, error) {
 	return c.cache.Get(guildID, stickerID, opts...)
 }
 
-func (c *stickerCacheImpl) Stickers(guildID snowflake.ID, opts ...AccessOpt) iter.Seq[discord.Sticker] {
+func (c *stickerCacheImpl) Stickers(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.Sticker], error) {
 	return c.cache.GroupAll(guildID, opts...)
 }
 
-func (c *stickerCacheImpl) StickersAllLen(opts ...AccessOpt) int {
+func (c *stickerCacheImpl) StickersAllLen(opts ...AccessOpt) (int, error) {
 	return c.cache.Len(opts...)
 }
 
-func (c *stickerCacheImpl) StickersLen(guildID snowflake.ID, opts ...AccessOpt) int {
+func (c *stickerCacheImpl) StickersLen(guildID snowflake.ID, opts ...AccessOpt) (int, error) {
 	return c.cache.GroupLen(guildID, opts...)
 }
 
-func (c *stickerCacheImpl) AddSticker(sticker discord.Sticker, opts ...AccessOpt) {
+func (c *stickerCacheImpl) AddSticker(sticker discord.Sticker, opts ...AccessOpt) error {
 	if sticker.GuildID == nil {
-		return
+		return nil
 	}
-	c.cache.Put(*sticker.GuildID, sticker.ID, sticker, opts...)
+	return c.cache.Put(*sticker.GuildID, sticker.ID, sticker, opts...)
 }
 
-func (c *stickerCacheImpl) RemoveSticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, bool) {
+func (c *stickerCacheImpl) RemoveSticker(guildID snowflake.ID, stickerID snowflake.ID, opts ...AccessOpt) (discord.Sticker, error) {
 	return c.cache.Remove(guildID, stickerID, opts...)
 }
 
-func (c *stickerCacheImpl) RemoveStickersByGuildID(guildID snowflake.ID, opts ...AccessOpt) {
-	c.cache.GroupRemove(guildID, opts...)
+func (c *stickerCacheImpl) RemoveStickersByGuildID(guildID snowflake.ID, opts ...AccessOpt) error {
+	return c.cache.GroupRemove(guildID, opts...)
 }
 
 // Caches combines all different entity caches into one with some utility methods.
@@ -827,65 +832,65 @@ type Caches interface {
 
 	// MemberPermissions returns the calculated permissions of the given member.
 	// This requires the FlagRoles to be set.
-	MemberPermissions(member discord.Member, opts ...AccessOpt) discord.Permissions
+	MemberPermissions(member discord.Member, opts ...AccessOpt) (discord.Permissions, error)
 
 	// MemberPermissionsInChannel returns the calculated permissions of the given member in the given channel.
 	// This requires the FlagRoles and FlagChannels to be set.
-	MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member, opts ...AccessOpt) discord.Permissions
+	MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member, opts ...AccessOpt) (discord.Permissions, error)
 
 	// MemberRoles returns all roles of the given member.
 	// This requires the FlagRoles to be set.
-	MemberRoles(member discord.Member, opts ...AccessOpt) []discord.Role
+	MemberRoles(member discord.Member, opts ...AccessOpt) ([]discord.Role, error)
 
 	// AudioChannelMembers returns all members which are in the given audio channel.
 	// This requires the FlagVoiceStates to be set.
-	AudioChannelMembers(channel discord.GuildAudioChannel, opts ...AccessOpt) []discord.Member
+	AudioChannelMembers(channel discord.GuildAudioChannel, opts ...AccessOpt) ([]discord.Member, error)
 
 	// SelfMember returns the current bot member from the given guildID.
 	// This is only available after we received the gateway.EventTypeGuildCreate event for the given guildID.
-	SelfMember(guildID snowflake.ID, opts ...AccessOpt) (discord.Member, bool)
+	SelfMember(guildID snowflake.ID, opts ...AccessOpt) (discord.Member, error)
 
-	// GuildThreadsInChannel returns all discord.GuildThread from the ChannelCache and a bool indicating if it exists.
-	GuildThreadsInChannel(channelID snowflake.ID, opts ...AccessOpt) []discord.GuildThread
+	// GuildThreadsInChannel returns all discord.GuildThread from the ChannelCache.
+	GuildThreadsInChannel(channelID snowflake.ID, opts ...AccessOpt) ([]discord.GuildThread, error)
 
-	// GuildMessageChannel returns a discord.GuildMessageChannel from the ChannelCache and a bool indicating if it exists.
-	GuildMessageChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMessageChannel, bool)
+	// GuildMessageChannel returns a discord.GuildMessageChannel from the ChannelCache.
+	GuildMessageChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMessageChannel, error)
 
-	// GuildThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
-	GuildThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool)
+	// GuildThread returns a discord.GuildThread from the ChannelCache.
+	GuildThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error)
 
-	// GuildAudioChannel returns a discord.GetGuildAudioChannel from the ChannelCache and a bool indicating if it exists.
-	GuildAudioChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildAudioChannel, bool)
+	// GuildAudioChannel returns a discord.GetGuildAudioChannel from the ChannelCache.
+	GuildAudioChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildAudioChannel, error)
 
-	// GuildTextChannel returns a discord.GuildTextChannel from the ChannelCache and a bool indicating if it exists.
-	GuildTextChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildTextChannel, bool)
+	// GuildTextChannel returns a discord.GuildTextChannel from the ChannelCache.
+	GuildTextChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildTextChannel, error)
 
-	// GuildVoiceChannel returns a discord.GuildVoiceChannel from the ChannelCache and a bool indicating if it exists.
-	GuildVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildVoiceChannel, bool)
+	// GuildVoiceChannel returns a discord.GuildVoiceChannel from the ChannelCache.
+	GuildVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildVoiceChannel, error)
 
-	// GuildCategoryChannel returns a discord.GuildCategoryChannel from the ChannelCache and a bool indicating if it exists.
-	GuildCategoryChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildCategoryChannel, bool)
+	// GuildCategoryChannel returns a discord.GuildCategoryChannel from the ChannelCache.
+	GuildCategoryChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildCategoryChannel, error)
 
-	// GuildNewsChannel returns a discord.GuildNewsChannel from the ChannelCache and a bool indicating if it exists.
-	GuildNewsChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildNewsChannel, bool)
+	// GuildNewsChannel returns a discord.GuildNewsChannel from the ChannelCache.
+	GuildNewsChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildNewsChannel, error)
 
-	// GuildNewsThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
-	GuildNewsThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool)
+	// GuildNewsThread returns a discord.GuildThread from the ChannelCache.
+	GuildNewsThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error)
 
-	// GuildPublicThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
-	GuildPublicThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool)
+	// GuildPublicThread returns a discord.GuildThread from the ChannelCache.
+	GuildPublicThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error)
 
-	// GuildPrivateThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
-	GuildPrivateThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool)
+	// GuildPrivateThread returns a discord.GuildThread from the ChannelCache.
+	GuildPrivateThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error)
 
-	// GuildStageVoiceChannel returns a discord.GuildStageVoiceChannel from the ChannelCache and a bool indicating if it exists.
-	GuildStageVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildStageVoiceChannel, bool)
+	// GuildStageVoiceChannel returns a discord.GuildStageVoiceChannel from the ChannelCache.
+	GuildStageVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildStageVoiceChannel, error)
 
-	// GuildForumChannel returns a discord.GuildForumChannel from the ChannelCache and a bool indicating if it exists.
-	GuildForumChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildForumChannel, bool)
+	// GuildForumChannel returns a discord.GuildForumChannel from the ChannelCache.
+	GuildForumChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildForumChannel, error)
 
-	// GuildMediaChannel returns a discord.GuildMediaChannel from the ChannelCache and a bool indicating if it exists.
-	GuildMediaChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMediaChannel, bool)
+	// GuildMediaChannel returns a discord.GuildMediaChannel from the ChannelCache.
+	GuildMediaChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMediaChannel, error)
 }
 
 // New returns a new default Caches instance with the given ConfigOpt(s) applied.
@@ -953,32 +958,41 @@ func (c *cachesImpl) CacheFlags() Flags {
 	return c.config.CacheFlags
 }
 
-func (c *cachesImpl) MemberPermissions(member discord.Member, opts ...AccessOpt) discord.Permissions {
-	if guild, ok := c.Guild(member.GuildID, opts...); ok && guild.OwnerID == member.User.ID {
-		return discord.PermissionsAll
+func (c *cachesImpl) MemberPermissions(member discord.Member, opts ...AccessOpt) (discord.Permissions, error) {
+	guild, err := c.Guild(member.GuildID, opts...)
+	if err == nil && guild.OwnerID == member.User.ID {
+		return discord.PermissionsAll, nil
 	}
 
 	var permissions discord.Permissions
-	if publicRole, ok := c.Role(member.GuildID, member.GuildID, opts...); ok {
+	publicRole, err := c.Role(member.GuildID, member.GuildID, opts...)
+	if err == nil {
 		permissions = publicRole.Permissions
 	}
 
-	for _, role := range c.MemberRoles(member, opts...) {
+	roles, err := c.MemberRoles(member, opts...)
+	if err != nil {
+		return permissions, err
+	}
+	for _, role := range roles {
 		permissions = permissions.Add(role.Permissions)
 		if permissions.Has(discord.PermissionAdministrator) {
-			return discord.PermissionsAll
+			return discord.PermissionsAll, nil
 		}
 	}
 	if member.CommunicationDisabledUntil != nil && member.CommunicationDisabledUntil.After(time.Now()) {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
-	return permissions
+	return permissions, nil
 }
 
-func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member, opts ...AccessOpt) discord.Permissions {
-	permissions := c.MemberPermissions(member, opts...)
+func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member, opts ...AccessOpt) (discord.Permissions, error) {
+	permissions, err := c.MemberPermissions(member, opts...)
+	if err != nil {
+		return permissions, err
+	}
 	if permissions.Has(discord.PermissionAdministrator) {
-		return discord.PermissionsAll
+		return discord.PermissionsAll, nil
 	}
 
 	var (
@@ -1014,164 +1028,213 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 
-	return permissions
+	return permissions, nil
 }
 
-func (c *cachesImpl) MemberRoles(member discord.Member, opts ...AccessOpt) []discord.Role {
+func (c *cachesImpl) MemberRoles(member discord.Member, opts ...AccessOpt) ([]discord.Role, error) {
 	var roles []discord.Role
 
-	for role := range c.Roles(member.GuildID, opts...) {
+	rolesSeq, err := c.Roles(member.GuildID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	for role := range rolesSeq {
 		if slices.Contains(member.RoleIDs, role.ID) {
 			roles = append(roles, role)
 		}
 	}
-	return roles
+	return roles, nil
 }
 
-func (c *cachesImpl) AudioChannelMembers(channel discord.GuildAudioChannel, opts ...AccessOpt) []discord.Member {
+func (c *cachesImpl) AudioChannelMembers(channel discord.GuildAudioChannel, opts ...AccessOpt) ([]discord.Member, error) {
 	var members []discord.Member
-	for state := range c.VoiceStates(channel.GuildID(), opts...) {
-		if member, ok := c.Member(channel.GuildID(), state.UserID, opts...); ok && state.ChannelID != nil && *state.ChannelID == channel.ID() {
-			members = append(members, member)
+	voiceStatesSeq, err := c.VoiceStates(channel.GuildID(), opts...)
+	if err != nil {
+		return nil, err
+	}
+	for state := range voiceStatesSeq {
+		if state.ChannelID != nil && *state.ChannelID == channel.ID() {
+			member, err := c.Member(channel.GuildID(), state.UserID, opts...)
+			if err == nil {
+				members = append(members, member)
+			}
 		}
 	}
-	return members
+	return members, nil
 }
 
-func (c *cachesImpl) SelfMember(guildID snowflake.ID, opts ...AccessOpt) (discord.Member, bool) {
-	selfUser, ok := c.SelfUser()
-	if !ok {
-		return discord.Member{}, false
+func (c *cachesImpl) SelfMember(guildID snowflake.ID, opts ...AccessOpt) (discord.Member, error) {
+	selfUser, err := c.SelfUser()
+	if err != nil {
+		return discord.Member{}, err
 	}
 	return c.Member(guildID, selfUser.ID, opts...)
 }
 
-func (c *cachesImpl) GuildThreadsInChannel(channelID snowflake.ID, opts ...AccessOpt) []discord.GuildThread {
+func (c *cachesImpl) GuildThreadsInChannel(channelID snowflake.ID, opts ...AccessOpt) ([]discord.GuildThread, error) {
 	var threads []discord.GuildThread
-	for channel := range c.Channels(opts...) {
+	channelsSeq, err := c.Channels(opts...)
+	if err != nil {
+		return nil, err
+	}
+	for channel := range channelsSeq {
 		if thread, ok := channel.(discord.GuildThread); ok && *thread.ParentID() == channelID {
 			threads = append(threads, thread)
 		}
 	}
-	return threads
+	return threads, nil
 }
 
-func (c *cachesImpl) MessageChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.MessageChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.MessageChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) MessageChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.MessageChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return nil, err
 	}
-	return nil, false
+	if cCh, ok := ch.(discord.MessageChannel); ok {
+		return cCh, nil
+	}
+	return nil, ErrNotFound
 }
 
-func (c *cachesImpl) GuildMessageChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMessageChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if chM, ok := ch.(discord.GuildMessageChannel); ok {
-			return chM, true
-		}
+func (c *cachesImpl) GuildMessageChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMessageChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return nil, err
 	}
-	return nil, false
+	if chM, ok := ch.(discord.GuildMessageChannel); ok {
+		return chM, nil
+	}
+	return nil, ErrNotFound
 }
 
-func (c *cachesImpl) GuildThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildThread); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildThread{}, err
 	}
-	return discord.GuildThread{}, false
+	if cCh, ok := ch.(discord.GuildThread); ok {
+		return cCh, nil
+	}
+	return discord.GuildThread{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildAudioChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildAudioChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildAudioChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildAudioChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildAudioChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return nil, err
 	}
-	return nil, false
+	if cCh, ok := ch.(discord.GuildAudioChannel); ok {
+		return cCh, nil
+	}
+	return nil, ErrNotFound
 }
 
-func (c *cachesImpl) GuildTextChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildTextChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildTextChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildTextChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildTextChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildTextChannel{}, err
 	}
-	return discord.GuildTextChannel{}, false
+	if cCh, ok := ch.(discord.GuildTextChannel); ok {
+		return cCh, nil
+	}
+	return discord.GuildTextChannel{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildVoiceChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildVoiceChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildVoiceChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildVoiceChannel{}, err
 	}
-	return discord.GuildVoiceChannel{}, false
+	if cCh, ok := ch.(discord.GuildVoiceChannel); ok {
+		return cCh, nil
+	}
+	return discord.GuildVoiceChannel{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildCategoryChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildCategoryChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildCategoryChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildCategoryChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildCategoryChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildCategoryChannel{}, err
 	}
-	return discord.GuildCategoryChannel{}, false
+	if cCh, ok := ch.(discord.GuildCategoryChannel); ok {
+		return cCh, nil
+	}
+	return discord.GuildCategoryChannel{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildNewsChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildNewsChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildNewsChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildNewsChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildNewsChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildNewsChannel{}, err
 	}
-	return discord.GuildNewsChannel{}, false
+	if cCh, ok := ch.(discord.GuildNewsChannel); ok {
+		return cCh, nil
+	}
+	return discord.GuildNewsChannel{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildNewsThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool) {
-	if ch, ok := c.GuildThread(channelID, opts...); ok && ch.Type() == discord.ChannelTypeGuildNewsThread {
-		return ch, true
+func (c *cachesImpl) GuildNewsThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error) {
+	ch, err := c.GuildThread(channelID, opts...)
+	if err != nil {
+		return discord.GuildThread{}, err
 	}
-	return discord.GuildThread{}, false
+	if ch.Type() == discord.ChannelTypeGuildNewsThread {
+		return ch, nil
+	}
+	return discord.GuildThread{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildPublicThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool) {
-	if ch, ok := c.GuildThread(channelID, opts...); ok && ch.Type() == discord.ChannelTypeGuildPublicThread {
-		return ch, true
+func (c *cachesImpl) GuildPublicThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error) {
+	ch, err := c.GuildThread(channelID, opts...)
+	if err != nil {
+		return discord.GuildThread{}, err
 	}
-	return discord.GuildThread{}, false
+	if ch.Type() == discord.ChannelTypeGuildPublicThread {
+		return ch, nil
+	}
+	return discord.GuildThread{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildPrivateThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, bool) {
-	if ch, ok := c.GuildThread(channelID, opts...); ok && ch.Type() == discord.ChannelTypeGuildPrivateThread {
-		return ch, true
+func (c *cachesImpl) GuildPrivateThread(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildThread, error) {
+	ch, err := c.GuildThread(channelID, opts...)
+	if err != nil {
+		return discord.GuildThread{}, err
 	}
-	return discord.GuildThread{}, false
+	if ch.Type() == discord.ChannelTypeGuildPrivateThread {
+		return ch, nil
+	}
+	return discord.GuildThread{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildStageVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildStageVoiceChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildStageVoiceChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildStageVoiceChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildStageVoiceChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildStageVoiceChannel{}, err
 	}
-	return discord.GuildStageVoiceChannel{}, false
+	if cCh, ok := ch.(discord.GuildStageVoiceChannel); ok {
+		return cCh, nil
+	}
+	return discord.GuildStageVoiceChannel{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildForumChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildForumChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildForumChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildForumChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildForumChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildForumChannel{}, err
 	}
-	return discord.GuildForumChannel{}, false
+	if cCh, ok := ch.(discord.GuildForumChannel); ok {
+		return cCh, nil
+	}
+	return discord.GuildForumChannel{}, ErrNotFound
 }
 
-func (c *cachesImpl) GuildMediaChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMediaChannel, bool) {
-	if ch, ok := c.Channel(channelID, opts...); ok {
-		if cCh, ok := ch.(discord.GuildMediaChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildMediaChannel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildMediaChannel, error) {
+	ch, err := c.Channel(channelID, opts...)
+	if err != nil {
+		return discord.GuildMediaChannel{}, err
 	}
-	return discord.GuildMediaChannel{}, false
+	if cCh, ok := ch.(discord.GuildMediaChannel); ok {
+		return cCh, nil
+	}
+	return discord.GuildMediaChannel{}, ErrNotFound
 }

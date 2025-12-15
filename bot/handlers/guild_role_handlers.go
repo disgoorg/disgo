@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"errors"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
@@ -20,7 +24,10 @@ func gatewayHandlerGuildRoleCreate(client *bot.Client, sequenceNumber int, shard
 }
 
 func gatewayHandlerGuildRoleUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildRoleUpdate) {
-	oldRole, _ := client.Caches.Role(event.GuildID, event.Role.ID)
+	oldRole, err := client.Caches.Role(event.GuildID, event.Role.ID)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		client.Logger.Error("failed to get role from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("role_id", event.Role.ID.String()))
+	}
 	client.Caches.AddRole(event.Role)
 
 	client.EventManager.DispatchEvent(&events.RoleUpdate{
@@ -35,7 +42,10 @@ func gatewayHandlerGuildRoleUpdate(client *bot.Client, sequenceNumber int, shard
 }
 
 func gatewayHandlerGuildRoleDelete(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildRoleDelete) {
-	role, _ := client.Caches.RemoveRole(event.GuildID, event.RoleID)
+	role, err := client.Caches.RemoveRole(event.GuildID, event.RoleID)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		client.Logger.Error("failed to remove role from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("role_id", event.RoleID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.RoleDelete{
 		GenericRole: &events.GenericRole{

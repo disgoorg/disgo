@@ -16,7 +16,8 @@ func gatewayHandlerVoiceChannelEffectSend(client *bot.Client, sequenceNumber int
 func gatewayHandlerVoiceStateUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceStateUpdate) {
 	member := event.Member
 
-	oldVoiceState, oldOk := client.Caches.VoiceState(event.GuildID, event.UserID)
+	oldVoiceState, err := client.Caches.VoiceState(event.GuildID, event.UserID)
+	oldOk := err == nil
 	if event.ChannelID == nil {
 		client.Caches.RemoveVoiceState(event.GuildID, event.UserID)
 	} else {

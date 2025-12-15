@@ -19,7 +19,7 @@ type GenericGuildMessageReaction struct {
 }
 
 // Member returns the Member that reacted to the discord.Message from the cache.
-func (e *GenericGuildMessageReaction) Member() (discord.Member, bool) {
+func (e *GenericGuildMessageReaction) Member() (discord.Member, error) {
 	return e.Client().Caches.Member(e.GuildID, e.UserID)
 }
 

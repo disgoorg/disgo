@@ -29,8 +29,8 @@ func PolicyMembersPending(member discord.Member) bool {
 // PolicyMembersInVoice returns a policy that will only cache members that are connected to an audio channel.
 func PolicyMembersInVoice(caches Caches) Policy[discord.Member] {
 	return func(member discord.Member) bool {
-		_, ok := caches.VoiceState(member.GuildID, member.User.ID)
-		return ok
+		_, err := caches.VoiceState(member.GuildID, member.User.ID)
+		return err == nil
 	}
 }
 
