@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"math/rand/v2"
 	"net"
 	"net/url"
 	"strconv"
@@ -450,13 +449,7 @@ func (g *gatewayImpl) heartbeat() {
 	ctx, cancel := context.WithCancel(context.Background())
 	g.heartbeatCancel = cancel
 
-	// First heartbeat has to be sent at `heartbeat_interval * jitter`
-	// with jitter being a random value between 0 and 1
-	select {
-	case <-ctx.Done():
-		return
-	case <-time.After(time.Duration(float64(g.heartbeatInterval.Milliseconds())*rand.Float64()) * time.Millisecond):
-	}
+	// Send first heartbeat immediately
 	g.sendHeartbeat()
 
 	// Then we send them periodically every `heartbeat_interval`
