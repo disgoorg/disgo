@@ -55,7 +55,7 @@ type GuildCache interface {
 	UnavailableGuildIDs(opts ...AccessOpt) []snowflake.ID
 
 	Guild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error)
-	Guilds(opts ...AccessOpt) (iter.Seq[discord.Guild], error)
+	Guilds(opts ...AccessOpt) (iter.Seq2[discord.Guild, error], error)
 	GuildsLen(opts ...AccessOpt) (int, error)
 	AddGuild(guild discord.Guild, opts ...AccessOpt) error
 	RemoveGuild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error)
@@ -123,7 +123,7 @@ func (c *guildCacheImpl) Guild(guildID snowflake.ID, opts ...AccessOpt) (discord
 	return c.cache.Get(guildID, opts...)
 }
 
-func (c *guildCacheImpl) Guilds(opts ...AccessOpt) (iter.Seq[discord.Guild], error) {
+func (c *guildCacheImpl) Guilds(opts ...AccessOpt) (iter.Seq2[discord.Guild, error], error) {
 	return c.cache.All(opts...)
 }
 
@@ -143,7 +143,7 @@ type ChannelCache interface {
 	ChannelCache() Cache[discord.GuildChannel]
 
 	Channel(channelID snowflake.ID, opts ...AccessOpt) (discord.GuildChannel, error)
-	Channels(opts ...AccessOpt) (iter.Seq[discord.GuildChannel], error)
+	Channels(opts ...AccessOpt) (iter.Seq2[discord.GuildChannel, error], error)
 	ChannelsForGuild(guildID snowflake.ID, opts ...AccessOpt) (iter.Seq[discord.GuildChannel], error)
 	ChannelsLen(opts ...AccessOpt) (int, error)
 	AddChannel(channel discord.GuildChannel, opts ...AccessOpt) error
@@ -169,7 +169,7 @@ func (c *channelCacheImpl) Channel(channelID snowflake.ID, opts ...AccessOpt) (d
 	return c.cache.Get(channelID, opts...)
 }
 
-func (c *channelCacheImpl) Channels(opts ...AccessOpt) (iter.Seq[discord.GuildChannel], error) {
+func (c *channelCacheImpl) Channels(opts ...AccessOpt) (iter.Seq2[discord.GuildChannel, error], error) {
 	return c.cache.All(opts...)
 }
 

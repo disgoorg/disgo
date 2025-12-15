@@ -6,6 +6,11 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+type GroupedEntity[T any] struct {
+	GroupID snowflake.ID
+	Entity  T
+}
+
 // GroupedFilterFunc is used to filter grouped cached entities.
 type GroupedFilterFunc[T any] func(groupID snowflake.ID, entity T) bool
 
@@ -37,7 +42,7 @@ type GroupedCache[T any] interface {
 	GroupLen(groupID snowflake.ID, opts ...AccessOpt) (int, error)
 
 	// All returns an [iter.Seq2] of all entities in the cache.
-	All(opts ...AccessOpt) (iter.Seq2[snowflake.ID, T], error)
+	All(opts ...AccessOpt) (iter.Seq2[GroupedEntity[T], error], error)
 
 	// GroupAll returns an [iter.Seq] of all entities in the cache within the groupID.
 	GroupAll(groupID snowflake.ID, opts ...AccessOpt) (iter.Seq[T], error)
@@ -203,10 +208,10 @@ func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID, opts ...AccessOp
 	return 0, nil
 }
 
-func (c *defaultGroupedCache[T]) All(opts ...AccessOpt) (iter.Seq2[snowflake.ID, T], error) {
+func (c *defaultGroupedCache[T]) All(opts ...AccessOpt) (iter.Seq2[GroupedEntity[T], error], error) {
 	cfg := resolveAccessConfig(opts)
 
-	return func(yield func(snowflake.ID, T) bool) {
+	return func(yield func(GroupedEntity[T], error) bool) {
 		if err := c.mu.RLock(cfg.Ctx); err != nil {
 			return
 		}
@@ -214,7 +219,7 @@ func (c *defaultGroupedCache[T]) All(opts ...AccessOpt) (iter.Seq2[snowflake.ID,
 
 		for groupID, groupEntities := range c.cache {
 			for _, entity := range groupEntities {
-				if !yield(groupID, entity) {
+				if !yield(GroupedEntity[T]{GroupID: groupID, Entity: entity}, nil) {
 					return
 				}
 			}
@@ -225,10 +230,11 @@ func (c *defaultGroupedCache[T]) All(opts ...AccessOpt) (iter.Seq2[snowflake.ID,
 func (c *defaultGroupedCache[T]) GroupAll(groupID snowflake.ID, opts ...AccessOpt) (iter.Seq[T], error) {
 	cfg := resolveAccessConfig(opts)
 
+	if err := c.mu.RLock(cfg.Ctx); err != nil {
+		return nil, err
+	}
+
 	return func(yield func(T) bool) {
-		if err := c.mu.RLock(cfg.Ctx); err != nil {
-			return
-		}
 		defer c.mu.RUnlock()
 
 		if groupEntities, ok := c.cache[groupID]; ok {

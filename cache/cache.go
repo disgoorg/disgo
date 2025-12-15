@@ -32,7 +32,7 @@ type Cache[T any] interface {
 	Len(opts ...AccessOpt) (int, error)
 
 	// All returns an [iter.Seq] of all entities in the cache.
-	All(opts ...AccessOpt) (iter.Seq[T], error)
+	All(opts ...AccessOpt) (iter.Seq2[T, error], error)
 }
 
 var _ Cache[any] = (*DefaultCache[any])(nil)
@@ -131,17 +131,18 @@ func (c *DefaultCache[T]) Len(opts ...AccessOpt) (int, error) {
 	return len(c.cache), nil
 }
 
-func (c *DefaultCache[T]) All(opts ...AccessOpt) (iter.Seq[T], error) {
+func (c *DefaultCache[T]) All(opts ...AccessOpt) (iter.Seq2[T, error], error) {
 	cfg := resolveAccessConfig(opts)
 
-	return func(yield func(T) bool) {
-		if err := c.mu.RLock(cfg.Ctx); err != nil {
-			return
-		}
+	if err := c.mu.RLock(cfg.Ctx); err != nil {
+		return nil, err
+	}
+
+	return func(yield func(T, error) bool) {
 		defer c.mu.RUnlock()
 		for _, entity := range c.cache {
-			if !yield(entity) {
-				break
+			if !yield(entity, nil) {
+				return
 			}
 		}
 	}, nil
