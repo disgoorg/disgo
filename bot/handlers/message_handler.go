@@ -23,14 +23,18 @@ func gatewayHandlerMessageCreate(client *bot.Client, sequenceNumber int, shardID
 		event.Member.User = event.Author
 	}
 
-	client.Caches.AddMessage(event.Message)
+	if err := client.Caches.AddMessage(event.Message); err != nil {
+		client.Logger.Error("failed to add message to cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()), slog.String("message_id", event.ID.String()))
+	}
 
 	channel, err := client.Caches.GuildMessageChannel(event.ChannelID)
 	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get channel from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
 	}
 	if err == nil {
-		client.Caches.AddChannel(discord.ApplyLastMessageIDToChannel(channel, event.ID))
+		if err := client.Caches.AddChannel(discord.ApplyLastMessageIDToChannel(channel, event.ID)); err != nil {
+			client.Logger.Error("failed to add channel to cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
+		}
 	}
 
 	thread, err := client.Caches.GuildThread(event.ChannelID)
@@ -40,7 +44,9 @@ func gatewayHandlerMessageCreate(client *bot.Client, sequenceNumber int, shardID
 	if err == nil {
 		thread.TotalMessageSent++
 		thread.MessageCount++
-		client.Caches.AddChannel(thread)
+		if err := client.Caches.AddChannel(thread); err != nil {
+			client.Logger.Error("failed to add channel to cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()))
+		}
 	}
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
@@ -81,7 +87,9 @@ func gatewayHandlerMessageUpdate(client *bot.Client, sequenceNumber int, shardID
 	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get message from cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()), slog.String("message_id", event.ID.String()))
 	}
-	client.Caches.AddMessage(event.Message)
+	if err := client.Caches.AddMessage(event.Message); err != nil {
+		client.Logger.Error("failed to add message to cache", slog.Any("err", err), slog.String("channel_id", event.ChannelID.String()), slog.String("message_id", event.ID.String()))
+	}
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 	client.EventManager.DispatchEvent(&events.MessageUpdate{
@@ -145,7 +153,9 @@ func handleMessageDelete(client *bot.Client, sequenceNumber int, shardID int, me
 		if thread.MessageCount > 0 {
 			thread.MessageCount--
 		}
-		client.Caches.AddChannel(thread)
+		if err := client.Caches.AddChannel(thread); err != nil {
+			client.Logger.Error("failed to add channel to cache", slog.Any("err", err), slog.String("channel_id", channelID.String()))
+		}
 	}
 
 	client.EventManager.DispatchEvent(&events.MessageDelete{

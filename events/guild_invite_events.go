@@ -1,9 +1,10 @@
 package events
 
 import (
+	"errors"
+
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 )
@@ -22,7 +23,7 @@ func (e *InviteCreate) Channel() (discord.GuildChannel, error) {
 
 func (e *InviteCreate) Guild() (discord.Guild, error) {
 	if e.GuildID == nil {
-		return discord.Guild{}, cache.ErrNotFound
+		return discord.Guild{}, errors.New("guildID is nil")
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }
@@ -43,7 +44,7 @@ func (e *InviteDelete) Channel() (discord.GuildChannel, error) {
 
 func (e *InviteDelete) Guild() (discord.Guild, error) {
 	if e.GuildID == nil {
-		return discord.Guild{}, cache.ErrNotFound
+		return discord.Guild{}, errors.New("guildID is nil")
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }

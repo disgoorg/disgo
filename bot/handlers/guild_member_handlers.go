@@ -17,10 +17,14 @@ func gatewayHandlerGuildMemberAdd(client *bot.Client, sequenceNumber int, shardI
 	}
 	if err == nil {
 		guild.MemberCount++
-		client.Caches.AddGuild(guild)
+		if err := client.Caches.AddGuild(guild); err != nil {
+			client.Logger.Error("failed to add guild to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
+		}
 	}
 
-	client.Caches.AddMember(event.Member)
+	if err := client.Caches.AddMember(event.Member); err != nil {
+		client.Logger.Error("failed to add member to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.Member.User.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildMemberJoin{
 		GenericGuildMember: &events.GenericGuildMember{
@@ -36,7 +40,9 @@ func gatewayHandlerGuildMemberUpdate(client *bot.Client, sequenceNumber int, sha
 	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get member from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.User.ID.String()))
 	}
-	client.Caches.AddMember(event.Member)
+	if err := client.Caches.AddMember(event.Member); err != nil {
+		client.Logger.Error("failed to add member to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.Member.User.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildMemberUpdate{
 		GenericGuildMember: &events.GenericGuildMember{
@@ -55,7 +61,9 @@ func gatewayHandlerGuildMemberRemove(client *bot.Client, sequenceNumber int, sha
 	}
 	if err == nil {
 		guild.MemberCount--
-		client.Caches.AddGuild(guild)
+		if err := client.Caches.AddGuild(guild); err != nil {
+			client.Logger.Error("failed to add guild to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
+		}
 	}
 
 	member, err := client.Caches.RemoveMember(event.GuildID, event.User.ID)

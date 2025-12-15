@@ -42,7 +42,9 @@ func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardI
 		oldActivities = oldPresence.Activities
 	}
 
-	client.Caches.AddPresence(event.Presence)
+	if err := client.Caches.AddPresence(event.Presence); err != nil {
+		client.Logger.Error("failed to add presence to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.PresenceUser.ID.String()))
+	}
 
 	if oldStatus != event.Status {
 		client.EventManager.DispatchEvent(&events.UserStatusUpdate{

@@ -1,9 +1,10 @@
 package events
 
 import (
+	"errors"
+
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 )
 
@@ -24,7 +25,7 @@ func (e *GenericMessage) Channel() (discord.GuildMessageChannel, error) {
 // Guild returns the discord.Guild where the GenericMessage happened or nil if it happened in DMs
 func (e *GenericMessage) Guild() (discord.Guild, error) {
 	if e.GuildID == nil {
-		return discord.Guild{}, cache.ErrNotFound
+		return discord.Guild{}, errors.New("guildID is nil")
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }

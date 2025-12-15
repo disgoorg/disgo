@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"slices"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -51,7 +52,9 @@ func gatewayHandlerGuildEmojisUpdate(client *bot.Client, sequenceNumber int, sha
 	}
 
 	for _, emoji := range createdEmojis {
-		client.Caches.AddEmoji(emoji)
+		if err := client.Caches.AddEmoji(emoji); err != nil {
+			client.Logger.Error("failed to add emoji to cache", slog.Any("err", err), slog.String("emoji_id", emoji.ID.String()))
+		}
 		client.EventManager.DispatchEvent(&events.EmojiCreate{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
@@ -62,7 +65,9 @@ func gatewayHandlerGuildEmojisUpdate(client *bot.Client, sequenceNumber int, sha
 	}
 
 	for _, emoji := range updatedEmojis {
-		client.Caches.AddEmoji(emoji.new)
+		if err := client.Caches.AddEmoji(emoji.new); err != nil {
+			client.Logger.Error("failed to add emoji to cache", slog.Any("err", err), slog.String("emoji_id", emoji.new.ID.String()))
+		}
 		client.EventManager.DispatchEvent(&events.EmojiUpdate{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
@@ -74,7 +79,9 @@ func gatewayHandlerGuildEmojisUpdate(client *bot.Client, sequenceNumber int, sha
 	}
 
 	for _, emoji := range deletedEmojis {
-		client.Caches.RemoveEmoji(event.GuildID, emoji.ID)
+		if _, err := client.Caches.RemoveEmoji(event.GuildID, emoji.ID); err != nil {
+			client.Logger.Error("failed to remove emoji from cache", slog.Any("err", err), slog.String("emoji_id", emoji.ID.String()))
+		}
 		client.EventManager.DispatchEvent(&events.EmojiDelete{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),

@@ -12,8 +12,12 @@ import (
 )
 
 func gatewayHandlerThreadCreate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadCreate) {
-	client.Caches.AddChannel(event.GuildThread)
-	client.Caches.AddThreadMember(event.ThreadMember)
+	if err := client.Caches.AddChannel(event.GuildThread); err != nil {
+		client.Logger.Error("failed to add channel to cache", slog.Any("err", err), slog.String("thread_id", event.ID().String()))
+	}
+	if err := client.Caches.AddThreadMember(event.ThreadMember); err != nil {
+		client.Logger.Error("failed to add thread member to cache", slog.Any("err", err), slog.String("thread_id", event.ID().String()), slog.String("user_id", event.ThreadMember.UserID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.ThreadCreate{
 		GenericThread: &events.GenericThread{
@@ -32,7 +36,9 @@ func gatewayHandlerThreadUpdate(client *bot.Client, sequenceNumber int, shardID 
 	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get thread from cache", slog.Any("err", err), slog.String("thread_id", event.ID().String()))
 	}
-	client.Caches.AddChannel(event.GuildThread)
+	if err := client.Caches.AddChannel(event.GuildThread); err != nil {
+		client.Logger.Error("failed to add channel to cache", slog.Any("err", err), slog.String("thread_id", event.ID().String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.ThreadUpdate{
 		GenericThread: &events.GenericThread{
@@ -55,7 +61,9 @@ func gatewayHandlerThreadDelete(client *bot.Client, sequenceNumber int, shardID 
 	if err == nil {
 		thread, _ = channel.(discord.GuildThread)
 	}
-	client.Caches.RemoveThreadMembersByThreadID(event.ID)
+	if err := client.Caches.RemoveThreadMembersByThreadID(event.ID); err != nil {
+		client.Logger.Error("failed to remove thread members from cache", slog.Any("err", err), slog.String("thread_id", event.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.ThreadDelete{
 		GenericThread: &events.GenericThread{
@@ -70,7 +78,9 @@ func gatewayHandlerThreadDelete(client *bot.Client, sequenceNumber int, shardID 
 
 func gatewayHandlerThreadListSync(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadListSync) {
 	for _, thread := range event.Threads {
-		client.Caches.AddChannel(thread)
+		if err := client.Caches.AddChannel(thread); err != nil {
+			client.Logger.Error("failed to add channel to cache", slog.Any("err", err), slog.String("thread_id", thread.ID().String()))
+		}
 		client.EventManager.DispatchEvent(&events.ThreadShow{
 			GenericThread: &events.GenericThread{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
@@ -95,16 +105,24 @@ func gatewayHandlerThreadMembersUpdate(client *bot.Client, sequenceNumber int, s
 	}
 	if err == nil {
 		thread.MemberCount = event.MemberCount
-		client.Caches.AddChannel(thread)
+		if err := client.Caches.AddChannel(thread); err != nil {
+			client.Logger.Error("failed to add channel to cache", slog.Any("err", err), slog.String("thread_id", event.ID.String()))
+		}
 	}
 
 	for _, addedMember := range event.AddedMembers {
 		addedMember.Member.GuildID = event.ID
-		client.Caches.AddThreadMember(addedMember.ThreadMember)
-		client.Caches.AddMember(addedMember.Member)
+		if err := client.Caches.AddThreadMember(addedMember.ThreadMember); err != nil {
+			client.Logger.Error("failed to add thread member to cache", slog.Any("err", err), slog.String("thread_id", event.ID.String()), slog.String("user_id", addedMember.UserID.String()))
+		}
+		if err := client.Caches.AddMember(addedMember.Member); err != nil {
+			client.Logger.Error("failed to add member to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", addedMember.UserID.String()))
+		}
 
 		if addedMember.Presence != nil {
-			client.Caches.AddPresence(*addedMember.Presence)
+			if err := client.Caches.AddPresence(*addedMember.Presence); err != nil {
+				client.Logger.Error("failed to add presence to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", addedMember.UserID.String()))
+			}
 		}
 
 		client.EventManager.DispatchEvent(&events.ThreadMemberAdd{

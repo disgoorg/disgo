@@ -11,7 +11,9 @@ import (
 )
 
 func gatewayHandlerGuildScheduledEventCreate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventCreate) {
-	client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent)
+	if err := client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent); err != nil {
+		client.Logger.Error("failed to add guild scheduled event to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventCreate{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{
@@ -26,7 +28,9 @@ func gatewayHandlerGuildScheduledEventUpdate(client *bot.Client, sequenceNumber 
 	if err != nil && !errors.Is(err, cache.ErrNotFound) {
 		client.Logger.Error("failed to get guild scheduled event from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
 	}
-	client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent)
+	if err := client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent); err != nil {
+		client.Logger.Error("failed to add guild scheduled event to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventUpdate{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{
@@ -38,7 +42,9 @@ func gatewayHandlerGuildScheduledEventUpdate(client *bot.Client, sequenceNumber 
 }
 
 func gatewayHandlerGuildScheduledEventDelete(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventDelete) {
-	client.Caches.RemoveGuildScheduledEvent(event.GuildID, event.ID)
+	if _, err := client.Caches.RemoveGuildScheduledEvent(event.GuildID, event.ID); err != nil {
+		client.Logger.Error("failed to remove guild scheduled event from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventDelete{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{

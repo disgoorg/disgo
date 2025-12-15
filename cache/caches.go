@@ -46,13 +46,13 @@ func (c *selfUserCacheImpl) SetSelfUser(user discord.OAuth2User) error {
 type GuildCache interface {
 	GuildCache() Cache[discord.Guild]
 
-	IsGuildUnready(guildID snowflake.ID, opts ...AccessOpt) bool
-	SetGuildUnready(guildID snowflake.ID, unready bool, opts ...AccessOpt)
-	UnreadyGuildIDs(opts ...AccessOpt) []snowflake.ID
+	IsGuildUnready(guildID snowflake.ID, opts ...AccessOpt) (bool, error)
+	SetGuildUnready(guildID snowflake.ID, unready bool, opts ...AccessOpt) error
+	UnreadyGuildIDs(opts ...AccessOpt) ([]snowflake.ID, error)
 
-	IsGuildUnavailable(guildID snowflake.ID, opts ...AccessOpt) bool
-	SetGuildUnavailable(guildID snowflake.ID, unavailable bool, opts ...AccessOpt)
-	UnavailableGuildIDs(opts ...AccessOpt) []snowflake.ID
+	IsGuildUnavailable(guildID snowflake.ID, opts ...AccessOpt) (bool, error)
+	SetGuildUnavailable(guildID snowflake.ID, unavailable bool, opts ...AccessOpt) error
+	UnavailableGuildIDs(opts ...AccessOpt) ([]snowflake.ID, error)
 
 	Guild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error)
 	Guilds(opts ...AccessOpt) (iter.Seq2[discord.Guild, error], error)
@@ -79,44 +79,72 @@ func (c *guildCacheImpl) GuildCache() Cache[discord.Guild] {
 	return c.cache
 }
 
-func (c *guildCacheImpl) IsGuildUnready(guildID snowflake.ID, opts ...AccessOpt) bool {
+func (c *guildCacheImpl) IsGuildUnready(guildID snowflake.ID, opts ...AccessOpt) (bool, error) {
 	return c.unreadyGuilds.Has(guildID, opts...)
 }
 
-func (c *guildCacheImpl) SetGuildUnready(guildID snowflake.ID, unready bool, opts ...AccessOpt) {
-	if c.unreadyGuilds.Has(guildID) && !unready {
+func (c *guildCacheImpl) SetGuildUnready(guildID snowflake.ID, unready bool, opts ...AccessOpt) error {
+	hasGuild, err := c.unreadyGuilds.Has(guildID, opts...)
+	if err != nil {
+		return err
+	}
+
+	if hasGuild && !unready {
 		c.unreadyGuilds.Remove(guildID, opts...)
-	} else if !c.unreadyGuilds.Has(guildID) && unready {
+	} else if !hasGuild && unready {
 		c.unreadyGuilds.Add(guildID, opts...)
 	}
+	return nil
 }
 
-func (c *guildCacheImpl) UnreadyGuildIDs(opts ...AccessOpt) []snowflake.ID {
+func (c *guildCacheImpl) UnreadyGuildIDs(opts ...AccessOpt) ([]snowflake.ID, error) {
+	seq, err := c.unreadyGuilds.All(opts...)
+	if err != nil {
+		return nil, err
+	}
+
 	var guilds []snowflake.ID
-	for guildID := range c.unreadyGuilds.All(opts...) {
+	for guildID, err := range seq {
+		if err != nil {
+			return nil, err
+		}
 		guilds = append(guilds, guildID)
 	}
-	return guilds
+
+	return guilds, nil
 }
 
-func (c *guildCacheImpl) IsGuildUnavailable(guildID snowflake.ID, opts ...AccessOpt) bool {
+func (c *guildCacheImpl) IsGuildUnavailable(guildID snowflake.ID, opts ...AccessOpt) (bool, error) {
 	return c.unavailableGuilds.Has(guildID, opts...)
 }
 
-func (c *guildCacheImpl) SetGuildUnavailable(guildID snowflake.ID, unavailable bool, opts ...AccessOpt) {
-	if c.unavailableGuilds.Has(guildID) && !unavailable {
-		c.unavailableGuilds.Remove(guildID, opts...)
-	} else if !c.unavailableGuilds.Has(guildID) && unavailable {
-		c.unavailableGuilds.Add(guildID, opts...)
+func (c *guildCacheImpl) SetGuildUnavailable(guildID snowflake.ID, unavailable bool, opts ...AccessOpt) error {
+	hasGuild, err := c.unavailableGuilds.Has(guildID, opts...)
+	if err != nil {
+		return err
 	}
+	if hasGuild && !unavailable {
+		return c.unavailableGuilds.Remove(guildID, opts...)
+	} else if !hasGuild && unavailable {
+		return c.unavailableGuilds.Add(guildID, opts...)
+	}
+	return nil
 }
 
-func (c *guildCacheImpl) UnavailableGuildIDs(opts ...AccessOpt) []snowflake.ID {
-	var guilds []snowflake.ID
-	for guildId := range c.unavailableGuilds.All(opts...) {
-		guilds = append(guilds, guildId)
+func (c *guildCacheImpl) UnavailableGuildIDs(opts ...AccessOpt) ([]snowflake.ID, error) {
+	seq, err := c.unavailableGuilds.All(opts...)
+	if err != nil {
+		return nil, err
 	}
-	return guilds
+
+	var guilds []snowflake.ID
+	for guildID, err := range seq {
+		if err != nil {
+			return nil, err
+		}
+		guilds = append(guilds, guildID)
+	}
+	return guilds, nil
 }
 
 func (c *guildCacheImpl) Guild(guildID snowflake.ID, opts ...AccessOpt) (discord.Guild, error) {
