@@ -14,34 +14,34 @@ type GroupedFilterFunc[T any] func(groupID snowflake.ID, entity T) bool
 // The cache provides a simple way to store and retrieve entities. But is not guaranteed to be thread safe as this depends on the underlying implementation.
 type GroupedCache[T any] interface {
 	// Get returns a copy of the entity with the given groupID and ID and a bool wheaten it was found or not.
-	Get(groupID snowflake.ID, id snowflake.ID) (T, bool)
+	Get(groupID snowflake.ID, id snowflake.ID, opts ...RequestOpt) (T, bool)
 
 	// Put stores the given entity with the given groupID and ID as key. If the entity is already present, it will be overwritten.
-	Put(groupID snowflake.ID, id snowflake.ID, entity T)
+	Put(groupID snowflake.ID, id snowflake.ID, entity T, opts ...RequestOpt)
 
 	// Remove removes the entity with the given groupID and ID as key and returns a copy of the entity and a bool whether it was removed or not.
-	Remove(groupID snowflake.ID, id snowflake.ID) (T, bool)
+	Remove(groupID snowflake.ID, id snowflake.ID, opts ...RequestOpt) (T, bool)
 
 	// GroupRemove removes all entities in the given groupID.
-	GroupRemove(groupID snowflake.ID)
+	GroupRemove(groupID snowflake.ID, opts ...RequestOpt)
 
 	// RemoveIf removes all entities that pass the given GroupedFilterFunc.
-	RemoveIf(filterFunc GroupedFilterFunc[T])
+	RemoveIf(filterFunc GroupedFilterFunc[T], opts ...RequestOpt)
 
 	// GroupRemoveIf removes all entities that pass the given GroupedFilterFunc within the groupID.
-	GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T])
+	GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T], opts ...RequestOpt)
 
 	// Len returns the total number of entities in the cache.
-	Len() int
+	Len(opts ...RequestOpt) int
 
 	// GroupLen returns the number of entities in the cache within the groupID.
-	GroupLen(groupID snowflake.ID) int
+	GroupLen(groupID snowflake.ID, opts ...RequestOpt) int
 
 	// All returns an [iter.Seq2] of all entities in the cache.
-	All() iter.Seq2[snowflake.ID, T]
+	All(opts ...RequestOpt) iter.Seq2[snowflake.ID, T]
 
 	// GroupAll returns an [iter.Seq] of all entities in the cache within the groupID.
-	GroupAll(groupID snowflake.ID) iter.Seq[T]
+	GroupAll(groupID snowflake.ID, opts ...RequestOpt) iter.Seq[T]
 }
 
 var _ GroupedCache[any] = (*defaultGroupedCache[any])(nil)
@@ -64,7 +64,7 @@ type defaultGroupedCache[T any] struct {
 	cache       map[snowflake.ID]map[snowflake.ID]T
 }
 
-func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, bool) {
+func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID, _ ...RequestOpt) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -78,7 +78,7 @@ func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, 
 	return entity, false
 }
 
-func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T) {
+func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T, _ ...RequestOpt) {
 	if c.flags.Missing(c.neededFlags) {
 		return
 	}
@@ -101,7 +101,7 @@ func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, enti
 	}
 }
 
-func (c *defaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID) (entity T, ok bool) {
+func (c *defaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID, _ ...RequestOpt) (entity T, ok bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -115,14 +115,14 @@ func (c *defaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID) (
 	return
 }
 
-func (c *defaultGroupedCache[T]) GroupRemove(groupID snowflake.ID) {
+func (c *defaultGroupedCache[T]) GroupRemove(groupID snowflake.ID, _ ...RequestOpt) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	delete(c.cache, groupID)
 }
 
-func (c *defaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
+func (c *defaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T], opts ...RequestOpt) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -135,7 +135,7 @@ func (c *defaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
 	}
 }
 
-func (c *defaultGroupedCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T]) {
+func (c *defaultGroupedCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T], opts ...RequestOpt) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -148,7 +148,7 @@ func (c *defaultGroupedCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc 
 	}
 }
 
-func (c *defaultGroupedCache[T]) Len() int {
+func (c *defaultGroupedCache[T]) Len(opts ...RequestOpt) int {
 	var totalLen int
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -158,7 +158,7 @@ func (c *defaultGroupedCache[T]) Len() int {
 	return totalLen
 }
 
-func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID) int {
+func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID, _ ...RequestOpt) int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if groupEntities, ok := c.cache[groupID]; ok {
@@ -167,7 +167,7 @@ func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID) int {
 	return 0
 }
 
-func (c *defaultGroupedCache[T]) All() iter.Seq2[snowflake.ID, T] {
+func (c *defaultGroupedCache[T]) All(opts ...RequestOpt) iter.Seq2[snowflake.ID, T] {
 	return func(yield func(snowflake.ID, T) bool) {
 		c.mu.RLock()
 		defer c.mu.RUnlock()
@@ -182,7 +182,7 @@ func (c *defaultGroupedCache[T]) All() iter.Seq2[snowflake.ID, T] {
 	}
 }
 
-func (c *defaultGroupedCache[T]) GroupAll(groupID snowflake.ID) iter.Seq[T] {
+func (c *defaultGroupedCache[T]) GroupAll(groupID snowflake.ID, opts ...RequestOpt) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		c.mu.RLock()
 		defer c.mu.RUnlock()
