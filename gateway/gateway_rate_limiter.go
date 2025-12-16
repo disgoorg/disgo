@@ -10,6 +10,18 @@ import (
 // CommandsPerMinute is the default number of commands per minute that the Gateway will allow.
 const CommandsPerMinute = 120
 
+// ReservedCommandSlots is the default number of CommandsPerMinute that the library
+// will reserve for high priority events, like heartbeats
+const ReservedCommandSlots = 3
+
+// RateLimiterCommandType represents the type of wait performed by the rate-limiter
+type RateLimiterCommandType int
+
+const (
+	NormalCommandType RateLimiterCommandType = iota
+	InternalCommandType
+)
+
 // RateLimiter provides handles the rate limiting logic for connecting to Discord's Gateway.
 type RateLimiter interface {
 	// Close gracefully closes the RateLimiter.
@@ -21,7 +33,7 @@ type RateLimiter interface {
 
 	// Wait waits for the RateLimiter to be ready to send a new message.
 	// If the context deadline is exceeded, Wait will return immediately and no message will be sent.
-	Wait(ctx context.Context) error
+	Wait(ctx context.Context, commandType RateLimiterCommandType) error
 
 	// Unlock unlocks the RateLimiter and allows the next message to be sent.
 	Unlock()
@@ -58,37 +70,42 @@ func (l *rateLimiterImpl) Reset() {
 	l.mu = csync.Mutex{}
 }
 
-func (l *rateLimiterImpl) Wait(ctx context.Context) error {
+// Note: this function updates internal state and must be called from a lock state
+func (l *rateLimiterImpl) isRateLimited(now time.Time, commandType RateLimiterCommandType) bool {
+	if now.After(l.reset) {
+		l.reset = now.Add(time.Minute)
+		l.remaining = l.config.CommandsPerMinute
+	}
+
+	return l.remaining <= 0 || (l.remaining < l.config.ReservedCommandSlots && commandType != InternalCommandType)
+}
+
+func (l *rateLimiterImpl) Wait(ctx context.Context, commandType RateLimiterCommandType) error {
 	l.config.Logger.Debug("locking gateway rate limiter")
-	if err := l.mu.CLock(ctx); err != nil {
-		return err
-	}
 
-	now := time.Now()
-
-	var until time.Time
-
-	if l.remaining == 0 && l.reset.After(now) {
-		until = l.reset
-	}
-
-	if until.After(now) {
-		select {
-		case <-ctx.Done():
-			l.Unlock()
-			return ctx.Err()
-		case <-time.After(until.Sub(now)):
+	for {
+		if err := l.mu.CLock(ctx); err != nil {
+			return err
 		}
+
+		now := time.Now()
+		if l.isRateLimited(now, commandType) {
+			l.mu.Unlock()
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(l.reset.Sub(now)):
+			}
+			continue
+		}
+		break
 	}
+
+	l.remaining--
 	return nil
 }
 
 func (l *rateLimiterImpl) Unlock() {
 	l.config.Logger.Debug("unlocking gateway rate limiter")
-	now := time.Now()
-	if l.reset.Before(now) {
-		l.reset = now.Add(time.Minute)
-		l.remaining = l.config.CommandsPerMinute
-	}
 	l.mu.Unlock()
 }
