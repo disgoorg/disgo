@@ -281,11 +281,11 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusWaitingForHello
 	g.statusMu.Unlock()
 
-	var readyOnce sync.Once
-	readyChan := make(chan error)
-
 	messagesChan := make(chan event, g.config.MessageBufferSize)
 	go g.dispatcher(messagesChan)
+
+	var readyOnce sync.Once
+	readyChan := make(chan error)
 	go g.listen(t, messagesChan, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
