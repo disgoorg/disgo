@@ -454,6 +454,7 @@ func (g *gatewayImpl) heartbeat() {
 
 	// Then we send them periodically every `heartbeat_interval`
 	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
+	g.lastHeartbeatReceived = time.Now()
 	for {
 		select {
 		case <-ctx.Done():
@@ -461,7 +462,8 @@ func (g *gatewayImpl) heartbeat() {
 
 		case <-heartbeatTicker.C:
 			if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
-				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie")
+				zombieFor := g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
+				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("zombie_for", zombieFor))
 				closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 				g.CloseWithCode(closeCtx, websocket.CloseServiceRestart, "heartbeat ACK not received")
 				closeCancel()
@@ -495,7 +497,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 		go g.reconnect()
 		return
 	}
-	g.lastHeartbeatSent = time.Now().UTC()
+	g.lastHeartbeatSent = time.Now()
 }
 
 func (g *gatewayImpl) identify() error {
@@ -623,7 +625,6 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 		switch message.Op {
 		case OpcodeHello:
 			g.heartbeatInterval = time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
-			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
@@ -727,12 +728,12 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			return
 
 		case OpcodeHeartbeatACK:
-			newHeartbeat := time.Now().UTC()
+			newHeartbeat := time.Now()
+			g.lastHeartbeatReceived = newHeartbeat
 			g.eventHandlerFunc(g, EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
 				LastHeartbeat: g.lastHeartbeatReceived,
 				NewHeartbeat:  newHeartbeat,
 			})
-			g.lastHeartbeatReceived = newHeartbeat
 
 		default:
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
