@@ -283,7 +283,10 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	var readyOnce sync.Once
 	readyChan := make(chan error)
-	go g.listen(t, func(err error) {
+
+	messagesChan := make(chan event, g.config.MessageBufferSize)
+	go g.dispatcher(messagesChan)
+	go g.listen(t, messagesChan, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)
@@ -549,11 +552,37 @@ func (g *gatewayImpl) resume() error {
 	return nil
 }
 
-func (g *gatewayImpl) listen(conn transport, ready func(error)) {
+type event struct {
+	Type           EventType
+	SequenceNumber int
+	Event          EventData
+}
+
+func (g *gatewayImpl) dispatcher(events <-chan event) {
+	defer g.config.Logger.Debug("exiting dispatcher goroutine")
+
+	for e := range events {
+		g.eventHandlerFunc(g, e.Type, e.SequenceNumber, e.Event)
+	}
+}
+
+func (g *gatewayImpl) listen(conn transport, events chan<- event, ready func(error)) {
 	defer g.config.Logger.Debug("exiting listen goroutine")
 
 	// Ensure that we never leave this function without calling ready
 	defer ready(nil)
+	defer close(events)
+
+	dispatch := func(eventType EventType, sequence int, eventData EventData) {
+		if len(events) == cap(events) {
+			g.config.Logger.Warn("gateway event queue full, consider increasing MessageBufferSize in the gateway config")
+		}
+		events <- event{
+			Type:           eventType,
+			SequenceNumber: sequence,
+			Event:          eventData,
+		}
+	}
 
 	for {
 		message, err := conn.ReceiveMessage()
@@ -663,7 +692,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 
 			// push message to the command manager
 			if g.config.EnableRawEvents {
-				g.eventHandlerFunc(g, EventTypeRaw, message.S, EventRaw{
+				dispatch(message.T, message.S, EventRaw{
 					EventType: message.T,
 					Payload:   bytes.NewReader(message.RawD),
 				})
@@ -673,7 +702,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 				g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
 				continue
 			}
-			g.eventHandlerFunc(g, message.T, message.S, eventData)
+			dispatch(message.T, message.S, eventData)
 
 		case OpcodeHeartbeat:
 			g.sendHeartbeat()
@@ -728,7 +757,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now()
 			g.lastHeartbeatReceived = newHeartbeat
-			g.eventHandlerFunc(g, EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
+			dispatch(message.T, message.S, EventHeartbeatAck{
 				LastHeartbeat: g.lastHeartbeatReceived,
 				NewHeartbeat:  newHeartbeat,
 			})
