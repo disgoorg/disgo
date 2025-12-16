@@ -48,6 +48,6 @@ type GuildMemberTypingStart struct {
 }
 
 // Channel returns the discord.GuildMessageChannel the GuildMemberTypingStart happened in
-func (e *GuildMemberTypingStart) Channel() (discord.GuildMessageChannel, bool) {
+func (e *GuildMemberTypingStart) Channel() (discord.GuildMessageChannel, error) {
 	return e.Client().Caches.GuildMessageChannel(e.ChannelID)
 }

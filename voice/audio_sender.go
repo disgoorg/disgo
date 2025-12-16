@@ -100,7 +100,7 @@ func (s *defaultAudioSender) send() {
 		return
 	}
 	opus, err := s.opusProvider.ProvideOpusFrame()
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		s.logger.Error("error while reading opus frame", slog.Any("err", err))
 		return
 	}

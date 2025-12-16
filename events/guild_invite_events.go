@@ -1,6 +1,8 @@
 package events
 
 import (
+	"errors"
+
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -15,13 +17,13 @@ type InviteCreate struct {
 }
 
 // Channel returns the discord.GuildChannel the GenericInvite happened in.
-func (e *InviteCreate) Channel() (discord.GuildChannel, bool) {
+func (e *InviteCreate) Channel() (discord.GuildChannel, error) {
 	return e.Client().Caches.Channel(e.ChannelID)
 }
 
-func (e *InviteCreate) Guild() (discord.Guild, bool) {
+func (e *InviteCreate) Guild() (discord.Guild, error) {
 	if e.GuildID == nil {
-		return discord.Guild{}, false
+		return discord.Guild{}, errors.New("guildID is nil")
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }
@@ -36,13 +38,13 @@ type InviteDelete struct {
 }
 
 // Channel returns the discord.GuildChannel the GenericInvite happened in.
-func (e *InviteDelete) Channel() (discord.GuildChannel, bool) {
+func (e *InviteDelete) Channel() (discord.GuildChannel, error) {
 	return e.Client().Caches.Channel(e.ChannelID)
 }
 
-func (e *InviteDelete) Guild() (discord.Guild, bool) {
+func (e *InviteDelete) Guild() (discord.Guild, error) {
 	if e.GuildID == nil {
-		return discord.Guild{}, false
+		return discord.Guild{}, errors.New("guildID is nil")
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }

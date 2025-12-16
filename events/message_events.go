@@ -1,6 +1,8 @@
 package events
 
 import (
+	"errors"
+
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -16,14 +18,14 @@ type GenericMessage struct {
 }
 
 // Channel returns the discord.GuildMessageChannel where the GenericMessage happened
-func (e *GenericMessage) Channel() (discord.GuildMessageChannel, bool) {
+func (e *GenericMessage) Channel() (discord.GuildMessageChannel, error) {
 	return e.Client().Caches.GuildMessageChannel(e.ChannelID)
 }
 
 // Guild returns the discord.Guild where the GenericMessage happened or nil if it happened in DMs
-func (e *GenericMessage) Guild() (discord.Guild, bool) {
+func (e *GenericMessage) Guild() (discord.Guild, error) {
 	if e.GuildID == nil {
-		return discord.Guild{}, false
+		return discord.Guild{}, errors.New("guildID is nil")
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }
