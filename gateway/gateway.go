@@ -729,11 +729,11 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now()
+			g.lastHeartbeatReceived = newHeartbeat
 			g.eventHandlerFunc(g, EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
 				LastHeartbeat: g.lastHeartbeatReceived,
 				NewHeartbeat:  newHeartbeat,
 			})
-			g.lastHeartbeatReceived = newHeartbeat
 
 		default:
 			g.config.Logger.Debug("unknown opcode received", slog.Int("opcode", int(message.Op)), slog.String("data", fmt.Sprintf("%s", message.D)))
