@@ -6,14 +6,16 @@ import (
 
 func defaultRateLimiterConfig() rateLimiterConfig {
 	return rateLimiterConfig{
-		Logger:            slog.Default(),
-		CommandsPerMinute: CommandsPerMinute,
+		Logger:               slog.Default(),
+		CommandsPerMinute:    CommandsPerMinute,
+		ReservedCommandSlots: ReservedCommandSlots,
 	}
 }
 
 type rateLimiterConfig struct {
-	Logger            *slog.Logger
-	CommandsPerMinute int
+	Logger               *slog.Logger
+	CommandsPerMinute    int
+	ReservedCommandSlots int
 }
 
 // RateLimiterConfigOpt is a type alias for a function that takes a rateLimiterConfig and is used to configure your Server.
@@ -37,5 +39,12 @@ func WithRateLimiterLogger(logger *slog.Logger) RateLimiterConfigOpt {
 func WithCommandsPerMinute(commandsPerMinute int) RateLimiterConfigOpt {
 	return func(config *rateLimiterConfig) {
 		config.CommandsPerMinute = commandsPerMinute
+	}
+}
+
+// WithReservedCommandSlots sets the number of reserved slots for Gateway priority events, like heartbeats.
+func WithReservedCommandSlots(reservedCommandSlots int) RateLimiterConfigOpt {
+	return func(config *rateLimiterConfig) {
+		config.ReservedCommandSlots = reservedCommandSlots
 	}
 }

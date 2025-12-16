@@ -354,10 +354,10 @@ func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d MessageData) error 
 		return discord.ErrShardNotReady
 	}
 
-	return g.sendInternal(ctx, op, d)
+	return g.sendInternal(ctx, NormalCommandType, op, d)
 }
 
-func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d MessageData) error {
+func (g *gatewayImpl) sendInternal(ctx context.Context, commandType RateLimiterCommandType, op Opcode, d MessageData) error {
 	data := Message{
 		Op: op,
 		D:  d,
@@ -369,7 +369,7 @@ func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d MessageData
 		return discord.ErrShardNotConnected
 	}
 
-	if err := g.config.RateLimiter.Wait(ctx); err != nil {
+	if err := g.config.RateLimiter.Wait(ctx, commandType); err != nil {
 		return err
 	}
 
@@ -461,7 +461,8 @@ func (g *gatewayImpl) heartbeat() {
 
 		case <-heartbeatTicker.C:
 			if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
-				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie")
+				zombieFor := g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
+				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("zombieFor", zombieFor))
 				closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 				g.CloseWithCode(closeCtx, websocket.CloseServiceRestart, "heartbeat ACK not received")
 				closeCancel()
@@ -484,7 +485,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
-	if err := g.sendInternal(ctx, OpcodeHeartbeat, MessageDataHeartbeat(sequence)); err != nil {
+	if err := g.sendInternal(ctx, InternalCommandType, OpcodeHeartbeat, MessageDataHeartbeat(sequence)); err != nil {
 		if errors.Is(err, discord.ErrShardNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
@@ -520,7 +521,7 @@ func (g *gatewayImpl) identify() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := g.sendInternal(ctx, OpcodeIdentify, identify); err != nil {
+	if err := g.sendInternal(ctx, InternalCommandType, OpcodeIdentify, identify); err != nil {
 		return err
 	}
 
@@ -543,7 +544,7 @@ func (g *gatewayImpl) resume() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := g.sendInternal(ctx, OpcodeResume, resume); err != nil {
+	if err := g.sendInternal(ctx, InternalCommandType, OpcodeResume, resume); err != nil {
 		return err
 	}
 	return nil
