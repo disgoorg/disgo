@@ -243,7 +243,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	gatewayURL := wsURL + "?" + values.Encode()
 
-	g.lastHeartbeatSent = time.Now().UTC()
+	g.lastHeartbeatSent = time.Now()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		var body []byte
@@ -449,12 +449,10 @@ func (g *gatewayImpl) heartbeat() {
 	ctx, cancel := context.WithCancel(context.Background())
 	g.heartbeatCancel = cancel
 
-	// Send first heartbeat immediately
-	g.sendHeartbeat()
-
-	// Then we send them periodically every `heartbeat_interval`
-	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
 	g.lastHeartbeatReceived = time.Now()
+
+	// Send heartbeats periodically every `heartbeat_interval`
+	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
 	for {
 		select {
 		case <-ctx.Done():
@@ -462,8 +460,8 @@ func (g *gatewayImpl) heartbeat() {
 
 		case <-heartbeatTicker.C:
 			if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
-				zombieFor := g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
-				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("zombie_for", zombieFor))
+				lastHeartbeatAgo := time.Since(g.lastHeartbeatReceived)
+				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("last_heartbeat_ago", lastHeartbeatAgo))
 				closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 				g.CloseWithCode(closeCtx, websocket.CloseServiceRestart, "heartbeat ACK not received")
 				closeCancel()

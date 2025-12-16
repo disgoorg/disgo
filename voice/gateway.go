@@ -151,7 +151,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 	g.statusMu.Unlock()
 
 	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, GatewayVersion)
-	g.lastHeartbeatSent = time.Now().UTC()
+	g.lastHeartbeatSent = time.Now()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		var body []byte
@@ -337,8 +337,9 @@ func (g *gatewayImpl) heartbeat() {
 	ctx, cancel := context.WithCancel(context.Background())
 	g.heartbeatCancel = cancel
 
-	g.sendHeartbeat()
+	g.lastHeartbeatReceived = time.Now()
 
+	// Send heartbeats periodically every `heartbeat_interval`
 	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
 	for {
 		select {
@@ -347,7 +348,8 @@ func (g *gatewayImpl) heartbeat() {
 
 		case <-heartbeatTicker.C:
 			if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
-				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie")
+				lastHeartbeatAgo := time.Since(g.lastHeartbeatReceived)
+				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("last_heartbeat_ago", lastHeartbeatAgo))
 				g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat ACK not received")
 				go g.reconnect()
 				return
@@ -377,7 +379,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 		go g.reconnect()
 		return
 	}
-	g.lastHeartbeatSent = time.Now().UTC()
+	g.lastHeartbeatSent = time.Now()
 }
 
 func (g *gatewayImpl) identify() error {
@@ -500,7 +502,6 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 		case OpcodeHello:
 			d := message.D.(GatewayMessageDataHello)
 			g.heartbeatInterval = time.Duration(d.HeartbeatInterval) * time.Millisecond
-			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
 
 			if g.ssrc == 0 || g.seq == 0 {
@@ -534,7 +535,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				go g.reconnect()
 				return
 			}
-			g.lastHeartbeatReceived = time.Now().UTC()
+			g.lastHeartbeatReceived = time.Now()
 		}
 
 		g.eventHandlerFunc(g, message.Op, message.Seq, message.D)
