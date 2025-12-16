@@ -454,6 +454,7 @@ func (g *gatewayImpl) heartbeat() {
 
 	// Then we send them periodically every `heartbeat_interval`
 	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
+	g.lastHeartbeatReceived = time.Now()
 	for {
 		select {
 		case <-ctx.Done():
@@ -495,7 +496,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 		go g.reconnect()
 		return
 	}
-	g.lastHeartbeatSent = time.Now().UTC()
+	g.lastHeartbeatSent = time.Now()
 }
 
 func (g *gatewayImpl) identify() error {
@@ -623,7 +624,6 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 		switch message.Op {
 		case OpcodeHello:
 			g.heartbeatInterval = time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
-			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
@@ -727,7 +727,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			return
 
 		case OpcodeHeartbeatACK:
-			newHeartbeat := time.Now().UTC()
+			newHeartbeat := time.Now()
 			g.eventHandlerFunc(g, EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
 				LastHeartbeat: g.lastHeartbeatReceived,
 				NewHeartbeat:  newHeartbeat,
