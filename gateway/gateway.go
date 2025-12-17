@@ -168,11 +168,11 @@ type gatewayImpl struct {
 	eventHandlerFunc EventHandlerFunc
 	token            string
 
-	conn            transport
-	connMu          sync.Mutex
-	heartbeatCancel context.CancelFunc
-	status          Status
-	statusMu        sync.Mutex
+	conn     transport
+	connMu   sync.Mutex
+	cancel   context.CancelFunc
+	status   Status
+	statusMu sync.Mutex
 
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
@@ -281,12 +281,15 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusWaitingForHello
 	g.statusMu.Unlock()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	g.cancel = cancel
+
 	messagesChan := make(chan event, g.config.MessageBufferSize)
-	go g.dispatcher(messagesChan)
+	go g.dispatcher(ctx, messagesChan)
 
 	var readyOnce sync.Once
 	readyChan := make(chan error)
-	go g.listen(t, messagesChan, func(err error) {
+	go g.listen(ctx, t, messagesChan, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)
@@ -295,14 +298,14 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	select {
 	case <-ctx.Done():
-		closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+		closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer closeCancel()
 		g.Close(closeCtx)
 		return ctx.Err()
 	case err = <-readyChan:
 		if err != nil {
-			closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
+			closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer closeCancel()
 			g.Close(closeCtx)
 			return fmt.Errorf("failed to open gateway connection: %w", err)
 		}
@@ -316,9 +319,9 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
-	if g.heartbeatCancel != nil {
-		g.config.Logger.DebugContext(ctx, "closing heartbeat goroutine")
-		g.heartbeatCancel()
+	if g.cancel != nil {
+		g.config.Logger.DebugContext(ctx, "closing goroutines")
+		g.cancel()
 	}
 
 	g.connMu.Lock()
@@ -446,11 +449,8 @@ func (g *gatewayImpl) reconnect() {
 	}
 }
 
-func (g *gatewayImpl) heartbeat() {
+func (g *gatewayImpl) heartbeat(ctx context.Context) {
 	defer g.config.Logger.Debug("exiting heartbeat goroutine")
-
-	ctx, cancel := context.WithCancel(context.Background())
-	g.heartbeatCancel = cancel
 
 	g.lastHeartbeatReceived = time.Now()
 
@@ -553,20 +553,29 @@ func (g *gatewayImpl) resume() error {
 }
 
 type event struct {
-	Type           EventType
-	SequenceNumber int
-	Event          EventData
+	Type     EventType
+	Sequence int
+	Event    EventData
 }
 
-func (g *gatewayImpl) dispatcher(events <-chan event) {
+func (g *gatewayImpl) dispatcher(ctx context.Context, events <-chan event) {
 	defer g.config.Logger.Debug("exiting dispatcher goroutine")
 
-	for e := range events {
-		g.eventHandlerFunc(g, e.Type, e.SequenceNumber, e.Event)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case e, ok := <-events:
+			if ok {
+				g.eventHandlerFunc(g, e.Type, e.Sequence, e.Event)
+				seq := e.Sequence
+				g.config.LastSequenceReceived = &seq
+			}
+		}
 	}
 }
 
-func (g *gatewayImpl) listen(conn transport, events chan<- event, ready func(error)) {
+func (g *gatewayImpl) listen(ctx context.Context, conn transport, events chan<- event, ready func(error)) {
 	defer g.config.Logger.Debug("exiting listen goroutine")
 
 	// Ensure that we never leave this function without calling ready
@@ -575,12 +584,13 @@ func (g *gatewayImpl) listen(conn transport, events chan<- event, ready func(err
 
 	dispatch := func(eventType EventType, sequence int, eventData EventData) {
 		if len(events) == cap(events) {
-			g.config.Logger.Warn("gateway event queue full, consider increasing MessageBufferSize in the gateway config")
+			g.config.Logger.Warn("Gateway event queue reached max capacity, further events may block the gateway from receiving messages." +
+				"Make sure you don't block the event goroutine or caches for long periods of time. Consider increasing the MessageBufferSize in the Gateway config else the gateway might go into zombie state.")
 		}
 		events <- event{
-			Type:           eventType,
-			SequenceNumber: sequence,
-			Event:          eventData,
+			Type:     eventType,
+			Sequence: sequence,
+			Event:    eventData,
 		}
 	}
 
@@ -652,7 +662,7 @@ func (g *gatewayImpl) listen(conn transport, events chan<- event, ready func(err
 		switch message.Op {
 		case OpcodeHello:
 			g.heartbeatInterval = time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
-			go g.heartbeat()
+			go g.heartbeat(ctx)
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
 				err = g.identify()
@@ -665,9 +675,6 @@ func (g *gatewayImpl) listen(conn transport, events chan<- event, ready func(err
 			}
 
 		case OpcodeDispatch:
-			// set last sequence received
-			g.config.LastSequenceReceived = &message.S
-
 			eventData, ok := message.D.(EventData)
 			if !ok && message.D != nil {
 				g.config.Logger.Error("invalid message data received", slog.String("data", fmt.Sprintf("%T", message.D)))
@@ -727,37 +734,38 @@ func (g *gatewayImpl) listen(conn transport, events chan<- event, ready func(err
 
 		case OpcodeInvalidSession:
 			canResume := message.D.(MessageDataInvalidSession)
+			g.config.Logger.Warn("received invalid session", slog.Bool("can_resume", bool(canResume)))
 
 			code := websocket.CloseNormalClosure
 			if canResume {
 				code = websocket.CloseServiceRestart
-			} else {
+			}
+			closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			g.CloseWithCode(closeCtx, code, "invalid session")
+			cancel()
+
+			if !canResume {
 				// clear resume info
 				g.config.SessionID = nil
 				g.config.LastSequenceReceived = nil
 				g.config.ResumeURL = nil
 			}
 
-			g.config.Logger.Warn("received invalid session", slog.Bool("can_resume", bool(canResume)))
-
 			g.statusMu.Lock()
 			if g.status != StatusReady {
 				g.statusMu.Unlock()
-				ready(fmt.Errorf("invalid session"))
+				ready(errors.New("invalid session"))
 				return
 			}
 			g.statusMu.Unlock()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			g.CloseWithCode(ctx, code, "invalid session")
-			cancel()
 			go g.reconnect()
 			return
 
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now()
 			g.lastHeartbeatReceived = newHeartbeat
-			dispatch(message.T, message.S, EventHeartbeatAck{
+			dispatch(EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
 				LastHeartbeat: g.lastHeartbeatReceived,
 				NewHeartbeat:  newHeartbeat,
 			})
