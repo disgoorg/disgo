@@ -161,7 +161,7 @@ func (s *channelImpl) CreateMessage(channelID snowflake.ID, messageCreate discor
 }
 
 func (s *channelImpl) UpdateMessage(channelID snowflake.ID, messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
-	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || (messageUpdate.Flags != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2))) {
 		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
 	}
 	body, err := messageUpdate.ToBody()
