@@ -12,40 +12,42 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/handler"
 )
 
 var (
 	token   = os.Getenv("disgo_token")
 	guildID = snowflake.GetEnv("disgo_guild_id")
-
-	//go:embed gopher.png
-	gopher []byte
 )
 
 func main() {
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+	logger := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})
+	slog.SetDefault(slog.New(logger))
 	slog.Info("starting example...")
 	slog.Info("disgo version", slog.Any("version", disgo.Version))
 
+	r := handler.New()
+	r.SlashCommand("/test", handleTestCommand)
+
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
-			gateway.WithIntents(gateway.IntentsNonPrivileged, gateway.IntentMessageContent),
 			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit", gateway.WithActivityState("lol")), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
 		),
-		bot.WithCacheConfigOpts(
-			cache.WithCaches(cache.FlagsAll),
-		),
-		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
-		bot.WithEventListeners(listener),
+		bot.WithEventListeners(r),
 	)
 	if err != nil {
 		slog.Error("error while building bot instance", slog.Any("err", err))
 		return
 	}
 
-	registerCommands(client)
+	if err = handler.SyncCommands(client, commands, []snowflake.ID{guildID}); err != nil {
+		slog.Error("error while syncing commands", slog.Any("err", err))
+	}
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
 		slog.Error("error while connecting to discord", slog.Any("err", err))

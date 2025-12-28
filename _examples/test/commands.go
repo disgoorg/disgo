@@ -1,45 +1,28 @@
 package main
 
 import (
-	"log/slog"
+	"github.com/disgoorg/omit"
 
-	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/handler"
 )
 
 var commands = []discord.ApplicationCommandCreate{
 	discord.SlashCommandCreate{
-		Name:        "locale",
-		Description: "return the guild & your locale",
-	},
-	discord.SlashCommandCreate{
 		Name:        "test",
 		Description: "test",
 	},
-	discord.SlashCommandCreate{
-		Name:        "test2",
-		Description: "test",
-	},
-	discord.SlashCommandCreate{
-		Name:        "say",
-		Description: "says what you say",
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionString{
-				Name:        "message",
-				Description: "What to say",
-				Required:    true,
-			},
-			discord.ApplicationCommandOptionBool{
-				Name:        "ephemeral",
-				Description: "ephemeral",
-				Required:    true,
-			},
-		},
-	},
 }
 
-func registerCommands(client *bot.Client) {
-	if _, err := client.Rest.SetGuildCommands(client.ApplicationID, guildID, commands); err != nil {
-		slog.Error("error while registering guild commands", slog.Any("err", err))
+func handleTestCommand(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	if err := e.CreateMessage(discord.MessageCreate{
+		Content: "Test command received!",
+	}); err != nil {
+		return err
 	}
+
+	_, err := e.UpdateInteractionResponse(discord.MessageUpdate{
+		Content: omit.Ptr("Test command response updated!"),
+	})
+	return err
 }
