@@ -2,11 +2,11 @@ package bot
 
 import (
 	"log/slog"
-	"runtime/debug"
 	"sync"
 
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/internal/xdebug"
 )
 
 var _ EventManager = (*eventManagerImpl)(nil)
@@ -147,7 +147,7 @@ func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, e
 func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
+			e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(xdebug.Stack(3))))
 			return
 		}
 	}()
@@ -158,7 +158,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
-						e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
+						e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(xdebug.Stack(3))))
 						return
 					}
 				}()
