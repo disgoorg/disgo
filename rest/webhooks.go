@@ -152,7 +152,7 @@ func (s *webhookImpl) CreateWebhookMessageGitHub(webhookID snowflake.ID, webhook
 }
 
 func (s *webhookImpl) UpdateWebhookMessage(webhookID snowflake.ID, webhookToken string, messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, params UpdateWebhookMessageParams, opts ...RequestOpt) (message *discord.Message, err error) {
-	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || (messageUpdate.Flags != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2))) {
 		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
 	}
 

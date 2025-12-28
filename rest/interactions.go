@@ -69,7 +69,7 @@ func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID sn
 }
 
 func (s *interactionImpl) UpdateInteractionResponse(applicationID snowflake.ID, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
-	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || (messageUpdate.Flags != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2))) {
 		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
 	}
 
@@ -106,7 +106,7 @@ func (s *interactionImpl) CreateFollowupMessage(applicationID snowflake.ID, inte
 }
 
 func (s *interactionImpl) UpdateFollowupMessage(applicationID snowflake.ID, interactionToken string, messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
-	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2)) {
+	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || (messageUpdate.Flags != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2))) {
 		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
 	}
 
