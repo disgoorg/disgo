@@ -39,6 +39,7 @@ func main() {
 	)
 	if err != nil {
 		slog.Error("error creating client", slog.Any("err", err))
+		return
 	}
 
 	defer func() {
