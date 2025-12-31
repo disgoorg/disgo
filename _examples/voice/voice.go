@@ -12,6 +12,8 @@ import (
 
 	"github.com/disgoorg/snowflake/v2"
 
+	"github.com/disgoorg/godave"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/events"
@@ -36,6 +38,9 @@ func main() {
 		bot.WithEventListenerFunc(func(e *events.Ready) {
 			go play(e.Client(), s)
 		}),
+		bot.WithVoiceManagerConfigOpts(
+			voice.WithDave(godave.NewDave()),
+		),
 	)
 	if err != nil {
 		slog.Error("error creating client", slog.Any("err", err))

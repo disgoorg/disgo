@@ -9,6 +9,7 @@ func defaultConnConfig() connConfig {
 		Logger:                  slog.Default(),
 		GatewayCreateFunc:       NewGateway,
 		UDPConnCreateFunc:       NewUDPConn,
+		Dave:                    NewNoopDave(),
 		AudioSenderCreateFunc:   NewAudioSender,
 		AudioReceiverCreateFunc: NewAudioReceiver,
 	}
@@ -22,6 +23,8 @@ type connConfig struct {
 
 	UDPConnCreateFunc UDPConnCreateFunc
 	UDPConnConfigOpts []UDPConnConfigOpt
+
+	Dave Dave
 
 	AudioSenderCreateFunc   AudioSenderCreateFunc
 	AudioReceiverCreateFunc AudioReceiverCreateFunc
@@ -92,5 +95,12 @@ func WithConnAudioReceiverCreateFunc(audioReceiverCreateFunc AudioReceiverCreate
 func WithConnEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConnConfigOpt {
 	return func(config *connConfig) {
 		config.EventHandlerFunc = eventHandlerFunc
+	}
+}
+
+// WithConnDave sets the Conn(s) used Dave.
+func WithConnDave(dave Dave) ConnConfigOpt {
+	return func(config *connConfig) {
+		config.Dave = dave
 	}
 }
