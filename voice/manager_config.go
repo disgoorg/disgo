@@ -46,3 +46,7 @@ func WithConnConfigOpts(opts ...ConnConfigOpt) ManagerConfigOpt {
 		config.ConnOpts = append(config.ConnOpts, opts...)
 	}
 }
+
+func WithDave(dave Dave) ManagerConfigOpt {
+	return WithConnConfigOpts(WithConnDave(dave))
+}

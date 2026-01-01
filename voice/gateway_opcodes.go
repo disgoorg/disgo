@@ -14,11 +14,42 @@ const (
 	OpcodeHello
 	OpcodeResumed
 	_
-	_
-	_
+	OpcodeClientsConnect
+	OpcodeClientConnect
 	OpcodeClientDisconnect
 	OpcodeGuildSync
+	_
+	_
+	_
+	_
+	_
+	_
+	OpcodeDavePrepareTransition
+	OpcodeDaveExecuteTransition
+	OpcodeDaveTransitionReady
+	OpcodeDavePrepareEpoch
+	OpcodeDaveMLSExternalSenderPackage
+	OpcodeDaveMLSKeyPackage
+	OpcodeDaveMLSProposals
+	OpcodeDaveMLSCommitWelcome
+	OpcodeDaveMLSPrepareCommitTransition
+	OpcodeDaveMLSWelcome
+	OpcodeDaveMLSInvalidCommitWelcome
 )
+
+func (o Opcode) IsBinary() bool {
+	switch o {
+	case OpcodeDavePrepareTransition,
+		OpcodeDaveMLSKeyPackage,
+		OpcodeDaveMLSProposals,
+		OpcodeDaveMLSCommitWelcome,
+		OpcodeDaveMLSPrepareCommitTransition,
+		OpcodeDaveMLSWelcome:
+		return true
+	default:
+		return false
+	}
+}
 
 type GatewayCloseEventCode struct {
 	Code        int
