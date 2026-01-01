@@ -2,6 +2,8 @@ package voice
 
 import (
 	"log/slog"
+
+	"github.com/disgoorg/godave"
 )
 
 func defaultConnConfig() connConfig {
@@ -9,7 +11,7 @@ func defaultConnConfig() connConfig {
 		Logger:                  slog.Default(),
 		GatewayCreateFunc:       NewGateway,
 		UDPConnCreateFunc:       NewUDPConn,
-		Dave:                    NewNoopDave(),
+		DaveSessionCreate:       godave.NewNoopSession,
 		AudioSenderCreateFunc:   NewAudioSender,
 		AudioReceiverCreateFunc: NewAudioReceiver,
 	}
@@ -24,7 +26,7 @@ type connConfig struct {
 	UDPConnCreateFunc UDPConnCreateFunc
 	UDPConnConfigOpts []UDPConnConfigOpt
 
-	Dave Dave
+	DaveSessionCreate godave.SessionCreateFunc
 
 	AudioSenderCreateFunc   AudioSenderCreateFunc
 	AudioReceiverCreateFunc AudioReceiverCreateFunc
@@ -98,9 +100,9 @@ func WithConnEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConnConfigOpt {
 	}
 }
 
-// WithConnDave sets the Conn(s) used Dave.
-func WithConnDave(dave Dave) ConnConfigOpt {
+// WithConnDaveSessionCreateFunc sets the Conn(s) used godave.SessionCreateFunc.
+func WithConnDaveSessionCreateFunc(sessionCreateFunc godave.SessionCreateFunc) ConnConfigOpt {
 	return func(config *connConfig) {
-		config.Dave = dave
+		config.DaveSessionCreate = sessionCreateFunc
 	}
 }

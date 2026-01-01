@@ -76,22 +76,7 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
-	// FIXME: I am not entirely happy with this
-	daveSession := cfg.Dave.CreateSession(userID, Callbacks{
-		SendMLSKeyPackage: func(mlsKeyPackage []byte) error {
-			return conn.gateway.Send(context.Background(), OpcodeDaveMLSKeyPackage, GatewayMessageDataDaveMLSKeyPackage(mlsKeyPackage))
-		},
-		SendMLSCommitWelcome: func(mlsCommitWelcome []byte) error {
-			return conn.gateway.Send(context.Background(), OpcodeDaveMLSCommitWelcome, GatewayMessageDataDaveMLSCommitWelcome(mlsCommitWelcome))
-		},
-		SendReadyForTransition: func(transitionID uint16) error {
-			return conn.gateway.Send(context.Background(), OpcodeDaveTransitionReady, GatewayMessageDataDaveProtocolReadyForTransition{TransitionID: transitionID})
-		},
-		SendInvalidCommitWelcome: func(transitionID uint16) error {
-			return conn.gateway.Send(context.Background(), OpcodeDaveMLSInvalidCommitWelcome, GatewayMessageDataDaveInvalidCommitWelcome{TransitionID: transitionID})
-		},
-	})
-
+	daveSession := cfg.DaveSessionCreate(cfg.Logger, userID, conn)
 	conn.gateway = cfg.GatewayCreateFunc(daveSession, conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(cfg.Logger)}, cfg.GatewayConfigOpts...)...)
 	conn.udp = cfg.UDPConnCreateFunc(daveSession, conn.UserIDBySSRC, append([]UDPConnConfigOpt{WithUDPConnLogger(cfg.Logger)}, cfg.UDPConnConfigOpts...)...)
 
@@ -117,6 +102,22 @@ type connImpl struct {
 
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
+}
+
+func (c *connImpl) SendMLSKeyPackage(mlsKeyPackage []byte) error {
+	return c.gateway.Send(context.Background(), OpcodeDaveMLSKeyPackage, GatewayMessageDataDaveMLSKeyPackage(mlsKeyPackage))
+}
+
+func (c *connImpl) SendMLSCommitWelcome(mlsCommitWelcome []byte) error {
+	return c.gateway.Send(context.Background(), OpcodeDaveMLSCommitWelcome, GatewayMessageDataDaveMLSCommitWelcome(mlsCommitWelcome))
+}
+
+func (c *connImpl) SendReadyForTransition(transitionID uint16) error {
+	return c.gateway.Send(context.Background(), OpcodeDaveTransitionReady, GatewayMessageDataDaveProtocolReadyForTransition{TransitionID: transitionID})
+}
+
+func (c *connImpl) SendInvalidCommitWelcome(transitionID uint16) error {
+	return c.gateway.Send(context.Background(), OpcodeDaveMLSInvalidCommitWelcome, GatewayMessageDataDaveInvalidCommitWelcome{TransitionID: transitionID})
 }
 
 func (c *connImpl) ChannelID() *snowflake.ID {

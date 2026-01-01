@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/disgoorg/godave"
 	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/gorilla/websocket"
@@ -52,7 +53,7 @@ type (
 	EventHandlerFunc func(gateway Gateway, opCode Opcode, sequenceNumber int, data GatewayMessageData)
 
 	// GatewayCreateFunc is a function that creates a new voice gateway.
-	GatewayCreateFunc func(daveManager DaveSession, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
+	GatewayCreateFunc func(daveManager godave.Session, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
 
 	// CloseHandlerFunc is a function that handles a voice gateway close.
 	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
@@ -97,7 +98,7 @@ type Gateway interface {
 }
 
 // NewGateway creates a new voice Gateway.
-func NewGateway(daveSession DaveSession, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
+func NewGateway(daveSession godave.Session, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
 	cfg := defaultGatewayConfig()
 	cfg.apply(opts)
 
@@ -118,7 +119,7 @@ type gatewayImpl struct {
 	state State
 	seq   int
 
-	daveSession     DaveSession
+	daveSession     godave.Session
 	conn            *websocket.Conn
 	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
