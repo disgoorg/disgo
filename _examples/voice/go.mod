@@ -2,12 +2,15 @@ module github.com/disgoorg/disgo/_examples/application_commands/http
 
 go 1.25.5
 
-replace github.com/disgoorg/disgo => ../../../
+replace github.com/disgoorg/disgo => ../../
+
+// FIXME: Remove before merging
+replace github.com/disgoorg/godave => ../../../godave
 
 require (
-	github.com/disgoorg/disgo v0.18.15
+	github.com/disgoorg/disgo v0.19.0-rc14
+	github.com/disgoorg/godave v0.0.1
 	github.com/disgoorg/snowflake/v2 v2.0.3
-	github.com/oasisprotocol/curve25519-voi v0.0.0-20230904125328-1f23a7beb09a
 )
 
 require (

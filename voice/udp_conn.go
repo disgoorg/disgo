@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/disgoorg/snowflake/v2"
 )
 
 const (
@@ -49,7 +51,9 @@ var (
 
 type (
 	// UDPConnCreateFunc is a function that creates a UDPConn.
-	UDPConnCreateFunc func(opts ...UDPConnConfigOpt) UDPConn
+	UDPConnCreateFunc func(daveSession DaveSession, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn
+
+	SsrcLookupFunc func(ssrc uint32) snowflake.ID
 
 	// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
 	// It implements the io.Reader, io.Writer and io.Closer interface.
@@ -107,11 +111,13 @@ type (
 )
 
 // NewUDPConn creates a new voice UDPConn with the given configuration.
-func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
+func NewUDPConn(daveSession DaveSession, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn {
 	cfg := defaultUDPConnConfig()
 	cfg.apply(opts)
 
 	return &udpConnImpl{
+		daveSession:   daveSession,
+		ssrcLookup:    ssrcLookup,
 		config:        cfg,
 		receiveBuffer: make([]byte, 1400),
 	}
@@ -123,9 +129,12 @@ type udpConnImpl struct {
 	conn   net.Conn
 	connMu sync.Mutex
 
-	encrypter Encrypter
+	encrypter   Encrypter
+	daveSession DaveSession
+	ssrcLookup  SsrcLookupFunc
 
 	header    [12]byte
+	ssrc      uint32
 	sequence  uint16
 	timestamp uint32
 
@@ -235,6 +244,10 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 
 	binary.BigEndian.PutUint32(u.header[8:], ssrc) // SSRC
 
+	// FIXME: I dont like this here, it feels a bit hacky
+	u.ssrc = ssrc
+	u.daveSession.AssignSsrcToCodec(1, ssrc)
+
 	return ourAddress, ourPort, nil
 }
 
@@ -249,9 +262,15 @@ func (u *udpConnImpl) Write(p []byte) (int, error) {
 	binary.BigEndian.PutUint32(u.header[4:8], u.timestamp)
 	u.timestamp += OpusFrameSize
 
-	if _, err := conn.Write(u.encrypter.Encrypt(u.header, p)); err != nil {
+	firstEncrypted, err := u.daveSession.EncryptOpus(u.ssrc, p)
+	if err != nil {
+		return 0, fmt.Errorf("failed to DAVE encrypt packet: %w", err)
+	}
+
+	if _, err = conn.Write(u.encrypter.Encrypt(u.header, firstEncrypted)); err != nil {
 		return 0, fmt.Errorf("failed to write packet: %w", err)
 	}
+
 	return len(p), nil
 }
 
@@ -280,7 +299,7 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			continue
 		}
 
-		hasPadding := (u.receiveBuffer[0] & 0x20) != 0
+		hasPadding := (u.receiveBuffer[0] & 0x04) != 0
 		if hasPadding {
 			paddingLen := int(u.receiveBuffer[n-1])
 			u.receiveBuffer = u.receiveBuffer[:n-paddingLen]
@@ -318,16 +337,21 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 
 		p.HeaderSize = offset
 
-		decrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
+		firstDecrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
 		if err != nil {
 			return nil, fmt.Errorf("failed to decrypt packet: %w", err)
 		}
 
-		var decryptedOffset int
+		var firstDecryptedOffset int
 		if p.HasExtension {
 			extensionLen *= 4 // extension length is in 32-bit words
-			p.Extension = decrypted[decryptedOffset : decryptedOffset+extensionLen]
-			decryptedOffset += extensionLen
+			p.Extension = firstDecrypted[firstDecryptedOffset : firstDecryptedOffset+extensionLen]
+			firstDecryptedOffset += extensionLen
+		}
+
+		decrypted, err := u.daveSession.DecryptOpus(u.ssrcLookup(p.SSRC), firstDecrypted[firstDecryptedOffset:])
+		if err != nil {
+			return nil, fmt.Errorf("failed to DAVE decrypt packet: %w", err)
 		}
 
 		return &Packet{
@@ -339,7 +363,7 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			HasExtension: p.HasExtension,
 			CSRC:         nil,
 			HeaderSize:   RTPHeaderSize,
-			Opus:         decrypted[decryptedOffset:],
+			Opus:         decrypted,
 		}, nil
 	}
 }

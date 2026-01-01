@@ -76,8 +76,24 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
-	conn.gateway = cfg.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(cfg.Logger)}, cfg.GatewayConfigOpts...)...)
-	conn.udp = cfg.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(cfg.Logger)}, cfg.UDPConnConfigOpts...)...)
+	// FIXME: I am not entirely happy with this
+	daveSession := cfg.Dave.CreateSession(userID, Callbacks{
+		SendMLSKeyPackage: func(mlsKeyPackage []byte) error {
+			return conn.gateway.Send(context.Background(), OpcodeDaveMLSKeyPackage, GatewayMessageDataDaveMLSKeyPackage(mlsKeyPackage))
+		},
+		SendMLSCommitWelcome: func(mlsCommitWelcome []byte) error {
+			return conn.gateway.Send(context.Background(), OpcodeDaveMLSCommitWelcome, GatewayMessageDataDaveMLSCommitWelcome(mlsCommitWelcome))
+		},
+		SendReadyForTransition: func(transitionID uint16) error {
+			return conn.gateway.Send(context.Background(), OpcodeDaveTransitionReady, GatewayMessageDataDaveProtocolReadyForTransition{TransitionID: transitionID})
+		},
+		SendInvalidCommitWelcome: func(transitionID uint16) error {
+			return conn.gateway.Send(context.Background(), OpcodeDaveMLSInvalidCommitWelcome, GatewayMessageDataDaveInvalidCommitWelcome{TransitionID: transitionID})
+		},
+	})
+
+	conn.gateway = cfg.GatewayCreateFunc(daveSession, conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(cfg.Logger)}, cfg.GatewayConfigOpts...)...)
+	conn.udp = cfg.UDPConnCreateFunc(daveSession, conn.UserIDBySSRC, append([]UDPConnConfigOpt{WithUDPConnLogger(cfg.Logger)}, cfg.UDPConnConfigOpts...)...)
 
 	return conn
 }

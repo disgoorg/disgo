@@ -1,0 +1,7 @@
+github.com/disgoorg/json/v2 v2.0.0/go.mod h1:jZTBC0nIE1WeetSEI3/Dka8g+qglb4FPVmp5I5HpEfI=
+github.com/disgoorg/omit v1.0.0/go.mod h1:RTmSARkf6PWT/UckwI0bV8XgWkWQoPppaT01rYKLcFQ=
+github.com/disgoorg/snowflake/v2 v2.0.3/go.mod h1:W6r7NUA7DwfZLwr00km6G4UnZ0zcoLBRufhkFWgAc4c=
+github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
+github.com/sasha-s/go-csync v0.0.0-20240107134140-fcbab37b09ad/go.mod h1:/pA7k3zsXKdjjAiUhB5CjuKib9KJGCaLvZwtxGC8U0s=
+golang.org/x/crypto v0.46.0/go.mod h1:Evb/oLKmMraqjZ2iQTwDwvCtJkczlDuTmdJXoZVzqU0=
+golang.org/x/sys v0.39.0/go.mod h1:OgkHotnGiDImocRcuBABYBEXf8A9a87e/uXjp9XT3ks=
