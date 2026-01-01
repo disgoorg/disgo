@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/disgoorg/godave"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -51,7 +52,7 @@ var (
 
 type (
 	// UDPConnCreateFunc is a function that creates a UDPConn.
-	UDPConnCreateFunc func(daveSession DaveSession, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn
+	UDPConnCreateFunc func(daveSession godave.Session, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn
 
 	SsrcLookupFunc func(ssrc uint32) snowflake.ID
 
@@ -111,7 +112,7 @@ type (
 )
 
 // NewUDPConn creates a new voice UDPConn with the given configuration.
-func NewUDPConn(daveSession DaveSession, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn {
+func NewUDPConn(daveSession godave.Session, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn {
 	cfg := defaultUDPConnConfig()
 	cfg.apply(opts)
 
@@ -130,7 +131,7 @@ type udpConnImpl struct {
 	connMu sync.Mutex
 
 	encrypter   Encrypter
-	daveSession DaveSession
+	daveSession godave.Session
 	ssrcLookup  SsrcLookupFunc
 
 	header    [12]byte
@@ -246,7 +247,7 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 
 	// FIXME: I dont like this here, it feels a bit hacky
 	u.ssrc = ssrc
-	u.daveSession.AssignSsrcToCodec(1, ssrc)
+	u.daveSession.AssignSsrcToCodec(ssrc, godave.CodecOpus)
 
 	return ourAddress, ourPort, nil
 }
@@ -262,7 +263,7 @@ func (u *udpConnImpl) Write(p []byte) (int, error) {
 	binary.BigEndian.PutUint32(u.header[4:8], u.timestamp)
 	u.timestamp += OpusFrameSize
 
-	firstEncrypted, err := u.daveSession.EncryptOpus(u.ssrc, p)
+	firstEncrypted, err := u.daveSession.Encrypt(u.ssrc, p)
 	if err != nil {
 		return 0, fmt.Errorf("failed to DAVE encrypt packet: %w", err)
 	}
@@ -349,7 +350,7 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			firstDecryptedOffset += extensionLen
 		}
 
-		decrypted, err := u.daveSession.DecryptOpus(u.ssrcLookup(p.SSRC), firstDecrypted[firstDecryptedOffset:])
+		decrypted, err := u.daveSession.Decrypt(u.ssrcLookup(p.SSRC), firstDecrypted[firstDecryptedOffset:])
 		if err != nil {
 			return nil, fmt.Errorf("failed to DAVE decrypt packet: %w", err)
 		}

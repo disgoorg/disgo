@@ -1,5 +1,6 @@
 package main
 
+import "C"
 import (
 	"context"
 	"encoding/binary"
@@ -10,9 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/disgoorg/godave/golibdave"
 	"github.com/disgoorg/snowflake/v2"
-
-	"github.com/disgoorg/godave"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -39,7 +39,7 @@ func main() {
 			go play(e.Client(), s)
 		}),
 		bot.WithVoiceManagerConfigOpts(
-			voice.WithDave(godave.NewDave()),
+			voice.WithDaveSessionCreateFunc(golibdave.NewSession),
 		),
 	)
 	if err != nil {
