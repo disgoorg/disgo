@@ -12,6 +12,7 @@ func defaultConnConfig() connConfig {
 		GatewayCreateFunc:       NewGateway,
 		UDPConnCreateFunc:       NewUDPConn,
 		DaveSessionCreate:       godave.NewNoopSession,
+		DaveSessionLogger:       slog.Default(),
 		AudioSenderCreateFunc:   NewAudioSender,
 		AudioReceiverCreateFunc: NewAudioReceiver,
 	}
@@ -27,6 +28,7 @@ type connConfig struct {
 	UDPConnConfigOpts []UDPConnConfigOpt
 
 	DaveSessionCreate godave.SessionCreateFunc
+	DaveSessionLogger *slog.Logger
 
 	AudioSenderCreateFunc   AudioSenderCreateFunc
 	AudioReceiverCreateFunc AudioReceiverCreateFunc
@@ -104,5 +106,12 @@ func WithConnEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConnConfigOpt {
 func WithConnDaveSessionCreateFunc(sessionCreateFunc godave.SessionCreateFunc) ConnConfigOpt {
 	return func(config *connConfig) {
 		config.DaveSessionCreate = sessionCreateFunc
+	}
+}
+
+// WithConnDaveSessionLogger sets the Conn(s) used godave.Session logger.
+func WithConnDaveSessionLogger(logger *slog.Logger) ConnConfigOpt {
+	return func(config *connConfig) {
+		config.DaveSessionLogger = logger
 	}
 }
