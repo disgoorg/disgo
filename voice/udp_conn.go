@@ -245,7 +245,6 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 
 	binary.BigEndian.PutUint32(u.header[8:], ssrc) // SSRC
 
-	// FIXME: I dont like this here, it feels a bit hacky
 	u.ssrc = ssrc
 	u.daveSession.AssignSsrcToCodec(ssrc, godave.CodecOpus)
 

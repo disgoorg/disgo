@@ -15,7 +15,7 @@ const (
 	OpcodeResumed
 	_
 	OpcodeClientsConnect
-	OpcodeClientConnect
+	_
 	OpcodeClientDisconnect
 	OpcodeGuildSync
 	_
