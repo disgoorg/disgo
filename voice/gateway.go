@@ -294,7 +294,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 		return ErrGatewayNotConnected
 	}
 
-	g.config.Logger.InfoContext(ctx, "sending voice gateway command", slog.String("data", string(data)))
+	g.config.Logger.DebugContext(ctx, "sending voice gateway command", slog.String("data", string(data)))
 	return g.conn.WriteMessage(messageType, data)
 }
 
@@ -606,14 +606,14 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 }
 
 func (g *gatewayImpl) parseMessage(mt int, r io.Reader) (GatewayMessage, error) {
-	if g.config.Logger.Enabled(context.Background(), slog.LevelInfo) {
+	if g.config.Logger.Enabled(context.Background(), slog.LevelDebug) {
 		buff := new(bytes.Buffer)
 		tr := io.TeeReader(r, buff)
 		data, err := io.ReadAll(tr)
 		if err != nil {
 			return GatewayMessage{}, fmt.Errorf("failed to read message: %w", err)
 		}
-		g.config.Logger.Info("received voice gateway message", slog.String("data", string(data)))
+		g.config.Logger.Debug("received voice gateway message", slog.String("data", string(data)))
 		r = buff
 	}
 
