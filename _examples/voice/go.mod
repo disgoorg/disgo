@@ -4,13 +4,13 @@ go 1.24.0
 
 require (
 	github.com/disgoorg/disgo v0.19.0-rc.14
-	github.com/disgoorg/godave/golibdave v0.0.0-20260101164315-71eb330be610
+	github.com/disgoorg/godave/golibdave v0.0.0-20260102170329-15faf25be9cc
 	github.com/disgoorg/snowflake/v2 v2.0.3
 )
 
 require (
-	github.com/disgoorg/godave v0.0.0-20260101160454-fa78983c6b07 // indirect
-	github.com/disgoorg/godave/libdave v0.0.0-20260101164315-71eb330be610 // indirect
+	github.com/disgoorg/godave v0.0.0-20260102170329-15faf25be9cc // indirect
+	github.com/disgoorg/godave/libdave v0.0.0-20260102170127-51d12688c6e8 // indirect
 	github.com/disgoorg/json/v2 v2.0.0 // indirect
 	github.com/disgoorg/omit v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
