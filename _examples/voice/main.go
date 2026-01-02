@@ -31,12 +31,10 @@ func main() {
 	slog.Info("starting up")
 	slog.Info("disgo version", slog.String("version", disgo.Version))
 
-	s := make(chan os.Signal, 1)
-
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuildVoiceStates)),
 		bot.WithEventListenerFunc(func(e *events.Ready) {
-			go play(e.Client(), s)
+			go play(e.Client())
 		}),
 		bot.WithVoiceManagerConfigOpts(
 			voice.WithDaveSessionCreateFunc(golibdave.NewSession),
@@ -59,11 +57,12 @@ func main() {
 	}
 
 	slog.Info("ExampleBot is now running. Press CTRL-C to exit.")
+	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 
-func play(client *bot.Client, closeChan chan os.Signal) {
+func play(client *bot.Client) {
 	conn := client.VoiceManager.CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
@@ -80,8 +79,16 @@ func play(client *bot.Client, closeChan chan os.Signal) {
 	if err := conn.SetSpeaking(ctx, voice.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
 	}
-	writeOpus(conn.UDP())
-	closeChan <- syscall.SIGTERM
+	go func() {
+		for {
+			if _, err := conn.UDP().ReadPacket(); err != nil {
+				slog.Error("error reading udp packet", slog.Any("err", err))
+			}
+		}
+	}()
+	for {
+		writeOpus(conn.UDP())
+	}
 }
 
 // writeOpus reads from the included `nico.dca` file in the [DCA0] file format
