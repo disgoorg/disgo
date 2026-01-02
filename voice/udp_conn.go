@@ -349,7 +349,7 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			firstDecryptedOffset += extensionLen
 		}
 
-		decrypted, err := u.daveSession.Decrypt(u.ssrcLookup(p.SSRC), firstDecrypted[firstDecryptedOffset:])
+		decrypted, err := u.daveSession.Decrypt(godave.UserID(u.ssrcLookup(p.SSRC).String()), firstDecrypted[firstDecryptedOffset:])
 		if err != nil {
 			return nil, fmt.Errorf("failed to DAVE decrypt packet: %w", err)
 		}

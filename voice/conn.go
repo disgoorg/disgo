@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/disgoorg/godave"
 	"github.com/disgoorg/snowflake/v2"
 
 	botgateway "github.com/disgoorg/disgo/gateway"
@@ -76,7 +77,7 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
-	daveSession := cfg.DaveSessionCreate(cfg.DaveSessionLogger, userID, conn)
+	daveSession := cfg.DaveSessionCreate(cfg.DaveSessionLogger, godave.UserID(userID.String()), conn)
 	conn.gateway = cfg.GatewayCreateFunc(daveSession, conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(cfg.Logger)}, cfg.GatewayConfigOpts...)...)
 	conn.udp = cfg.UDPConnCreateFunc(daveSession, conn.UserIDBySSRC, append([]UDPConnConfigOpt{WithUDPConnLogger(cfg.Logger)}, cfg.UDPConnConfigOpts...)...)
 

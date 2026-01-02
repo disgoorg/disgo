@@ -180,7 +180,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 		return nil
 	})
 
-	g.daveSession.SetChannelID(*state.ChannelID)
+	g.daveSession.SetChannelID(godave.ChannelID(*state.ChannelID))
 	g.conn = conn
 	g.connMu.Unlock()
 
@@ -567,12 +567,12 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			d := message.D.(GatewayMessageDataClientsConnect)
 
 			for _, userID := range d.UserIDs {
-				g.daveSession.AddUser(userID)
+				g.daveSession.AddUser(godave.UserID(userID.String()))
 			}
 
 		case OpcodeClientDisconnect:
 			d := message.D.(GatewayMessageDataClientDisconnect)
-			g.daveSession.RemoveUser(d.UserID)
+			g.daveSession.RemoveUser(godave.UserID(d.UserID.String()))
 
 		case OpcodeDavePrepareTransition:
 			d := message.D.(GatewayMessageDataDaveProtocolPrepareTransition)
