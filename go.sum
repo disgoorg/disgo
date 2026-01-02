@@ -2,6 +2,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/disgoorg/godave v0.0.0-20260101154701-30add3a94cd3 h1:pCdcXVgPSfXXc+ZKgGF6iUs/9V1xElIk7mx37xnY9co=
 github.com/disgoorg/godave v0.0.0-20260101154701-30add3a94cd3/go.mod h1:k9wDox+sdz9bCxYU/TG1R2vbeZ/5kjdnDJ3zPEkkLJ8=
+github.com/disgoorg/godave v0.0.0-20260101164315-71eb330be610 h1:Ny/8f63v9GJ9n/Ytodllx3HcXGZysFBG5cal6QuL4UI=
+github.com/disgoorg/godave v0.0.0-20260101164315-71eb330be610/go.mod h1:k9wDox+sdz9bCxYU/TG1R2vbeZ/5kjdnDJ3zPEkkLJ8=
 github.com/disgoorg/json/v2 v2.0.0 h1:U16yy/ARK7/aEpzjjqK1b/KaqqGHozUdeVw/DViEzQI=
 github.com/disgoorg/json/v2 v2.0.0/go.mod h1:jZTBC0nIE1WeetSEI3/Dka8g+qglb4FPVmp5I5HpEfI=
 github.com/disgoorg/omit v1.0.0 h1:y0LkVUOyUHT8ZlnhIAeOZEA22UYykeysK8bLJ0SfT78=
