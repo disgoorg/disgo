@@ -3,7 +3,7 @@ module github.com/disgoorg/disgo
 go 1.24.0
 
 require (
-	github.com/disgoorg/godave v0.0.0-20260102170329-15faf25be9cc
+	github.com/disgoorg/godave v0.0.0-20260102192359-fd6eb4546769
 	github.com/disgoorg/json/v2 v2.0.0
 	github.com/disgoorg/omit v1.0.0
 	github.com/disgoorg/snowflake/v2 v2.0.3

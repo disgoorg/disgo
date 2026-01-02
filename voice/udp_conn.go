@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -121,6 +122,8 @@ func NewUDPConn(daveSession godave.Session, ssrcLookup SsrcLookupFunc, opts ...U
 		ssrcLookup:    ssrcLookup,
 		config:        cfg,
 		receiveBuffer: make([]byte, 1400),
+		decryptBuffer: make([]byte, 512),
+		encryptBuffer: make([]byte, 512),
 	}
 }
 
@@ -140,6 +143,8 @@ type udpConnImpl struct {
 	timestamp uint32
 
 	receiveBuffer []byte
+	decryptBuffer []byte
+	encryptBuffer []byte
 }
 
 func (u *udpConnImpl) LocalAddr() net.Addr {
@@ -262,12 +267,17 @@ func (u *udpConnImpl) Write(p []byte) (int, error) {
 	binary.BigEndian.PutUint32(u.header[4:8], u.timestamp)
 	u.timestamp += OpusFrameSize
 
-	firstEncrypted, err := u.daveSession.Encrypt(u.ssrc, p)
-	if err != nil {
-		return 0, fmt.Errorf("failed to DAVE encrypt packet: %w", err)
+	bufferCap := u.daveSession.MaxEncryptedFrameSize(len(p))
+	if cap(u.encryptBuffer) < bufferCap {
+		u.encryptBuffer = slices.Grow(u.encryptBuffer, bufferCap)
 	}
 
-	if _, err = conn.Write(u.encrypter.Encrypt(u.header, firstEncrypted)); err != nil {
+	n, err := u.daveSession.Encrypt(u.ssrc, p, u.encryptBuffer)
+	if err != nil {
+		return 0, fmt.Errorf("failed to encrypt packet: %w", err)
+	}
+
+	if _, err = conn.Write(u.encrypter.Encrypt(u.header, u.encryptBuffer[:n])); err != nil {
 		return 0, fmt.Errorf("failed to write packet: %w", err)
 	}
 
@@ -337,19 +347,27 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 
 		p.HeaderSize = offset
 
-		firstDecrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
+		decrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
 		if err != nil {
 			return nil, fmt.Errorf("failed to decrypt packet: %w", err)
 		}
 
-		var firstDecryptedOffset int
+		var decryptedOffset int
 		if p.HasExtension {
 			extensionLen *= 4 // extension length is in 32-bit words
-			p.Extension = firstDecrypted[firstDecryptedOffset : firstDecryptedOffset+extensionLen]
-			firstDecryptedOffset += extensionLen
+			p.Extension = decrypted[decryptedOffset : decryptedOffset+extensionLen]
+			decryptedOffset += extensionLen
 		}
 
-		decrypted, err := u.daveSession.Decrypt(godave.UserID(u.ssrcLookup(p.SSRC).String()), firstDecrypted[firstDecryptedOffset:])
+		decrypted = decrypted[decryptedOffset:]
+
+		userID := godave.UserID(u.ssrcLookup(p.SSRC).String())
+		bufferCap := u.daveSession.MaxDecryptedFrameSize(userID, len(decrypted))
+		if cap(u.decryptBuffer) < bufferCap {
+			u.decryptBuffer = slices.Grow(u.decryptBuffer, bufferCap)
+		}
+
+		n, err = u.daveSession.Decrypt(userID, decrypted, u.decryptBuffer)
 		if err != nil {
 			return nil, fmt.Errorf("failed to DAVE decrypt packet: %w", err)
 		}
@@ -363,7 +381,7 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			HasExtension: p.HasExtension,
 			CSRC:         nil,
 			HeaderSize:   RTPHeaderSize,
-			Opus:         decrypted,
+			Opus:         u.decryptBuffer[:n],
 		}, nil
 	}
 }
