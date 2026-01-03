@@ -55,3 +55,8 @@ func WithConnConfigOpts(opts ...ConnConfigOpt) ManagerConfigOpt {
 func WithDaveSessionCreateFunc(sessionCreateFunc godave.SessionCreateFunc) ManagerConfigOpt {
 	return WithConnConfigOpts(WithConnDaveSessionCreateFunc(sessionCreateFunc))
 }
+
+// WithDaveSessionLogger sets the slog.Logger for godave sessions created by the Manager.
+func WithDaveSessionLogger(logger *slog.Logger) ManagerConfigOpt {
+	return WithConnConfigOpts(WithConnDaveSessionLogger(logger))
+}
