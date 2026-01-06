@@ -248,13 +248,11 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	if err != nil {
 		var body []byte
 		if rs != nil {
-			defer func() {
-				_ = rs.Body.Close()
-			}()
-			body, err = io.ReadAll(rs.Body)
-			if err != nil {
-				g.config.Logger.ErrorContext(ctx, "error while reading response body", slog.Any("err", err))
+			data, readErr := io.ReadAll(rs.Body)
+			if readErr != nil {
+				g.config.Logger.ErrorContext(ctx, "error while reading response body", slog.Any("err", readErr))
 			}
+			body = data
 		}
 
 		g.config.Logger.ErrorContext(ctx, "error connecting to the gateway",
