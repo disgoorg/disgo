@@ -3,9 +3,10 @@ package webhook
 import (
 	"log/slog"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 func defaultConfig() config {
