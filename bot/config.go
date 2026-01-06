@@ -214,6 +214,18 @@ func WithMemberChunkingFilter(memberChunkingFilter MemberChunkingFilter) ConfigO
 	}
 }
 
+func WithVoiceManager(voiceManager voice.Manager) ConfigOpt {
+	return func(config *config) {
+		config.VoiceManager = voiceManager
+	}
+}
+
+func WithVoiceManagerConfigOpts(opts ...voice.ManagerConfigOpt) ConfigOpt {
+	return func(config *config) {
+		config.VoiceManagerConfigOpts = append(config.VoiceManagerConfigOpts, opts...)
+	}
+}
+
 func defaultHTTPServerEventHandlerFunc(client *Client) httpserver.EventHandlerFunc {
 	return client.EventManager.HandleHTTPEvent
 }

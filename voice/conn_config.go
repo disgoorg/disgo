@@ -2,6 +2,8 @@ package voice
 
 import (
 	"log/slog"
+
+	"github.com/disgoorg/godave"
 )
 
 func defaultConnConfig() connConfig {
@@ -9,6 +11,8 @@ func defaultConnConfig() connConfig {
 		Logger:                  slog.Default(),
 		GatewayCreateFunc:       NewGateway,
 		UDPConnCreateFunc:       NewUDPConn,
+		DaveSessionCreate:       godave.NewNoopSession,
+		DaveSessionLogger:       slog.Default(),
 		AudioSenderCreateFunc:   NewAudioSender,
 		AudioReceiverCreateFunc: NewAudioReceiver,
 	}
@@ -22,6 +26,9 @@ type connConfig struct {
 
 	UDPConnCreateFunc UDPConnCreateFunc
 	UDPConnConfigOpts []UDPConnConfigOpt
+
+	DaveSessionCreate godave.SessionCreateFunc
+	DaveSessionLogger *slog.Logger
 
 	AudioSenderCreateFunc   AudioSenderCreateFunc
 	AudioReceiverCreateFunc AudioReceiverCreateFunc
@@ -92,5 +99,19 @@ func WithConnAudioReceiverCreateFunc(audioReceiverCreateFunc AudioReceiverCreate
 func WithConnEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConnConfigOpt {
 	return func(config *connConfig) {
 		config.EventHandlerFunc = eventHandlerFunc
+	}
+}
+
+// WithConnDaveSessionCreateFunc sets the Conn(s) used godave.SessionCreateFunc.
+func WithConnDaveSessionCreateFunc(sessionCreateFunc godave.SessionCreateFunc) ConnConfigOpt {
+	return func(config *connConfig) {
+		config.DaveSessionCreate = sessionCreateFunc
+	}
+}
+
+// WithConnDaveSessionLogger sets the Conn(s) used godave.Session logger.
+func WithConnDaveSessionLogger(logger *slog.Logger) ConnConfigOpt {
+	return func(config *connConfig) {
+		config.DaveSessionLogger = logger
 	}
 }
