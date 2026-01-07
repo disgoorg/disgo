@@ -18,7 +18,7 @@ type GenericGuildChannel struct {
 
 // Guild returns the discord.Guild the event happened in.
 // This will only check cached guilds!
-func (e *GenericGuildChannel) Guild() (discord.Guild, bool) {
+func (e *GenericGuildChannel) Guild() (discord.Guild, error) {
 	return e.Client().Caches.Guild(e.GuildID)
 }
 

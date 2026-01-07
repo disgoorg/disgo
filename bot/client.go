@@ -51,7 +51,7 @@ func (c *Client) Close(ctx context.Context) {
 }
 
 func (c *Client) ID() snowflake.ID {
-	if selfUser, ok := c.Caches.SelfUser(); ok {
+	if selfUser, err := c.Caches.SelfUser(); err == nil {
 		return selfUser.ID
 	}
 	return 0

@@ -1,18 +1,30 @@
 package handlers
 
 import (
+	"errors"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
 
 func gatewayHandlerGuildMemberAdd(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberAdd) {
-	if guild, ok := client.Caches.Guild(event.GuildID); ok {
+	guild, err := client.Caches.Guild(event.GuildID)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		client.Logger.Error("failed to get guild from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
+	}
+	if err == nil {
 		guild.MemberCount++
-		client.Caches.AddGuild(guild)
+		if err := client.Caches.AddGuild(guild); err != nil {
+			client.Logger.Error("failed to add guild to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
+		}
 	}
 
-	client.Caches.AddMember(event.Member)
+	if err := client.Caches.AddMember(event.Member); err != nil {
+		client.Logger.Error("failed to add member to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.Member.User.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildMemberJoin{
 		GenericGuildMember: &events.GenericGuildMember{
@@ -24,8 +36,13 @@ func gatewayHandlerGuildMemberAdd(client *bot.Client, sequenceNumber int, shardI
 }
 
 func gatewayHandlerGuildMemberUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberUpdate) {
-	oldMember, _ := client.Caches.Member(event.GuildID, event.User.ID)
-	client.Caches.AddMember(event.Member)
+	oldMember, err := client.Caches.Member(event.GuildID, event.User.ID)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		client.Logger.Error("failed to get member from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.User.ID.String()))
+	}
+	if err := client.Caches.AddMember(event.Member); err != nil {
+		client.Logger.Error("failed to add member to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.Member.User.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildMemberUpdate{
 		GenericGuildMember: &events.GenericGuildMember{
@@ -38,12 +55,21 @@ func gatewayHandlerGuildMemberUpdate(client *bot.Client, sequenceNumber int, sha
 }
 
 func gatewayHandlerGuildMemberRemove(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberRemove) {
-	if guild, ok := client.Caches.Guild(event.GuildID); ok {
+	guild, err := client.Caches.Guild(event.GuildID)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		client.Logger.Error("failed to get guild from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
+	}
+	if err == nil {
 		guild.MemberCount--
-		client.Caches.AddGuild(guild)
+		if err := client.Caches.AddGuild(guild); err != nil {
+			client.Logger.Error("failed to add guild to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()))
+		}
 	}
 
-	member, _ := client.Caches.RemoveMember(event.GuildID, event.User.ID)
+	member, err := client.Caches.RemoveMember(event.GuildID, event.User.ID)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		client.Logger.Error("failed to remove member from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("user_id", event.User.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildMemberLeave{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),

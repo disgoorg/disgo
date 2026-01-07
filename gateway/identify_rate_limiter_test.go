@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -77,7 +78,7 @@ func TestIdentifyRateLimiterImpl_WaitWithTimeout(t *testing.T) {
 	err = r.Wait(ctx, 0)
 	if err == nil {
 		t.Errorf("expected error on second wait due to timeout, got nil")
-	} else if err != context.DeadlineExceeded {
+	} else if !errors.Is(err, context.DeadlineExceeded) {
 		t.Errorf("expected DeadlineExceeded error, got %v", err)
 	}
 

@@ -37,12 +37,12 @@ type GenericGuildScheduledEventUser struct {
 }
 
 // GuildScheduledEvent returns the discord.GuildScheduledEvent the event is for.
-func (e *GenericGuildScheduledEventUser) GuildScheduledEvent() (discord.GuildScheduledEvent, bool) {
+func (e *GenericGuildScheduledEventUser) GuildScheduledEvent() (discord.GuildScheduledEvent, error) {
 	return e.Client().Caches.GuildScheduledEvent(e.GuildID, e.GuildScheduledEventID)
 }
 
 // Member returns the Member who was added/removed from the GuildScheduledEvent from the cache.
-func (e *GenericGuildScheduledEventUser) Member() (discord.Member, bool) {
+func (e *GenericGuildScheduledEventUser) Member() (discord.Member, error) {
 	return e.Client().Caches.Member(e.GuildID, e.UserID)
 }
 

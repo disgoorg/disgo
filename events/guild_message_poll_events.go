@@ -17,12 +17,12 @@ type GenericGuildMessagePollVote struct {
 }
 
 // Guild returns the discord.Guild where the GenericGuildMessagePollVote happened
-func (e *GenericGuildMessagePollVote) Guild() (discord.Guild, bool) {
+func (e *GenericGuildMessagePollVote) Guild() (discord.Guild, error) {
 	return e.Client().Caches.Guild(e.GuildID)
 }
 
 // Channel returns the discord.GuildMessageChannel where the GenericGuildMessagePollVote happened
-func (e *GenericGuildMessagePollVote) Channel() (discord.GuildMessageChannel, bool) {
+func (e *GenericGuildMessagePollVote) Channel() (discord.GuildMessageChannel, error) {
 	return e.Client().Caches.GuildMessageChannel(e.ChannelID)
 }
 
