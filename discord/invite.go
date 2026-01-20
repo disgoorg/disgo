@@ -30,6 +30,7 @@ type Invite struct {
 	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 	Flags                    InviteFlags          `json:"flags"`
+	Roles                    []Role               `json:"roles"`
 }
 
 func (i Invite) URL() string {
