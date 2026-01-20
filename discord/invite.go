@@ -1,8 +1,13 @@
 package discord
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"mime/multipart"
 	"time"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -30,6 +35,7 @@ type Invite struct {
 	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 	Flags                    InviteFlags          `json:"flags"`
+	Roles                    []Role               `json:"roles"`
 }
 
 func (i Invite) URL() string {
@@ -119,4 +125,53 @@ type InviteCreate struct {
 	TargetType          InviteTargetType `json:"target_type,omitempty"`
 	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
 	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
+	TargetUsersFile     *File            `json:"-"`
+	RoleIDs             []snowflake.ID   `json:"role_ids,omitempty"`
+}
+
+// ToBody returns the InviteCreate ready for body
+func (i InviteCreate) ToBody() (any, error) {
+	if i.TargetUsersFile != nil {
+		return i.payloadWithFiles()
+	}
+	return i, nil
+}
+
+func (i InviteCreate) payloadWithFiles() (*MultipartBuffer, error) {
+	buffer := &bytes.Buffer{}
+	writer := multipart.NewWriter(buffer)
+	writer.FormDataContentType()
+	defer func() {
+		_ = writer.Close()
+	}()
+
+	payload, err := json.Marshal(i)
+	if err != nil {
+		return nil, err
+	}
+
+	part, err := writer.CreatePart(partHeader(`form-data; name="payload_json"`, "application/json"))
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err = part.Write(payload); err != nil {
+		return nil, err
+	}
+
+	if i.TargetUsersFile != nil {
+		part, err = writer.CreatePart(partHeader(fmt.Sprintf(`form-data; name="target_users_file"; filename="target_users_file.csv"`), "application/octet-stream"))
+		if err != nil {
+			return nil, err
+		}
+
+		if _, err = io.Copy(part, i.TargetUsersFile.Reader); err != nil {
+			return nil, err
+		}
+	}
+
+	return &MultipartBuffer{
+		Buffer:      buffer,
+		ContentType: writer.FormDataContentType(),
+	}, nil
 }
