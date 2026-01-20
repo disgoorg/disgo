@@ -139,7 +139,6 @@ func (i InviteCreate) ToBody() (any, error) {
 func (i InviteCreate) payloadWithFiles() (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
-	writer.FormDataContentType()
 	defer func() {
 		_ = writer.Close()
 	}()
