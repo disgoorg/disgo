@@ -2,7 +2,6 @@ package discord
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"time"
@@ -160,7 +159,7 @@ func (i InviteCreate) payloadWithFiles() (*MultipartBuffer, error) {
 	}
 
 	if i.TargetUsersFile != nil {
-		part, err = writer.CreatePart(partHeader(fmt.Sprintf(`form-data; name="target_users_file"; filename="target_users_file.csv"`), "application/octet-stream"))
+		part, err = writer.CreatePart(partHeader(`form-data; name="target_users_file"; filename="target_users_file.csv"`, "application/octet-stream"))
 		if err != nil {
 			return nil, err
 		}
