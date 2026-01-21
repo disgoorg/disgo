@@ -67,6 +67,7 @@ func main() {
 	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	r := handler.New()
+	r.Use(middleware.Go)
 	r.Use(middleware.Logger)
 	r.Group(func(r handler.Router) {
 		r.Use(middleware.Print("group1"))
