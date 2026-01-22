@@ -1,6 +1,8 @@
 package events
 
 import (
+	"sync"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
 )
@@ -11,17 +13,28 @@ type InteractionResponderFunc func(responseType discord.InteractionResponseType,
 // InteractionResponseState holds the last response data for an interaction event.
 // It is updated only when the response call succeeds.
 type InteractionResponseState struct {
+	mu       sync.RWMutex
 	Response *discord.InteractionResponse
 }
 
 // Responded reports whether a response has been sent.
 func (s *InteractionResponseState) Responded() bool {
-	return s != nil && s.Response != nil
+	if s == nil {
+		return false
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.Response != nil
 }
 
 // IsDeferred reports whether the last response was a deferred response.
 func (s *InteractionResponseState) IsDeferred() bool {
-	if s == nil || s.Response == nil {
+	if s == nil {
+		return false
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.Response == nil {
 		return false
 	}
 	switch s.Response.Type {
@@ -42,10 +55,12 @@ func WrapInteractionResponder(responder InteractionResponderFunc, state *Interac
 		if err := responder(responseType, data, opts...); err != nil {
 			return err
 		}
+		state.mu.Lock()
 		state.Response = &discord.InteractionResponse{
 			Type: responseType,
 			Data: data,
 		}
+		state.mu.Unlock()
 		return nil
 	}
 }
