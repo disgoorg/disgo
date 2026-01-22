@@ -85,6 +85,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
+				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
@@ -96,6 +97,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
+				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
@@ -107,6 +109,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
+				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
@@ -118,6 +121,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
+				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
@@ -129,6 +133,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
+				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
@@ -139,6 +144,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			AutocompleteInteractionCreate: &events.AutocompleteInteractionCreate{
 				GenericEvent:            event.GenericEvent,
 				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
+				ResponseState:           event.ResponseState,
 				Respond:                 event.Respond,
 			},
 			Vars: event.Vars,
@@ -149,6 +155,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
+				ResponseState:        event.ResponseState,
 				Respond:              event.Respond,
 			},
 			Vars: event.Vars,
@@ -160,6 +167,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: componentInteraction,
+				ResponseState:        event.ResponseState,
 				Respond:              event.Respond,
 			},
 			Vars: event.Vars,
@@ -171,6 +179,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: componentInteraction,
+				ResponseState:        event.ResponseState,
 				Respond:              event.Respond,
 			},
 			Vars: event.Vars,
@@ -181,6 +190,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ModalSubmitInteractionCreate: &events.ModalSubmitInteractionCreate{
 				GenericEvent:           event.GenericEvent,
 				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),
+				ResponseState:          event.ResponseState,
 				Respond:                event.Respond,
 			},
 			Vars: event.Vars,

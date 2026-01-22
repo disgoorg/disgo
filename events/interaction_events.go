@@ -8,11 +8,54 @@ import (
 // InteractionResponderFunc is a function that can be used to respond to a discord.Interaction.
 type InteractionResponderFunc func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error
 
+// InteractionResponseState holds the last response data for an interaction event.
+// It is updated only when the response call succeeds.
+type InteractionResponseState struct {
+	Response *discord.InteractionResponse
+}
+
+// Responded reports whether a response has been sent.
+func (s *InteractionResponseState) Responded() bool {
+	return s != nil && s.Response != nil
+}
+
+// IsDeferred reports whether the last response was a deferred response.
+func (s *InteractionResponseState) IsDeferred() bool {
+	if s == nil || s.Response == nil {
+		return false
+	}
+	switch s.Response.Type {
+	case discord.InteractionResponseTypeDeferredCreateMessage, discord.InteractionResponseTypeDeferredUpdateMessage:
+		return true
+	default:
+		return false
+	}
+}
+
+// WrapInteractionResponder wraps a responder function to update the provided response state.
+// If state is nil, the responder is returned unchanged.
+func WrapInteractionResponder(responder InteractionResponderFunc, state *InteractionResponseState) InteractionResponderFunc {
+	if state == nil {
+		return responder
+	}
+	return func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
+		if err := responder(responseType, data, opts...); err != nil {
+			return err
+		}
+		state.Response = &discord.InteractionResponse{
+			Type: responseType,
+			Data: data,
+		}
+		return nil
+	}
+}
+
 // InteractionCreate indicates that a new interaction has been created.
 type InteractionCreate struct {
 	*GenericEvent
 	discord.Interaction
-	Respond InteractionResponderFunc
+	ResponseState *InteractionResponseState
+	Respond       InteractionResponderFunc
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -29,7 +72,8 @@ func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 type ApplicationCommandInteractionCreate struct {
 	*GenericEvent
 	discord.ApplicationCommandInteraction
-	Respond InteractionResponderFunc
+	ResponseState *InteractionResponseState
+	Respond       InteractionResponderFunc
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -89,7 +133,8 @@ func (e *ApplicationCommandInteractionCreate) LaunchActivity(opts ...rest.Reques
 type ComponentInteractionCreate struct {
 	*GenericEvent
 	discord.ComponentInteraction
-	Respond InteractionResponderFunc
+	ResponseState *InteractionResponseState
+	Respond       InteractionResponderFunc
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -159,7 +204,8 @@ func (e *ComponentInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) err
 type AutocompleteInteractionCreate struct {
 	*GenericEvent
 	discord.AutocompleteInteraction
-	Respond InteractionResponderFunc
+	ResponseState *InteractionResponseState
+	Respond       InteractionResponderFunc
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -200,7 +246,8 @@ func (e *AutocompleteInteractionCreate) AutocompleteResult(choices []discord.Aut
 type ModalSubmitInteractionCreate struct {
 	*GenericEvent
 	discord.ModalSubmitInteraction
-	Respond InteractionResponderFunc
+	ResponseState *InteractionResponseState
+	Respond       InteractionResponderFunc
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.

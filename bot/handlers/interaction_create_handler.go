@@ -31,11 +31,14 @@ func respond(client *bot.Client, respondFunc httpserver.RespondFunc, interaction
 
 func handleInteraction(client *bot.Client, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, interaction discord.Interaction) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
+	responseState := &events.InteractionResponseState{}
+	wrappedResponder := events.WrapInteractionResponder(respond(client, respondFunc, interaction), responseState)
 
 	client.EventManager.DispatchEvent(&events.InteractionCreate{
-		GenericEvent: genericEvent,
-		Interaction:  interaction,
-		Respond:      respond(client, respondFunc, interaction),
+		GenericEvent:  genericEvent,
+		Interaction:   interaction,
+		ResponseState: responseState,
+		Respond:       wrappedResponder,
 	})
 
 	switch i := interaction.(type) {
@@ -43,28 +46,32 @@ func handleInteraction(client *bot.Client, sequenceNumber int, shardID int, resp
 		client.EventManager.DispatchEvent(&events.ApplicationCommandInteractionCreate{
 			GenericEvent:                  genericEvent,
 			ApplicationCommandInteraction: i,
-			Respond:                       respond(client, respondFunc, interaction),
+			ResponseState:                 responseState,
+			Respond:                       wrappedResponder,
 		})
 
 	case discord.ComponentInteraction:
 		client.EventManager.DispatchEvent(&events.ComponentInteractionCreate{
 			GenericEvent:         genericEvent,
 			ComponentInteraction: i,
-			Respond:              respond(client, respondFunc, interaction),
+			ResponseState:        responseState,
+			Respond:              wrappedResponder,
 		})
 
 	case discord.AutocompleteInteraction:
 		client.EventManager.DispatchEvent(&events.AutocompleteInteractionCreate{
 			GenericEvent:            genericEvent,
 			AutocompleteInteraction: i,
-			Respond:                 respond(client, respondFunc, interaction),
+			ResponseState:           responseState,
+			Respond:                 wrappedResponder,
 		})
 
 	case discord.ModalSubmitInteraction:
 		client.EventManager.DispatchEvent(&events.ModalSubmitInteractionCreate{
 			GenericEvent:           genericEvent,
 			ModalSubmitInteraction: i,
-			Respond:                respond(client, respondFunc, interaction),
+			ResponseState:          responseState,
+			Respond:                wrappedResponder,
 		})
 
 	default:
