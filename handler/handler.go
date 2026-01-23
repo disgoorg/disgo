@@ -81,121 +81,131 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 	case InteractionHandler:
 		return handler(event)
 	case CommandHandler:
-		return handler(&CommandEvent{
+		commandEvent := &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
-				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetApplicationCommandInteractionCreateResponseState(commandEvent.ApplicationCommandInteractionCreate, event.ResponseState())
+		return handler(commandEvent)
 	case SlashCommandHandler:
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
-		return handler(commandInteraction.Data.(discord.SlashCommandInteractionData), &CommandEvent{
+		commandEvent := &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
-				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetApplicationCommandInteractionCreateResponseState(commandEvent.ApplicationCommandInteractionCreate, event.ResponseState())
+		return handler(commandInteraction.Data.(discord.SlashCommandInteractionData), commandEvent)
 	case UserCommandHandler:
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
-		return handler(commandInteraction.Data.(discord.UserCommandInteractionData), &CommandEvent{
+		commandEvent := &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
-				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetApplicationCommandInteractionCreateResponseState(commandEvent.ApplicationCommandInteractionCreate, event.ResponseState())
+		return handler(commandInteraction.Data.(discord.UserCommandInteractionData), commandEvent)
 	case MessageCommandHandler:
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
-		return handler(commandInteraction.Data.(discord.MessageCommandInteractionData), &CommandEvent{
+		commandEvent := &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
-				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetApplicationCommandInteractionCreateResponseState(commandEvent.ApplicationCommandInteractionCreate, event.ResponseState())
+		return handler(commandInteraction.Data.(discord.MessageCommandInteractionData), commandEvent)
 	case EntryPointCommandHandler:
 		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
-		return handler(commandInteraction.Data.(discord.EntryPointCommandInteractionData), &CommandEvent{
+		commandEvent := &CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: commandInteraction,
-				ResponseState:                 event.ResponseState,
 				Respond:                       event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetApplicationCommandInteractionCreateResponseState(commandEvent.ApplicationCommandInteractionCreate, event.ResponseState())
+		return handler(commandInteraction.Data.(discord.EntryPointCommandInteractionData), commandEvent)
 	case AutocompleteHandler:
-		return handler(&AutocompleteEvent{
+		autocompleteEvent := &AutocompleteEvent{
 			AutocompleteInteractionCreate: &events.AutocompleteInteractionCreate{
 				GenericEvent:            event.GenericEvent,
 				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
-				ResponseState:           event.ResponseState,
 				Respond:                 event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetAutocompleteInteractionCreateResponseState(autocompleteEvent.AutocompleteInteractionCreate, event.ResponseState())
+		return handler(autocompleteEvent)
 	case ComponentHandler:
-		return handler(&ComponentEvent{
+		componentEvent := &ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
-				ResponseState:        event.ResponseState,
 				Respond:              event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetComponentInteractionCreateResponseState(componentEvent.ComponentInteractionCreate, event.ResponseState())
+		return handler(componentEvent)
 	case ButtonComponentHandler:
 		componentInteraction := event.Interaction.(discord.ComponentInteraction)
-		return handler(componentInteraction.Data.(discord.ButtonInteractionData), &ComponentEvent{
+		componentEvent := &ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: componentInteraction,
-				ResponseState:        event.ResponseState,
 				Respond:              event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetComponentInteractionCreateResponseState(componentEvent.ComponentInteractionCreate, event.ResponseState())
+		return handler(componentInteraction.Data.(discord.ButtonInteractionData), componentEvent)
 	case SelectMenuComponentHandler:
 		componentInteraction := event.Interaction.(discord.ComponentInteraction)
-		return handler(componentInteraction.Data.(discord.SelectMenuInteractionData), &ComponentEvent{
+		componentEvent := &ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: componentInteraction,
-				ResponseState:        event.ResponseState,
 				Respond:              event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetComponentInteractionCreateResponseState(componentEvent.ComponentInteractionCreate, event.ResponseState())
+		return handler(componentInteraction.Data.(discord.SelectMenuInteractionData), componentEvent)
 	case ModalHandler:
-		return handler(&ModalEvent{
+		modalEvent := &ModalEvent{
 			ModalSubmitInteractionCreate: &events.ModalSubmitInteractionCreate{
 				GenericEvent:           event.GenericEvent,
 				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),
-				ResponseState:          event.ResponseState,
 				Respond:                event.Respond,
 			},
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
-		})
+		}
+		events.SetModalSubmitInteractionCreateResponseState(modalEvent.ModalSubmitInteractionCreate, event.ResponseState())
+		return handler(modalEvent)
 	}
 	return errors.New("unknown handler type")
 }

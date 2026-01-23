@@ -103,19 +103,20 @@ func TestCommandMux(t *testing.T) {
 		}
 
 		recorder := NewRecorder()
-		responseState := &events.InteractionResponseState{}
-		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent:  events.NewGenericEvent(nil, 0, 0),
-			Interaction:   interaction,
-			ResponseState: responseState,
-			Respond:       events.WrapInteractionResponder(recorder.Respond, responseState),
-		})
+		responseState := events.NewInteractionResponseState()
+		interactionEvent := &events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Interaction:  interaction,
+			Respond:      events.WrapInteractionResponder(recorder.Respond, responseState),
+		}
+		events.SetInteractionCreateResponseState(interactionEvent, responseState)
+		mux.OnEvent(interactionEvent)
 
 		if !reflect.DeepEqual(d.expected, recorder.Response) {
 			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
 		}
-		if !reflect.DeepEqual(d.expected, responseState.Response) {
-			t.Errorf("expected state response %+v, got %+v", d.expected, responseState.Response)
+		if responseType, ok := interactionEvent.ResponseState().Type(); !ok || responseType != d.expected.Type {
+			t.Errorf("expected state response type %v, got %v", d.expected.Type, responseType)
 		}
 	}
 }
@@ -166,19 +167,20 @@ func TestComponentMux(t *testing.T) {
 		}
 
 		recorder := NewRecorder()
-		responseState := &events.InteractionResponseState{}
-		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent:  events.NewGenericEvent(nil, 0, 0),
-			Interaction:   interaction,
-			ResponseState: responseState,
-			Respond:       events.WrapInteractionResponder(recorder.Respond, responseState),
-		})
+		responseState := events.NewInteractionResponseState()
+		interactionEvent := &events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Interaction:  interaction,
+			Respond:      events.WrapInteractionResponder(recorder.Respond, responseState),
+		}
+		events.SetInteractionCreateResponseState(interactionEvent, responseState)
+		mux.OnEvent(interactionEvent)
 
 		if !reflect.DeepEqual(d.expected, recorder.Response) {
 			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
 		}
-		if !reflect.DeepEqual(d.expected, responseState.Response) {
-			t.Errorf("expected state response %+v, got %+v", d.expected, responseState.Response)
+		if responseType, ok := interactionEvent.ResponseState().Type(); !ok || responseType != d.expected.Type {
+			t.Errorf("expected state response type %v, got %v", d.expected.Type, responseType)
 		}
 	}
 }
@@ -241,19 +243,20 @@ func TestMiddlewareMux(t *testing.T) {
 		}
 
 		recorder := NewRecorder()
-		responseState := &events.InteractionResponseState{}
-		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent:  events.NewGenericEvent(nil, 0, 0),
-			Interaction:   interaction,
-			ResponseState: responseState,
-			Respond:       events.WrapInteractionResponder(recorder.Respond, responseState),
-		})
+		responseState := events.NewInteractionResponseState()
+		interactionEvent := &events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Interaction:  interaction,
+			Respond:      events.WrapInteractionResponder(recorder.Respond, responseState),
+		}
+		events.SetInteractionCreateResponseState(interactionEvent, responseState)
+		mux.OnEvent(interactionEvent)
 
 		if !reflect.DeepEqual(d.expected, recorder.Response) {
 			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
 		}
-		if !reflect.DeepEqual(d.expected, responseState.Response) {
-			t.Errorf("expected state response %+v, got %+v", d.expected, responseState.Response)
+		if responseType, ok := interactionEvent.ResponseState().Type(); !ok || responseType != d.expected.Type {
+			t.Errorf("expected state response type %v, got %v", d.expected.Type, responseType)
 		}
 		if !reflect.DeepEqual(d.expectedVars1, dataVars1) {
 			t.Errorf("expected vars1 %+v, got %+v", d.expectedVars1, dataVars1)
@@ -315,19 +318,20 @@ func TestMux(t *testing.T) {
 		}
 
 		recorder := NewRecorder()
-		responseState := &events.InteractionResponseState{}
-		mux.OnEvent(&events.InteractionCreate{
-			GenericEvent:  events.NewGenericEvent(nil, 0, 0),
-			Interaction:   interaction,
-			ResponseState: responseState,
-			Respond:       events.WrapInteractionResponder(recorder.Respond, responseState),
-		})
+		responseState := events.NewInteractionResponseState()
+		interactionEvent := &events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(nil, 0, 0),
+			Interaction:  interaction,
+			Respond:      events.WrapInteractionResponder(recorder.Respond, responseState),
+		}
+		events.SetInteractionCreateResponseState(interactionEvent, responseState)
+		mux.OnEvent(interactionEvent)
 
 		if !reflect.DeepEqual(d.expected, recorder.Response) {
 			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
 		}
-		if !reflect.DeepEqual(d.expected, responseState.Response) {
-			t.Errorf("expected state response %+v, got %+v", d.expected, responseState.Response)
+		if responseType, ok := interactionEvent.ResponseState().Type(); !ok || responseType != d.expected.Type {
+			t.Errorf("expected state response type %v, got %v", d.expected.Type, responseType)
 		}
 	}
 }

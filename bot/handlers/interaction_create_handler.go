@@ -31,48 +31,53 @@ func respond(client *bot.Client, respondFunc httpserver.RespondFunc, interaction
 
 func handleInteraction(client *bot.Client, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, interaction discord.Interaction) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
-	responseState := &events.InteractionResponseState{}
+	responseState := events.NewInteractionResponseState()
 	wrappedResponder := events.WrapInteractionResponder(respond(client, respondFunc, interaction), responseState)
 
-	client.EventManager.DispatchEvent(&events.InteractionCreate{
-		GenericEvent:  genericEvent,
-		Interaction:   interaction,
-		ResponseState: responseState,
-		Respond:       wrappedResponder,
-	})
+	interactionEvent := &events.InteractionCreate{
+		GenericEvent: genericEvent,
+		Interaction:  interaction,
+		Respond:      wrappedResponder,
+	}
+	events.SetInteractionCreateResponseState(interactionEvent, responseState)
+	client.EventManager.DispatchEvent(interactionEvent)
 
 	switch i := interaction.(type) {
 	case discord.ApplicationCommandInteraction:
-		client.EventManager.DispatchEvent(&events.ApplicationCommandInteractionCreate{
+		appEvent := &events.ApplicationCommandInteractionCreate{
 			GenericEvent:                  genericEvent,
 			ApplicationCommandInteraction: i,
-			ResponseState:                 responseState,
 			Respond:                       wrappedResponder,
-		})
+		}
+		events.SetApplicationCommandInteractionCreateResponseState(appEvent, responseState)
+		client.EventManager.DispatchEvent(appEvent)
 
 	case discord.ComponentInteraction:
-		client.EventManager.DispatchEvent(&events.ComponentInteractionCreate{
+		componentEvent := &events.ComponentInteractionCreate{
 			GenericEvent:         genericEvent,
 			ComponentInteraction: i,
-			ResponseState:        responseState,
 			Respond:              wrappedResponder,
-		})
+		}
+		events.SetComponentInteractionCreateResponseState(componentEvent, responseState)
+		client.EventManager.DispatchEvent(componentEvent)
 
 	case discord.AutocompleteInteraction:
-		client.EventManager.DispatchEvent(&events.AutocompleteInteractionCreate{
+		autocompleteEvent := &events.AutocompleteInteractionCreate{
 			GenericEvent:            genericEvent,
 			AutocompleteInteraction: i,
-			ResponseState:           responseState,
 			Respond:                 wrappedResponder,
-		})
+		}
+		events.SetAutocompleteInteractionCreateResponseState(autocompleteEvent, responseState)
+		client.EventManager.DispatchEvent(autocompleteEvent)
 
 	case discord.ModalSubmitInteraction:
-		client.EventManager.DispatchEvent(&events.ModalSubmitInteractionCreate{
+		modalEvent := &events.ModalSubmitInteractionCreate{
 			GenericEvent:           genericEvent,
 			ModalSubmitInteraction: i,
-			ResponseState:          responseState,
 			Respond:                wrappedResponder,
-		})
+		}
+		events.SetModalSubmitInteractionCreateResponseState(modalEvent, responseState)
+		client.EventManager.DispatchEvent(modalEvent)
 
 	default:
 		client.Logger.Error("unknown interaction", slog.String("type", fmt.Sprintf("%T", interaction)))

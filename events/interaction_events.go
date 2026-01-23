@@ -10,11 +10,12 @@ import (
 // InteractionResponderFunc is a function that can be used to respond to a discord.Interaction.
 type InteractionResponderFunc func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error
 
-// InteractionResponseState holds the last response data for an interaction event.
+// InteractionResponseState holds the last response type for an interaction event.
 // It is updated only when the response call succeeds.
 type InteractionResponseState struct {
-	mu       sync.RWMutex
-	Response *discord.InteractionResponse
+	mu           sync.RWMutex
+	responseType discord.InteractionResponseType
+	responded    bool
 }
 
 // Responded reports whether a response has been sent.
@@ -24,7 +25,17 @@ func (s *InteractionResponseState) Responded() bool {
 	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return s.Response != nil
+	return s.responded
+}
+
+// Type returns the last response type and whether a response was sent.
+func (s *InteractionResponseState) Type() (discord.InteractionResponseType, bool) {
+	if s == nil {
+		return 0, false
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.responseType, s.responded
 }
 
 // IsDeferred reports whether the last response was a deferred response.
@@ -34,15 +45,20 @@ func (s *InteractionResponseState) IsDeferred() bool {
 	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if s.Response == nil {
+	if !s.responded {
 		return false
 	}
-	switch s.Response.Type {
+	switch s.responseType {
 	case discord.InteractionResponseTypeDeferredCreateMessage, discord.InteractionResponseTypeDeferredUpdateMessage:
 		return true
 	default:
 		return false
 	}
+}
+
+// NewInteractionResponseState returns a new InteractionResponseState instance.
+func NewInteractionResponseState() *InteractionResponseState {
+	return &InteractionResponseState{}
 }
 
 // WrapInteractionResponder wraps a responder function to update the provided response state.
@@ -56,10 +72,8 @@ func WrapInteractionResponder(responder InteractionResponderFunc, state *Interac
 			return err
 		}
 		state.mu.Lock()
-		state.Response = &discord.InteractionResponse{
-			Type: responseType,
-			Data: data,
-		}
+		state.responseType = responseType
+		state.responded = true
 		state.mu.Unlock()
 		return nil
 	}
@@ -69,8 +83,16 @@ func WrapInteractionResponder(responder InteractionResponderFunc, state *Interac
 type InteractionCreate struct {
 	*GenericEvent
 	discord.Interaction
-	ResponseState *InteractionResponseState
+	responseState *InteractionResponseState
 	Respond       InteractionResponderFunc
+}
+
+// ResponseState returns the interaction response state.
+func (e *InteractionCreate) ResponseState() *InteractionResponseState {
+	if e == nil {
+		return nil
+	}
+	return e.responseState
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -87,8 +109,16 @@ func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 type ApplicationCommandInteractionCreate struct {
 	*GenericEvent
 	discord.ApplicationCommandInteraction
-	ResponseState *InteractionResponseState
+	responseState *InteractionResponseState
 	Respond       InteractionResponderFunc
+}
+
+// ResponseState returns the interaction response state.
+func (e *ApplicationCommandInteractionCreate) ResponseState() *InteractionResponseState {
+	if e == nil {
+		return nil
+	}
+	return e.responseState
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -148,8 +178,16 @@ func (e *ApplicationCommandInteractionCreate) LaunchActivity(opts ...rest.Reques
 type ComponentInteractionCreate struct {
 	*GenericEvent
 	discord.ComponentInteraction
-	ResponseState *InteractionResponseState
+	responseState *InteractionResponseState
 	Respond       InteractionResponderFunc
+}
+
+// ResponseState returns the interaction response state.
+func (e *ComponentInteractionCreate) ResponseState() *InteractionResponseState {
+	if e == nil {
+		return nil
+	}
+	return e.responseState
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -219,8 +257,16 @@ func (e *ComponentInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) err
 type AutocompleteInteractionCreate struct {
 	*GenericEvent
 	discord.AutocompleteInteraction
-	ResponseState *InteractionResponseState
+	responseState *InteractionResponseState
 	Respond       InteractionResponderFunc
+}
+
+// ResponseState returns the interaction response state.
+func (e *AutocompleteInteractionCreate) ResponseState() *InteractionResponseState {
+	if e == nil {
+		return nil
+	}
+	return e.responseState
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
@@ -261,8 +307,51 @@ func (e *AutocompleteInteractionCreate) AutocompleteResult(choices []discord.Aut
 type ModalSubmitInteractionCreate struct {
 	*GenericEvent
 	discord.ModalSubmitInteraction
-	ResponseState *InteractionResponseState
+	responseState *InteractionResponseState
 	Respond       InteractionResponderFunc
+}
+
+// ResponseState returns the interaction response state.
+func (e *ModalSubmitInteractionCreate) ResponseState() *InteractionResponseState {
+	if e == nil {
+		return nil
+	}
+	return e.responseState
+}
+
+// SetInteractionCreateResponseState sets the response state for an InteractionCreate event.
+func SetInteractionCreateResponseState(e *InteractionCreate, state *InteractionResponseState) {
+	if e != nil {
+		e.responseState = state
+	}
+}
+
+// SetApplicationCommandInteractionCreateResponseState sets the response state for an ApplicationCommandInteractionCreate event.
+func SetApplicationCommandInteractionCreateResponseState(e *ApplicationCommandInteractionCreate, state *InteractionResponseState) {
+	if e != nil {
+		e.responseState = state
+	}
+}
+
+// SetComponentInteractionCreateResponseState sets the response state for a ComponentInteractionCreate event.
+func SetComponentInteractionCreateResponseState(e *ComponentInteractionCreate, state *InteractionResponseState) {
+	if e != nil {
+		e.responseState = state
+	}
+}
+
+// SetAutocompleteInteractionCreateResponseState sets the response state for an AutocompleteInteractionCreate event.
+func SetAutocompleteInteractionCreateResponseState(e *AutocompleteInteractionCreate, state *InteractionResponseState) {
+	if e != nil {
+		e.responseState = state
+	}
+}
+
+// SetModalSubmitInteractionCreateResponseState sets the response state for a ModalSubmitInteractionCreate event.
+func SetModalSubmitInteractionCreateResponseState(e *ModalSubmitInteractionCreate, state *InteractionResponseState) {
+	if e != nil {
+		e.responseState = state
+	}
 }
 
 // Guild returns the guild that the interaction happened in if it happened in a guild.
