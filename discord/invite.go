@@ -148,7 +148,6 @@ func (i InviteTargetUsersUpdate) ToBody() (any, error) {
 func payloadWithTargetUsersFile(v any, targetUsersFile io.Reader) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
-	writer.FormDataContentType()
 	defer func() {
 		_ = writer.Close()
 	}()
