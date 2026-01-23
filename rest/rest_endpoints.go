@@ -276,7 +276,7 @@ var (
 	DeleteInvite                  = NewEndpoint(http.MethodDelete, "/invites/{code}")
 	GetInviteTargetUsers          = NewEndpoint(http.MethodGet, "/invites/{code}/target-users")
 	UpdateInviteTargetUsers       = NewEndpoint(http.MethodPut, "/invites/{code}/target-users")
-	GetInviteTargetUsersJobStatus = NewEndpoint(http.MethodGet, "/invites/{code}/target-users/job-tatus")
+	GetInviteTargetUsersJobStatus = NewEndpoint(http.MethodGet, "/invites/{code}/target-users/job-status")
 
 	GetGuildInvites   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/invites")
 	GetChannelInvites = NewEndpoint(http.MethodGet, "/channels/{channel.id}/invites")
