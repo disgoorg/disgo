@@ -124,19 +124,28 @@ type InviteCreate struct {
 	TargetType          InviteTargetType `json:"target_type,omitempty"`
 	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
 	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
-	TargetUsersFile     *File            `json:"-"`
+	TargetUsersFile     *io.Reader       `json:"-"`
 	RoleIDs             []snowflake.ID   `json:"role_ids,omitempty"`
 }
 
 // ToBody returns the InviteCreate ready for body
 func (i InviteCreate) ToBody() (any, error) {
 	if i.TargetUsersFile != nil {
-		return i.payloadWithFiles()
+		return payloadWithTargetUsersFile(i, *i.TargetUsersFile)
 	}
 	return i, nil
 }
 
-func (i InviteCreate) payloadWithFiles() (*MultipartBuffer, error) {
+type InviteTargetUsersUpdate struct {
+	TargetUsersFile io.Reader
+}
+
+// ToBody returns the InviteTargetUsersUpdate ready for body
+func (i InviteTargetUsersUpdate) ToBody() (any, error) {
+	return payloadWithTargetUsersFile(nil, i.TargetUsersFile)
+}
+
+func payloadWithTargetUsersFile(v any, targetUsersFile io.Reader) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 	writer.FormDataContentType()
@@ -144,29 +153,29 @@ func (i InviteCreate) payloadWithFiles() (*MultipartBuffer, error) {
 		_ = writer.Close()
 	}()
 
-	payload, err := json.Marshal(i)
-	if err != nil {
-		return nil, err
-	}
-
-	part, err := writer.CreatePart(partHeader(`form-data; name="payload_json"`, "application/json"))
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err = part.Write(payload); err != nil {
-		return nil, err
-	}
-
-	if i.TargetUsersFile != nil {
-		part, err = writer.CreatePart(partHeader(`form-data; name="target_users_file"; filename="target_users_file.csv"`, "application/octet-stream"))
+	if v != nil {
+		payload, err := json.Marshal(v)
 		if err != nil {
 			return nil, err
 		}
 
-		if _, err = io.Copy(part, i.TargetUsersFile.Reader); err != nil {
+		part, err := writer.CreatePart(partHeader(`form-data; name="payload_json"`, "application/json"))
+		if err != nil {
 			return nil, err
 		}
+
+		if _, err = part.Write(payload); err != nil {
+			return nil, err
+		}
+	}
+
+	part, err := writer.CreatePart(partHeader(`form-data; name="target_users_file"; filename="users.csv"`, "text/csv"))
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err = io.Copy(part, targetUsersFile); err != nil {
+		return nil, err
 	}
 
 	return &MultipartBuffer{
@@ -174,3 +183,23 @@ func (i InviteCreate) payloadWithFiles() (*MultipartBuffer, error) {
 		ContentType: writer.FormDataContentType(),
 	}, nil
 }
+
+type TargetUsersJobStatus struct {
+	Status         TargetUsersJobStatusCode `json:"status"`
+	TotalUsers     int                      `json:"total_users"`
+	ProcessedUsers int                      `json:"processed_users"`
+	CreatedAt      string                   `json:"created_at"`
+	CompletedAt    *string                  `json:"completed_at"`
+	ErrorMessage   *string                  `json:"error_message"`
+}
+
+// TargetUsersJobStatusCode indicates the status of creating or updating target users of invite
+type TargetUsersJobStatusCode int
+
+// all TargetUsersJobStatusCode
+const (
+	TargetUsersJobStatusCodeUnspecified TargetUsersJobStatusCode = iota
+	TargetUsersJobStatusCodeProcessing
+	TargetUsersJobStatusCodeCompleted
+	TargetUsersJobStatusCodeFailed
+)

@@ -43,6 +43,25 @@ func (s *inviteImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *disc
 	return
 }
 
+func (s *inviteImpl) GetInviteTargetUsers(code string, opts ...RequestOpt) (targetUsers *string, err error) {
+	err = s.client.Do(GetInviteTargetUsers.Compile(nil, code), nil, &targetUsers, opts...)
+	return
+}
+
+func (s *inviteImpl) UpdateInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error) {
+	body, err := inviteTargetUsersUpdate.ToBody()
+	if err != nil {
+		return
+	}
+	err = s.client.Do(UpdateInviteTargetUsers.Compile(nil, code), body, nil, opts...)
+	return
+}
+
+func (s *inviteImpl) GetInviteTargetUsersJobStatus(code string, opts ...RequestOpt) (targetUsersJobStatus *discord.TargetUsersJobStatus, err error) {
+	err = s.client.Do(GetInviteTargetUsersJobStatus.Compile(nil, code), nil, &targetUsersJobStatus, opts...)
+	return
+}
+
 func (s *inviteImpl) GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) (invites []discord.ExtendedInvite, err error) {
 	err = s.client.Do(GetGuildInvites.Compile(nil, guildID), nil, &invites, opts...)
 	return

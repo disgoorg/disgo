@@ -271,9 +271,12 @@ var (
 
 // Invites
 var (
-	GetInvite    = NewEndpoint(http.MethodGet, "/invites/{code}")
-	CreateInvite = NewEndpoint(http.MethodPost, "/channels/{channel.id}/invites")
-	DeleteInvite = NewEndpoint(http.MethodDelete, "/invites/{code}")
+	GetInvite                     = NewEndpoint(http.MethodGet, "/invites/{code}")
+	CreateInvite                  = NewEndpoint(http.MethodPost, "/channels/{channel.id}/invites")
+	DeleteInvite                  = NewEndpoint(http.MethodDelete, "/invites/{code}")
+	GetInviteTargetUsers          = NewEndpoint(http.MethodGet, "/invites/{code}/target-users")
+	UpdateInviteTargetUsers       = NewEndpoint(http.MethodPut, "/invites/{code}/target-users")
+	GetInviteTargetUsersJobStatus = NewEndpoint(http.MethodGet, "/invites/{code}/target-users/job-tatus")
 
 	GetGuildInvites   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/invites")
 	GetChannelInvites = NewEndpoint(http.MethodGet, "/channels/{channel.id}/invites")
