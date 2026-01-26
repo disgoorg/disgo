@@ -2,7 +2,7 @@ package discord
 
 import (
 	"bytes"
-	"io"
+	"encoding/csv"
 	"mime/multipart"
 	"time"
 
@@ -124,28 +124,26 @@ type InviteCreate struct {
 	TargetType          InviteTargetType `json:"target_type,omitempty"`
 	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
 	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
-	TargetUsersFile     *io.Reader       `json:"-"`
+	TargetUsersIDs      []snowflake.ID   `json:"-"`
 	RoleIDs             []snowflake.ID   `json:"role_ids,omitempty"`
 }
 
 // ToBody returns the InviteCreate ready for body
 func (i InviteCreate) ToBody() (any, error) {
-	if i.TargetUsersFile != nil {
-		return payloadWithTargetUsersFile(i, *i.TargetUsersFile)
+	if len(i.TargetUsersIDs) > 0 {
+		return payloadWithTargetUserIDs(i, i.TargetUsersIDs)
 	}
 	return i, nil
 }
 
-type InviteTargetUsersUpdate struct {
-	TargetUsersFile io.Reader
-}
+type InviteTargetUsersUpdate []snowflake.ID
 
 // ToBody returns the InviteTargetUsersUpdate ready for body
 func (i InviteTargetUsersUpdate) ToBody() (any, error) {
-	return payloadWithTargetUsersFile(nil, i.TargetUsersFile)
+	return payloadWithTargetUserIDs(nil, i)
 }
 
-func payloadWithTargetUsersFile(v any, targetUsersFile io.Reader) (*MultipartBuffer, error) {
+func payloadWithTargetUserIDs(v any, targetUsersIDs []snowflake.ID) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 	defer func() {
@@ -173,8 +171,17 @@ func payloadWithTargetUsersFile(v any, targetUsersFile io.Reader) (*MultipartBuf
 		return nil, err
 	}
 
-	if _, err = io.Copy(part, targetUsersFile); err != nil {
+	csvWriter := csv.NewWriter(part)
+	defer csvWriter.Flush()
+
+	if err := csvWriter.Write([]string{"Users"}); err != nil {
 		return nil, err
+	}
+
+	for _, userID := range targetUsersIDs {
+		if err := csvWriter.Write([]string{userID.String()}); err != nil {
+			return nil, err
+		}
 	}
 
 	return &MultipartBuffer{

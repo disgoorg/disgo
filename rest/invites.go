@@ -48,12 +48,12 @@ func (s *inviteImpl) GetInviteTargetUsers(code string, opts ...RequestOpt) (targ
 	return
 }
 
-func (s *inviteImpl) UpdateInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error) {
+func (s *inviteImpl) SetInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error) {
 	body, err := inviteTargetUsersUpdate.ToBody()
 	if err != nil {
 		return
 	}
-	err = s.client.Do(UpdateInviteTargetUsers.Compile(nil, code), body, nil, opts...)
+	err = s.client.Do(SetInviteTargetUsers.Compile(nil, code), body, nil, opts...)
 	return
 }
 
