@@ -30,7 +30,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
-// SyncCommands sets the given commands for the given guilds or globally if no guildIDs are empty. It will return on the first error for multiple guilds.
+// SyncCommands sets the given commands for the given guilds or globally if guildIDs is empty. It will return on the first error for multiple guilds.
 func SyncCommands(client *bot.Client, commands []discord.ApplicationCommandCreate, guildIDs []snowflake.ID, opts ...rest.RequestOpt) error {
 	if len(guildIDs) == 0 {
 		_, err := client.Rest.SetGlobalCommands(client.ApplicationID, commands, opts...)
