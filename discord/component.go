@@ -1606,7 +1606,7 @@ type RadioGroupOption struct {
 	// Description is the description of the option.
 	Description string `json:"description,omitempty"`
 	// Default indicates whether the option is selected by default.
-	Default bool `json:"default,omitempty"`
+	Default bool `json:"default"`
 }
 
 func (o RadioGroupOption) WithValue(value string) RadioGroupOption {
