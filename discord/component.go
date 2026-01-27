@@ -1524,13 +1524,13 @@ var (
 	_ LabelSubComponent    = (*RadioGroupComponent)(nil)
 )
 
-// RadioGroupComponent is a component that allows users to upload files via modals.
+// RadioGroupComponent is a component that allows users to select a single option from a list.
 type RadioGroupComponent struct {
-	// ID is the identifier for the file upload component.
+	// ID is the identifier for the checkbox component.
 	ID int `json:"id,omitempty"`
-	// CustomID is the custom identifier for the file upload component.
+	// CustomID is the custom identifier for the checkbox component.
 	CustomID string `json:"custom_id"`
-	// Required specifies whether the file upload is required. (default: false)
+	// Required specifies whether the checkbox is required. (default: false)
 	Required bool `json:"required"`
 	// Options is the options available in the radio group. (min: 2, max: 10)
 	Options []RadioGroupOption `json:"options"`
@@ -1589,6 +1589,7 @@ func (c RadioGroupComponent) WithOptions(options ...RadioGroupOption) RadioGroup
 	return c
 }
 
+// NewRadioGroupOption creates a new RadioGroupOption with the provided value and label.
 func NewRadioGroupOption(value string, label string) RadioGroupOption {
 	return RadioGroupOption{
 		Value: value,
@@ -1634,19 +1635,19 @@ var (
 	_ LabelSubComponent    = (*CheckboxGroupComponent)(nil)
 )
 
-// CheckboxGroupComponent is a component that allows users to upload files via modals.
+// CheckboxGroupComponent is a component that allows users to select multiple options from a list.
 type CheckboxGroupComponent struct {
-	// ID is the identifier for the file upload component.
+	// ID is the identifier for the checkbox component.
 	ID int `json:"id,omitempty"`
-	// CustomID is the custom identifier for the file upload component.
+	// CustomID is the custom identifier for the checkbox component.
 	CustomID string `json:"custom_id"`
-	// Required specifies whether the file upload is required. (default: false)
+	// Required specifies whether the checkbox is required. (default: false)
 	Required bool `json:"required"`
 	// Options is the options available in the radio group. (min: 1, max: 10)
 	Options []CheckboxGroupOption `json:"options"`
-	// MinValues is the minimum number of files that must be uploaded. (default: 1, min: 0, max: 10)
+	// MinValues is the minimum number of options that must be selected. (default: 1, min: 0, max: 10)
 	MinValues *int `json:"min_values,omitempty"`
-	// MaxValues is the maximum number of files that can be uploaded. (default: len(options), min: 1, max: 10)
+	// MaxValues is the maximum number of options that can be selected. (default: len(options), min: 1, max: 10)
 	MaxValues int `json:"max_values,omitempty"`
 	// Value is only set when the [CheckboxGroupComponent] is received from an [InteractionTypeModalSubmit].
 	Values []string `json:"value,omitempty"`
@@ -1725,14 +1726,14 @@ func NewCheckboxGroupOption(value string, label string) CheckboxGroupOption {
 
 // CheckboxGroupOption is an option in a [CheckboxGroupComponent].
 type CheckboxGroupOption struct {
-	// Value is the value of the option.
+	// Value is the value of the option. (max: 100 characters)
 	Value string `json:"value"`
-	// Label is the label of the option.
+	// Label is the label of the option. (max: 100 characters)
 	Label string `json:"label"`
-	// Description is the description of the option.
+	// Description is the description of the option. (max: 100 characters)
 	Description string `json:"description,omitempty"`
 	// Default indicates whether the option is selected by default.
-	Default bool `json:"default,omitempty"`
+	Default bool `json:"default"`
 }
 
 // WithValue returns a new CheckboxGroupOption with the provided value
@@ -1765,16 +1766,16 @@ var (
 	_ LabelSubComponent    = (*CheckboxComponent)(nil)
 )
 
-// CheckboxComponent is a component that allows users to upload files via modals.
+// CheckboxComponent is a component that allows users to select a single checkbox.
 type CheckboxComponent struct {
-	// ID is the identifier for the file upload component.
+	// ID is the identifier for the file checkbox component.
 	ID int `json:"id,omitempty"`
-	// CustomID is the custom identifier for the file upload component.
+	// CustomID is the custom identifier for the checkbox component.
 	CustomID string `json:"custom_id"`
 	// Default indicates whether the checkbox is selected by default.
-	Default bool `json:"default,omitempty"`
+	Default bool `json:"default"`
 	// Value is only set when the [CheckboxComponent] is received from an [InteractionTypeModalSubmit].
-	Value bool `json:"value,omitempty"`
+	Value bool `json:"value"`
 }
 
 func (c CheckboxComponent) component()            {}
