@@ -412,6 +412,34 @@ func (d SlashCommandInteractionData) Role(name string) Role {
 	return Role{}
 }
 
+// OptMentionable tries to resolve the mentionable option by checking members, users, roles, and channels in that order.
+// It either returns: [ResolvedMember], [User], [ResolvedMember] or [ResolvedChannel]
+func (d SlashCommandInteractionData) OptMentionable(name string) (MentionableValue, bool) {
+	if option, ok := d.Option(name); ok {
+		id := option.Snowflake()
+		if member, ok := d.Resolved.Members[id]; ok {
+			return member, true
+		}
+		if user, ok := d.Resolved.Users[id]; ok {
+			return user, true
+		}
+		if role, ok := d.Resolved.Roles[id]; ok {
+			return role, true
+		}
+		if channel, ok := d.Resolved.Channels[id]; ok {
+			return channel, true
+		}
+	}
+	return nil, false
+}
+
+// Mentionable tries to resolve the mentionable option by checking members, users, roles, and channels in that order.
+// It either returns: [ResolvedMember], [User], [ResolvedMember] or [ResolvedChannel]
+func (d SlashCommandInteractionData) Mentionable(name string) MentionableValue {
+	mentionable, _ := d.OptMentionable(name)
+	return mentionable
+}
+
 func (d SlashCommandInteractionData) OptSnowflake(name string) (snowflake.ID, bool) {
 	if option, ok := d.Option(name); ok {
 		return option.Snowflake(), true
