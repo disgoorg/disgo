@@ -32,6 +32,7 @@ type Embed struct {
 	Provider    *EmbedProvider `json:"provider,omitempty"`
 	Author      *EmbedAuthor   `json:"author,omitempty"`
 	Fields      []EmbedField   `json:"fields,omitempty"`
+	Flags       EmbedFlags     `json:"flags,omitempty"`
 }
 
 func (e Embed) FindField(fieldFindFunc func(field EmbedField) bool) (EmbedField, bool) {
@@ -53,13 +54,31 @@ func (e Embed) FindAllFields(fieldFindFunc func(field EmbedField) bool) []EmbedF
 	return fields
 }
 
+type EmbedFlags int
+
+const (
+	EmbedFlagIsContentInventoryEntry EmbedFlags = 1 << (iota + 5)
+	EmbedFlagsNone                   EmbedFlags = 0
+)
+
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
 type EmbedResource struct {
-	URL      string `json:"url,omitempty"`
-	ProxyURL string `json:"proxy_url,omitempty"`
-	Height   int    `json:"height,omitempty"`
-	Width    int    `json:"width,omitempty"`
+	URL                string             `json:"url,omitempty"`
+	ProxyURL           string             `json:"proxy_url,omitempty"`
+	Height             int                `json:"height,omitempty"`
+	Width              int                `json:"width,omitempty"`
+	Placeholder        string             `json:"placeholder,omitempty"`
+	PlaceholderVersion string             `json:"placeholder_version,omitempty"`
+	Description        string             `json:"description,omitempty"`
+	Flags              EmbedResourceFlags `json:"flags,omitempty"`
 }
+
+type EmbedResourceFlags int
+
+const (
+	EmbedResourceFlagIsAnimated EmbedResourceFlags = 1 << 5
+	EmbedResourceFlagsNone      EmbedResourceFlags = 0
+)
 
 // The EmbedProvider of an Embed
 type EmbedProvider struct {
