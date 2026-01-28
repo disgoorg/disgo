@@ -16,6 +16,9 @@ type Invites interface {
 	GetInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
 	CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (*discord.Invite, error)
 	DeleteInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
+	GetInviteTargetUsers(code string, opts ...RequestOpt) (targetUsers *string, err error)
+	UpdateInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error)
+	GetInviteTargetUsersJobStatus(code string, opts ...RequestOpt) (targetUsersJobStatus *discord.TargetUsersJobStatus, err error)
 	GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
 	GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
 }
@@ -48,7 +51,7 @@ func (s *inviteImpl) GetInviteTargetUsers(code string, opts ...RequestOpt) (targ
 	return
 }
 
-func (s *inviteImpl) SetInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error) {
+func (s *inviteImpl) UpdateInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error) {
 	body, err := inviteTargetUsersUpdate.ToBody()
 	if err != nil {
 		return
