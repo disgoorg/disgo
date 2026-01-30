@@ -194,8 +194,8 @@ type TargetUsersJobStatus struct {
 	Status         TargetUsersJobStatusCode `json:"status"`
 	TotalUsers     int                      `json:"total_users"`
 	ProcessedUsers int                      `json:"processed_users"`
-	CreatedAt      string                   `json:"created_at"`
-	CompletedAt    *string                  `json:"completed_at"`
+	CreatedAt      time.Time                `json:"created_at"`
+	CompletedAt    *time.Time               `json:"completed_at"`
 	ErrorMessage   *string                  `json:"error_message"`
 }
 
