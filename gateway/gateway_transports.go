@@ -3,6 +3,7 @@ package gateway
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -128,7 +129,7 @@ type pipeBuffer struct{ buffer bytes.Buffer }
 // is drained. The return value n is the number of bytes read; err is always nil.
 func (r *pipeBuffer) Read(p []byte) (int, error) {
 	n, err := r.buffer.Read(p)
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return n, nil
 	}
 	return n, err

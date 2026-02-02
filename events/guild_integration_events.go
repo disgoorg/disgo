@@ -15,7 +15,7 @@ type GenericIntegration struct {
 
 // Guild returns the Guild this Integration was created in.
 // This will only check cached guilds!
-func (e *GenericIntegration) Guild() (discord.Guild, bool) {
+func (e *GenericIntegration) Guild() (discord.Guild, error) {
 	return e.Client().Caches.Guild(e.GuildID)
 }
 

@@ -29,8 +29,11 @@ func gatewayHandlerGuildStickersUpdate(client *bot.Client, sequenceNumber int, s
 	deletedStickers := map[snowflake.ID]discord.Sticker{}
 	updatedStickers := map[snowflake.ID]updatedSticker{}
 
-	for sticker := range client.Caches.Stickers(event.GuildID) {
-		deletedStickers[sticker.ID] = sticker
+	stickers, err := client.Caches.Stickers(event.GuildID)
+	if err == nil {
+		for sticker := range stickers {
+			deletedStickers[sticker.ID] = sticker
+		}
 	}
 
 	for _, newSticker := range event.Stickers {

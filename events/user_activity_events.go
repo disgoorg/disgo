@@ -22,14 +22,14 @@ type GenericUserActivity struct {
 
 // Member returns the Member that changed their Activity.
 // This will only check cached members!
-func (g *GenericUserActivity) Member() (discord.Member, bool) {
+func (g *GenericUserActivity) Member() (discord.Member, error) {
 	return g.Client().Caches.Member(g.GuildID, g.UserID)
 }
 
 // Guild returns the Guild that changed their Activity.
 // This will only check cached guilds!
-func (g *GenericUserActivity) Guild() (discord.Guild, bool) {
-	return g.Client().Caches.Guild(g.UserID)
+func (g *GenericUserActivity) Guild() (discord.Guild, error) {
+	return g.Client().Caches.Guild(g.GuildID)
 }
 
 // UserActivityStart indicates that a User started an Activity

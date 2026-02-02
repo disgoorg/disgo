@@ -2,27 +2,26 @@ package cache
 
 import (
 	"iter"
-	"sync"
 )
 
 // Set is a collection of unique items. It should be thread-safe.
 type Set[T comparable] interface {
 	// Add adds an item to the set.
-	Add(item T)
+	Add(item T, opts ...AccessOpt) error
 	// Remove removes an item from the set.
-	Remove(item T)
+	Remove(item T, opts ...AccessOpt) error
 	// Has returns true if the item is in the set, false otherwise.
-	Has(item T) bool
+	Has(item T, opts ...AccessOpt) (bool, error)
 	// Len returns the number of items in the set.
-	Len() int
+	Len(opts ...AccessOpt) (int, error)
 	// Clear removes all items from the set.
-	Clear()
+	Clear(opts ...AccessOpt) error
 	// All returns an iterator over all items in the set.
-	All() iter.Seq[T]
+	All(opts ...AccessOpt) (iter.Seq2[T, error], error)
 }
 
 type set[T comparable] struct {
-	mu    sync.RWMutex
+	mu    RWMutex
 	items map[T]struct{}
 }
 
@@ -33,45 +32,79 @@ func NewSet[T comparable]() Set[T] {
 	}
 }
 
-func (s *set[T]) Add(item T) {
-	s.mu.Lock()
+func (s *set[T]) Add(item T, opts ...AccessOpt) error {
+	cfg := resolveAccessConfig(opts)
+
+	if err := s.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
+
 	defer s.mu.Unlock()
 	s.items[item] = struct{}{}
+	return nil
 }
 
-func (s *set[T]) Remove(item T) {
-	s.mu.Lock()
+func (s *set[T]) Remove(item T, opts ...AccessOpt) error {
+	cfg := resolveAccessConfig(opts)
+
+	if err := s.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
+
 	defer s.mu.Unlock()
 	delete(s.items, item)
+	return nil
 }
 
-func (s *set[T]) Has(item T) bool {
-	s.mu.RLock()
+func (s *set[T]) Has(item T, opts ...AccessOpt) (bool, error) {
+	cfg := resolveAccessConfig(opts)
+
+	if err := s.mu.RLock(cfg.Ctx); err != nil {
+		return false, err
+	}
+
 	defer s.mu.RUnlock()
 	_, ok := s.items[item]
-	return ok
+	return ok, nil
 }
 
-func (s *set[T]) Len() int {
-	s.mu.RLock()
+func (s *set[T]) Len(opts ...AccessOpt) (int, error) {
+	cfg := resolveAccessConfig(opts)
+
+	if err := s.mu.RLock(cfg.Ctx); err != nil {
+		return 0, err
+	}
+
 	defer s.mu.RUnlock()
-	return len(s.items)
+	return len(s.items), nil
 }
 
-func (s *set[T]) Clear() {
-	s.mu.Lock()
+func (s *set[T]) Clear(opts ...AccessOpt) error {
+	cfg := resolveAccessConfig(opts)
+
+	if err := s.mu.Lock(cfg.Ctx); err != nil {
+		return err
+	}
+
 	defer s.mu.Unlock()
 	s.items = make(map[T]struct{})
+	return nil
 }
 
-func (s *set[T]) All() iter.Seq[T] {
-	return func(yield func(T) bool) {
-		s.mu.RLock()
+func (s *set[T]) All(opts ...AccessOpt) (iter.Seq2[T, error], error) {
+	cfg := resolveAccessConfig(opts)
+
+	if err := s.mu.RLock(cfg.Ctx); err != nil {
+		return nil, err
+	}
+
+	return func(yield func(T, error) bool) {
 		defer s.mu.RUnlock()
+
 		for item := range s.items {
-			if !yield(item) {
+			if !yield(item, nil) {
 				return
 			}
 		}
-	}
+	}, nil
 }

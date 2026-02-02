@@ -1,13 +1,19 @@
 package handlers
 
 import (
+	"errors"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
 
 func gatewayHandlerGuildScheduledEventCreate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventCreate) {
-	client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent)
+	if err := client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent); err != nil {
+		client.Logger.Error("failed to add guild scheduled event to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventCreate{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{
@@ -18,8 +24,13 @@ func gatewayHandlerGuildScheduledEventCreate(client *bot.Client, sequenceNumber 
 }
 
 func gatewayHandlerGuildScheduledEventUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventUpdate) {
-	oldGuildScheduledEvent, _ := client.Caches.GuildScheduledEvent(event.GuildID, event.ID)
-	client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent)
+	oldGuildScheduledEvent, err := client.Caches.GuildScheduledEvent(event.GuildID, event.ID)
+	if err != nil && !errors.Is(err, cache.ErrNotFound) {
+		client.Logger.Error("failed to get guild scheduled event from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
+	if err := client.Caches.AddGuildScheduledEvent(event.GuildScheduledEvent); err != nil {
+		client.Logger.Error("failed to add guild scheduled event to cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventUpdate{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{
@@ -31,7 +42,9 @@ func gatewayHandlerGuildScheduledEventUpdate(client *bot.Client, sequenceNumber 
 }
 
 func gatewayHandlerGuildScheduledEventDelete(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventDelete) {
-	client.Caches.RemoveGuildScheduledEvent(event.GuildID, event.ID)
+	if _, err := client.Caches.RemoveGuildScheduledEvent(event.GuildID, event.ID); err != nil {
+		client.Logger.Error("failed to remove guild scheduled event from cache", slog.Any("err", err), slog.String("guild_id", event.GuildID.String()), slog.String("event_id", event.ID.String()))
+	}
 
 	client.EventManager.DispatchEvent(&events.GuildScheduledEventDelete{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{
