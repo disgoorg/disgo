@@ -16,6 +16,9 @@ type Invites interface {
 	GetInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
 	CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (*discord.Invite, error)
 	DeleteInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
+	GetInviteTargetUsers(code string, opts ...RequestOpt) (targetUsers *string, err error)
+	UpdateInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error)
+	GetInviteTargetUsersJobStatus(code string, opts ...RequestOpt) (targetUsersJobStatus *discord.TargetUsersJobStatus, err error)
 	GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
 	GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
 }
@@ -30,12 +33,35 @@ func (s *inviteImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord
 }
 
 func (s *inviteImpl) CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (invite *discord.Invite, err error) {
-	err = s.client.Do(CreateInvite.Compile(nil, channelID), inviteCreate, &invite, opts...)
+	body, err := inviteCreate.ToBody()
+	if err != nil {
+		return
+	}
+	err = s.client.Do(CreateInvite.Compile(nil, channelID), body, &invite, opts...)
 	return
 }
 
 func (s *inviteImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *discord.Invite, err error) {
 	err = s.client.Do(DeleteInvite.Compile(nil, code), nil, &invite, opts...)
+	return
+}
+
+func (s *inviteImpl) GetInviteTargetUsers(code string, opts ...RequestOpt) (targetUsers *string, err error) {
+	err = s.client.Do(GetInviteTargetUsers.Compile(nil, code), nil, &targetUsers, opts...)
+	return
+}
+
+func (s *inviteImpl) UpdateInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error) {
+	body, err := inviteTargetUsersUpdate.ToBody()
+	if err != nil {
+		return
+	}
+	err = s.client.Do(SetInviteTargetUsers.Compile(nil, code), body, nil, opts...)
+	return
+}
+
+func (s *inviteImpl) GetInviteTargetUsersJobStatus(code string, opts ...RequestOpt) (targetUsersJobStatus *discord.TargetUsersJobStatus, err error) {
+	err = s.client.Do(GetInviteTargetUsersJobStatus.Compile(nil, code), nil, &targetUsersJobStatus, opts...)
 	return
 }
 

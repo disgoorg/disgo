@@ -619,6 +619,8 @@ type EventInviteCreate struct {
 	TargetApplication *discord.PartialApplication `json:"target_application"`
 	Temporary         bool                        `json:"temporary"`
 	Uses              int                         `json:"uses"`
+	ExpiresAt         *time.Time                  `json:"expires_at"`
+	RoleIDs           *[]snowflake.ID             `json:"role_ids"`
 }
 
 func (EventInviteCreate) messageData() {}

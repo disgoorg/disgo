@@ -1,8 +1,12 @@
 package discord
 
 import (
+	"bytes"
+	"encoding/csv"
+	"mime/multipart"
 	"time"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -30,6 +34,7 @@ type Invite struct {
 	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 	Flags                    InviteFlags          `json:"flags"`
+	Roles                    []Role               `json:"roles"`
 }
 
 func (i Invite) URL() string {
@@ -119,4 +124,88 @@ type InviteCreate struct {
 	TargetType          InviteTargetType `json:"target_type,omitempty"`
 	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
 	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
+	TargetUserIDs       []snowflake.ID   `json:"-"`
+	RoleIDs             []snowflake.ID   `json:"role_ids,omitempty"`
 }
+
+// ToBody returns the InviteCreate ready for body
+func (i InviteCreate) ToBody() (any, error) {
+	if len(i.TargetUserIDs) > 0 {
+		return payloadWithTargetUserIDs(i, i.TargetUserIDs)
+	}
+	return i, nil
+}
+
+type InviteTargetUsersUpdate []snowflake.ID
+
+// ToBody returns the InviteTargetUsersUpdate ready for body
+func (i InviteTargetUsersUpdate) ToBody() (any, error) {
+	return payloadWithTargetUserIDs(nil, i)
+}
+
+func payloadWithTargetUserIDs(v any, targetUsersIDs []snowflake.ID) (*MultipartBuffer, error) {
+	buffer := &bytes.Buffer{}
+	writer := multipart.NewWriter(buffer)
+	defer func() {
+		_ = writer.Close()
+	}()
+
+	if v != nil {
+		payload, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+
+		part, err := writer.CreatePart(partHeader(`form-data; name="payload_json"`, "application/json"))
+		if err != nil {
+			return nil, err
+		}
+
+		if _, err = part.Write(payload); err != nil {
+			return nil, err
+		}
+	}
+
+	part, err := writer.CreatePart(partHeader(`form-data; name="target_users_file"; filename="users.csv"`, "text/csv"))
+	if err != nil {
+		return nil, err
+	}
+
+	csvWriter := csv.NewWriter(part)
+	defer csvWriter.Flush()
+
+	if err := csvWriter.Write([]string{"Users"}); err != nil {
+		return nil, err
+	}
+
+	for _, userID := range targetUsersIDs {
+		if err := csvWriter.Write([]string{userID.String()}); err != nil {
+			return nil, err
+		}
+	}
+
+	return &MultipartBuffer{
+		Buffer:      buffer,
+		ContentType: writer.FormDataContentType(),
+	}, nil
+}
+
+type TargetUsersJobStatus struct {
+	Status         TargetUsersJobStatusCode `json:"status"`
+	TotalUsers     int                      `json:"total_users"`
+	ProcessedUsers int                      `json:"processed_users"`
+	CreatedAt      time.Time                `json:"created_at"`
+	CompletedAt    *time.Time               `json:"completed_at"`
+	ErrorMessage   *string                  `json:"error_message"`
+}
+
+// TargetUsersJobStatusCode indicates the status of creating or updating target users of invite
+type TargetUsersJobStatusCode int
+
+// all TargetUsersJobStatusCode
+const (
+	TargetUsersJobStatusCodeUnspecified TargetUsersJobStatusCode = iota
+	TargetUsersJobStatusCodeProcessing
+	TargetUsersJobStatusCodeCompleted
+	TargetUsersJobStatusCodeFailed
+)
