@@ -303,6 +303,10 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			return nil, fmt.Errorf("failed to read packet: %w", err)
 		}
 
+		if n < RTPHeaderSize {
+			continue
+		}
+
 		packetType := u.receiveBuffer[1]
 		if packetType != RTPPayloadType {
 			// ignore non-voice packets
@@ -312,7 +316,9 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 		hasPadding := (u.receiveBuffer[0] & 0x04) != 0
 		if hasPadding {
 			paddingLen := int(u.receiveBuffer[n-1])
-			u.receiveBuffer = u.receiveBuffer[:n-paddingLen]
+			if paddingLen <= 0 || paddingLen > n-RTPHeaderSize {
+				continue
+			}
 			n -= paddingLen
 		}
 
@@ -330,22 +336,30 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 		}
 
 		cc := int(u.receiveBuffer[0] & 0x0F)
+		headerLen := RTPHeaderSize + (4 * cc)
+		if n < headerLen {
+			continue
+		}
+
 		p.CSRC = make([]uint32, cc)
-		offset := RTPHeaderSize
 		for i := range cc {
-			p.CSRC[i] = binary.BigEndian.Uint32(u.receiveBuffer[offset : offset+4])
-			offset += 4
+			p.CSRC[i] = binary.BigEndian.Uint32(u.receiveBuffer[RTPHeaderSize+i*4 : RTPHeaderSize+i*4+4])
 		}
 
-		var extensionLen int
+		var extensionLenWords uint16
 		if p.HasExtension {
-			p.ExtensionID = int(binary.BigEndian.Uint16(u.receiveBuffer[offset : offset+2]))
-			offset += 2
-			extensionLen = int(binary.BigEndian.Uint16(u.receiveBuffer[offset : offset+2]))
-			offset += 2
+			if n < headerLen+4 {
+				continue
+			}
+			p.ExtensionID = int(binary.BigEndian.Uint16(u.receiveBuffer[headerLen : headerLen+2]))
+			extensionLenWords = binary.BigEndian.Uint16(u.receiveBuffer[headerLen+2 : headerLen+4])
+			headerLen += 4
 		}
 
-		p.HeaderSize = offset
+		p.HeaderSize = headerLen
+		if n < p.HeaderSize+4 {
+			continue
+		}
 
 		decrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
 		if err != nil {
@@ -354,7 +368,10 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 
 		var decryptedOffset int
 		if p.HasExtension {
-			extensionLen *= 4 // extension length is in 32-bit words
+			extensionLen := int(extensionLenWords) * 4
+			if decryptedOffset+extensionLen > len(decrypted) {
+				continue
+			}
 			p.Extension = decrypted[decryptedOffset : decryptedOffset+extensionLen]
 			decryptedOffset += extensionLen
 		}
@@ -372,17 +389,9 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			return nil, fmt.Errorf("failed to DAVE decrypt packet: %w", err)
 		}
 
-		return &Packet{
-			Type:         RTPPayloadType,
-			Sequence:     p.Sequence,
-			Timestamp:    p.Timestamp,
-			SSRC:         p.SSRC,
-			Extension:    p.Extension,
-			HasExtension: p.HasExtension,
-			CSRC:         nil,
-			HeaderSize:   RTPHeaderSize,
-			Opus:         u.decryptBuffer[:n],
-		}, nil
+		p.Opus = u.decryptBuffer[:n]
+
+		return &p, nil
 	}
 }
 
