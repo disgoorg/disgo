@@ -3,6 +3,7 @@ package voice
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/disgoorg/godave"
 	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/gorilla/websocket"
@@ -51,7 +53,7 @@ type (
 	EventHandlerFunc func(gateway Gateway, opCode Opcode, sequenceNumber int, data GatewayMessageData)
 
 	// GatewayCreateFunc is a function that creates a new voice gateway.
-	GatewayCreateFunc func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
+	GatewayCreateFunc func(daveManager godave.Session, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
 
 	// CloseHandlerFunc is a function that handles a voice gateway close.
 	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
@@ -96,12 +98,13 @@ type Gateway interface {
 }
 
 // NewGateway creates a new voice Gateway.
-func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
+func NewGateway(daveSession godave.Session, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
 	cfg := defaultGatewayConfig()
 	cfg.apply(opts)
 
 	return &gatewayImpl{
 		config:           cfg,
+		daveSession:      daveSession,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
 	}
@@ -116,6 +119,7 @@ type gatewayImpl struct {
 	state State
 	seq   int
 
+	daveSession     godave.Session
 	conn            *websocket.Conn
 	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
@@ -176,6 +180,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 		return nil
 	})
 
+	g.daveSession.SetChannelID(godave.ChannelID(*state.ChannelID))
 	g.conn = conn
 	g.connMu.Unlock()
 
@@ -254,6 +259,24 @@ func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d GatewayMessageData)
 }
 
 func (g *gatewayImpl) sendInternal(ctx context.Context, op Opcode, d GatewayMessageData) error {
+	if op.IsBinary() {
+		// We are basically writing the following struct here:
+		// {
+		// 	 op uint8
+		//   rest of the data
+		// }
+		//
+		buf := new(bytes.Buffer)
+		if err := binary.Write(buf, binary.BigEndian, uint8(op)); err != nil {
+			return err
+		}
+		if err := binary.Write(buf, binary.BigEndian, d); err != nil {
+			return err
+		}
+
+		return g.send(ctx, websocket.BinaryMessage, buf.Bytes())
+	}
+
 	data, err := json.Marshal(GatewayMessage{
 		Op: op,
 		D:  d,
@@ -387,10 +410,11 @@ func (g *gatewayImpl) identify() error {
 	g.config.Logger.Debug("sending Identify command")
 
 	identify := GatewayMessageDataIdentify{
-		GuildID:   g.state.GuildID,
-		UserID:    g.state.UserID,
-		SessionID: g.state.SessionID,
-		Token:     g.state.Token,
+		GuildID:                g.state.GuildID,
+		UserID:                 g.state.UserID,
+		SessionID:              g.state.SessionID,
+		Token:                  g.state.Token,
+		MaxDaveProtocolVersion: g.daveSession.MaxSupportedProtocolVersion(),
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -534,6 +558,47 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				return
 			}
 			g.lastHeartbeatReceived = time.Now()
+
+		case OpcodeSessionDescription:
+			d := message.D.(GatewayMessageDataSessionDescription)
+			g.daveSession.OnSelectProtocolAck(uint16(d.DaveProtocolVersion))
+
+		case OpcodeClientsConnect:
+			d := message.D.(GatewayMessageDataClientsConnect)
+
+			for _, userID := range d.UserIDs {
+				g.daveSession.AddUser(godave.UserID(userID.String()))
+			}
+
+		case OpcodeClientDisconnect:
+			d := message.D.(GatewayMessageDataClientDisconnect)
+			g.daveSession.RemoveUser(godave.UserID(d.UserID.String()))
+
+		case OpcodeDavePrepareTransition:
+			d := message.D.(GatewayMessageDataDaveProtocolPrepareTransition)
+			g.daveSession.OnDavePrepareTransition(d.TransitionID, d.ProtocolVersion)
+
+		case OpcodeDaveExecuteTransition:
+			d := message.D.(GatewayMessageDataDaveProtocolExecuteTransition)
+			g.daveSession.OnDaveExecuteTransition(d.TransitionID)
+
+		case OpcodeDavePrepareEpoch:
+			d := message.D.(GatewayMessageDataDaveProtocolPrepareEpoch)
+			g.daveSession.OnDavePrepareEpoch(d.Epoch, d.ProtocolVersion)
+
+		case OpcodeDaveMLSExternalSenderPackage:
+			g.daveSession.OnDaveMLSExternalSenderPackage(message.D.(GatewayMessageDataDaveMLSExternalSenderPackage))
+
+		case OpcodeDaveMLSProposals:
+			g.daveSession.OnDaveMLSProposals(message.D.(GatewayMessageDataDaveMLSProposals))
+
+		case OpcodeDaveMLSPrepareCommitTransition:
+			d := message.D.(GatewayMessageDataDaveMLSAnnounceCommitTransition)
+			g.daveSession.OnDaveMLSPrepareCommitTransition(d.TransitionID, d.CommitMessage)
+
+		case OpcodeDaveMLSWelcome:
+			d := message.D.(GatewayMessageDataDaveMLSWelcome)
+			g.daveSession.OnDaveMLSWelcome(d.TransitionID, d.WelcomeMessage)
 		}
 
 		g.eventHandlerFunc(g, message.Op, message.Seq, message.D)
@@ -541,10 +606,6 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 }
 
 func (g *gatewayImpl) parseMessage(mt int, r io.Reader) (GatewayMessage, error) {
-	if mt != websocket.TextMessage {
-		return GatewayMessage{}, fmt.Errorf("unsupported message type: %d", mt)
-	}
-
 	if g.config.Logger.Enabled(context.Background(), slog.LevelDebug) {
 		buff := new(bytes.Buffer)
 		tr := io.TeeReader(r, buff)
@@ -557,5 +618,12 @@ func (g *gatewayImpl) parseMessage(mt int, r io.Reader) (GatewayMessage, error) 
 	}
 
 	var message GatewayMessage
-	return message, json.NewDecoder(r).Decode(&message)
+	switch mt {
+	case websocket.TextMessage:
+		return message, json.NewDecoder(r).Decode(&message)
+	case websocket.BinaryMessage:
+		return message, message.UnmarshalBinary(r)
+	default:
+		return GatewayMessage{}, fmt.Errorf("unsupported message type: %d", mt)
+	}
 }

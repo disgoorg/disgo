@@ -8,10 +8,14 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/disgoorg/godave"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 const (
@@ -49,7 +53,9 @@ var (
 
 type (
 	// UDPConnCreateFunc is a function that creates a UDPConn.
-	UDPConnCreateFunc func(opts ...UDPConnConfigOpt) UDPConn
+	UDPConnCreateFunc func(daveSession godave.Session, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn
+
+	SsrcLookupFunc func(ssrc uint32) snowflake.ID
 
 	// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
 	// It implements the io.Reader, io.Writer and io.Closer interface.
@@ -107,13 +113,17 @@ type (
 )
 
 // NewUDPConn creates a new voice UDPConn with the given configuration.
-func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
+func NewUDPConn(daveSession godave.Session, ssrcLookup SsrcLookupFunc, opts ...UDPConnConfigOpt) UDPConn {
 	cfg := defaultUDPConnConfig()
 	cfg.apply(opts)
 
 	return &udpConnImpl{
+		daveSession:   daveSession,
+		ssrcLookup:    ssrcLookup,
 		config:        cfg,
 		receiveBuffer: make([]byte, 1400),
+		decryptBuffer: make([]byte, 512),
+		encryptBuffer: make([]byte, 512),
 	}
 }
 
@@ -123,13 +133,18 @@ type udpConnImpl struct {
 	conn   net.Conn
 	connMu sync.Mutex
 
-	encrypter Encrypter
+	encrypter   Encrypter
+	daveSession godave.Session
+	ssrcLookup  SsrcLookupFunc
 
 	header    [12]byte
+	ssrc      uint32
 	sequence  uint16
 	timestamp uint32
 
 	receiveBuffer []byte
+	decryptBuffer []byte
+	encryptBuffer []byte
 }
 
 func (u *udpConnImpl) LocalAddr() net.Addr {
@@ -235,6 +250,9 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 
 	binary.BigEndian.PutUint32(u.header[8:], ssrc) // SSRC
 
+	u.ssrc = ssrc
+	u.daveSession.AssignSsrcToCodec(ssrc, godave.CodecOpus)
+
 	return ourAddress, ourPort, nil
 }
 
@@ -249,9 +267,20 @@ func (u *udpConnImpl) Write(p []byte) (int, error) {
 	binary.BigEndian.PutUint32(u.header[4:8], u.timestamp)
 	u.timestamp += OpusFrameSize
 
-	if _, err := conn.Write(u.encrypter.Encrypt(u.header, p)); err != nil {
+	bufferCap := u.daveSession.MaxEncryptedFrameSize(len(p))
+	if cap(u.encryptBuffer) < bufferCap {
+		u.encryptBuffer = slices.Grow(u.encryptBuffer, bufferCap)
+	}
+
+	n, err := u.daveSession.Encrypt(u.ssrc, p, u.encryptBuffer)
+	if err != nil {
+		return 0, fmt.Errorf("failed to encrypt packet: %w", err)
+	}
+
+	if _, err = conn.Write(u.encrypter.Encrypt(u.header, u.encryptBuffer[:n])); err != nil {
 		return 0, fmt.Errorf("failed to write packet: %w", err)
 	}
+
 	return len(p), nil
 }
 
@@ -274,16 +303,22 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			return nil, fmt.Errorf("failed to read packet: %w", err)
 		}
 
+		if n < RTPHeaderSize {
+			continue
+		}
+
 		packetType := u.receiveBuffer[1]
 		if packetType != RTPPayloadType {
 			// ignore non-voice packets
 			continue
 		}
 
-		hasPadding := (u.receiveBuffer[0] & 0x20) != 0
+		hasPadding := (u.receiveBuffer[0] & 0x04) != 0
 		if hasPadding {
 			paddingLen := int(u.receiveBuffer[n-1])
-			u.receiveBuffer = u.receiveBuffer[:n-paddingLen]
+			if paddingLen <= 0 || paddingLen > n-RTPHeaderSize {
+				continue
+			}
 			n -= paddingLen
 		}
 
@@ -301,22 +336,30 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 		}
 
 		cc := int(u.receiveBuffer[0] & 0x0F)
+		headerLen := RTPHeaderSize + (4 * cc)
+		if n < headerLen {
+			continue
+		}
+
 		p.CSRC = make([]uint32, cc)
-		offset := RTPHeaderSize
 		for i := range cc {
-			p.CSRC[i] = binary.BigEndian.Uint32(u.receiveBuffer[offset : offset+4])
-			offset += 4
+			p.CSRC[i] = binary.BigEndian.Uint32(u.receiveBuffer[RTPHeaderSize+i*4 : RTPHeaderSize+i*4+4])
 		}
 
-		var extensionLen int
+		var extensionLenWords uint16
 		if p.HasExtension {
-			p.ExtensionID = int(binary.BigEndian.Uint16(u.receiveBuffer[offset : offset+2]))
-			offset += 2
-			extensionLen = int(binary.BigEndian.Uint16(u.receiveBuffer[offset : offset+2]))
-			offset += 2
+			if n < headerLen+4 {
+				continue
+			}
+			p.ExtensionID = int(binary.BigEndian.Uint16(u.receiveBuffer[headerLen : headerLen+2]))
+			extensionLenWords = binary.BigEndian.Uint16(u.receiveBuffer[headerLen+2 : headerLen+4])
+			headerLen += 4
 		}
 
-		p.HeaderSize = offset
+		p.HeaderSize = headerLen
+		if n < p.HeaderSize+4 {
+			continue
+		}
 
 		decrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
 		if err != nil {
@@ -325,22 +368,30 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 
 		var decryptedOffset int
 		if p.HasExtension {
-			extensionLen *= 4 // extension length is in 32-bit words
+			extensionLen := int(extensionLenWords) * 4
+			if decryptedOffset+extensionLen > len(decrypted) {
+				continue
+			}
 			p.Extension = decrypted[decryptedOffset : decryptedOffset+extensionLen]
 			decryptedOffset += extensionLen
 		}
 
-		return &Packet{
-			Type:         RTPPayloadType,
-			Sequence:     p.Sequence,
-			Timestamp:    p.Timestamp,
-			SSRC:         p.SSRC,
-			Extension:    p.Extension,
-			HasExtension: p.HasExtension,
-			CSRC:         nil,
-			HeaderSize:   RTPHeaderSize,
-			Opus:         decrypted[decryptedOffset:],
-		}, nil
+		decrypted = decrypted[decryptedOffset:]
+
+		userID := godave.UserID(u.ssrcLookup(p.SSRC).String())
+		bufferCap := u.daveSession.MaxDecryptedFrameSize(userID, len(decrypted))
+		if cap(u.decryptBuffer) < bufferCap {
+			u.decryptBuffer = slices.Grow(u.decryptBuffer, bufferCap)
+		}
+
+		n, err = u.daveSession.Decrypt(userID, decrypted, u.decryptBuffer)
+		if err != nil {
+			return nil, fmt.Errorf("failed to DAVE decrypt packet: %w", err)
+		}
+
+		p.Opus = u.decryptBuffer[:n]
+
+		return &p, nil
 	}
 }
 

@@ -136,6 +136,10 @@ func (a *AEADEncrypter) Encrypt(header [RTPHeaderSize]byte, data []byte) []byte 
 }
 
 func (a *AEADEncrypter) Decrypt(rtpHeaderSize int, packet []byte) ([]byte, error) {
+	if len(packet) < rtpHeaderSize+4 {
+		return nil, fmt.Errorf("packet too short for decryption")
+	}
+
 	a.recBuf = a.recBuf[:0]
 
 	copy(a.recNonce, packet[len(packet)-4:])

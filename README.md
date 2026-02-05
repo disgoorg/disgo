@@ -48,6 +48,7 @@ After v1 is released breaking changes may only happen if the Discord API require
 * [Threads](https://discord.com/developers/docs/topics/threads)
 * [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
 * [Voice](https://discord.com/developers/docs/topics/voice-connections)
+* [DAVE (E2EE)](https://discord.com/developers/docs/topics/voice-connections#endtoend-encryption-dave-protocol)
 
 ### Missing Features
 
