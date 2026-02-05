@@ -280,13 +280,6 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			continue
 		}
 
-		hasPadding := (u.receiveBuffer[0] & 0x20) != 0
-		if hasPadding {
-			paddingLen := int(u.receiveBuffer[n-1])
-			u.receiveBuffer = u.receiveBuffer[:n-paddingLen]
-			n -= paddingLen
-		}
-
 		p := Packet{
 			Type:         packetType,
 			Sequence:     binary.BigEndian.Uint16(u.receiveBuffer[2:4]),
@@ -321,6 +314,15 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 		decrypted, err := u.encrypter.Decrypt(p.HeaderSize, u.receiveBuffer[:n])
 		if err != nil {
 			return nil, fmt.Errorf("failed to decrypt packet: %w", err)
+		}
+
+		hasPadding := (u.receiveBuffer[0] & 0x20) != 0
+		decryptedLength := len(decrypted)
+		if hasPadding && decryptedLength > 0 {
+			paddingLen := int(decrypted[decryptedLength-1])
+			if paddingLen > 0 && paddingLen <= decryptedLength {
+				decrypted = decrypted[:decryptedLength-paddingLen]
+			}
 		}
 
 		var decryptedOffset int
