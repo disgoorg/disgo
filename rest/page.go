@@ -2,6 +2,7 @@ package rest
 
 import (
 	"errors"
+	"time"
 
 	"github.com/disgoorg/snowflake/v2"
 
@@ -137,6 +138,31 @@ func (p *PollAnswerVotesPage) Next() bool {
 	}
 
 	p.Items, p.Err = p.getItems(p.ID)
+	if p.Err == nil && len(p.Items) == 0 {
+		p.Err = ErrNoMorePages
+	}
+	return p.Err == nil
+}
+
+type ChannelPinsPage struct {
+	getItems func(before time.Time) ([]discord.MessagePin, error)
+
+	Items []discord.MessagePin
+	Err   error
+
+	Time time.Time
+}
+
+func (p *ChannelPinsPage) Previous() bool {
+	if p.Err != nil {
+		return false
+	}
+
+	if len(p.Items) > 0 {
+		p.Time = p.Items[len(p.Items)-1].PinnedAt
+	}
+
+	p.Items, p.Err = p.getItems(p.Time)
 	if p.Err == nil && len(p.Items) == 0 {
 		p.Err = ErrNoMorePages
 	}

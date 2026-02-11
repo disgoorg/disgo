@@ -22,6 +22,9 @@ import (
 // Version defines which discord API version disgo should use to connect to discord.
 const Version = 10
 
+// URL is the default URL used to connect to the Discord gateway.
+const URL = "wss://gateway.discord.gg"
+
 const maximumConnectDelay = 60 * time.Second
 
 // Status is the state that the client is currently in.

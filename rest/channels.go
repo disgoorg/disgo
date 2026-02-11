@@ -43,10 +43,8 @@ type Channels interface {
 	RemoveAllReactions(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	RemoveAllReactionsForEmoji(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 
-	// Deprecated: Use GetChannelPins instead
-	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
-
 	GetChannelPins(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (*discord.ChannelPins, error)
+	GetChannelPinsPage(channelID snowflake.ID, start time.Time, limit int, opts ...RequestOpt) ChannelPinsPage
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 
@@ -219,12 +217,6 @@ func (s *channelImpl) RemoveAllReactionsForEmoji(channelID snowflake.ID, message
 	return s.client.Do(RemoveAllReactionsForEmoji.Compile(nil, channelID, messageID, emoji), nil, nil, opts...)
 }
 
-// Deprecated: Use GetChannelPins instead
-func (s *channelImpl) GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) (messages []discord.Message, err error) {
-	err = s.client.Do(GetPinnedMessages.Compile(nil, channelID), nil, &messages, opts...)
-	return
-}
-
 func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (pins *discord.ChannelPins, err error) {
 	values := discord.QueryValues{}
 	if !before.IsZero() {
@@ -235,6 +227,19 @@ func (s *channelImpl) GetChannelPins(channelID snowflake.ID, before time.Time, l
 	}
 	err = s.client.Do(GetChannelPins.Compile(values, channelID), nil, &pins, opts...)
 	return
+}
+
+func (s *channelImpl) GetChannelPinsPage(channelID snowflake.ID, start time.Time, limit int, opts ...RequestOpt) ChannelPinsPage {
+	return ChannelPinsPage{
+		getItems: func(before time.Time) ([]discord.MessagePin, error) {
+			pins, err := s.GetChannelPins(channelID, before, limit, opts...)
+			if err != nil {
+				return nil, err
+			}
+			return pins.Items, nil
+		},
+		Time: start,
+	}
 }
 
 func (s *channelImpl) PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error {
