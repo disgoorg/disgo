@@ -1535,7 +1535,8 @@ type RadioGroupComponent struct {
 	// Options is the options available in the radio group. (min: 2, max: 10)
 	Options []RadioGroupOption `json:"options"`
 	// Value is only set when the [RadioGroupComponent] is received from an [InteractionTypeModalSubmit].
-	Value string `json:"value,omitempty"`
+	// Nil if no option was selected, otherwise the value of the selected option.
+	Value *string `json:"value,omitempty"`
 }
 
 func (c RadioGroupComponent) component()            {}
