@@ -1,6 +1,16 @@
 package discord
 
+import "slices"
+
 var _ InteractionResponseData = (*ModalCreate)(nil)
+
+func NewModalCreate(customID string, title string, components []LayoutComponent) ModalCreate {
+	return ModalCreate{
+		CustomID:   customID,
+		Title:      title,
+		Components: components,
+	}
+}
 
 type ModalCreate struct {
 	CustomID   string            `json:"custom_id"`
@@ -10,75 +20,55 @@ type ModalCreate struct {
 
 func (ModalCreate) interactionCallbackData() {}
 
-// NewModalCreateBuilder creates a new ModalCreateBuilder to be built later
-func NewModalCreateBuilder() *ModalCreateBuilder {
-	return &ModalCreateBuilder{}
+// WithCustomID returns a new ModalCreate with the provided custom ID.
+func (m ModalCreate) WithCustomID(customID string) ModalCreate {
+	m.CustomID = customID
+	return m
 }
 
-type ModalCreateBuilder struct {
-	ModalCreate
+// WithTitle returns a new ModalCreate with the provided title.
+func (m ModalCreate) WithTitle(title string) ModalCreate {
+	m.Title = title
+	return m
 }
 
-// SetCustomID sets the CustomID of the ModalCreate
-func (b *ModalCreateBuilder) SetCustomID(customID string) *ModalCreateBuilder {
-	b.CustomID = customID
-	return b
+// WithComponents returns a new ModalCreate with the provided LayoutComponent(s).
+func (m ModalCreate) WithComponents(components ...LayoutComponent) ModalCreate {
+	m.Components = components
+	return m
 }
 
-// SetTitle sets the title of the ModalCreate
-func (b *ModalCreateBuilder) SetTitle(title string) *ModalCreateBuilder {
-	b.Title = title
-	return b
-}
-
-// SetComponents sets the discord.LayoutComponent(s) of the ModalCreate
-func (b *ModalCreateBuilder) SetComponents(components ...LayoutComponent) *ModalCreateBuilder {
-	b.Components = components
-	return b
-}
-
-// SetComponent sets the provided discord.LayoutComponent at the index of discord.LayoutComponent(s)
-func (b *ModalCreateBuilder) SetComponent(i int, container LayoutComponent) *ModalCreateBuilder {
-	if len(b.Components) > i {
-		b.Components[i] = container
+// UpdateComponent returns a new ModalCreate with the provided LayoutComponent at the index.
+func (m ModalCreate) UpdateComponent(i int, container LayoutComponent) ModalCreate {
+	if len(m.Components) > i {
+		m.Components = slices.Clone(m.Components)
+		m.Components[i] = container
 	}
-	return b
+	return m
 }
 
-// AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the ModalCreate
-// Deprecated: Use [ModalCreateBuilder.AddLabel] instead
-func (b *ModalCreateBuilder) AddActionRow(components ...InteractiveComponent) *ModalCreateBuilder {
-	b.Components = append(b.Components, ActionRowComponent{Components: components})
-	return b
+// AddLabel returns a new ModalCreate with a new LabelComponent containing the provided label and component added.
+func (m ModalCreate) AddLabel(label string, component LabelSubComponent) ModalCreate {
+	m.Components = append(m.Components, NewLabel(label, component))
+	return m
 }
 
-// AddLabel adds a new discord.LabelSubComponent with the provided label and component to the ModalCreate
-func (b *ModalCreateBuilder) AddLabel(label string, component LabelSubComponent) *ModalCreateBuilder {
-	b.Components = append(b.Components, NewLabel(label, component))
-	return b
+// AddComponents returns a new ModalCreate with the provided LayoutComponent(s) added.
+func (m ModalCreate) AddComponents(containers ...LayoutComponent) ModalCreate {
+	m.Components = append(m.Components, containers...)
+	return m
 }
 
-// AddComponents adds the discord.LayoutComponent(s) to the ModalCreate
-func (b *ModalCreateBuilder) AddComponents(containers ...LayoutComponent) *ModalCreateBuilder {
-	b.Components = append(b.Components, containers...)
-	return b
-}
-
-// RemoveComponent removes a discord.LayoutComponent from the ModalCreate
-func (b *ModalCreateBuilder) RemoveComponent(i int) *ModalCreateBuilder {
-	if len(b.Components) > i {
-		b.Components = append(b.Components[:i], b.Components[i+1:]...)
+// RemoveComponent returns a new ModalCreate with the LayoutComponent at the index removed.
+func (m ModalCreate) RemoveComponent(i int) ModalCreate {
+	if len(m.Components) > i {
+		m.Components = slices.Delete(slices.Clone(m.Components), i, i+1)
 	}
-	return b
+	return m
 }
 
-// ClearComponents removes all the discord.LayoutComponent(s) of the ModalCreate
-func (b *ModalCreateBuilder) ClearComponents() *ModalCreateBuilder {
-	b.Components = []LayoutComponent{}
-	return b
-}
-
-// Build builds the ModalCreateBuilder to a ModalCreate struct
-func (b *ModalCreateBuilder) Build() ModalCreate {
-	return b.ModalCreate
+// ClearComponents returns a new ModalCreate with no LayoutComponent(s).
+func (m ModalCreate) ClearComponents() ModalCreate {
+	m.Components = []LayoutComponent{}
+	return m
 }
