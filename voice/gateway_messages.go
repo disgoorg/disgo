@@ -131,13 +131,13 @@ func (m *GatewayMessage) UnmarshalBinary(r io.Reader) error {
 		Op  uint8
 	}
 
-	err := binary.Read(r, binary.BigEndian, &v)
-	if err != nil {
+	if err := binary.Read(r, binary.BigEndian, &v); err != nil {
 		return err
 	}
 
 	var (
 		messageData GatewayMessageData
+		err         error
 	)
 
 	switch Opcode(v.Op) {
