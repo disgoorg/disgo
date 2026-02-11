@@ -2,6 +2,21 @@
 
 Voice provides a package to connect and send/receive voice to/from discord servers.
 For Discords Docs on voice see [here](https://discord.com/developers/docs/topics/voice-connections).
+Since DAVE(E2EE) will soon be required you also need https://github.com/disgoorg/godave
+Please note libdave requires CGO to be enabled. Alternative implementations without CGO support may be available in the future.
+
+## Logging
+Libdave uses a global logger which is set it `slog.LevelError` by default. You can change this by calling:
+
+```go
+libdave.SetDefaultLogLoggerLevel(slog.LevelInfo)
+```
+
+or set your own logger:
+
+```go
+libdave.SetDefaultLogLogger(yourLogger)
+```
 
 ## Usage
 
@@ -12,15 +27,24 @@ const (
     channelID = 12345
 )
 
-var client bot.Client
+client, err := disgo.New(token,
+	bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuildVoiceStates)),
+	bot.WithVoiceManagerConfigOpts(
+		voice.WithDaveSessionCreateFunc(golibdave.NewSession), 
+	),
+)
+// handle err
 
 conn := client.VoiceManager().CreateConn(guildID)
 
 err := conn.Open(context.TODO(), channelID, false, false)
 // handle err
 
+// set speaking flag
+err := conn.SetSpeaking(ctx, voice.SpeakingFlagMicrophone)
+
 // send opus frame
-conn.Conn().Write(frame)
+conn.UDP().Write(frame)
 
 // close connection
 conn.Close()

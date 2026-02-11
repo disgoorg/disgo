@@ -1,14 +1,16 @@
-module github.com/disgoorg/disgo/_examples/application_commands/http
+module github.com/disgoorg/disgo/_examples/voice
 
 go 1.24.0
 
 require (
 	github.com/disgoorg/disgo v0.19.0-rc.14
+	github.com/disgoorg/godave/golibdave v0.0.0-20260103141608-2d642875b906
 	github.com/disgoorg/snowflake/v2 v2.0.3
-	github.com/oasisprotocol/curve25519-voi v0.0.0-20251114093237-2ab5a27a1729
 )
 
 require (
+	github.com/disgoorg/godave v0.0.0-20260103141242-a7742e12a3f2 // indirect
+	github.com/disgoorg/godave/libdave v0.0.0-20260103141242-a7742e12a3f2 // indirect
 	github.com/disgoorg/json/v2 v2.0.0 // indirect
 	github.com/disgoorg/omit v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
