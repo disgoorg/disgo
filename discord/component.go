@@ -33,13 +33,17 @@ const (
 	ComponentTypeContainer
 	ComponentTypeLabel
 	ComponentTypeFileUpload
+	_
+	ComponentTypeRadioGroup
+	ComponentTypeCheckboxGroup
+	ComponentTypeCheckbox
 )
 
 // Component is an interface for all components.
 // [ActionRowComponent]
 // [ButtonComponent]
 // [StringSelectMenuComponent]
-// [TextInputComponent]
+// [TextInputComponent] (only supported in modals)
 // [UserSelectMenuComponent]
 // [RoleSelectMenuComponent]
 // [MentionableSelectMenuComponent]
@@ -52,6 +56,9 @@ const (
 // [SeparatorComponent]
 // [ContainerComponent]
 // [FileUploadComponent]
+// [RadioGroupComponent] (only supported in modals)
+// [CheckboxGroupComponent] (only supported in modals)
+// [CheckboxComponent] (only supported in modals)
 // [UnknownComponent]
 type Component interface {
 	json.Marshaler
@@ -71,7 +78,7 @@ type ComponentIter interface {
 // InteractiveComponent is an interface for all components that can be present in an [ActionRowComponent].
 // [ButtonComponent]
 // [StringSelectMenuComponent]
-// [TextInputComponent] (currently only supported in modals)
+// [TextInputComponent] (only supported in modals)
 // [UserSelectMenuComponent]
 // [RoleSelectMenuComponent]
 // [MentionableSelectMenuComponent]
@@ -79,6 +86,9 @@ type ComponentIter interface {
 // [ButtonComponent]
 // [SelectMenuComponent]
 // [FileUploadComponent]
+// [RadioGroupComponent] (only supported in modals)
+// [CheckboxGroupComponent] (only supported in modals)
+// [CheckboxComponent] (only supported in modals)
 // [UnknownComponent]
 type InteractiveComponent interface {
 	Component
@@ -96,7 +106,7 @@ type InteractiveComponent interface {
 // [FileComponent]
 // [SeparatorComponent]
 // [ContainerComponent]
-// [LabelComponent] Only supported in modals.
+// [LabelComponent] (only supported in modals)
 // [UnknownComponent]
 type LayoutComponent interface {
 	Component
@@ -144,6 +154,9 @@ type ContainerSubComponent interface {
 // [MentionableSelectMenuComponent]
 // [ChannelSelectMenuComponent]
 // [FileUploadComponent]
+// [RadioGroupComponent] (only supported in modals)
+// [CheckboxGroupComponent] (only supported in modals)
+// [CheckboxComponent] (only supported in modals)
 // [UnknownComponent]
 type LabelSubComponent interface {
 	Component
@@ -255,6 +268,20 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		component = v
 
+	case ComponentTypeRadioGroup:
+		var v RadioGroupComponent
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeCheckboxGroup:
+		var v CheckboxGroupComponent
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeCheckbox:
+		var v CheckboxComponent
+		err = json.Unmarshal(data, &v)
+		component = v
 	default:
 		var v UnknownComponent
 		err = json.Unmarshal(data, &v)
@@ -1489,6 +1516,312 @@ func (f FileUploadComponent) WithMaxValues(maxValues int) FileUploadComponent {
 func (f FileUploadComponent) WithRequired(required bool) FileUploadComponent {
 	f.Required = required
 	return f
+}
+
+var (
+	_ Component            = (*RadioGroupComponent)(nil)
+	_ InteractiveComponent = (*RadioGroupComponent)(nil)
+	_ LabelSubComponent    = (*RadioGroupComponent)(nil)
+)
+
+// RadioGroupComponent is a component that allows users to select a single option from a list.
+type RadioGroupComponent struct {
+	// ID is the identifier for the checkbox component.
+	ID int `json:"id,omitempty"`
+	// CustomID is the custom identifier for the checkbox component.
+	CustomID string `json:"custom_id"`
+	// Required specifies whether the checkbox is required. (default: false)
+	Required bool `json:"required"`
+	// Options is the options available in the radio group. (min: 2, max: 10)
+	Options []RadioGroupOption `json:"options"`
+	// Value is only set when the [RadioGroupComponent] is received from an [InteractionTypeModalSubmit].
+	// Nil if no option was selected, otherwise the value of the selected option.
+	Value *string `json:"value,omitempty"`
+}
+
+func (c RadioGroupComponent) component()            {}
+func (c RadioGroupComponent) interactiveComponent() {}
+func (c RadioGroupComponent) labelSubComponent()    {}
+
+func (c RadioGroupComponent) MarshalJSON() ([]byte, error) {
+	type radioGroupComponent RadioGroupComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		radioGroupComponent
+	}{
+		Type:                c.Type(),
+		radioGroupComponent: radioGroupComponent(c),
+	})
+}
+
+func (RadioGroupComponent) Type() ComponentType {
+	return ComponentTypeRadioGroup
+}
+
+func (c RadioGroupComponent) GetID() int {
+	return c.ID
+}
+
+func (c RadioGroupComponent) GetCustomID() string {
+	return c.CustomID
+}
+
+// WithID returns a new RadioGroupComponent with the provided id
+func (c RadioGroupComponent) WithID(id int) RadioGroupComponent {
+	c.ID = id
+	return c
+}
+
+// WithCustomID returns a new RadioGroupComponent with the provided customID
+func (c RadioGroupComponent) WithCustomID(customID string) RadioGroupComponent {
+	c.CustomID = customID
+	return c
+}
+
+// WithRequired returns a new RadioGroupComponent with the provided required
+func (c RadioGroupComponent) WithRequired(required bool) RadioGroupComponent {
+	c.Required = required
+	return c
+}
+
+// WithOptions returns a new RadioGroupComponent with the provided options
+func (c RadioGroupComponent) WithOptions(options ...RadioGroupOption) RadioGroupComponent {
+	c.Options = options
+	return c
+}
+
+// NewRadioGroupOption creates a new RadioGroupOption with the provided value and label.
+func NewRadioGroupOption(value string, label string) RadioGroupOption {
+	return RadioGroupOption{
+		Value: value,
+		Label: label,
+	}
+}
+
+// RadioGroupOption is an option in a [RadioGroupComponent].
+type RadioGroupOption struct {
+	// Value is the value of the option.
+	Value string `json:"value"`
+	// Label is the label of the option.
+	Label string `json:"label"`
+	// Description is the description of the option.
+	Description string `json:"description,omitempty"`
+	// Default indicates whether the option is selected by default.
+	Default bool `json:"default"`
+}
+
+func (o RadioGroupOption) WithValue(value string) RadioGroupOption {
+	o.Value = value
+	return o
+}
+
+func (o RadioGroupOption) WithLabel(label string) RadioGroupOption {
+	o.Label = label
+	return o
+}
+
+func (o RadioGroupOption) WithDescription(description string) RadioGroupOption {
+	o.Description = description
+	return o
+}
+
+func (o RadioGroupOption) WithDefault(def bool) RadioGroupOption {
+	o.Default = def
+	return o
+}
+
+var (
+	_ Component            = (*CheckboxGroupComponent)(nil)
+	_ InteractiveComponent = (*CheckboxGroupComponent)(nil)
+	_ LabelSubComponent    = (*CheckboxGroupComponent)(nil)
+)
+
+// CheckboxGroupComponent is a component that allows users to select multiple options from a list.
+type CheckboxGroupComponent struct {
+	// ID is the identifier for the checkbox component.
+	ID int `json:"id,omitempty"`
+	// CustomID is the custom identifier for the checkbox component.
+	CustomID string `json:"custom_id"`
+	// Required specifies whether the checkbox is required. (default: false)
+	Required bool `json:"required"`
+	// Options is the options available in the radio group. (min: 1, max: 10)
+	Options []CheckboxGroupOption `json:"options"`
+	// MinValues is the minimum number of options that must be selected. (default: 1, min: 0, max: 10)
+	MinValues *int `json:"min_values,omitempty"`
+	// MaxValues is the maximum number of options that can be selected. (default: len(options), min: 1, max: 10)
+	MaxValues int `json:"max_values,omitempty"`
+	// Value is only set when the [CheckboxGroupComponent] is received from an [InteractionTypeModalSubmit].
+	Values []string `json:"value,omitempty"`
+}
+
+func (c CheckboxGroupComponent) component()            {}
+func (c CheckboxGroupComponent) interactiveComponent() {}
+func (c CheckboxGroupComponent) labelSubComponent()    {}
+
+func (c CheckboxGroupComponent) MarshalJSON() ([]byte, error) {
+	type checkboxGroupComponent CheckboxGroupComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		checkboxGroupComponent
+	}{
+		Type:                   c.Type(),
+		checkboxGroupComponent: checkboxGroupComponent(c),
+	})
+}
+
+func (CheckboxGroupComponent) Type() ComponentType {
+	return ComponentTypeCheckboxGroup
+}
+
+func (c CheckboxGroupComponent) GetID() int {
+	return c.ID
+}
+
+func (c CheckboxGroupComponent) GetCustomID() string {
+	return c.CustomID
+}
+
+// WithID returns a new CheckboxGroupComponent with the provided id
+func (c CheckboxGroupComponent) WithID(id int) CheckboxGroupComponent {
+	c.ID = id
+	return c
+}
+
+// WithCustomID returns a new CheckboxGroupComponent with the provided customID
+func (c CheckboxGroupComponent) WithCustomID(customID string) CheckboxGroupComponent {
+	c.CustomID = customID
+	return c
+}
+
+// WithRequired returns a new CheckboxGroupComponent with the provided required
+func (c CheckboxGroupComponent) WithRequired(required bool) CheckboxGroupComponent {
+	c.Required = required
+	return c
+}
+
+// WithOptions returns a new CheckboxGroupComponent with the provided options
+func (c CheckboxGroupComponent) WithOptions(options ...CheckboxGroupOption) CheckboxGroupComponent {
+	c.Options = options
+	return c
+}
+
+// WithMinValues returns a new CheckboxGroupComponent with the provided minValues
+func (c CheckboxGroupComponent) WithMinValues(minValues int) CheckboxGroupComponent {
+	c.MinValues = &minValues
+	return c
+}
+
+// WithMaxValues returns a new CheckboxGroupComponent with the provided maxValues
+func (c CheckboxGroupComponent) WithMaxValues(maxValues int) CheckboxGroupComponent {
+	c.MaxValues = maxValues
+	return c
+}
+
+// NewCheckboxGroupOption creates a new CheckboxGroupOption with the provided value and label.
+func NewCheckboxGroupOption(value string, label string) CheckboxGroupOption {
+	return CheckboxGroupOption{
+		Value: value,
+		Label: label,
+	}
+}
+
+// CheckboxGroupOption is an option in a [CheckboxGroupComponent].
+type CheckboxGroupOption struct {
+	// Value is the value of the option. (max: 100 characters)
+	Value string `json:"value"`
+	// Label is the label of the option. (max: 100 characters)
+	Label string `json:"label"`
+	// Description is the description of the option. (max: 100 characters)
+	Description string `json:"description,omitempty"`
+	// Default indicates whether the option is selected by default.
+	Default bool `json:"default"`
+}
+
+// WithValue returns a new CheckboxGroupOption with the provided value
+func (o CheckboxGroupOption) WithValue(value string) CheckboxGroupOption {
+	o.Value = value
+	return o
+}
+
+// WithLabel returns a new CheckboxGroupOption with the provided label
+func (o CheckboxGroupOption) WithLabel(label string) CheckboxGroupOption {
+	o.Label = label
+	return o
+}
+
+// WithDescription returns a new CheckboxGroupOption with the provided description
+func (o CheckboxGroupOption) WithDescription(description string) CheckboxGroupOption {
+	o.Description = description
+	return o
+}
+
+// WithDefault returns a new CheckboxGroupOption with the provided default
+func (o CheckboxGroupOption) WithDefault(def bool) CheckboxGroupOption {
+	o.Default = def
+	return o
+}
+
+var (
+	_ Component            = (*CheckboxComponent)(nil)
+	_ InteractiveComponent = (*CheckboxComponent)(nil)
+	_ LabelSubComponent    = (*CheckboxComponent)(nil)
+)
+
+// CheckboxComponent is a component that allows users to select a single checkbox.
+type CheckboxComponent struct {
+	// ID is the identifier for the file checkbox component.
+	ID int `json:"id,omitempty"`
+	// CustomID is the custom identifier for the checkbox component.
+	CustomID string `json:"custom_id"`
+	// Default indicates whether the checkbox is selected by default.
+	Default bool `json:"default"`
+	// Value is only set when the [CheckboxComponent] is received from an [InteractionTypeModalSubmit].
+	Value bool `json:"value"`
+}
+
+func (c CheckboxComponent) component()            {}
+func (c CheckboxComponent) interactiveComponent() {}
+func (c CheckboxComponent) labelSubComponent()    {}
+
+func (c CheckboxComponent) MarshalJSON() ([]byte, error) {
+	type checkboxComponent CheckboxComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		checkboxComponent
+	}{
+		Type:              c.Type(),
+		checkboxComponent: checkboxComponent(c),
+	})
+}
+
+func (CheckboxComponent) Type() ComponentType {
+	return ComponentTypeCheckbox
+}
+
+func (c CheckboxComponent) GetID() int {
+	return c.ID
+}
+
+func (c CheckboxComponent) GetCustomID() string {
+	return c.CustomID
+}
+
+// WithID returns a new CheckboxComponent with the provided id
+func (c CheckboxComponent) WithID(id int) CheckboxComponent {
+	c.ID = id
+	return c
+}
+
+// WithCustomID returns a new CheckboxComponent with the provided customID
+func (c CheckboxComponent) WithCustomID(customID string) CheckboxComponent {
+	c.CustomID = customID
+	return c
+}
+
+// WithDefault returns a new CheckboxComponent with the provided default
+func (c CheckboxComponent) WithDefault(def bool) CheckboxComponent {
+	c.Default = def
+	return c
 }
 
 // NewUnknownComponent creates a new [UnknownComponent] with the provided type and data.
