@@ -132,6 +132,9 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		_ = c.RateLimiter().Unlock(endpoint, nil)
 		return fmt.Errorf("error doing request in rest client: %w", err)
 	}
+	defer func() {
+		_ = rs.Body.Close()
+	}()
 
 	if err = c.RateLimiter().Unlock(endpoint, rs); err != nil {
 		return fmt.Errorf("error unlocking bucket in rest client: %w", err)
