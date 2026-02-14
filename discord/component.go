@@ -1650,7 +1650,7 @@ type CheckboxGroupComponent struct {
 	MinValues *int `json:"min_values,omitempty"`
 	// MaxValues is the maximum number of options that can be selected. (default: len(options), min: 1, max: 10)
 	MaxValues int `json:"max_values,omitempty"`
-	// Value is only set when the [CheckboxGroupComponent] is received from an [InteractionTypeModalSubmit].
+	// Values is only set when the [CheckboxGroupComponent] is received from an [InteractionTypeModalSubmit].
 	Values []string `json:"values,omitempty"`
 }
 
