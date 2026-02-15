@@ -83,6 +83,7 @@ func play(client *bot.Client) {
 		for {
 			if _, err := conn.UDP().ReadPacket(); err != nil {
 				slog.Error("error reading udp packet", slog.Any("err", err))
+				return
 			}
 		}
 	}()

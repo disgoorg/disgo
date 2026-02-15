@@ -144,6 +144,7 @@ var (
 		CloseEventCodeRateLimited.Code:          CloseEventCodeRateLimited,
 		CloseEventCodeSessionTimed.Code:         CloseEventCodeSessionTimed,
 		CloseEventCodeInvalidShard.Code:         CloseEventCodeInvalidShard,
+		CloseEventCodeShardingRequired.Code:     CloseEventCodeShardingRequired,
 		CloseEventCodeInvalidAPIVersion.Code:    CloseEventCodeInvalidAPIVersion,
 		CloseEventCodeInvalidIntent.Code:        CloseEventCodeInvalidIntent,
 		CloseEventCodeDisallowedIntent.Code:     CloseEventCodeDisallowedIntent,
