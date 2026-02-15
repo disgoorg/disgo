@@ -139,6 +139,7 @@ or in these projects:
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
+* [subcordant](https://github.com/apkatsikas/subcordant)
 
 ## Libraries for DisGo
 
