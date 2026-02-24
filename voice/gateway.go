@@ -326,13 +326,25 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 
 		err := g.open(ctx, state)
 		if err == nil {
-			// Successfully connected, our job here is done
 			return nil
 		}
 
 		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
+
+		var closeError *websocket.CloseError
+		if errors.As(err, &closeError) {
+			closeCode := GatewayCloseEventCodeByCode(closeError.Code)
+			if !closeCode.Reconnect {
+				g.config.Logger.Error("voice gateway closed with non-retriable code, aborting reconnect",
+					slog.Int("code", closeError.Code),
+					slog.String("description", closeCode.Description),
+				)
+				return err
+			}
+		}
+
 		g.config.Logger.Error("failed to reconnect voice gateway", slog.Any("err", err), slog.Int("try", try), slog.Duration("delay", delay))
 		g.statusMu.Lock()
 		g.status = StatusDisconnected
@@ -343,6 +355,14 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 }
 
 func (g *gatewayImpl) reconnect() {
+	if !g.config.AutoReconnect {
+		g.config.Logger.Debug("voice gateway auto reconnect disabled, delegating to close handler")
+		if g.closeHandlerFunc != nil {
+			g.closeHandlerFunc(g, fmt.Errorf("voice gateway disconnected"), true)
+		}
+		return
+	}
+
 	if err := g.doReconnect(context.Background(), g.state); err != nil {
 		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
 
