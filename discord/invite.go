@@ -34,7 +34,7 @@ type Invite struct {
 	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 	Flags                    InviteFlags          `json:"flags"`
-	Roles                    []Role               `json:"roles"`
+	Roles                    []InviteRole         `json:"roles"`
 }
 
 func (i Invite) URL() string {
@@ -75,6 +75,16 @@ type InviteChannel struct {
 	Type ChannelType  `json:"type"`
 	Name string       `json:"name"`
 	Icon *string      `json:"icon,omitempty"`
+}
+
+type InviteRole struct {
+	ID         snowflake.ID `json:"id"`
+	Name       string       `json:"name"`
+	Color      int          `json:"color"`
+	RoleColors RoleColors   `json:"colors"`
+	Position   int          `json:"position"`
+	Icon       *string      `json:"icon"`
+	Emoji      *string      `json:"unicode_emoji"`
 }
 
 // IconURL returns the Icon URL of this channel.
