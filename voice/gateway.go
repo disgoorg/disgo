@@ -352,10 +352,6 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 
 func (g *gatewayImpl) reconnect() {
 	if !g.config.AutoReconnect {
-		g.config.Logger.Debug("voice gateway auto reconnect disabled, delegating to close handler")
-		if g.closeHandlerFunc != nil {
-			g.closeHandlerFunc(g, fmt.Errorf("voice gateway disconnected"), true)
-		}
 		return
 	}
 
@@ -518,7 +514,11 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			// make sure the connection is properly closed
 			g.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
 			if reconnect {
-				go g.reconnect()
+				if g.config.AutoReconnect {
+					go g.reconnect()
+				} else if g.closeHandlerFunc != nil {
+					go g.closeHandlerFunc(g, err, true)
+				}
 			} else if g.closeHandlerFunc != nil {
 				go g.closeHandlerFunc(g, err, false)
 			}
