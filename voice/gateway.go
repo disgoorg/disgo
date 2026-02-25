@@ -337,10 +337,6 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 		if errors.As(err, &closeError) {
 			closeCode := GatewayCloseEventCodeByCode(closeError.Code)
 			if !closeCode.Reconnect {
-				g.config.Logger.Error("voice gateway closed with non-retriable code, aborting reconnect",
-					slog.Int("code", closeError.Code),
-					slog.String("description", closeCode.Description),
-				)
 				return err
 			}
 		}
@@ -521,10 +517,10 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 
 			// make sure the connection is properly closed
 			g.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
-			if g.config.AutoReconnect && reconnect {
+			if reconnect {
 				go g.reconnect()
 			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err, reconnect)
+				go g.closeHandlerFunc(g, err, false)
 			}
 
 			return
