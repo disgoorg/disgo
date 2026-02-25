@@ -77,6 +77,16 @@ type InviteChannel struct {
 	Icon *string      `json:"icon,omitempty"`
 }
 
+// IconURL returns the Icon URL of this channel.
+// This will be nil for every ChannelType except ChannelTypeGroupDM
+func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
+	if c.Icon == nil {
+		return nil
+	}
+	url := formatAssetURL(ChannelIcon, opts, c.ID, *c.Icon)
+	return &url
+}
+
 type InviteRole struct {
 	ID         snowflake.ID `json:"id"`
 	Name       string       `json:"name"`
@@ -87,14 +97,24 @@ type InviteRole struct {
 	Emoji      *string      `json:"unicode_emoji"`
 }
 
-// IconURL returns the Icon URL of this channel.
-// This will be nil for every ChannelType except ChannelTypeGroupDM
-func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
-	if c.Icon == nil {
+func (r InviteRole) String() string {
+	return RoleMention(r.ID)
+}
+
+func (r InviteRole) Mention() string {
+	return r.String()
+}
+
+func (r InviteRole) IconURL(opts ...CDNOpt) *string {
+	if r.Icon == nil {
 		return nil
 	}
-	url := formatAssetURL(ChannelIcon, opts, c.ID, *c.Icon)
+	url := formatAssetURL(RoleIcon, opts, r.ID, *r.Icon)
 	return &url
+}
+
+func (r InviteRole) CreatedAt() time.Time {
+	return r.ID.Time()
 }
 
 // An InviteGuild is the Guild of an Invite
