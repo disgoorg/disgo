@@ -34,7 +34,7 @@ type Invite struct {
 	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 	Flags                    InviteFlags          `json:"flags"`
-	Roles                    []Role               `json:"roles"`
+	Roles                    []InviteRole         `json:"roles"`
 }
 
 func (i Invite) URL() string {
@@ -85,6 +85,36 @@ func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
 	}
 	url := formatAssetURL(ChannelIcon, opts, c.ID, *c.Icon)
 	return &url
+}
+
+type InviteRole struct {
+	ID         snowflake.ID `json:"id"`
+	Name       string       `json:"name"`
+	Color      int          `json:"color"`
+	RoleColors RoleColors   `json:"colors"`
+	Position   int          `json:"position"`
+	Icon       *string      `json:"icon"`
+	Emoji      *string      `json:"unicode_emoji"`
+}
+
+func (r InviteRole) String() string {
+	return RoleMention(r.ID)
+}
+
+func (r InviteRole) Mention() string {
+	return r.String()
+}
+
+func (r InviteRole) IconURL(opts ...CDNOpt) *string {
+	if r.Icon == nil {
+		return nil
+	}
+	url := formatAssetURL(RoleIcon, opts, r.ID, *r.Icon)
+	return &url
+}
+
+func (r InviteRole) CreatedAt() time.Time {
+	return r.ID.Time()
 }
 
 // An InviteGuild is the Guild of an Invite
