@@ -235,7 +235,7 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 	}
 
 	returnedSSRC := binary.BigEndian.Uint32(rb[4:8])   // ssrc
-	ourAddress := strings.TrimSpace(string(rb[8:72]))  // our ip
+	ourAddress := strings.TrimRight(strings.TrimSpace(string(rb[8:72])), "\x00") // our ip (null-padded)
 	ourPort := int(binary.BigEndian.Uint16(rb[72:74])) // our port
 
 	if returnedSSRC != ssrc {
