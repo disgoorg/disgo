@@ -326,6 +326,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 
 		err := g.open(ctx, state)
 		if err == nil {
+			// Successfully connected, our job here is done
 			return nil
 		}
 
@@ -351,10 +352,6 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 }
 
 func (g *gatewayImpl) reconnect() {
-	if !g.config.AutoReconnect {
-		return
-	}
-
 	if err := g.doReconnect(context.Background(), g.state); err != nil {
 		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
 
@@ -513,14 +510,10 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 
 			// make sure the connection is properly closed
 			g.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
-			if reconnect {
-				if g.config.AutoReconnect {
-					go g.reconnect()
-				} else if g.closeHandlerFunc != nil {
-					go g.closeHandlerFunc(g, err, true)
-				}
+			if g.config.AutoReconnect && reconnect {
+				go g.reconnect()
 			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err, false)
+				go g.closeHandlerFunc(g, err, reconnect)
 			}
 
 			return
