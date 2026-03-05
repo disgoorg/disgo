@@ -46,9 +46,8 @@ func main() {
 func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
 	defer wg.Done()
 
-	if _, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().
-		SetContentf("test %d", i).
-		Build(),
+	if _, err := client.CreateMessage(discord.NewWebhookMessageCreate().
+		WithContentf("test %d", i),
 		rest.CreateWebhookMessageParams{Wait: true},
 		// delay each request by 2 seconds
 		rest.WithDelay(2*time.Second),

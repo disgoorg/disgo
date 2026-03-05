@@ -70,9 +70,7 @@ func main() {
 func commandListener(event *events.ApplicationCommandInteractionCreate) {
 	data := event.SlashCommandInteractionData()
 	if data.CommandName() == "modal" {
-		if err := event.Modal(discord.NewModalCreateBuilder().
-			SetTitle("Modal Title").
-			SetCustomID("modal-id").
+		if err := event.Modal(discord.NewModalCreate("modal-id", "Modal Title").
 			AddLabel("short text", discord.NewShortTextInput("short-text-input")).
 			AddLabel("paragraph text", discord.NewParagraphTextInput("paragraph-text-input")).
 			AddLabel("select menu", discord.NewStringSelectMenu("select-menu", "select something idiot",
@@ -82,8 +80,7 @@ func commandListener(event *events.ApplicationCommandInteractionCreate) {
 			).
 				WithMinValues(0).
 				WithMaxValues(2),
-			).
-			Build(),
+			),
 		); err != nil {
 			event.Client().Logger.Error("error creating modal", slog.Any("err", err))
 		}

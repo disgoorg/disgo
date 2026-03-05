@@ -4,7 +4,7 @@ import "slices"
 
 var _ InteractionResponseData = (*ModalCreate)(nil)
 
-func NewModalCreate(customID string, title string, components []LayoutComponent) ModalCreate {
+func NewModalCreate(customID string, title string, components ...LayoutComponent) ModalCreate {
 	return ModalCreate{
 		CustomID:   customID,
 		Title:      title,

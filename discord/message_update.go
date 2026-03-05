@@ -14,7 +14,7 @@ func NewMessageUpdate() MessageUpdate {
 }
 
 // NewMessageUpdateV2 returns a new MessageUpdate with MessageFlagIsComponentsV2 set and no other fields set.
-func NewMessageUpdateV2(components []LayoutComponent) MessageUpdate {
+func NewMessageUpdateV2(components ...LayoutComponent) MessageUpdate {
 	flags := MessageFlagIsComponentsV2
 	return MessageUpdate{
 		Flags:      &flags,

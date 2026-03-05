@@ -14,7 +14,7 @@ func NewWebhookMessageUpdate() WebhookMessageUpdate {
 }
 
 // NewWebhookMessageUpdateV2 returns a new WebhookMessageUpdate with MessageFlagIsComponentsV2 set and no other fields set.
-func NewWebhookMessageUpdateV2(components []LayoutComponent) WebhookMessageUpdate {
+func NewWebhookMessageUpdateV2(components ...LayoutComponent) WebhookMessageUpdate {
 	flags := MessageFlagIsComponentsV2
 	return WebhookMessageUpdate{
 		Flags:      &flags,

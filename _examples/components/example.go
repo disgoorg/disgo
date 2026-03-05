@@ -29,16 +29,15 @@ func main() {
 				return
 			}
 			if event.Message.Content == "test" {
-				_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
+				_, _ = event.Client().Rest.CreateMessage(event.ChannelID, discord.NewMessageCreate().
 					AddActionRow(discord.NewDangerButton("danger", "danger")).
-					SetMessageReferenceByID(event.Message.ID).
-					Build(),
+					WithMessageReferenceByID(event.Message.ID),
 				)
 			}
 		}),
 		bot.WithEventListenerFunc(func(event *events.ComponentInteractionCreate) {
 			if event.ButtonInteractionData().CustomID() == "danger" {
-				_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+				_ = event.CreateMessage(discord.NewMessageCreate().WithEphemeral(true).WithContent("Ey that was danger"))
 			}
 		}),
 	)

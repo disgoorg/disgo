@@ -40,14 +40,12 @@ client := webhook.New(snowflake.ID("webhookID"), "webhookToken")
 
 message, err := client.CreateContent("hello world!")
 
-message, err := client.CreateEmbeds(discord.NewEmbedBuilder().
-	SetDescription("hello world!").
-	Build(),
+message, err := client.CreateEmbeds(discord.NewEmbed().
+	WithDescription("hello world!"),
 )
 
-message, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().
-	SetContent("hello world!").
-	Build(),
+message, err := client.CreateMessage(discord.NewWebhookMessageCreate().
+	WithContent("hello world!"),
 	rest.CreateWebhookMessageParams{},
 )
 
@@ -65,14 +63,12 @@ client := webhook.New(snowflake.ID("webhookID"), "webhookToken")
 
 message, err := client.UpdateContent("870741249114652722", "hello world!")
 
-message, err := client.UpdateEmbeds("870741249114652722", discord.NewEmbedBuilder().
-	SetDescription("hello world!").
-	Build(),
+message, err := client.UpdateEmbeds("870741249114652722", discord.NewEmbed().
+	WithDescription("hello world!"),
 )
 
-message, err := client.UpdateMessage("870741249114652722", discord.NewWebhookMessageUpdateBuilder().
-	SetContent("hello world!").
-	Build(),
+message, err := client.UpdateMessage("870741249114652722", discord.NewWebhookMessageUpdate().
+	WithContent("hello world!"),
 	rest.UpdateWebhookMessageParams{},
 )
 

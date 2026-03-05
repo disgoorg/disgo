@@ -1,6 +1,9 @@
 package discord
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // EmbedType is the type of Embed
 type EmbedType string
@@ -17,6 +20,11 @@ const (
 	EmbedTypePollResult            EmbedType = "poll_result"
 )
 
+// NewEmbed returns a new Embed struct with no fields set.
+func NewEmbed() Embed {
+	return Embed{}
+}
+
 // Embed allows you to send embeds to discord
 type Embed struct {
 	Title       string         `json:"title,omitempty"`
@@ -32,6 +40,223 @@ type Embed struct {
 	Provider    *EmbedProvider `json:"provider,omitempty"`
 	Author      *EmbedAuthor   `json:"author,omitempty"`
 	Fields      []EmbedField   `json:"fields,omitempty"`
+}
+
+// WithTitle Withs the title of the Embed
+func (e Embed) WithTitle(title string) Embed {
+	e.Title = title
+	return e
+}
+
+// WithTitlef Withs the title of the Embed with format
+func (e Embed) WithTitlef(title string, a ...any) Embed {
+	return e.WithTitle(fmt.Sprintf(title, a...))
+}
+
+// WithDescription Withs the description of the Embed
+func (e Embed) WithDescription(description string) Embed {
+	e.Description = description
+	return e
+}
+
+// WithDescriptionf Withs the description of the Embed with format
+func (e Embed) WithDescriptionf(description string, a ...any) Embed {
+	return e.WithDescription(fmt.Sprintf(description, a...))
+}
+
+// WithEmbedAuthor Withs the author of the Embed using an EmbedAuthor struct
+func (e Embed) WithEmbedAuthor(author *EmbedAuthor) Embed {
+	e.Author = author
+	return e
+}
+
+// WithAuthor Withs the author of the Embed with all properties
+func (e Embed) WithAuthor(name string, url string, iconURL string) Embed {
+	if e.Author == nil {
+		e.Author = &EmbedAuthor{}
+	}
+	e.Author.Name = name
+	e.Author.URL = url
+	e.Author.IconURL = iconURL
+	return e
+}
+
+// WithAuthorName Withs the author name of the Embed
+func (e Embed) WithAuthorName(name string) Embed {
+	if e.Author == nil {
+		e.Author = &EmbedAuthor{}
+	}
+	e.Author.Name = name
+	return e
+}
+
+// WithAuthorNamef Withs the author name of the Embed with format
+func (e Embed) WithAuthorNamef(name string, a ...any) Embed {
+	return e.WithAuthorName(fmt.Sprintf(name, a...))
+}
+
+// WithAuthorURL Withs the author URL of the Embed
+func (e Embed) WithAuthorURL(url string) Embed {
+	if e.Author == nil {
+		e.Author = &EmbedAuthor{}
+	}
+	e.Author.URL = url
+	return e
+}
+
+// WithAuthorURLf Withs the author URL of the Embed with format
+func (e Embed) WithAuthorURLf(url string, a ...any) Embed {
+	return e.WithAuthorURL(fmt.Sprintf(url, a...))
+}
+
+// WithAuthorIcon Withs the author icon of the Embed
+func (e Embed) WithAuthorIcon(iconURL string) Embed {
+	if e.Author == nil {
+		e.Author = &EmbedAuthor{}
+	}
+	e.Author.IconURL = iconURL
+	return e
+}
+
+// WithAuthorIconf Withs the author icon of the Embed with format
+func (e Embed) WithAuthorIconf(iconURL string, a ...any) Embed {
+	return e.WithAuthorIcon(fmt.Sprintf(iconURL, a...))
+}
+
+// WithColor Withs the color of the Embed
+// The color should be an integer representation of a hexadecimal color code (e.g. 0xFF0000 for red)
+func (e Embed) WithColor(color int) Embed {
+	e.Color = color
+	return e
+}
+
+// WithEmbedFooter Withs the footer of the Embed
+func (e Embed) WithEmbedFooter(footer *EmbedFooter) Embed {
+	e.Footer = footer
+	return e
+}
+
+// WithFooter Withs the footer icon of the Embed
+func (e Embed) WithFooter(text string, iconURL string) Embed {
+	if e.Footer == nil {
+		e.Footer = &EmbedFooter{}
+	}
+	e.Footer.Text = text
+	e.Footer.IconURL = iconURL
+	return e
+}
+
+// WithFooterText Withs the footer text of the Embed
+func (e Embed) WithFooterText(text string) Embed {
+	if e.Footer == nil {
+		e.Footer = &EmbedFooter{}
+	}
+	e.Footer.Text = text
+	return e
+}
+
+// WithFooterTextf Withs the footer text of the Embed with format
+func (e Embed) WithFooterTextf(text string, a ...any) Embed {
+	return e.WithFooterText(fmt.Sprintf(text, a...))
+}
+
+// WithFooterIcon Withs the footer icon of the Embed
+func (e Embed) WithFooterIcon(iconURL string) Embed {
+	if e.Footer == nil {
+		e.Footer = &EmbedFooter{}
+	}
+	e.Footer.IconURL = iconURL
+	return e
+}
+
+// WithFooterIconf Withs the footer icon of the Embed
+func (e Embed) WithFooterIconf(iconURL string, a ...any) Embed {
+	return e.WithFooterIcon(fmt.Sprintf(iconURL, a...))
+}
+
+// WithImage Withs the image of the Embed
+func (e Embed) WithImage(url string) Embed {
+	if e.Image == nil {
+		e.Image = &EmbedResource{}
+	}
+	e.Image.URL = url
+	return e
+}
+
+// WithImagef Withs the image of the Embed with format
+func (e Embed) WithImagef(url string, a ...any) Embed {
+	return e.WithImage(fmt.Sprintf(url, a...))
+}
+
+// WithThumbnail Withs the thumbnail of the Embed
+func (e Embed) WithThumbnail(url string) Embed {
+	if e.Thumbnail == nil {
+		e.Thumbnail = &EmbedResource{}
+	}
+	e.Thumbnail.URL = url
+	return e
+}
+
+// WithThumbnailf Withs the thumbnail of the Embed with format
+func (e Embed) WithThumbnailf(url string, a ...any) Embed {
+	return e.WithThumbnail(fmt.Sprintf(url, a...))
+}
+
+// WithURL Withs the URL of the Embed
+func (e Embed) WithURL(url string) Embed {
+	e.URL = url
+	return e
+}
+
+// WithURLf Withs the URL of the Embed with format
+func (e Embed) WithURLf(url string, a ...any) Embed {
+	return e.WithURL(fmt.Sprintf(url, a...))
+}
+
+// WithTimestamp Withs the timestamp of the Embed
+func (e Embed) WithTimestamp(time time.Time) Embed {
+	e.Timestamp = &time
+	return e
+}
+
+// AddField adds a field to the Embed by name and value
+func (e Embed) AddField(name string, value string, inline bool) Embed {
+	e.Fields = append(e.Fields, EmbedField{Name: name, Value: value, Inline: &inline})
+	return e
+}
+
+// WithField Withs a field to the Embed by name and value
+func (e Embed) WithField(i int, name string, value string, inline bool) Embed {
+	if len(e.Fields) > i {
+		e.Fields[i] = EmbedField{Name: name, Value: value, Inline: &inline}
+	}
+	return e
+}
+
+// AddFields adds multiple fields to the Embed
+func (e Embed) AddFields(fields ...EmbedField) Embed {
+	e.Fields = append(e.Fields, fields...)
+	return e
+}
+
+// WithFields Withs fields of the Embed
+func (e Embed) WithFields(fields ...EmbedField) Embed {
+	e.Fields = fields
+	return e
+}
+
+// ClearFields removes all the fields from the Embed
+func (e Embed) ClearFields() Embed {
+	e.Fields = []EmbedField{}
+	return e
+}
+
+// RemoveField removes a field from the Embed
+func (e Embed) RemoveField(i int) Embed {
+	if len(e.Fields) > i {
+		e.Fields = append(e.Fields[:i], e.Fields[i+1:]...)
+	}
+	return e
 }
 
 func (e Embed) FindField(fieldFindFunc func(field EmbedField) bool) (EmbedField, bool) {
