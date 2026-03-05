@@ -333,6 +333,15 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
+
+		var closeError *websocket.CloseError
+		if errors.As(err, &closeError) {
+			closeCode := GatewayCloseEventCodeByCode(closeError.Code)
+			if !closeCode.Reconnect {
+				return err
+			}
+		}
+
 		g.config.Logger.Error("failed to reconnect voice gateway", slog.Any("err", err), slog.Int("try", try), slog.Duration("delay", delay))
 		g.statusMu.Lock()
 		g.status = StatusDisconnected
