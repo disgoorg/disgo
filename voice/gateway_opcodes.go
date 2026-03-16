@@ -139,7 +139,7 @@ var (
 	GatewayCloseEventCodeDisconnected = GatewayCloseEventCode{
 		Code:        4014,
 		Description: "Disconnected",
-		Explanation: "Channel was deleted, you were kicked, voice server changed, or the main voicegateway session was dropped. Don't reconnect.",
+		Explanation: "Disconnect individual client (you were kicked, the main gateway session was dropped, etc.). Should not reconnect.",
 		Reconnect:   false,
 	}
 
@@ -154,6 +154,34 @@ var (
 		Code:        4016,
 		Description: "Unknown encryption mode",
 		Explanation: "We didn't recognize your encryption.",
+		Reconnect:   false,
+	}
+
+	GatewayCloseEventCodeEndtoEndEncryptionDAVEProtocolRequired = GatewayCloseEventCode{
+		Code:        4017,
+		Description: "E2EE/DAVE protocol required",
+		Explanation: "This channel requires a client supporting E2EE via the DAVE Protocol.",
+		Reconnect:   false,
+	}
+
+	GatewayCloseEventCodeBadRequest = GatewayCloseEventCode{
+		Code:        4020,
+		Description: "Bad request",
+		Explanation: "You sent a malformed request.",
+		Reconnect:   true,
+	}
+
+	GatewayCloseEventCodeRateLimited = GatewayCloseEventCode{
+		Code:        4021,
+		Description: "Disconnected: Rate Limited",
+		Explanation: "Disconnect due to rate limit exceeded. Should not reconnect.",
+		Reconnect:   false,
+	}
+
+	GatewayCloseEventCodeCallTerminated = GatewayCloseEventCode{
+		Code:        4022,
+		Description: "Disconnected: Call Terminated",
+		Explanation: "Disconnect all clients due to call terminated (channel deleted, voice server changed, etc.). Should not reconnect.",
 		Reconnect:   false,
 	}
 
@@ -179,6 +207,10 @@ var (
 		GatewayCloseEventCodeDisconnected.Code:          GatewayCloseEventCodeDisconnected,
 		GatewayCloseEventCodeVoiceServerCrash.Code:      GatewayCloseEventCodeVoiceServerCrash,
 		GatewayCloseEventCodeUnknownEncryptionMode.Code: GatewayCloseEventCodeUnknownEncryptionMode,
+		GatewayCloseEventCodeEndtoEndEncryptionDAVEProtocolRequired.Code: GatewayCloseEventCodeEndtoEndEncryptionDAVEProtocolRequired,
+		GatewayCloseEventCodeBadRequest.Code: GatewayCloseEventCodeBadRequest,
+		GatewayCloseEventCodeRateLimited.Code: GatewayCloseEventCodeRateLimited,
+		GatewayCloseEventCodeCallTerminated.Code: GatewayCloseEventCodeCallTerminated,
 	}
 )
 
