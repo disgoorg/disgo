@@ -23,19 +23,20 @@ func NewMessageCreateV2(components ...LayoutComponent) MessageCreate {
 
 // MessageCreate is the struct to create a new Message with.
 type MessageCreate struct {
-	Nonce            string             `json:"nonce,omitempty"`
-	Content          string             `json:"content,omitempty"`
-	TTS              bool               `json:"tts,omitempty"`
-	Embeds           []Embed            `json:"embeds,omitempty"`
-	Components       []LayoutComponent  `json:"components,omitempty"`
-	StickerIDs       []snowflake.ID     `json:"sticker_ids,omitempty"`
-	Files            []*File            `json:"-"`
-	Attachments      []AttachmentCreate `json:"attachments,omitempty"`
-	AllowedMentions  *AllowedMentions   `json:"allowed_mentions,omitempty"`
-	MessageReference *MessageReference  `json:"message_reference,omitempty"`
-	Flags            MessageFlags       `json:"flags,omitempty"`
-	EnforceNonce     bool               `json:"enforce_nonce,omitempty"`
-	Poll             *PollCreate        `json:"poll,omitempty"`
+	Nonce             string             `json:"nonce,omitempty"`
+	Content           string             `json:"content,omitempty"`
+	TTS               bool               `json:"tts,omitempty"`
+	Embeds            []Embed            `json:"embeds,omitempty"`
+	Components        []LayoutComponent  `json:"components,omitempty"`
+	StickerIDs        []snowflake.ID     `json:"sticker_ids,omitempty"`
+	Files             []*File            `json:"-"`
+	Attachments       []AttachmentCreate `json:"attachments,omitempty"`
+	AllowedMentions   *AllowedMentions   `json:"allowed_mentions,omitempty"`
+	MessageReference  *MessageReference  `json:"message_reference,omitempty"`
+	Flags             MessageFlags       `json:"flags,omitempty"`
+	EnforceNonce      bool               `json:"enforce_nonce,omitempty"`
+	Poll              *PollCreate        `json:"poll,omitempty"`
+	SharedClientTheme *SharedClientTheme `json:"shared_client_theme,omitempty"`
 }
 
 func (MessageCreate) interactionCallbackData() {}
@@ -333,5 +334,17 @@ func (m MessageCreate) WithPoll(poll PollCreate) MessageCreate {
 // ClearPoll returns a new MessageCreate with no Poll.
 func (m MessageCreate) ClearPoll() MessageCreate {
 	m.Poll = nil
+	return m
+}
+
+// WithSharedClientTheme returns a new MessageCreate with the provided SharedClientTheme.
+func (m MessageCreate) WithSharedClientTheme(theme SharedClientTheme) MessageCreate {
+	m.SharedClientTheme = &theme
+	return m
+}
+
+// ClearSharedClientTheme returns a new MessageCreate with no SharedClientTheme.
+func (m MessageCreate) ClearSharedClientTheme() MessageCreate {
+	m.SharedClientTheme = nil
 	return m
 }
