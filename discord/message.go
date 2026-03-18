@@ -133,6 +133,7 @@ type Message struct {
 	Resolved             *ResolvedData         `json:"resolved,omitempty"`
 	Poll                 *Poll                 `json:"poll,omitempty"`
 	Call                 *MessageCall          `json:"call,omitempty"`
+	SharedClientTheme    *SharedClientTheme    `json:"shared_client_theme,omitempty"`
 	Nonce                Nonce                 `json:"nonce,omitempty"`
 }
 
