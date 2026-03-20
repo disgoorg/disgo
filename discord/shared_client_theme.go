@@ -7,7 +7,8 @@ type BaseThemeType int
 
 // Constants for BaseThemeType
 const (
-	BaseThemeTypeDark     BaseThemeType = iota + 1
+	BaseThemeTypeUnset = iota
+	BaseThemeTypeDark
 	BaseThemeTypeLight
 	BaseThemeTypeDarker
 	BaseThemeTypeMidnight
