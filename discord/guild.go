@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"strings"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -392,4 +393,263 @@ type GuildPruneResult struct {
 type GuildActiveThreads struct {
 	Threads []GuildThread  `json:"threads"`
 	Members []ThreadMember `json:"members"`
+}
+
+// MessageSearchAuthorType is the author type filter for guild message search.
+type MessageSearchAuthorType string
+
+// Constants for MessageSearchAuthorType.
+const (
+	MessageSearchAuthorTypeUser    MessageSearchAuthorType = "user"
+	MessageSearchAuthorTypeBot     MessageSearchAuthorType = "bot"
+	MessageSearchAuthorTypeWebhook MessageSearchAuthorType = "webhook"
+
+	// Negated types, results will NOT include messages from these author types.
+	MessageSearchAuthorTypeNotUser    MessageSearchAuthorType = "-user"
+	MessageSearchAuthorTypeNotBot     MessageSearchAuthorType = "-bot"
+	MessageSearchAuthorTypeNotWebhook MessageSearchAuthorType = "-webhook"
+)
+
+// MessageSearchHasType filters messages by whether they contain a specific type of content.
+type MessageSearchHasType string
+
+// Constants for MessageSearchHasType.
+const (
+	MessageSearchHasTypeImage    MessageSearchHasType = "image"
+	MessageSearchHasTypeSound    MessageSearchHasType = "sound"
+	MessageSearchHasTypeVideo    MessageSearchHasType = "video"
+	MessageSearchHasTypeFile     MessageSearchHasType = "file"
+	MessageSearchHasTypeSticker  MessageSearchHasType = "sticker"
+	MessageSearchHasTypeEmbed    MessageSearchHasType = "embed"
+	MessageSearchHasTypeLink     MessageSearchHasType = "link"
+	MessageSearchHasTypePoll     MessageSearchHasType = "poll"
+	MessageSearchHasTypeSnapshot MessageSearchHasType = "snapshot"
+
+	// Negated types, results will NOT include messages that have these content types.
+	MessageSearchHasTypeNotImage    MessageSearchHasType = "-image"
+	MessageSearchHasTypeNotSound    MessageSearchHasType = "-sound"
+	MessageSearchHasTypeNotVideo    MessageSearchHasType = "-video"
+	MessageSearchHasTypeNotFile     MessageSearchHasType = "-file"
+	MessageSearchHasTypeNotSticker  MessageSearchHasType = "-sticker"
+	MessageSearchHasTypeNotEmbed    MessageSearchHasType = "-embed"
+	MessageSearchHasTypeNotLink     MessageSearchHasType = "-link"
+	MessageSearchHasTypeNotPoll     MessageSearchHasType = "-poll"
+	MessageSearchHasTypeNotSnapshot MessageSearchHasType = "-snapshot"
+)
+
+// MessageSearchEmbedType filters messages by the type of embed they contain.
+type MessageSearchEmbedType string
+
+// Constants for MessageSearchEmbedType.
+const (
+	MessageSearchEmbedTypeImage   MessageSearchEmbedType = "image"
+	MessageSearchEmbedTypeVideo   MessageSearchEmbedType = "video"
+	MessageSearchEmbedTypeGif     MessageSearchEmbedType = "gif"
+	MessageSearchEmbedTypeSound   MessageSearchEmbedType = "sound"
+	MessageSearchEmbedTypeArticle MessageSearchEmbedType = "article"
+
+	// Negated types, results will NOT include messages that have these embed types.
+	MessageSearchEmbedTypeNotImage   MessageSearchEmbedType = "-image"
+	MessageSearchEmbedTypeNotVideo   MessageSearchEmbedType = "-video"
+	MessageSearchEmbedTypeNotGif     MessageSearchEmbedType = "-gif"
+	MessageSearchEmbedTypeNotSound   MessageSearchEmbedType = "-sound"
+	MessageSearchEmbedTypeNotArticle MessageSearchEmbedType = "-article"
+)
+
+// MessageSearchSortBy is the field to sort search results by.
+type MessageSearchSortBy string
+
+// Constants for MessageSearchSortBy.
+const (
+	MessageSearchSortByTimestamp MessageSearchSortBy = "timestamp"
+	MessageSearchSortByRelevance MessageSearchSortBy = "relevance"
+)
+
+// MessageSearchSortOrder is the direction to sort search results.
+type MessageSearchSortOrder string
+
+// Constants for MessageSearchSortOrder.
+const (
+	MessageSearchSortOrderAsc  MessageSearchSortOrder = "asc"
+	MessageSearchSortOrderDesc MessageSearchSortOrder = "desc"
+)
+
+// GuildMessagesSearch holds the query parameters for searching guild messages.
+type GuildMessagesSearch struct {
+	// Limit is the max number of messages to return (1-25, default 25).
+	Limit                int
+	// Offset is the number to offset the returned messages by (max 9975).
+	Offset               int
+	// MaxID filters messages before this message ID.
+	MaxID                snowflake.ID
+	// MinID filters messages after this message ID.
+	MinID                snowflake.ID
+	// Slop is the max number of words to skip between matching tokens in the search Content (max 100, default 2).
+	Slop                 int
+	// Content filters messages by content (max 1024 characters).
+	Content              string
+	// ChannelIDs filters messages by these channel IDs (max 500).
+	ChannelIDs           []snowflake.ID
+	// AuthorTypes filters messages by author type.
+	AuthorTypes          []MessageSearchAuthorType
+	// AuthorIDs filters messages by these author IDs (max 100).
+	AuthorIDs            []snowflake.ID
+	// Mentions filters messages that mention these user IDs (max 100).
+	Mentions             []snowflake.ID
+	// MentionsRoleIDs filters messages that mention these role IDs (max 100).
+	MentionsRoleIDs      []snowflake.ID
+	// MentionEveryone filters messages that do or do not mention @everyone.
+	MentionEveryone      *bool
+	// RepliedToUserIDs filters messages that reply to these user IDs (max 100).
+	RepliedToUserIDs     []snowflake.ID
+	// RepliedToMessageIDs filters messages that reply to these message IDs (max 100).
+	RepliedToMessageIDs  []snowflake.ID
+	// Pinned filters messages by whether they are pinned.
+	Pinned               *bool
+	// Has filters messages by whether they contain specific content types.
+	Has                  []MessageSearchHasType
+	// EmbedTypes filters messages by embed type.
+	EmbedTypes           []MessageSearchEmbedType
+	// EmbedProviders filters messages by embed provider (case-sensitive, e.g. "Tenor").
+	EmbedProviders       []string
+	// LinkHostnames filters messages by link hostname (e.g. "discordapp.com").
+	LinkHostnames        []string
+	// AttachmentFilenames filters messages by attachment filename.
+	AttachmentFilenames  []string
+	// AttachmentExtensions filters messages by attachment extension (e.g. "txt").
+	AttachmentExtensions []string
+	// SortBy is the sorting algorithm to use.
+	SortBy               MessageSearchSortBy
+	// SortOrder is the direction to sort ("asc" or "desc", default "desc").
+	SortOrder            MessageSearchSortOrder
+	// IncludeNSFW controls whether to include results from age-restricted channels (default false).
+	IncludeNSFW          *bool
+}
+
+// joinSnowflakes joins a slice of snowflake IDs into a comma separated string.
+func joinSnowflakes(ids []snowflake.ID) string {
+	strs := make([]string, len(ids))
+	for i, id := range ids {
+		strs[i] = id.String()
+	}
+	return strings.Join(strs, ",")
+}
+
+// joinStrings joins a slice of values with a Stringer or ~string underlying type into a comma separated string.
+func joinStrings[T ~string](vals []T) string {
+	strs := make([]string, len(vals))
+	for i, v := range vals {
+		strs[i] = string(v)
+	}
+	return strings.Join(strs, ",")
+}
+
+// ToQueryValues converts the GuildMessageSearch into QueryValues for use in HTTP requests.
+func (s GuildMessagesSearch) ToQueryValues() QueryValues {
+	q := QueryValues{}
+	if s.Limit != 0 {
+		q["limit"] = s.Limit
+	}
+	if s.Offset != 0 {
+		q["offset"] = s.Offset
+	}
+	if s.MaxID != 0 {
+		q["max_id"] = s.MaxID
+	}
+	if s.MinID != 0 {
+		q["min_id"] = s.MinID
+	}
+	if s.Slop != 0 {
+		q["slop"] = s.Slop
+	}
+	if s.Content != "" {
+		q["content"] = s.Content
+	}
+	if len(s.ChannelIDs) > 0 {
+		q["channel_id"] = joinSnowflakes(s.ChannelIDs)
+	}
+	if len(s.AuthorTypes) > 0 {
+		q["author_type"] = joinStrings(s.AuthorTypes)
+	}
+	if len(s.AuthorIDs) > 0 {
+		q["author_id"] = joinSnowflakes(s.AuthorIDs)
+	}
+	if len(s.Mentions) > 0 {
+		q["mentions"] = joinSnowflakes(s.Mentions)
+	}
+	if len(s.MentionsRoleIDs) > 0 {
+		q["mentions_role_id"] = joinSnowflakes(s.MentionsRoleIDs)
+	}
+	if s.MentionEveryone != nil {
+		q["mention_everyone"] = *s.MentionEveryone
+	}
+	if len(s.RepliedToUserIDs) > 0 {
+		q["replied_to_user_id"] = joinSnowflakes(s.RepliedToUserIDs)
+	}
+	if len(s.RepliedToMessageIDs) > 0 {
+		q["replied_to_message_id"] = joinSnowflakes(s.RepliedToMessageIDs)
+	}
+	if s.Pinned != nil {
+		q["pinned"] = *s.Pinned
+	}
+	if len(s.Has) > 0 {
+		q["has"] = joinStrings(s.Has)
+	}
+	if len(s.EmbedTypes) > 0 {
+		q["embed_type"] = joinStrings(s.EmbedTypes)
+	}
+	if len(s.EmbedProviders) > 0 {
+		q["embed_provider"] = strings.Join(s.EmbedProviders, ",")
+	}
+	if len(s.LinkHostnames) > 0 {
+		q["link_hostname"] = strings.Join(s.LinkHostnames, ",")
+	}
+	if len(s.AttachmentFilenames) > 0 {
+		q["attachment_filename"] = strings.Join(s.AttachmentFilenames, ",")
+	}
+	if len(s.AttachmentExtensions) > 0 {
+		q["attachment_extension"] = strings.Join(s.AttachmentExtensions, ",")
+	}
+	if s.SortBy != "" {
+		q["sort_by"] = s.SortBy
+	}
+	if s.SortOrder != "" {
+		q["sort_order"] = s.SortOrder
+	}
+	if s.IncludeNSFW != nil {
+		q["include_nsfw"] = *s.IncludeNSFW
+	}
+	return q
+}
+
+// GuildMessagesSearchResult is the response body from the Search Guild Messages endpoint.
+type GuildMessagesSearchResult struct {
+	// DoingDeepHistoricalIndex indicates whether the guild is undergoing a deep historical indexing operation.
+	DoingDeepHistoricalIndex bool `json:"doing_deep_historical_index"`
+	// DocumentsIndexed is the number of documents indexed during the current index operation, if any.
+	DocumentsIndexed         *int `json:"documents_indexed,omitempty"`
+	// TotalResults is the total number of results that match the query.
+	TotalResults             int `json:"total_results"`
+	// Messages is the flat list of messages matching the query.
+	Messages                 []Message
+	// Threads contains the threads that contain the returned messages.
+	Threads                  []GuildThread `json:"threads,omitempty"`
+	// Members contains thread member objects for each returned thread the current user has joined.
+	Members                  []ThreadMember `json:"members,omitempty"`
+}
+
+func (r *GuildMessagesSearchResult) UnmarshalJSON(data []byte) error {
+	type guildMessagesSearchResult GuildMessagesSearchResult
+	var v struct {
+		Messages [][]Message `json:"messages"`
+		guildMessagesSearchResult
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*r = GuildMessagesSearchResult(v.guildMessagesSearchResult)
+	for _, inner := range v.Messages {
+		r.Messages = append(r.Messages, inner...)
+	}
+	return nil
 }

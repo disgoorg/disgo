@@ -61,6 +61,11 @@ type Guilds interface {
 	UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate discord.GuildOnboardingUpdate, opts ...RequestOpt) (*discord.GuildOnboarding, error)
 
 	UpdateGuildIncidentActions(guildID snowflake.ID, actionsUpdate discord.GuildIncidentActionsUpdate, opts ...RequestOpt) (*discord.GuildIncidentsData, error)
+
+	// Requires the `READ_MESSAGE_HISTORY` permission.
+	//
+	// This endpoint is restricted according to whether the `MESSAGE_CONTENT` Privileged Intent is enabled for your application.
+	SearchGuildMessages(guildID snowflake.ID, query discord.GuildMessagesSearch, opts ...RequestOpt) (*discord.GuildMessagesSearchResult, error)
 }
 
 type guildImpl struct {
@@ -312,5 +317,17 @@ func (s *guildImpl) UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate
 
 func (s *guildImpl) UpdateGuildIncidentActions(guildID snowflake.ID, actionsUpdate discord.GuildIncidentActionsUpdate, opts ...RequestOpt) (incidentsData *discord.GuildIncidentsData, err error) {
 	err = s.client.Do(UpdateGuildIncidentActions.Compile(nil, guildID), actionsUpdate, &incidentsData, opts...)
+	return
+}
+
+// Returns a list of messages without the `reactions` key that match a search query in the guild. Requires the `READ_MESSAGE_HISTORY` permission.
+// Note: This endpoint is restricted according to whether the `MESSAGE_CONTENT` Privileged Intent is enabled for your application.
+//
+// Due to speed optimizations, search may return slightly fewer results than the limit specified when messages have not been accessed for a long time.
+// Clients should not rely on the length of the `messages` array to paginate results.
+//
+// Additionally, when messages are actively being created or deleted, the `TotalResults` field may not be accurate.
+func (s *guildImpl) SearchGuildMessages(guildID snowflake.ID, query discord.GuildMessagesSearch, opts ...RequestOpt) (result *discord.GuildMessagesSearchResult, err error) {
+	err = s.client.Do(SearchGuildMessages.Compile(query.ToQueryValues(), guildID), nil, &result, opts...)
 	return
 }
