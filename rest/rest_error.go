@@ -228,6 +228,9 @@ const (
 	JSONErrorCodeReactionBlocked             JSONErrorCode = 90001
 	JSONErrorCodeUserCannotUseBurstReactions JSONErrorCode = 90002
 
+	// Index not yet available
+	JSONErrorCodeIndexNotYetAvailable JSONErrorCode = 110000
+
 	// Application not available
 	JSONErrorCodeApplicationNotYetAvailable JSONErrorCode = 110001
 

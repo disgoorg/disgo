@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"time"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -61,6 +62,8 @@ type Guilds interface {
 	UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate discord.GuildOnboardingUpdate, opts ...RequestOpt) (*discord.GuildOnboarding, error)
 
 	UpdateGuildIncidentActions(guildID snowflake.ID, actionsUpdate discord.GuildIncidentActionsUpdate, opts ...RequestOpt) (*discord.GuildIncidentsData, error)
+
+	SearchGuildMessages(ctx context.Context, guildID snowflake.ID, query discord.GuildMessagesSearch, opts ...RequestOpt) (*discord.GuildMessagesSearchResult, error)
 }
 
 type guildImpl struct {
@@ -313,4 +316,37 @@ func (s *guildImpl) UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate
 func (s *guildImpl) UpdateGuildIncidentActions(guildID snowflake.ID, actionsUpdate discord.GuildIncidentActionsUpdate, opts ...RequestOpt) (incidentsData *discord.GuildIncidentsData, err error) {
 	err = s.client.Do(UpdateGuildIncidentActions.Compile(nil, guildID), actionsUpdate, &incidentsData, opts...)
 	return
+}
+
+// SearchGuildMessages searches for messages in a guild matching the given query.
+// Returns a list of Messages without the Reactions field that match a search query in the guild. Requires the READ_MESSAGE_HISTORY permission.
+// Note: The Search Guild Messages endpoint is restricted according to whether the MESSAGE_CONTENT Privileged Intent is enabled for your application.
+//
+// If the entity you are searching is not yet indexed, the endpoint will return a 202 accepted response. The response body will not contain any search results, and will look similar to an error response.
+// You should retry the request after the timeframe specified in the RetryAfter field. If the RetryAfter field is 0, you should retry the request after a short delay.
+//
+// Due to speed optimizations, search may return slightly fewer results than the limit specified when messages have not been accessed for a long time.
+// Clients should not rely on the length of the `Messages` slice to paginate results.
+//
+// Additionally, when messages are actively being created or deleted, the `TotalResults` field may not be accurate.
+func (s *guildImpl) SearchGuildMessages(ctx context.Context, guildID snowflake.ID, query discord.GuildMessagesSearch, opts ...RequestOpt) (*discord.GuildMessagesSearchResult, error) {
+	opts = append([]RequestOpt{WithCtx(ctx)}, opts...)
+	for {
+		var result discord.GuildMessagesSearchResult
+		if err := s.client.Do(SearchGuildMessages.Compile(query.ToQueryValues(), guildID), nil, &result, opts...); err != nil {
+			return nil, err
+		}
+		if result.Code != int(JSONErrorCodeIndexNotYetAvailable) {
+			return &result, nil
+		}
+		retryAfter := time.Duration(result.RetryAfter) * time.Second
+		if retryAfter <= 0 {
+			retryAfter = time.Second
+		}
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(retryAfter):
+		}
+	}
 }
