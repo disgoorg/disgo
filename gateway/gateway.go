@@ -174,6 +174,7 @@ type gatewayImpl struct {
 	conn            transport
 	connMu          sync.Mutex
 	heartbeatCancel context.CancelFunc
+	heartbeatMu     sync.Mutex
 	status          Status
 	statusMu        sync.Mutex
 
@@ -246,7 +247,9 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	gatewayURL := wsURL + "?" + values.Encode()
 
+	g.heartbeatMu.Lock()
 	g.lastHeartbeatSent = time.Now()
+	g.heartbeatMu.Unlock()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		var body []byte
@@ -314,9 +317,12 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
-	if g.heartbeatCancel != nil {
+	g.heartbeatMu.Lock()
+	heartbeatCancel := g.heartbeatCancel
+	g.heartbeatMu.Unlock()
+	if heartbeatCancel != nil {
 		g.config.Logger.DebugContext(ctx, "closing heartbeat goroutine")
-		g.heartbeatCancel()
+		heartbeatCancel()
 	}
 
 	g.connMu.Lock()
@@ -379,6 +385,8 @@ func (g *gatewayImpl) sendInternal(ctx context.Context, commandType RateLimiterC
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
+	g.heartbeatMu.Lock()
+	defer g.heartbeatMu.Unlock()
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
@@ -448,9 +456,10 @@ func (g *gatewayImpl) heartbeat() {
 	defer g.config.Logger.Debug("exiting heartbeat goroutine")
 
 	ctx, cancel := context.WithCancel(context.Background())
+	g.heartbeatMu.Lock()
 	g.heartbeatCancel = cancel
-
 	g.lastHeartbeatReceived = time.Now()
+	g.heartbeatMu.Unlock()
 
 	// Send heartbeats periodically every `heartbeat_interval`
 	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
@@ -460,8 +469,12 @@ func (g *gatewayImpl) heartbeat() {
 			return
 
 		case <-heartbeatTicker.C:
-			if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
-				lastHeartbeatAgo := time.Since(g.lastHeartbeatReceived)
+			g.heartbeatMu.Lock()
+			sentAfterReceived := g.lastHeartbeatSent.After(g.lastHeartbeatReceived)
+			lastHeartbeatAgo := time.Since(g.lastHeartbeatReceived)
+			g.heartbeatMu.Unlock()
+
+			if sentAfterReceived {
 				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("last_heartbeat_ago", lastHeartbeatAgo))
 				closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 				g.CloseWithCode(closeCtx, websocket.CloseServiceRestart, "heartbeat ACK not received")
@@ -496,7 +509,9 @@ func (g *gatewayImpl) sendHeartbeat() {
 		go g.reconnect()
 		return
 	}
+	g.heartbeatMu.Lock()
 	g.lastHeartbeatSent = time.Now()
+	g.heartbeatMu.Unlock()
 }
 
 func (g *gatewayImpl) identify() error {
@@ -728,9 +743,12 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 
 		case OpcodeHeartbeatACK:
 			newHeartbeat := time.Now()
+			g.heartbeatMu.Lock()
 			g.lastHeartbeatReceived = newHeartbeat
+			lastHeartbeat := g.lastHeartbeatSent
+			g.heartbeatMu.Unlock()
 			g.eventHandlerFunc(g, EventTypeHeartbeatAck, message.S, EventHeartbeatAck{
-				LastHeartbeat: g.lastHeartbeatReceived,
+				LastHeartbeat: lastHeartbeat,
 				NewHeartbeat:  newHeartbeat,
 			})
 
