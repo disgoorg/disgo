@@ -213,6 +213,7 @@ var (
 	UpdateMessage      = NewEndpoint(http.MethodPatch, "/channels/{channel.id}/messages/{message.id}")
 	DeleteMessage      = NewEndpoint(http.MethodDelete, "/channels/{channel.id}/messages/{message.id}")
 	BulkDeleteMessages = NewEndpoint(http.MethodPost, "/channels/{channel.id}/messages/bulk-delete")
+	SearchGuildMessages = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/messages/search")
 
 	GetChannelPins = NewEndpoint(http.MethodGet, "/channels/{channel.id}/messages/pins")
 	PinMessage     = NewEndpoint(http.MethodPut, "/channels/{channel.id}/messages/pins/{message.id}")
