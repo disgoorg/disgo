@@ -1,48 +1,4 @@
 // Package disgo is a collection of packages for interaction with the Discord Bot and OAuth2 API.
-//
-// # Discord
-//
-// Package discord is a collection of structs and types of the Discord API.
-//
-// # Bot
-//
-// Package bot connects the Gateway/Sharding, HTTPServer, Cache, Rest & Events packages into a single high level client interface.
-//
-// # Gateway
-//
-// Package gateway is used to connect and interact with the Discord Gateway.
-//
-// # Sharding
-//
-// Package sharding is used to connect and interact with the Discord Gateway.
-//
-// # Cache
-//
-// Package cache provides a generic cache interface for Discord entities.
-//
-// # HTTPServer
-//
-// Package httpserver is used to interact with the Discord outgoing webhooks for interactions.
-//
-// # Events
-//
-// Package events provide high level events around the Discord Events.
-//
-// # Rest
-//
-// Package rest is used to interact with the Discord REST API.
-//
-// # Webhook
-//
-// Package webhook provides a high level client interface for interacting with Discord webhooks.
-//
-// # OAuth2
-//
-// Package oauth2 provides a high level client interface for interacting with Discord oauth2.
-//
-// # Voice
-//
-// Package voice provides a high level client interface for interacting with Discord voice.
 package disgo
 
 import (
