@@ -7,9 +7,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-var (
-	_ Interaction = (*ComponentInteraction)(nil)
-)
+var _ Interaction = (*ComponentInteraction)(nil)
 
 type ComponentInteraction struct {
 	baseInteraction

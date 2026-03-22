@@ -80,7 +80,6 @@ func gatewayHandlerGuildEmojisUpdate(client *bot.Client, sequenceNumber int, sha
 			},
 		})
 	}
-
 }
 
 func isEmojiUpdated(old discord.Emoji, new discord.Emoji) bool {

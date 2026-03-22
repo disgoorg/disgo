@@ -289,7 +289,9 @@ func (t *zlibPayloadTransport) ReceiveMessage() (*Message, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to decompress zlib: %w", err)
 		}
-		defer reader.Close()
+		defer func() {
+			_ = reader.Close()
+		}()
 		r = reader
 	}
 

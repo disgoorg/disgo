@@ -7,9 +7,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-var (
-	_ Interaction = (*ApplicationCommandInteraction)(nil)
-)
+var _ Interaction = (*ApplicationCommandInteraction)(nil)
 
 type ApplicationCommandInteraction struct {
 	baseInteraction
@@ -703,9 +701,7 @@ type MessageCommandResolved struct {
 	Messages map[snowflake.ID]Message `json:"messages,omitempty"`
 }
 
-var (
-	_ ApplicationCommandInteractionData = (*EntryPointCommandInteractionData)(nil)
-)
+var _ ApplicationCommandInteractionData = (*EntryPointCommandInteractionData)(nil)
 
 type rawEntryPointCommandInteractionData struct {
 	ID   snowflake.ID           `json:"id"`

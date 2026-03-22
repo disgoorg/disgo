@@ -2,9 +2,7 @@ package oauth2
 
 import "log/slog"
 
-var (
-	_ StateController = (*defaultStateController)(nil)
-)
+var _ StateController = (*defaultStateController)(nil)
 
 // StateController is responsible for generating, storing and validating states.
 type StateController interface {

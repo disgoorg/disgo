@@ -5,9 +5,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-var (
-	_ Interaction = (*AutocompleteInteraction)(nil)
-)
+var _ Interaction = (*AutocompleteInteraction)(nil)
 
 type AutocompleteInteraction struct {
 	baseInteraction

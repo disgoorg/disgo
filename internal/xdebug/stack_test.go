@@ -3,7 +3,7 @@ package xdebug
 import "testing"
 
 func Test_FilterStack(t *testing.T) {
-	var stack = `goroutine 64 [running]:
+	stack := `goroutine 64 [running]:
 runtime/debug.Stack()
     /usr/local/go/src/runtime/debug/stack.go:26 +0x5e
 github.com/disgoorg/disgo/bot.(*eventManagerImpl).DispatchEvent.func1()
@@ -39,7 +39,7 @@ github.com/disgoorg/disgo/gateway.(*gatewayImpl).listen(0xc000150480, {0xce6150,
 created by github.com/disgoorg/disgo/gateway.(*gatewayImpl).open in goroutine 1
     /go/pkg/mod/github.com/disgoorg/disgo@v0.19.0-rc.13/gateway/gateway.go:286 +0xb34`
 
-	var expected = `goroutine 64 [running]:
+	expected := `goroutine 64 [running]:
 panic({0xaa7720?, 0x11b05a0?})
     /usr/local/go/src/runtime/panic.go:783 +0x132
 github.com/disgoorg/disgo/rest.(*interactionImpl).UpdateInteractionResponse(0xc00012e7e0, 0x10491b8c7f441000, {0xc0003e82a0, 0xd6}, {0xc00426d4a0, 0x0, 0x0, 0x0, {0x0, 0x0, ...}, ...}, ...)

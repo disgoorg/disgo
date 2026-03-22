@@ -293,7 +293,9 @@ func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bo
 func (c *connImpl) Close(ctx context.Context) {
 	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
 	defer c.gateway.Close()
-	defer c.udp.Close()
+	defer func() {
+		_ = c.udp.Close()
+	}()
 
 	select {
 	case _, ok := <-c.closedChan:

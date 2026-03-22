@@ -6,9 +6,7 @@ import (
 	"github.com/disgoorg/json/v2"
 )
 
-var (
-	_ Interaction = (*ModalSubmitInteraction)(nil)
-)
+var _ Interaction = (*ModalSubmitInteraction)(nil)
 
 type ModalSubmitInteraction struct {
 	baseInteraction

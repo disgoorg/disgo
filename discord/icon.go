@@ -83,8 +83,10 @@ func ParseIconRaw(src []byte) (*Icon, error) {
 	return NewIconRaw(mime, src), nil
 }
 
-var _ json.Marshaler = (*Icon)(nil)
-var _ fmt.Stringer = (*Icon)(nil)
+var (
+	_ json.Marshaler = (*Icon)(nil)
+	_ fmt.Stringer   = (*Icon)(nil)
+)
 
 // Icon represents a base64 encoded image with its mimetype, used for icons in discord.
 // Use NewIcon, NewIconRaw, ParseIcon, or ParseIconRaw to create a new Icon.

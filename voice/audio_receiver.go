@@ -96,7 +96,6 @@ func (s *defaultAudioReceiver) receive() {
 			s.logger.Error("error while receiving opus frame", slog.Any("err", err))
 		}
 	}
-
 }
 
 func (s *defaultAudioReceiver) Close() {

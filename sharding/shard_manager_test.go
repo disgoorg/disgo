@@ -18,7 +18,7 @@ func TestSplit(t *testing.T) {
 		guildIDs = append(guildIDs, snowflake.ID(i))
 	}
 
-	var shards = []shard{
+	shards := []shard{
 		{0, 4},
 		{1, 4},
 		{2, 4},

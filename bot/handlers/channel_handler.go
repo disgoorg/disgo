@@ -53,7 +53,6 @@ func gatewayHandlerChannelUpdate(client *bot.Client, sequenceNumber int, shardID
 				})
 			}
 		}
-
 	}
 }
 
@@ -94,5 +93,4 @@ func gatewayHandlerChannelPinsUpdate(client *bot.Client, sequenceNumber int, sha
 		OldLastPinTimestamp: oldTime,
 		NewLastPinTimestamp: event.LastPinTimestamp,
 	})
-
 }

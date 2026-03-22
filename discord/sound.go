@@ -25,8 +25,10 @@ func (t SoundType) Header() string {
 	return "data:" + string(t) + ";base64"
 }
 
-var _ json.Marshaler = (*Sound)(nil)
-var _ fmt.Stringer = (*Sound)(nil)
+var (
+	_ json.Marshaler = (*Sound)(nil)
+	_ fmt.Stringer   = (*Sound)(nil)
+)
 
 func NewSound(soundType SoundType, reader io.Reader) (*Sound, error) {
 	data, err := io.ReadAll(reader)

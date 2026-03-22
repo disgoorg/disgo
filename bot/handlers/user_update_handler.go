@@ -15,5 +15,4 @@ func gatewayHandlerUserUpdate(client *bot.Client, sequenceNumber int, shardID in
 		SelfUser:     event.OAuth2User,
 		OldSelfUser:  oldUser,
 	})
-
 }
