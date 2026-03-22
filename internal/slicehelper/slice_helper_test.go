@@ -43,3 +43,41 @@ func TestJoinSnowflakes(t *testing.T) {
 		})
 	}
 }
+
+func TestJoinStrings(t *testing.T) {
+	data := []struct {
+		name     string
+		vals     []string
+		expected string
+	}{
+		{
+			name:     "0 strings",
+			vals:     []string{},
+			expected: "",
+		},
+		{
+			name:     "1 string",
+			vals:     []string{"foo"},
+			expected: "foo",
+		},
+		{
+			name:     "2 strings",
+			vals:     []string{"foo", "bar"},
+			expected: "foo,bar",
+		},
+		{
+			name:     "3 strings",
+			vals:     []string{"foo", "bar", "baz"},
+			expected: "foo,bar,baz",
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.name, func(t *testing.T) {
+			actual := JoinStrings(d.vals)
+			if actual != d.expected {
+				t.Errorf("expected %s, got %s", d.expected, actual)
+			}
+		})
+	}
+}

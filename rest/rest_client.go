@@ -148,8 +148,8 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		c.config.Logger.Debug("new response", slog.String("endpoint", endpoint.URL), slog.String("code", rs.Status), slog.String("body", string(rawRsBody)))
 	}
 
-	switch rs.StatusCode {
-	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
+	switch {
+	case rs.StatusCode >= http.StatusOK && rs.StatusCode < http.StatusMultipleChoices:
 		if rsBody != nil && rs.Body != nil {
 			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
 				c.config.Logger.Error("error unmarshalling response body", slog.Any("err", err), slog.String("endpoint", endpoint.URL), slog.String("code", rs.Status), slog.String("body", string(rawRsBody)))
@@ -158,7 +158,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		}
 		return nil
 
-	case http.StatusTooManyRequests:
+	case rs.StatusCode == http.StatusTooManyRequests:
 		if tries >= c.RateLimiter().MaxRetries() {
 			return newError(rq, rawRqBody, rs, rawRsBody)
 		}
