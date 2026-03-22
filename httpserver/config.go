@@ -3,16 +3,19 @@ package httpserver
 import (
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 func defaultConfig() config {
 	return config{
-		Logger:     slog.Default(),
-		HTTPServer: &http.Server{},
-		ServeMux:   http.NewServeMux(),
-		URL:        "/interactions/callback",
-		Address:    ":80",
-		Verifier:   DefaultVerifier{},
+		Logger: slog.Default(),
+		HTTPServer: &http.Server{
+			ReadHeaderTimeout: 5 * time.Second,
+		},
+		ServeMux: http.NewServeMux(),
+		URL:      "/interactions/callback",
+		Address:  ":80",
+		Verifier: DefaultVerifier{},
 	}
 }
 

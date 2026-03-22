@@ -1,17 +1,16 @@
 package oauth2
 
 import (
+	"crypto/rand"
 	"log/slog"
 	"time"
-
-	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
 func defaultStateControllerConfig() stateControllerConfig {
 	return stateControllerConfig{
 		Logger:       slog.Default(),
 		States:       map[string]string{},
-		NewStateFunc: func() string { return insecurerandstr.RandStr(32) },
+		NewStateFunc: rand.Text,
 		MaxTTL:       time.Hour,
 	}
 }

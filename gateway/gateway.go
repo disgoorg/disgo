@@ -284,7 +284,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 
 	var readyOnce sync.Once
 	readyChan := make(chan error)
-	go g.listen(t, func(err error) {
+	go g.listen(t, func(err error) { // nolint:gosec
 		readyOnce.Do(func() {
 			readyChan <- err
 			close(readyChan)

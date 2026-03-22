@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"log/slog"
 	"sync"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
@@ -151,7 +151,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 
 	var nonce string
 	for {
-		nonce = insecurerandstr.RandStr(32)
+		nonce = rand.Text()
 		m.chunkingRequestsMu.RLock()
 		_, ok := m.chunkingRequests[nonce]
 		m.chunkingRequestsMu.RUnlock()

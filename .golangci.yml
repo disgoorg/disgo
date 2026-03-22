@@ -2,7 +2,11 @@ version: "2"
 linters:
   default: standard
   enable:
-#    - gosec
+    - gosec
+  settings:
+    gosec:
+      excludes:
+        - G115
 formatters:
   enable:
     - gofumpt
