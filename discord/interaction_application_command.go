@@ -70,25 +70,25 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	i.baseInteraction.id = interaction.ID
-	i.baseInteraction.applicationID = interaction.ApplicationID
-	i.baseInteraction.token = interaction.Token
-	i.baseInteraction.version = interaction.Version
-	i.baseInteraction.guild = interaction.Guild
-	i.baseInteraction.guildID = interaction.GuildID
-	i.baseInteraction.channel = interaction.Channel
-	i.baseInteraction.locale = interaction.Locale
-	i.baseInteraction.guildLocale = interaction.GuildLocale
-	i.baseInteraction.member = interaction.Member
-	i.baseInteraction.user = interaction.User
-	i.baseInteraction.appPermissions = interaction.AppPermissions
-	i.baseInteraction.entitlements = interaction.Entitlements
-	i.baseInteraction.authorizingIntegrationOwners = interaction.AuthorizingIntegrationOwners
-	i.baseInteraction.context = interaction.Context
-	i.baseInteraction.attachmentSizeLimit = interaction.AttachmentSizeLimit
+	i.id = interaction.ID
+	i.applicationID = interaction.ApplicationID
+	i.token = interaction.Token
+	i.version = interaction.Version
+	i.guild = interaction.Guild
+	i.guildID = interaction.GuildID
+	i.channel = interaction.Channel
+	i.locale = interaction.Locale
+	i.guildLocale = interaction.GuildLocale
+	i.member = interaction.Member
+	i.user = interaction.User
+	i.appPermissions = interaction.AppPermissions
+	i.entitlements = interaction.Entitlements
+	i.authorizingIntegrationOwners = interaction.AuthorizingIntegrationOwners
+	i.context = interaction.Context
+	i.attachmentSizeLimit = interaction.AttachmentSizeLimit
 
-	if i.baseInteraction.member != nil && i.baseInteraction.guildID != nil {
-		i.baseInteraction.member.GuildID = *i.baseInteraction.guildID
+	if i.member != nil && i.guildID != nil {
+		i.member.GuildID = *i.guildID
 	}
 
 	i.Data = interactionData

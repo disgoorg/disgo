@@ -17,7 +17,7 @@ func gatewayHandlerChannelCreate(client *bot.Client, sequenceNumber int, shardID
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:    event.ID(),
 			Channel:      event.GuildChannel,
-			GuildID:      event.GuildChannel.GuildID(),
+			GuildID:      event.GuildID(),
 		},
 	})
 }
@@ -31,13 +31,13 @@ func gatewayHandlerChannelUpdate(client *bot.Client, sequenceNumber int, shardID
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:    event.ID(),
 			Channel:      event.GuildChannel,
-			GuildID:      event.GuildChannel.GuildID(),
+			GuildID:      event.GuildID(),
 		},
 		OldChannel: oldGuildChannel,
 	})
 
 	if event.Type() == discord.ChannelTypeGuildText || event.Type() == discord.ChannelTypeGuildNews {
-		if member, ok := client.Caches.Member(event.GuildChannel.GuildID(), client.ID()); ok &&
+		if member, ok := client.Caches.Member(event.GuildID(), client.ID()); ok &&
 			client.Caches.MemberPermissionsInChannel(event.GuildChannel, member).Missing(discord.PermissionViewChannel) {
 			for _, guildThread := range client.Caches.GuildThreadsInChannel(event.ID()) {
 				client.Caches.RemoveThreadMembersByThreadID(guildThread.ID())
@@ -65,7 +65,7 @@ func gatewayHandlerChannelDelete(client *bot.Client, sequenceNumber int, shardID
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:    event.ID(),
 			Channel:      event.GuildChannel,
-			GuildID:      event.GuildChannel.GuildID(),
+			GuildID:      event.GuildID(),
 		},
 	})
 }

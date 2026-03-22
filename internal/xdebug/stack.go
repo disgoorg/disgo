@@ -27,10 +27,7 @@ func filterStack(stack []byte, skip int) []byte {
 	lines = lines[1:]
 
 	var frameCount int
-	for {
-		if frameCount >= skip || len(lines) == 0 {
-			break
-		}
+	for frameCount < skip && len(lines) != 0 {
 
 		frameCount++
 		lines = lines[1:]
