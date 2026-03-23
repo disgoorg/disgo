@@ -40,6 +40,7 @@ const (
 	LocaleRomanian     Locale = "ro"
 	LocaleRussian      Locale = "ru"
 	LocaleSpanishES    Locale = "es-ES"
+	LocaleSpanishLATAM Locale = "es-419"
 	LocaleSwedish      Locale = "sv-SE"
 	LocaleThai         Locale = "th"
 	LocaleTurkish      Locale = "tr"
@@ -75,6 +76,7 @@ var Locales = map[Locale]string{
 	LocaleRomanian:     "Romanian",
 	LocaleRussian:      "Russian",
 	LocaleSpanishES:    "Spanish (Spain)",
+	LocaleSpanishLATAM: "Spanish (LATAM)",
 	LocaleSwedish:      "Swedish",
 	LocaleThai:         "Thai",
 	LocaleTurkish:      "Turkish",
