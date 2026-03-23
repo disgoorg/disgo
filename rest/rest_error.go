@@ -214,6 +214,7 @@ const (
 	JSONErrorCodeCannotSendVoiceMessagesInChannel             JSONErrorCode = 50173
 	JSONErrorCodeUserAccountMustFirstBeVerified               JSONErrorCode = 50178
 	JSONErrorCodeProvidedFileDoesNotHaveValidDuration         JSONErrorCode = 50192
+	JSONErrorCodeCannotSendMessagesToThisUser2                JSONErrorCode = 50278
 
 	// Permission error
 	JSONErrorCodeNoPermissionToSendSticker JSONErrorCode = 50600
