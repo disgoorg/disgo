@@ -19,7 +19,7 @@ var (
 
 	GuildScheduledEventCover = NewCDN("/guild-events/{event.id}/{event.cover.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 
-	RoleIcon = NewCDN("/role-icons/{role.id}/{role.icon.hash}", FileFormatPNG, FileFormatJPEG)
+	RoleIcon = NewCDN("/role-icons/{role.id}/{role.icon.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 
 	UserBanner        = NewCDN("/banners/{user.id}/{user.banner.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
 	UserAvatar        = NewCDN("/avatars/{user.id}/{user.avatar.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
