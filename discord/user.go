@@ -152,6 +152,15 @@ func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+// CollectiblesNameplateURL returns the nameplate asset URL if set or nil
+func (u User) CollectiblesNameplateURL(opts ...CDNOpt) *string {
+	if u.Collectibles == nil || u.Collectibles.Nameplate == nil {
+		return nil
+	}
+	url := formatAssetURL(NameplateAsset, opts, u.Collectibles.Nameplate.Asset)
+	return &url
+}
+
 // GuildTagURL returns the server tag badge URL if the user has a primary discord.Guild or nil
 func (u User) GuildTagURL(opts ...CDNOpt) *string {
 	if u.PrimaryGuild == nil {
