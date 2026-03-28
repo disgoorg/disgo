@@ -26,6 +26,7 @@ type Member struct {
 	Pending                    bool                  `json:"pending"`
 	CommunicationDisabledUntil *time.Time            `json:"communication_disabled_until"`
 	AvatarDecorationData       *AvatarDecorationData `json:"avatar_decoration_data"`
+	Collectibles               *Collectibles         `json:"collectibles"`
 
 	// This field is not present everywhere in the API and often populated by disgo
 	GuildID snowflake.ID `json:"guild_id"`
@@ -93,6 +94,23 @@ func (m Member) AvatarDecorationURL(opts ...CDNOpt) *string {
 	}
 	url := formatAssetURL(AvatarDecoration, opts, m.AvatarDecorationData.Asset)
 	return &url
+}
+
+// CollectiblesNameplateURL returns the nameplate asset URL if set or nil
+func (m Member) CollectiblesNameplateURL(opts ...CDNOpt) *string {
+	if m.Collectibles == nil || m.Collectibles.Nameplate == nil {
+		return nil
+	}
+	url := formatAssetURL(NameplateAsset, opts, m.Collectibles.Nameplate.Asset)
+	return &url
+}
+
+// EffectiveCollectiblesNameplateURL returns the guild-specific nameplate URL if set, falling back to the user-level nameplate URL
+func (m Member) EffectiveCollectiblesNameplateURL(opts ...CDNOpt) *string {
+	if url := m.CollectiblesNameplateURL(opts...); url != nil {
+		return url
+	}
+	return m.User.CollectiblesNameplateURL(opts...)
 }
 
 func (m Member) CreatedAt() time.Time {
