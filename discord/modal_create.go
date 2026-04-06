@@ -1,6 +1,10 @@
 package discord
 
-import "slices"
+import (
+	"slices"
+
+	"github.com/disgoorg/json/v2"
+)
 
 var _ InteractionResponseData = (*ModalCreate)(nil)
 
@@ -16,6 +20,26 @@ type ModalCreate struct {
 	CustomID   string            `json:"custom_id"`
 	Title      string            `json:"title"`
 	Components []LayoutComponent `json:"components"`
+}
+
+func (m *ModalCreate) UnmarshalJSON(data []byte) error {
+	type modalCreate ModalCreate
+	var v struct {
+		Components []UnmarshalComponent `json:"components"`
+		modalCreate
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = ModalCreate(v.modalCreate)
+
+	if len(v.Components) > 0 {
+		m.Components = unmarshalComponents(v.Components)
+	}
+
+	return nil
 }
 
 func (ModalCreate) interactionCallbackData() {}

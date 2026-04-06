@@ -796,7 +796,7 @@ func (c *SectionComponent) UnmarshalJSON(data []byte) error {
 	var sectionComponent struct {
 		ID         int                  `json:"id,omitempty"`
 		Components []UnmarshalComponent `json:"components"`
-		Accessory  UnmarshalComponent   `json:"accessory"`
+		Accessory  *UnmarshalComponent  `json:"accessory"`
 	}
 	if err := json.Unmarshal(data, &sectionComponent); err != nil {
 		return err
@@ -810,7 +810,12 @@ func (c *SectionComponent) UnmarshalJSON(data []byte) error {
 	}
 	c.Components = components
 
-	c.Accessory = sectionComponent.Accessory.Component.(SectionAccessoryComponent)
+	if sectionComponent.Accessory != nil {
+		c.Accessory = sectionComponent.Accessory.Component.(SectionAccessoryComponent)
+	} else {
+		c.Accessory = nil
+	}
+
 	return nil
 }
 

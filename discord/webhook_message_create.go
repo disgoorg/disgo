@@ -5,6 +5,7 @@ import (
 	"io"
 	"slices"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -35,6 +36,26 @@ type WebhookMessageCreate struct {
 	ThreadName      string             `json:"thread_name,omitempty"`
 	AppliedTags     []snowflake.ID     `json:"applied_tags,omitempty"`
 	Poll            *PollCreate        `json:"poll,omitempty"`
+}
+
+func (m *WebhookMessageCreate) UnmarshalJSON(data []byte) error {
+	type webhookMessageCreate WebhookMessageCreate
+	var v struct {
+		Components []UnmarshalComponent `json:"components"`
+		webhookMessageCreate
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = WebhookMessageCreate(v.webhookMessageCreate)
+
+	if len(v.Components) > 0 {
+		m.Components = unmarshalComponents(v.Components)
+	}
+
+	return nil
 }
 
 // ToBody returns the WebhookMessageCreate ready for body.

@@ -5,6 +5,7 @@ import (
 	"io"
 	"slices"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -35,6 +36,27 @@ type WebhookMessageUpdate struct {
 	// Be careful not to override the current flags when editing messages from other users - this will result in a permission error.
 	// Use MessageFlags.Add for flags like discord.MessageFlagIsComponentsV2.
 	Flags *MessageFlags `json:"flags,omitempty"`
+}
+
+func (m *WebhookMessageUpdate) UnmarshalJSON(data []byte) error {
+	type webhookMessageUpdate WebhookMessageUpdate
+	var v struct {
+		Components *[]UnmarshalComponent `json:"components"`
+		webhookMessageUpdate
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = WebhookMessageUpdate(v.webhookMessageUpdate)
+
+	if v.Components != nil && len(*v.Components) > 0 {
+		components := unmarshalComponents(*v.Components)
+		m.Components = &components
+	}
+
+	return nil
 }
 
 // ToBody returns the WebhookMessageUpdate ready for body.

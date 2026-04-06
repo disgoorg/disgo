@@ -5,6 +5,7 @@ import (
 	"io"
 	"slices"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -34,6 +35,27 @@ type MessageUpdate struct {
 	// Be careful not to override the current flags when editing messages from other users - this will result in a permission error.
 	// Use MessageFlags.Add for flags like discord.MessageFlagSuppressEmbeds.
 	Flags *MessageFlags `json:"flags,omitempty"`
+}
+
+func (m *MessageUpdate) UnmarshalJSON(data []byte) error {
+	type messageUpdate MessageUpdate
+	var v struct {
+		Components *[]UnmarshalComponent `json:"components"`
+		messageUpdate
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = MessageUpdate(v.messageUpdate)
+
+	if v.Components != nil && len(*v.Components) > 0 {
+		components := unmarshalComponents(*v.Components)
+		m.Components = &components
+	}
+
+	return nil
 }
 
 func (MessageUpdate) interactionCallbackData() {}

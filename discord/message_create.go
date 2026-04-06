@@ -5,6 +5,7 @@ import (
 	"io"
 	"slices"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -37,6 +38,26 @@ type MessageCreate struct {
 	EnforceNonce      bool               `json:"enforce_nonce,omitempty"`
 	Poll              *PollCreate        `json:"poll,omitempty"`
 	SharedClientTheme *SharedClientTheme `json:"shared_client_theme,omitempty"`
+}
+
+func (m *MessageCreate) UnmarshalJSON(data []byte) error {
+	type messageCreate MessageCreate
+	var v struct {
+		Components []UnmarshalComponent `json:"components"`
+		messageCreate
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = MessageCreate(v.messageCreate)
+
+	if len(v.Components) > 0 {
+		m.Components = unmarshalComponents(v.Components)
+	}
+
+	return nil
 }
 
 func (MessageCreate) interactionCallbackData() {}
