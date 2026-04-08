@@ -95,8 +95,10 @@ type connImpl struct {
 	gateway Gateway
 	udp     UDPConn
 
-	audioSender   AudioSender
-	audioReceiver AudioReceiver
+	audioSender       AudioSender
+	audioReceiver     AudioReceiver
+	opusFrameProvider OpusFrameProvider
+	opusFrameReceiver OpusFrameReceiver
 
 	openedChan chan struct{}
 	closedChan chan struct{}
@@ -151,6 +153,7 @@ func (c *connImpl) UDP() UDPConn {
 }
 
 func (c *connImpl) SetOpusFrameProvider(provider OpusFrameProvider) {
+	c.opusFrameProvider = provider
 	if c.audioSender != nil {
 		c.audioSender.Close()
 	}
@@ -159,6 +162,7 @@ func (c *connImpl) SetOpusFrameProvider(provider OpusFrameProvider) {
 }
 
 func (c *connImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
+	c.opusFrameReceiver = handler
 	if c.audioReceiver != nil {
 		c.audioReceiver.Close()
 	}
@@ -244,6 +248,26 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 		if err := c.udp.SetSecretKey(d.Mode, d.SecretKey); err != nil {
 			c.config.Logger.Error("voice: failed to set secret key", slog.Any("err", err))
 		}
+
+		// Restart audio sender/receiver if they were previously configured.
+		// This handles the case where a reconnect resulted in a new session
+		// (Identify instead of Resume), which replaces the UDP connection and
+		// causes the old sender/receiver goroutines to exit.
+		if c.opusFrameProvider != nil {
+			if c.audioSender != nil {
+				c.audioSender.Close()
+			}
+			c.audioSender = c.config.AudioSenderCreateFunc(c.config.Logger, c.opusFrameProvider, c)
+			c.audioSender.Open()
+		}
+		if c.opusFrameReceiver != nil {
+			if c.audioReceiver != nil {
+				c.audioReceiver.Close()
+			}
+			c.audioReceiver = c.config.AudioReceiverCreateFunc(c.config.Logger, c.opusFrameReceiver, c)
+			c.audioReceiver.Open()
+		}
+
 		c.openedChan <- struct{}{}
 
 	case GatewayMessageDataSpeaking:

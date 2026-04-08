@@ -190,6 +190,13 @@ func (u *udpConnImpl) SetWriteDeadline(t time.Time) error {
 func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32) (string, int, error) {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
+
+	// Close any existing connection so that readers (e.g. audio receiver)
+	// get an error and can be restarted on the new connection.
+	if u.conn != nil {
+		_ = u.conn.Close()
+	}
+
 	host := net.JoinHostPort(ip, strconv.Itoa(port))
 	u.config.Logger.Debug("Opening UDPConn connection", slog.String("host", host))
 	var err error
