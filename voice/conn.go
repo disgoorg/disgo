@@ -193,7 +193,7 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		_ = c.udp.Close()
 		c.gateway.Close()
 		if closedFunc := c.closedFunc; closedFunc != nil {
-			c.closedFunc()
+			closedFunc()
 		}
 	} else {
 		c.state.ChannelID = update.ChannelID
@@ -326,7 +326,6 @@ func (c *connImpl) Close(ctx context.Context) {
 	connected := c.state.ChannelID != nil
 	c.stateMu.Unlock()
 	if connected {
-		c.stateMu.Unlock()
 		_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
 		select {
 		case <-closedCtx.Done():

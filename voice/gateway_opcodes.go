@@ -55,9 +55,9 @@ type GatewayCloseEventCode struct {
 	Code        int
 	Description string
 	Explanation string
-	// Reconnect indicated if we should reconnect to the voice gateway with the same session id, endpoint, token & channel id.
+	// Reconnect indicates whether we should reconnect to the voice gateway with the same session id, endpoint, token & channel id.
 	Reconnect bool
-	// NewConnection indicates if we should start a new connection when the error is received.
+	// NewConnection indicates whether we should start a new connection when the error is received.
 	NewConnection bool
 }
 
