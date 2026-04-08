@@ -102,18 +102,21 @@ func NewGateway(daveSession godave.Session, eventHandlerFunc EventHandlerFunc, c
 	cfg := defaultGatewayConfig()
 	cfg.apply(opts)
 
-	return &gatewayImpl{
+	g := &gatewayImpl{
 		config:           cfg,
 		daveSession:      daveSession,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
 	}
+	g.openFunc = g.open
+	return g
 }
 
 type gatewayImpl struct {
 	config           gatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
+	openFunc         func(ctx context.Context, state State) error
 
 	ssrc  uint32
 	state State
@@ -324,7 +327,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 		case <-timer.C:
 		}
 
-		err := g.open(ctx, state)
+		err := g.openFunc(ctx, state)
 		if err == nil {
 			// Successfully connected, our job here is done
 			return nil
@@ -337,7 +340,11 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 		var closeError *websocket.CloseError
 		if errors.As(err, &closeError) {
 			closeCode := GatewayCloseEventCodeByCode(closeError.Code)
-			if !closeCode.Reconnect {
+			// 4006 means the resume was rejected because the session expired,
+			// but a fresh Identify may succeed. The resume state (ssrc/seq)
+			// was already cleared by open() -> Close(), so the next attempt
+			// will send Identify instead of Resume. Let it fall through to retry.
+			if !closeCode.Reconnect && closeError.Code != GatewayCloseEventCodeSessionNoLongerValid.Code {
 				return err
 			}
 		}
