@@ -2,10 +2,20 @@
 
 Voice provides a package to connect and send/receive voice to/from discord servers.
 For Discords Docs on voice see [here](https://discord.com/developers/docs/topics/voice-connections).
-Since DAVE(E2EE) will soon be required you also need https://github.com/disgoorg/godave
-Please note libdave requires CGO to be enabled. Alternative implementations without CGO support may be available in the future.
 
-## Logging
+DAVE(E2EE) library options:
+ * https://github.com/disgoorg/godave CGO binding for https://github.com/discord/libdave
+ * https://github.com/thomas-vilte/dave-go Pure Go implementation of DAVE(E2EE) (experimental)
+
+## GoDave
+
+### Installation
+
+```bash
+go get github.com/disgoorg/godave/golibdave
+```
+
+### Logging
 Libdave uses a global logger which is set it `slog.LevelError` by default. You can change this by calling:
 
 ```go
@@ -16,6 +26,14 @@ or set your own logger:
 
 ```go
 libdave.SetDefaultLogLogger(yourLogger)
+```
+
+## Dave-Go
+
+### Installation
+
+```bash
+go get github.com/thomas-vilte/dave-go
 ```
 
 ## Usage
@@ -30,7 +48,10 @@ const (
 client, err := disgo.New(token,
 	bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuildVoiceStates)),
 	bot.WithVoiceManagerConfigOpts(
-		voice.WithDaveSessionCreateFunc(golibdave.NewSession), 
+		// for GoDave use this
+		voice.WithDaveSessionCreateFunc(golibdave.NewSession),
+		// for Dave-Go use this
+		voice.WithDaveSessionCreateFunc(session.NewSession),
 	),
 )
 // handle err
