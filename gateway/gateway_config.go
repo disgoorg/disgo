@@ -16,7 +16,6 @@ func defaultConfig() config {
 		URL:                 URL,
 		ShardID:             0,
 		ShardCount:          1,
-		AutoReconnect:       true,
 		EnableResumeURL:     true,
 		IdentifyRateLimiter: NewNoopIdentifyRateLimiter(),
 	}
@@ -46,8 +45,6 @@ type config struct {
 	ResumeURL *string
 	// LastSequenceReceived is the last sequence received by the Gateway. Defaults to nil (no resume).
 	LastSequenceReceived *int
-	// AutoReconnect is whether the Gateway should automatically reconnect or call the CloseHandlerFunc. Defaults to true.
-	AutoReconnect bool
 	// EnableRawEvents is whether the Gateway should emit EventRaw. Defaults to false.
 	EnableRawEvents bool
 	// EnableResumeURL is whether the Gateway should enable the resumeURL. Defaults to true.
@@ -65,8 +62,10 @@ type config struct {
 	// Browser is the Browser it should send on login. Defaults to "disgo".
 	Browser string
 	// Device is the Device it should send on login. Defaults to "disgo".
-	Device       string
-	CloseHandler CloseHandlerFunc
+	Device string
+	// CloseInterceptor is a function that is called when the Gateway receives a close event.
+	// It allows you to intercept the close events.
+	CloseInterceptor CloseHandlerFunc
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
@@ -171,13 +170,6 @@ func WithSequence(sequence int) ConfigOpt {
 	}
 }
 
-// WithAutoReconnect sets whether the Gateway should automatically reconnect to Discord.
-func WithAutoReconnect(autoReconnect bool) ConfigOpt {
-	return func(config *config) {
-		config.AutoReconnect = autoReconnect
-	}
-}
-
 // WithEnableRawEvents enables/disables the EventTypeRaw.
 func WithEnableRawEvents(enableRawEventEvents bool) ConfigOpt {
 	return func(config *config) {
@@ -255,11 +247,9 @@ func WithDevice(device string) ConfigOpt {
 	}
 }
 
-// WithCloseHandler sets the CloseHandlerFunc for the Gateway.
-// The CloseHandlerFunc is called when the Gateway connection is closed and auto-reconnect is disabled or the close code can't be handled by the Gateway itself.
-// If you are using the sharding package you should use [sharding.WithCloseHandler] instead.
-func WithCloseHandler(closeHandler CloseHandlerFunc) ConfigOpt {
+// WithCloseInterceptor sets the CloseInterceptor for the Gateway.
+func WithCloseInterceptor(closeInterceptor CloseHandlerFunc) ConfigOpt {
 	return func(config *config) {
-		config.CloseHandler = closeHandler
+		config.CloseInterceptor = closeInterceptor
 	}
 }

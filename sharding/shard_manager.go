@@ -55,7 +55,7 @@ func ShardIDByGuild(guildID snowflake.ID, shardCount int) int {
 var _ ShardManager = (*shardManagerImpl)(nil)
 
 // New creates a new default ShardManager with the given token, eventHandlerFunc and ConfigOpt(s).
-func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...ConfigOpt) ShardManager {
+func New(token string, eventHandlerFunc gateway.EventHandlerFunc, closeHandlerFunc gateway.CloseHandlerFunc, opts ...ConfigOpt) ShardManager {
 	cfg := defaultConfig()
 	cfg.apply(opts)
 
@@ -63,6 +63,7 @@ func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...Config
 		shards:           map[int]gateway.Gateway{},
 		token:            token,
 		eventHandlerFunc: eventHandlerFunc,
+		closeHandlerFunc: closeHandlerFunc,
 		config:           cfg,
 	}
 }
@@ -73,14 +74,15 @@ type shardManagerImpl struct {
 
 	token            string
 	eventHandlerFunc gateway.EventHandlerFunc
+	closeHandlerFunc gateway.CloseHandlerFunc
 	config           config
 }
 
-func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, reconnect bool) {
+func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 	var closeError *websocket.CloseError
 	if !m.config.AutoScaling || !errors.As(err, &closeError) || gateway.CloseEventCodeByCode(closeError.Code) != gateway.CloseEventCodeShardingRequired {
-		if m.config.CloseHandler != nil {
-			m.config.CloseHandler(shard, err, reconnect)
+		if m.closeHandlerFunc != nil {
+			m.closeHandlerFunc(shard, err)
 		}
 		return
 	}
@@ -210,7 +212,7 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 	// this looks funny, but basically we want to first pass in the close handler so it can be overwritten by the user config options,
 	// and then we should apply the user config options.
 	// After that we pass in the shardID, shardCount, sessionID, sequence and resumeURL so they can't be overwritten by the user config options.
-	opts := append([]gateway.ConfigOpt{gateway.WithCloseHandler(m.closeHandler), gateway.WithIdentifyRateLimiter(m.config.IdentifyRateLimiter)},
+	opts := append([]gateway.ConfigOpt{gateway.WithIdentifyRateLimiter(m.config.IdentifyRateLimiter)},
 		append(slices.Clone(m.config.GatewayConfigOpts),
 			gateway.WithShardID(shardID),
 			gateway.WithShardCount(shardCount),
@@ -226,7 +228,7 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 		opts = append(opts, gateway.WithResumeURL(state.ResumeURL))
 	}
 
-	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, opts...)
+	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, opts...)
 
 	m.shardsMu.Lock()
 	m.shards[shardID] = shard

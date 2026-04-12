@@ -97,10 +97,10 @@ type (
 	EventHandlerFunc func(gateway Gateway, eventType EventType, sequenceNumber int, event EventData)
 
 	// CreateFunc is a type that is used to create a new Gateway(s).
-	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway
+	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway
 
 	// CloseHandlerFunc is a function that is called when the Gateway is closed.
-	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
+	CloseHandlerFunc func(gateway Gateway, err error)
 )
 
 // Gateway is what is used to connect to discord.
@@ -154,13 +154,14 @@ type Gateway interface {
 var _ Gateway = (*gatewayImpl)(nil)
 
 // New creates a new Gateway instance with the provided token, eventHandlerFunc, closeHandlerFunc and ConfigOpt(s).
-func New(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway {
+func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
 	cfg := defaultConfig()
 	cfg.apply(opts)
 
 	return &gatewayImpl{
 		config:           cfg,
 		eventHandlerFunc: eventHandlerFunc,
+		closeHandlerFunc: closeHandlerFunc,
 		token:            token,
 		status:           StatusUnconnected,
 	}
@@ -169,6 +170,7 @@ func New(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gat
 type gatewayImpl struct {
 	config           config
 	eventHandlerFunc EventHandlerFunc
+	closeHandlerFunc CloseHandlerFunc
 	token            string
 
 	conn            transport
@@ -438,8 +440,8 @@ func (g *gatewayImpl) reconnect() {
 	if err := g.doReconnect(context.Background()); err != nil {
 		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
 
-		if g.config.CloseHandler != nil {
-			g.config.CloseHandler(g, err, false)
+		if g.closeHandlerFunc != nil {
+			g.closeHandlerFunc(g, err)
 		}
 	}
 }
@@ -575,6 +577,10 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 				return
 			}
 
+			if g.config.CloseInterceptor != nil {
+				g.config.CloseInterceptor(g, err)
+			}
+
 			reconnect := true
 			var closeError *websocket.CloseError
 			if errors.As(err, &closeError) {
@@ -608,10 +614,12 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			g.CloseWithCode(ctx, websocket.CloseServiceRestart, "reconnecting")
 			cancel()
-			if g.config.AutoReconnect && reconnect {
+			if reconnect {
 				go g.reconnect()
-			} else if g.config.CloseHandler != nil {
-				go g.config.CloseHandler(g, err, reconnect)
+				return
+			}
+			if g.closeHandlerFunc != nil {
+				go g.closeHandlerFunc(g, err)
 			}
 
 			return
