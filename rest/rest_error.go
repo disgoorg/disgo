@@ -65,6 +65,8 @@ const (
 	JSONErrorCodeUnknownGuildScheduledEventUser        JSONErrorCode = 10071
 	JSONErrorCodeUnknownTag                            JSONErrorCode = 10087
 	JSONErrorCodeUnknownSound                          JSONErrorCode = 10097
+	JSONErrorCodeUnknownInviteTargetUsersJob           JSONErrorCode = 10124
+	JSONErrorCodeUnknownInviteTargetUsers              JSONErrorCode = 10129
 
 	// Authorization/action errors
 	JSONErrorCodeBotsCannotUseThisEndpoint                   JSONErrorCode = 20001
@@ -291,6 +293,15 @@ const (
 	JSONErrorCodeCannotEditPollMessage             JSONErrorCode = 520003
 	JSONErrorCodeCannotUseEmojiIncludedWithPoll    JSONErrorCode = 520004
 	JSONErrorCodeCannotExpireNonPollMessage        JSONErrorCode = 520006
+
+	// Provisional account
+	JSONErrorCodeProvisionalAccountsPermissionNotGranted JSONErrorCode = 530000
+	JSONErrorCodeIdTokenJWTExpired                       JSONErrorCode = 530001
+	JSONErrorCodeIdTokenJWTIssuerMismatch                JSONErrorCode = 530002
+	JSONErrorCodeIdTokenJWTAudienceMismatch              JSONErrorCode = 530003
+	JSONErrorCodeIdTokenJWTIssuedTooLongAgo              JSONErrorCode = 530004
+	JSONErrorCodeFailedToGenerateUniqueUsername          JSONErrorCode = 530006
+	JSONErrorCodeInvalidClientSecret                     JSONErrorCode = 530007
 )
 
 var _ error = (*Error)(nil)
