@@ -447,13 +447,6 @@ const (
 	MessageSearchEmbedTypeGif     MessageSearchEmbedType = "gif"
 	MessageSearchEmbedTypeSound   MessageSearchEmbedType = "sound"
 	MessageSearchEmbedTypeArticle MessageSearchEmbedType = "article"
-
-	// Negated types, results will not include messages that have these embed types.
-	MessageSearchEmbedTypeNotImage   MessageSearchEmbedType = "-" + MessageSearchEmbedTypeImage
-	MessageSearchEmbedTypeNotVideo   MessageSearchEmbedType = "-" + MessageSearchEmbedTypeVideo
-	MessageSearchEmbedTypeNotGif     MessageSearchEmbedType = "-" + MessageSearchEmbedTypeGif
-	MessageSearchEmbedTypeNotSound   MessageSearchEmbedType = "-" + MessageSearchEmbedTypeSound
-	MessageSearchEmbedTypeNotArticle MessageSearchEmbedType = "-" + MessageSearchEmbedTypeArticle
 )
 
 // MessageSearchSortBy is the field to sort search results by.
