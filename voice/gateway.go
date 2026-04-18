@@ -56,7 +56,7 @@ type (
 	GatewayCreateFunc func(daveManager godave.Session, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
 
 	// CloseHandlerFunc is a function that handles a voice gateway close.
-	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
+	CloseHandlerFunc func(gateway Gateway, err error)
 
 	// StateProviderFunc is a function that provides the current conn state of the voice gateway.
 	StateProviderFunc func() State
@@ -71,6 +71,9 @@ type State struct {
 	SessionID string
 	Token     string
 	Endpoint  string
+
+	SelfMute bool
+	SelfDeaf bool
 }
 
 // Gateway is a websocket connection to the Discord voice gateway.
@@ -355,9 +358,7 @@ func (g *gatewayImpl) reconnect() {
 	if err := g.doReconnect(context.Background(), g.state); err != nil {
 		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
 
-		if g.closeHandlerFunc != nil {
-			g.closeHandlerFunc(g, err, false)
-		}
+		g.closeHandlerFunc(g, err)
 	}
 }
 
@@ -510,11 +511,11 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 
 			// make sure the connection is properly closed
 			g.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
-			if g.config.AutoReconnect && reconnect {
+			if reconnect {
 				go g.reconnect()
-			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err, reconnect)
+				return
 			}
+			go g.closeHandlerFunc(g, err)
 
 			return
 		}
