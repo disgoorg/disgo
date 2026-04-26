@@ -38,10 +38,7 @@ func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.ID, int
 // CreateInteractionResponse responds to the interaction without returning the callback.
 // If you need the callback, use CreateInteractionResponseWithCallback.
 func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error {
-	messageCreate, ok := interactionResponse.Data.(*discord.MessageCreate)
-	if ok && messageCreate.AllowedMentions == nil {
-		messageCreate.AllowedMentions = &s.defaultAllowedMentions
-	}
+	s.applyDefaultAllowedMentions(&interactionResponse)
 
 	body, err := interactionResponse.ToBody()
 	if err != nil {
@@ -52,10 +49,7 @@ func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, 
 }
 
 func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) (callback *discord.InteractionCallbackResponse, err error) {
-	messageCreate, ok := interactionResponse.Data.(*discord.MessageCreate)
-	if ok && messageCreate.AllowedMentions == nil {
-		messageCreate.AllowedMentions = &s.defaultAllowedMentions
-	}
+	s.applyDefaultAllowedMentions(&interactionResponse)
 
 	body, err := interactionResponse.ToBody()
 	if err != nil {
@@ -121,4 +115,21 @@ func (s *interactionImpl) UpdateFollowupMessage(applicationID snowflake.ID, inte
 
 func (s *interactionImpl) DeleteFollowupMessage(applicationID snowflake.ID, interactionToken string, messageID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteFollowupMessage.Compile(nil, applicationID, interactionToken, messageID), nil, nil, opts...)
+}
+
+// applyDefaultAllowedMentions injects the default AllowedMentions into the response Data when it's a
+// MessageCreate (passed by value or pointer) without one set. The handler & events packages forward
+// MessageCreate as a value through Respond, while direct rest callers may pass a pointer — both are handled.
+func (s *interactionImpl) applyDefaultAllowedMentions(response *discord.InteractionResponse) {
+	switch d := response.Data.(type) {
+	case discord.MessageCreate:
+		if d.AllowedMentions == nil {
+			d.AllowedMentions = &s.defaultAllowedMentions
+			response.Data = d
+		}
+	case *discord.MessageCreate:
+		if d != nil && d.AllowedMentions == nil {
+			d.AllowedMentions = &s.defaultAllowedMentions
+		}
+	}
 }
