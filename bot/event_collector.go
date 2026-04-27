@@ -30,10 +30,12 @@ func NewEventCollector[E Event](client *Client, filterFunc func(e E) bool) (<-ch
 	var once sync.Once
 
 	handler := NewListenerFunc(func(e E) {
-		if !filterFunc(e) {
-			return
-		}
-		ch <- e
+		go func() {
+			if !filterFunc(e) {
+				return
+			}
+			ch <- e
+		}()
 	})
 	client.EventManager.AddEventListeners(handler)
 
