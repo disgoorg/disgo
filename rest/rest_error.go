@@ -250,6 +250,9 @@ const (
 	JSONErrorCodeMaximumActiveThreadsReached                    JSONErrorCode = 160006
 	JSONErrorCodeMaximumActiveAnnouncementThreadsReached        JSONErrorCode = 160007
 
+	// Cannot forward message with unreadable content
+	JSONErrorCodeCannotForwardMessageWithUnreadableContent JSONErrorCode = 160014
+
 	// Lottie/sticker errors
 	JSONErrorCodeInvalidJSONForUploadedLottieFile             JSONErrorCode = 170001
 	JSONErrorCodeUploadedLottiesCannotContainRasterizedImages JSONErrorCode = 170002
