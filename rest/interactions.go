@@ -38,10 +38,7 @@ func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.ID, int
 // CreateInteractionResponse responds to the interaction without returning the callback.
 // If you need the callback, use CreateInteractionResponseWithCallback.
 func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error {
-	messageCreate, ok := interactionResponse.Data.(*discord.MessageCreate)
-	if ok && messageCreate.AllowedMentions == nil {
-		messageCreate.AllowedMentions = &s.defaultAllowedMentions
-	}
+	s.applyDefaultAllowedMentions(&interactionResponse)
 
 	body, err := interactionResponse.ToBody()
 	if err != nil {
@@ -52,10 +49,7 @@ func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, 
 }
 
 func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) (callback *discord.InteractionCallbackResponse, err error) {
-	messageCreate, ok := interactionResponse.Data.(*discord.MessageCreate)
-	if ok && messageCreate.AllowedMentions == nil {
-		messageCreate.AllowedMentions = &s.defaultAllowedMentions
-	}
+	s.applyDefaultAllowedMentions(&interactionResponse)
 
 	body, err := interactionResponse.ToBody()
 	if err != nil {
@@ -69,7 +63,7 @@ func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID sn
 }
 
 func (s *interactionImpl) UpdateInteractionResponse(applicationID snowflake.ID, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
-	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || (messageUpdate.Flags != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2))) {
+	if shouldApplyUpdateAllowedMentions(messageUpdate) {
 		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
 	}
 
@@ -106,7 +100,7 @@ func (s *interactionImpl) CreateFollowupMessage(applicationID snowflake.ID, inte
 }
 
 func (s *interactionImpl) UpdateFollowupMessage(applicationID snowflake.ID, interactionToken string, messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
-	if messageUpdate.AllowedMentions == nil && (messageUpdate.Content != nil || (messageUpdate.Flags != nil && messageUpdate.Flags.Has(discord.MessageFlagIsComponentsV2))) {
+	if shouldApplyUpdateAllowedMentions(messageUpdate) {
 		messageUpdate.AllowedMentions = &s.defaultAllowedMentions
 	}
 
@@ -121,4 +115,36 @@ func (s *interactionImpl) UpdateFollowupMessage(applicationID snowflake.ID, inte
 
 func (s *interactionImpl) DeleteFollowupMessage(applicationID snowflake.ID, interactionToken string, messageID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteFollowupMessage.Compile(nil, applicationID, interactionToken, messageID), nil, nil, opts...)
+}
+
+// applyDefaultAllowedMentions injects the default AllowedMentions into the response Data when it's a
+// MessageCreate / MessageUpdate (passed by value or pointer) without one set. The handler & events
+// packages forward these as values through Respond, while direct rest callers may pass a pointer — both
+// shapes are handled. For MessageUpdate the default is only applied when there is content to mention
+// against (non-nil Content or the Components V2 flag set), matching UpdateInteractionResponse's behavior.
+func (s *interactionImpl) applyDefaultAllowedMentions(response *discord.InteractionResponse) {
+	switch d := response.Data.(type) {
+	case discord.MessageCreate:
+		if d.AllowedMentions == nil {
+			d.AllowedMentions = &s.defaultAllowedMentions
+			response.Data = d
+		}
+	case *discord.MessageCreate:
+		if d != nil && d.AllowedMentions == nil {
+			d.AllowedMentions = &s.defaultAllowedMentions
+		}
+	case discord.MessageUpdate:
+		if shouldApplyUpdateAllowedMentions(d) {
+			d.AllowedMentions = &s.defaultAllowedMentions
+			response.Data = d
+		}
+	case *discord.MessageUpdate:
+		if d != nil && shouldApplyUpdateAllowedMentions(*d) {
+			d.AllowedMentions = &s.defaultAllowedMentions
+		}
+	}
+}
+
+func shouldApplyUpdateAllowedMentions(m discord.MessageUpdate) bool {
+	return m.AllowedMentions == nil && (m.Content != nil || (m.Flags != nil && m.Flags.Has(discord.MessageFlagIsComponentsV2)))
 }
