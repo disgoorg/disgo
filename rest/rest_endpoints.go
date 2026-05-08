@@ -43,6 +43,7 @@ var (
 	GetCurrentUserConnections                  = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/connections")
 	GetCurrentUserApplicationRoleConnection    = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/applications/{application.id}/role-connection")
 	UpdateCurrentUserApplicationRoleConnection = NewNoBotAuthEndpoint(http.MethodPut, "/users/@me/applications/{application.id}/role-connection")
+	DeleteCurrentUserApplicationRoleConnection = NewNoBotAuthEndpoint(http.MethodDelete, "/users/@me/applications/{application.id}/role-connection")
 	LeaveGuild                                 = NewEndpoint(http.MethodDelete, "/users/@me/guilds/{guild.id}")
 	CreateDMChannel                            = NewEndpoint(http.MethodPost, "/users/@me/channels")
 )
