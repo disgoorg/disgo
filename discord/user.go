@@ -178,9 +178,11 @@ func (u User) CreatedAt() time.Time {
 type OAuth2User struct {
 	User
 	// Requires OAuth2ScopeIdentify
-	MfaEnabled  bool        `json:"mfa_enabled"`
-	Locale      string      `json:"locale"`
-	Flags       UserFlags   `json:"flags"`
+	MfaEnabled bool      `json:"mfa_enabled"`
+	Locale     string    `json:"locale"`
+	Flags      UserFlags `json:"flags"`
+
+	// Requires OAuth2ScopeIdentifyPremium
 	PremiumType PremiumType `json:"premium_type"`
 
 	// Requires OAuth2ScopeEmail

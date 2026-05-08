@@ -127,6 +127,7 @@ const (
 	OAuth2ScopeRelationshipsRead    OAuth2Scope = "relationships.read"
 	OAuth2ScopeRoleConnectionsWrite OAuth2Scope = "role_connections.write"
 	OAuth2ScopeIdentify             OAuth2Scope = "identify"
+	OAuth2ScopeIdentifyPremium      OAuth2Scope = "identify.premium"
 	OAuth2ScopeEmail                OAuth2Scope = "email"
 	OAuth2ScopeConnections          OAuth2Scope = "connections"
 	OAuth2ScopeBot                  OAuth2Scope = "bot"
