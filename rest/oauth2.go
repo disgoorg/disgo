@@ -38,6 +38,7 @@ type OAuth2 interface {
 
 	GetCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
 	UpdateCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, connectionUpdate discord.ApplicationRoleConnectionUpdate, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
+	DeleteCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) error
 
 	GetAccessToken(clientID snowflake.ID, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
 	RefreshAccessToken(clientID snowflake.ID, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
@@ -139,6 +140,13 @@ func (s *oAuth2Impl) UpdateCurrentUserApplicationRoleConnection(bearerToken stri
 	}
 	err = s.client.Do(UpdateCurrentUserApplicationRoleConnection.Compile(nil, applicationID), connectionUpdate, &connection, withBearerToken(bearerToken, opts)...)
 	return
+}
+
+func (s *oAuth2Impl) DeleteCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) error {
+	if bearerToken == "" {
+		return ErrMissingBearerToken
+	}
+	return s.client.Do(DeleteCurrentUserApplicationRoleConnection.Compile(nil, applicationID), nil, nil, withBearerToken(bearerToken, opts)...)
 }
 
 func (s *oAuth2Impl) exchangeAccessToken(clientID snowflake.ID, clientSecret string, grantType discord.GrantType, codeOrRefreshToken string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenResponse, err error) {

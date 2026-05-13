@@ -175,6 +175,13 @@ func (c *Client) UpdateApplicationRoleConnection(session Session, applicationID 
 	return c.Rest.UpdateCurrentUserApplicationRoleConnection(session.AccessToken, applicationID, update, opts...)
 }
 
+func (c *Client) DeleteApplicationRoleConnection(session Session, applicationID snowflake.ID, opts ...rest.RequestOpt) error {
+	if err := checkSession(session, discord.OAuth2ScopeRoleConnectionsWrite); err != nil {
+		return err
+	}
+	return c.Rest.DeleteCurrentUserApplicationRoleConnection(session.AccessToken, applicationID, opts...)
+}
+
 func checkSession(session Session, scope discord.OAuth2Scope) error {
 	if session.Expired() {
 		return ErrSessionExpired
