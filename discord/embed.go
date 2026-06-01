@@ -281,11 +281,13 @@ func (e Embed) FindAllFields(fieldFindFunc func(field EmbedField) bool) []EmbedF
 }
 
 type EmbedResourceFlags int
+
 // constants for EmbedResourceFlags
 const (
 	EmbedResourceFlagIsAnimated EmbedResourceFlags = 1 << 5
-	EmbedResourceFlagsNone          EmbedResourceFlags = 0
+	EmbedResourceFlagsNone      EmbedResourceFlags = 0
 )
+
 // Add allows you to add multiple bits together, producing a new bit
 func (f EmbedResourceFlags) Add(bits ...EmbedResourceFlags) EmbedResourceFlags {
 	return flags.Add(f, bits...)
