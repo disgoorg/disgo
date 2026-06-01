@@ -3,6 +3,8 @@ package discord
 import (
 	"fmt"
 	"time"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // EmbedType is the type of Embed
@@ -278,12 +280,45 @@ func (e Embed) FindAllFields(fieldFindFunc func(field EmbedField) bool) []EmbedF
 	return fields
 }
 
+type EmbedResourceFlags int
+
+// constants for EmbedResourceFlags
+const (
+	EmbedResourceFlagsNone      EmbedResourceFlags = 0
+	EmbedResourceFlagIsAnimated EmbedResourceFlags = 1 << 5
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f EmbedResourceFlags) Add(bits ...EmbedResourceFlags) EmbedResourceFlags {
+	return flags.Add(f, bits...)
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f EmbedResourceFlags) Remove(bits ...EmbedResourceFlags) EmbedResourceFlags {
+	return flags.Remove(f, bits...)
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f EmbedResourceFlags) Has(bits ...EmbedResourceFlags) bool {
+	return flags.Has(f, bits...)
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f EmbedResourceFlags) Missing(bits ...EmbedResourceFlags) bool {
+	return flags.Missing(f, bits...)
+}
+
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
 type EmbedResource struct {
-	URL      string `json:"url,omitempty"`
-	ProxyURL string `json:"proxy_url,omitempty"`
-	Height   int    `json:"height,omitempty"`
-	Width    int    `json:"width,omitempty"`
+	URL                string             `json:"url,omitempty"`
+	ProxyURL           string             `json:"proxy_url,omitempty"`
+	Height             int                `json:"height,omitempty"`
+	Width              int                `json:"width,omitempty"`
+	ContentType        string             `json:"content_type,omitempty"`
+	Placeholder        string             `json:"placeholder,omitempty"`
+	PlaceholderVersion int                `json:"placeholder_version,omitempty"`
+	Description        string             `json:"description,omitempty"`
+	Flags              EmbedResourceFlags `json:"flags,omitempty"`
 }
 
 // The EmbedProvider of an Embed
