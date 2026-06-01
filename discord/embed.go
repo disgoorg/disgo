@@ -280,10 +280,12 @@ func (e Embed) FindAllFields(fieldFindFunc func(field EmbedField) bool) []EmbedF
 
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
 type EmbedResource struct {
-	URL      string `json:"url,omitempty"`
-	ProxyURL string `json:"proxy_url,omitempty"`
-	Height   int    `json:"height,omitempty"`
-	Width    int    `json:"width,omitempty"`
+	URL         string `json:"url,omitempty"`
+	ProxyURL    string `json:"proxy_url,omitempty"`
+	Height      int    `json:"height,omitempty"`
+	Width       int    `json:"width,omitempty"`
+	ContentType string `json:"content_type,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 // The EmbedProvider of an Embed
