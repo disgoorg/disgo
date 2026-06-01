@@ -284,8 +284,8 @@ type EmbedResourceFlags int
 
 // constants for EmbedResourceFlags
 const (
-	EmbedResourceFlagIsAnimated EmbedResourceFlags = 1 << 5
 	EmbedResourceFlagsNone      EmbedResourceFlags = 0
+	EmbedResourceFlagIsAnimated EmbedResourceFlags = 1 << 5
 )
 
 // Add allows you to add multiple bits together, producing a new bit
