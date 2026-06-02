@@ -187,7 +187,11 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		}
 		_ = c.udp.Close()
 		c.gateway.Close()
-		c.closedChan <- struct{}{}
+
+		select {
+		case c.closedChan <- struct{}{}:
+		default:
+		}
 	} else {
 		c.state.ChannelID = update.ChannelID
 	}
@@ -296,12 +300,5 @@ func (c *connImpl) Close(ctx context.Context) {
 	c.gateway.Close()
 	_ = c.udp.Close()
 
-	select {
-	case _, ok := <-c.closedChan:
-		if ok {
-			close(c.closedChan)
-		}
-	case <-ctx.Done():
-	}
 	c.removeConnFunc()
 }
