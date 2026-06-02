@@ -185,7 +185,6 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		}
 		_ = c.udp.Close()
 		c.gateway.Close()
-
 	} else {
 		c.state.ChannelID = update.ChannelID
 	}
