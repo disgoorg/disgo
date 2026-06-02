@@ -73,7 +73,6 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 			UserID:  userID,
 		},
 		openedChan: make(chan struct{}, 1),
-		closedChan: make(chan struct{}, 1),
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
@@ -99,7 +98,6 @@ type connImpl struct {
 	audioReceiver AudioReceiver
 
 	openedChan chan struct{}
-	closedChan chan struct{}
 
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
@@ -188,10 +186,6 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		_ = c.udp.Close()
 		c.gateway.Close()
 
-		select {
-		case c.closedChan <- struct{}{}:
-		default:
-		}
 	} else {
 		c.state.ChannelID = update.ChannelID
 	}
