@@ -42,7 +42,15 @@ type Embed struct {
 	Provider    *EmbedProvider `json:"provider,omitempty"`
 	Author      *EmbedAuthor   `json:"author,omitempty"`
 	Fields      []EmbedField   `json:"fields,omitempty"`
+	Flags       EmbedFlags     `json:"flags,omitempty"`
 }
+
+type EmbedFlags int
+
+const (
+	EmbedFlagsNone                   EmbedFlags = 0
+	EmbedFlagIsContentInventoryEntry EmbedFlags = 1 << 5
+)
 
 // WithTitle Withs the title of the Embed
 func (e Embed) WithTitle(title string) Embed {

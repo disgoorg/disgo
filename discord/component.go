@@ -749,17 +749,32 @@ type UnfurledMediaItem struct {
 	URL string `json:"url"`
 	// ProxyURL is a proxied version of the URL. This can't be set by bots.
 	ProxyURL string `json:"proxy_url,omitempty"`
-	// Height is the height of the media item in pixels. This can't be set by bots.
+	// Height is the height of the media item (if image or video) in pixels. This can't be set by bots.
 	Height int `json:"height,omitempty"`
-	// Width is the width of the media item in pixels. This can't be set by bots.
+	// Width is the width of the media item (if image or video) in pixels. This can't be set by bots.
 	Width int `json:"width,omitempty"`
+	// Placeholder is the [Thumbhash] placeholder (if image or video). This can't be set by bots.
+	//
+	// [Thumbhash]: https://evanw.github.io/thumbhash/
+	Placeholder string `json:"placeholder,omitempty"`
+	// PlaceholderVersion is the version of the placeholder (if image or video). This can't be set by bots.
+	PlaceholderVersion int `json:"placeholder_version,omitempty"`
 	// ContentType is the content type of the media item. This can't be set by bots.
 	ContentType string `json:"content_type,omitempty"`
+	// Flags is the unfurled media item flags combined as a bitfield. This can't be set by bots.
+	Flags UnfurledMediaItemFlags `json:"flags"`
 	// AttachmentID is the id of the uploaded attachment. This can't be set by bots.
 	AttachmentID snowflake.ID `json:"attachment_id,omitempty"`
 	// LoadingState is the loading state of the media item. This can't be set by bots.
 	LoadingState UnfurledMediaItemLoadingState `json:"loading_state,omitempty"`
 }
+
+type UnfurledMediaItemFlags int
+
+const (
+	UnfurledMediaItemFlagIsAnimated UnfurledMediaItemFlags = 1 << iota
+	UnfurledMediaItemFlagsNone      UnfurledMediaItemFlags = 0
+)
 
 // NewSection creates a new [SectionComponent] with the provided components.
 func NewSection(components ...SectionSubComponent) SectionComponent {
