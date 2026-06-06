@@ -8,23 +8,25 @@ import (
 
 // Attachment is used for files sent in a Message
 type Attachment struct {
-	ID               snowflake.ID    `json:"id,omitempty"`
-	Filename         string          `json:"filename,omitempty"`
-	Title            *string         `json:"title,omitempty"`
-	Description      *string         `json:"description,omitempty"`
-	ContentType      *string         `json:"content_type,omitempty"`
-	Size             int             `json:"size,omitempty"`
-	URL              string          `json:"url,omitempty"`
-	ProxyURL         string          `json:"proxy_url,omitempty"`
-	Height           *int            `json:"height,omitempty"`
-	Width            *int            `json:"width,omitempty"`
-	Ephemeral        bool            `json:"ephemeral,omitempty"`
-	DurationSecs     *float64        `json:"duration_secs,omitempty"`
-	Waveform         *string         `json:"waveform,omitempty"`
-	Flags            AttachmentFlags `json:"flags"`
-	ClipParticipants []User          `json:"clip_participants,omitempty"`
-	ClipCreatedAt    time.Time       `json:"clip_created_at,omitzero"`
-	Application      *Application    `json:"application,omitempty"`
+	ID                 snowflake.ID    `json:"id,omitempty"`
+	Filename           string          `json:"filename,omitempty"`
+	Title              *string         `json:"title,omitempty"`
+	Description        *string         `json:"description,omitempty"`
+	ContentType        *string         `json:"content_type,omitempty"`
+	Size               int             `json:"size,omitempty"`
+	URL                string          `json:"url,omitempty"`
+	ProxyURL           string          `json:"proxy_url,omitempty"`
+	Height             *int            `json:"height,omitempty"`
+	Width              *int            `json:"width,omitempty"`
+	Placeholder        string          `json:"placeholder,omitempty"`
+	PlaceholderVersion int             `json:"placeholder_version,omitempty"`
+	Ephemeral          bool            `json:"ephemeral,omitempty"`
+	DurationSecs       *float64        `json:"duration_secs,omitempty"`
+	Waveform           *string         `json:"waveform,omitempty"`
+	Flags              AttachmentFlags `json:"flags"`
+	ClipParticipants   []User          `json:"clip_participants,omitempty"`
+	ClipCreatedAt      time.Time       `json:"clip_created_at,omitzero"`
+	Application        *Application    `json:"application,omitempty"`
 }
 
 func (a Attachment) CreatedAt() time.Time {
