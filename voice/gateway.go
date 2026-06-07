@@ -32,6 +32,9 @@ var (
 
 	// ErrGatewayAlreadyConnected is returned when the gateway is already connected and a connection is attempted to be opened.
 	ErrGatewayAlreadyConnected = fmt.Errorf("voice gateway already connected")
+
+	// ErrGatewayNoChannelID is returned from Open when the supplied State has a nil ChannelID; the DAVE session cannot be keyed without a channel.
+	ErrGatewayNoChannelID = fmt.Errorf("voice gateway state has no channel ID")
 )
 
 // Status returns the current status of the gateway.
@@ -142,6 +145,10 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 
 func (g *gatewayImpl) open(ctx context.Context, state State) error {
 	g.config.Logger.Debug("opening voice gateway connection")
+
+	if state.ChannelID == nil {
+		return ErrGatewayNoChannelID
+	}
 
 	g.connMu.Lock()
 	if g.conn != nil {
@@ -330,7 +337,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 			return nil
 		}
 
-		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
+		if errors.Is(err, discord.ErrGatewayAlreadyConnected) || errors.Is(err, ErrGatewayNoChannelID) {
 			return err
 		}
 
