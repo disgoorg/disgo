@@ -398,5 +398,8 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 func (u *udpConnImpl) Close() error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
+	if u.conn == nil {
+		return nil
+	}
 	return u.conn.Close()
 }
