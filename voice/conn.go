@@ -99,8 +99,6 @@ type connImpl struct {
 
 	openedChan chan struct{}
 
-	opening bool
-
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
 }
@@ -210,51 +208,15 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 	c.tryOpenGateway()
 }
 
-func (c *connImpl) canOpen() bool {
-	if c.state.Token == "" || c.state.Endpoint == "" || c.state.ChannelID == nil {
-		return false
-	}
-	status := c.gateway.Status()
-	return status == StatusUnconnected || status == StatusDisconnected
-}
-
 func (c *connImpl) tryOpenGateway() {
-	if c.opening || !c.canOpen() {
+	if c.state.Token == "" || c.state.Endpoint == "" || c.state.ChannelID == nil {
 		return
 	}
-	c.opening = true
-	state := c.state
 	go func() {
-		parentCtx, parentCancel := context.WithTimeout(context.Background(), 2*maximumConnectDelay)
-		defer func() {
-			c.stateMu.Lock()
-			c.opening = false
-			c.stateMu.Unlock()
-			parentCancel()
-		}()
-		for {
-			if parentCtx.Err() != nil {
-				return
-			}
-			ctx, cancel := context.WithTimeout(parentCtx, 5*time.Second)
-			err := c.gateway.Open(ctx, state)
-			cancel()
-			if err != nil {
-				c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
-			}
-			c.stateMu.Lock()
-			if !c.canOpen() {
-				c.stateMu.Unlock()
-				return
-			}
-			if c.state.Token == state.Token &&
-				c.state.Endpoint == state.Endpoint &&
-				*c.state.ChannelID == *state.ChannelID {
-				c.stateMu.Unlock()
-				return
-			}
-			state = c.state
-			c.stateMu.Unlock()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := c.gateway.Open(ctx, c.state); err != nil {
+			c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
 		}
 	}()
 }
