@@ -23,6 +23,6 @@ type SubscriptionStatus int
 
 const (
 	SubscriptionStatusActive SubscriptionStatus = iota
-	SubscriptionStatusEnding
 	SubscriptionStatusInactive
+	SubscriptionStatusEnding
 )
