@@ -140,6 +140,7 @@ or in these projects:
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
 * [subcordant](https://github.com/apkatsikas/subcordant)
+* [Yugen Stack](https://github.com/jurienhamaker/yugen)
 
 ## Libraries for DisGo
 
