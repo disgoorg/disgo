@@ -154,3 +154,10 @@ type GuildChannelPositionUpdate struct {
 	LockPermissions omit.Omit[*bool] `json:"lock_permissions,omitzero"`
 	ParentID        *snowflake.ID    `json:"parent_id,omitempty"`
 }
+
+// VoiceChannelStatusUpdate is used with the SetVoiceChannelStatus endpoint (PUT /channels/{channel.id}/voice-status).
+// Status is a short string (up to 500 characters) describing what's happening in the voice channel.
+// Pass an empty string to clear the status.
+type VoiceChannelStatusUpdate struct {
+	Status string `json:"status"`
+}

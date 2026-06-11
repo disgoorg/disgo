@@ -90,6 +90,11 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(v.D, &d)
 		messageData = d
 
+	case OpcodeRequestChannelInfo:
+		var d MessageDataRequestChannelInfo
+		err = json.Unmarshal(v.D, &d)
+		messageData = d
+
 	default:
 		var d MessageDataUnknown
 		err = json.Unmarshal(v.D, &d)
@@ -167,6 +172,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeChannelDelete:
 		var d EventChannelDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeChannelInfo:
+		var d EventChannelInfo
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
@@ -470,6 +480,16 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeVoiceChannelStatusUpdate:
+		var d EventVoiceChannelStatusUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeVoiceChannelStartTimeUpdate:
+		var d EventVoiceChannelStartTimeUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeVoiceStateUpdate:
 		var d EventVoiceStateUpdate
 		err = json.Unmarshal(data, &d)
@@ -696,3 +716,13 @@ type MessageDataRequestSoundboardSounds struct {
 }
 
 func (MessageDataRequestSoundboardSounds) messageData() {}
+
+// MessageDataRequestChannelInfo is used to request ephemeral channel data (opcode 43).
+// The server will respond with an EventChannelInfo event containing the requested fields.
+// Available fields: "status", "voice_start_time".
+type MessageDataRequestChannelInfo struct {
+	GuildID snowflake.ID `json:"guild_id"`
+	Fields  []string     `json:"fields"`
+}
+
+func (MessageDataRequestChannelInfo) messageData() {}

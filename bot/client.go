@@ -149,6 +149,17 @@ func (c *Client) RequestSoundboardSounds(ctx context.Context, guildIDs ...snowfl
 	})
 }
 
+func (c *Client) RequestChannelInfo(ctx context.Context, guildID snowflake.ID, fields ...string) error {
+	shard, err := c.Shard(guildID)
+	if err != nil {
+		return err
+	}
+	return shard.Send(ctx, gateway.OpcodeRequestChannelInfo, gateway.MessageDataRequestChannelInfo{
+		GuildID: guildID,
+		Fields:  fields,
+	})
+}
+
 func (c *Client) SetPresence(ctx context.Context, opts ...gateway.PresenceOpt) error {
 	if !c.HasGateway() {
 		return discord.ErrNoGateway

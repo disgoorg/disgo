@@ -6,6 +6,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 // GenericGuildChannel is called upon receiving GuildChannelCreate , GuildChannelUpdate or GuildChannelDelete
@@ -45,4 +46,10 @@ type GuildChannelPinsUpdate struct {
 	ChannelID           snowflake.ID
 	NewLastPinTimestamp *time.Time
 	OldLastPinTimestamp *time.Time
+}
+
+// ChannelInfo is sent in response to a gateway.MessageDataRequestChannelInfo command and contains ephemeral data for channels in a guild (requires gateway.IntentGuilds)
+type GuildChannelInfo struct {
+	*GenericEvent
+	gateway.EventChannelInfo
 }

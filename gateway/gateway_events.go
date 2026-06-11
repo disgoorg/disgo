@@ -171,6 +171,55 @@ func (e *EventChannelDelete) UnmarshalJSON(data []byte) error {
 func (EventChannelDelete) messageData() {}
 func (EventChannelDelete) eventData()   {}
 
+// ChannelInfo contains ephemeral data for a single channel within an EventChannelInfo event.
+type ChannelInfo struct {
+	ID             snowflake.ID `json:"id"`
+	Status         *string      `json:"status,omitempty"`
+	VoiceStartTime *time.Time
+}
+
+func (c *ChannelInfo) UnmarshalJSON(data []byte) error {
+	type channelInfo ChannelInfo
+	var v struct {
+		VoiceStartTime *int64 `json:"voice_start_time,omitempty"`
+		channelInfo
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*c = ChannelInfo(v.channelInfo)
+	if v.VoiceStartTime != nil {
+		t := time.Unix(*v.VoiceStartTime, 0)
+		c.VoiceStartTime = &t
+	}
+	return nil
+}
+
+func (c ChannelInfo) MarshalJSON() ([]byte, error) {
+	type channelInfo ChannelInfo
+	var voiceStartTime *int64
+	if c.VoiceStartTime != nil {
+		unix := c.VoiceStartTime.Unix()
+		voiceStartTime = &unix
+	}
+	return json.Marshal(struct {
+		VoiceStartTime *int64 `json:"voice_start_time,omitempty"`
+		channelInfo
+	}{
+		VoiceStartTime: voiceStartTime,
+		channelInfo:    (channelInfo)(c),
+	})
+}
+
+// EventChannelInfo is sent in response to a RequestChannelInfo gateway command.
+type EventChannelInfo struct {
+	GuildID  snowflake.ID  `json:"guild_id"`
+	Channels []ChannelInfo `json:"channels"`
+}
+
+func (EventChannelInfo) messageData() {}
+func (EventChannelInfo) eventData()   {}
+
 type EventThreadCreate struct {
 	discord.GuildThread
 	ThreadMember discord.ThreadMember `json:"thread_member"`
@@ -637,7 +686,6 @@ func (EventInviteDelete) eventData()   {}
 
 type EventMessageCreate struct {
 	discord.Message
-	ChannelType *discord.ChannelType `json:"channel_type,omitempty"`
 }
 
 func (EventMessageCreate) messageData() {}
@@ -793,6 +841,59 @@ func (e *EventVoiceChannelEffectSend) UnmarshalJSON(data []byte) error {
 
 func (EventVoiceChannelEffectSend) messageData() {}
 func (EventVoiceChannelEffectSend) eventData()   {}
+
+// EventVoiceChannelStatusUpdate is fired when the status of a voice channel changes.
+type EventVoiceChannelStatusUpdate struct {
+	ID      snowflake.ID `json:"id"`
+	GuildID snowflake.ID `json:"guild_id"`
+	Status  *string      `json:"status"`
+}
+
+func (EventVoiceChannelStatusUpdate) messageData() {}
+func (EventVoiceChannelStatusUpdate) eventData()   {}
+
+// EventVoiceChannelStartTimeUpdate is fired when the start time of a voice channel session changes.
+type EventVoiceChannelStartTimeUpdate struct {
+	ID             snowflake.ID `json:"id"`
+	GuildID        snowflake.ID `json:"guild_id"`
+	VoiceStartTime *time.Time
+}
+
+func (e *EventVoiceChannelStartTimeUpdate) UnmarshalJSON(data []byte) error {
+	type eventVoiceChannelStartTimeUpdate EventVoiceChannelStartTimeUpdate
+	var v struct {
+		VoiceStartTime *int64 `json:"voice_start_time"`
+		eventVoiceChannelStartTimeUpdate
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventVoiceChannelStartTimeUpdate(v.eventVoiceChannelStartTimeUpdate)
+	if v.VoiceStartTime != nil {
+		t := time.Unix(*v.VoiceStartTime, 0)
+		e.VoiceStartTime = &t
+	}
+	return nil
+}
+
+func (e EventVoiceChannelStartTimeUpdate) MarshalJSON() ([]byte, error) {
+	type eventVoiceChannelStartTimeUpdate EventVoiceChannelStartTimeUpdate
+	var voiceStartTime *int64
+	if e.VoiceStartTime != nil {
+		unix := e.VoiceStartTime.Unix()
+		voiceStartTime = &unix
+	}
+	return json.Marshal(struct {
+		VoiceStartTime *int64 `json:"voice_start_time"`
+		eventVoiceChannelStartTimeUpdate
+	}{
+		VoiceStartTime:                   voiceStartTime,
+		eventVoiceChannelStartTimeUpdate: (eventVoiceChannelStartTimeUpdate)(e),
+	})
+}
+
+func (EventVoiceChannelStartTimeUpdate) messageData() {}
+func (EventVoiceChannelStartTimeUpdate) eventData()   {}
 
 type EventVoiceStateUpdate struct {
 	discord.VoiceState

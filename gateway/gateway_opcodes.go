@@ -18,6 +18,7 @@ const (
 	OpcodeHello
 	OpcodeHeartbeatACK
 	OpcodeRequestSoundboardSounds Opcode = 31
+	OpcodeRequestChannelInfo      Opcode = 43
 )
 
 type CloseEventCode struct {

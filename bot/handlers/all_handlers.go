@@ -35,6 +35,7 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelCreate, gatewayHandlerChannelCreate),
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelUpdate, gatewayHandlerChannelUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelDelete, gatewayHandlerChannelDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeChannelInfo, gatewayHandlerChannelInfo),
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelPinsUpdate, gatewayHandlerChannelPinsUpdate),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeEntitlementCreate, gatewayHandlerEntitlementCreate),
@@ -118,6 +119,8 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeUserUpdate, gatewayHandlerUserUpdate),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeVoiceChannelEffectSend, gatewayHandlerVoiceChannelEffectSend),
+	bot.NewGatewayEventHandler(gateway.EventTypeVoiceChannelStatusUpdate, gatewayHandlerVoiceChannelStatusUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeVoiceChannelStartTimeUpdate, gatewayHandlerVoiceChannelStartTimeUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeVoiceStateUpdate, gatewayHandlerVoiceStateUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeVoiceServerUpdate, gatewayHandlerVoiceServerUpdate),
 

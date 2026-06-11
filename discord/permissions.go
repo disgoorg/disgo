@@ -62,7 +62,7 @@ const (
 	PermissionUseExternalSounds
 	PermissionSendVoiceMessages
 	_
-	_
+	PermissionSetVoiceChannelStatus
 	PermissionSendPolls
 	PermissionUseExternalApps
 	PermissionPinMessages
@@ -102,7 +102,8 @@ const (
 		PermissionUseEmbeddedActivities |
 		PermissionCreateGuildExpressions |
 		PermissionCreateEvents |
-		PermissionManageEvents
+		PermissionManageEvents |
+		PermissionSetVoiceChannelStatus
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
@@ -178,6 +179,7 @@ var permissions = map[Permissions]string{
 	PermissionStream:                           "Video",
 	PermissionViewGuildInsights:                "View Server Insights",
 	PermissionSendVoiceMessages:                "Send Voice Messages",
+	PermissionSetVoiceChannelStatus:            "Set Voice Channel Status",
 	PermissionSendPolls:                        "Create Polls",
 	PermissionUseExternalApps:                  "Use External Apps",
 	PermissionPinMessages:                      "Pin Messages",
