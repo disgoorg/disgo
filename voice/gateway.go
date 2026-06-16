@@ -330,7 +330,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 			return nil
 		}
 
-		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
+		if errors.Is(err, ErrGatewayAlreadyConnected) {
 			return err
 		}
 
