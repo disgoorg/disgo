@@ -637,6 +637,7 @@ func (EventInviteDelete) eventData()   {}
 
 type EventMessageCreate struct {
 	discord.Message
+	ChannelType *discord.ChannelType `json:"channel_type,omitempty"`
 }
 
 func (EventMessageCreate) messageData() {}
