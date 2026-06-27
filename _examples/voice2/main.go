@@ -37,7 +37,7 @@ func main() {
 			go play(e.Client())
 		}),
 		bot.WithVoiceManagerConfigOpts(
-			voice.WithDaveSessionCreateFunc(session.NewSession),
+			voice.WithDaveSessionCreateFunc(session.New),
 		),
 	)
 	if err != nil {
@@ -83,6 +83,7 @@ func play(client *bot.Client) {
 		for {
 			if _, err := conn.UDP().ReadPacket(); err != nil {
 				slog.Error("error reading udp packet", slog.Any("err", err))
+				return
 			}
 		}
 	}()
@@ -120,6 +121,7 @@ func writeOpus(w io.Writer) {
 		_, err = io.CopyN(w, file, int64(frameLen))
 		if err != nil && err != io.EOF {
 			_ = file.Close()
+			slog.Error("error copying frame", slog.Any("err", err))
 			return
 		}
 	}

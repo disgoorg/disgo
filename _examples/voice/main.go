@@ -121,6 +121,7 @@ func writeOpus(w io.Writer) {
 		_, err = io.CopyN(w, file, int64(frameLen))
 		if err != nil && err != io.EOF {
 			_ = file.Close()
+			slog.Error("error copying frame", slog.Any("err", err))
 			return
 		}
 	}
