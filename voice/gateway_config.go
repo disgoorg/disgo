@@ -8,16 +8,15 @@ import (
 
 func defaultGatewayConfig() gatewayConfig {
 	return gatewayConfig{
-		Logger:        slog.Default(),
-		Dialer:        websocket.DefaultDialer,
-		AutoReconnect: true,
+		Logger: slog.Default(),
+		Dialer: websocket.DefaultDialer,
 	}
 }
 
 type gatewayConfig struct {
-	Logger        *slog.Logger
-	Dialer        *websocket.Dialer
-	AutoReconnect bool
+	Logger   *slog.Logger
+	Dialer   *websocket.Dialer
+	Observer CloseObserver
 }
 
 // GatewayConfigOpt is used to functionally configure a gatewayConfig.
@@ -44,9 +43,9 @@ func WithGatewayDialer(dialer *websocket.Dialer) GatewayConfigOpt {
 	}
 }
 
-// WithGatewayAutoReconnect sets the Gateway(s) used AutoReconnect.
-func WithGatewayAutoReconnect(autoReconnect bool) GatewayConfigOpt {
+// WithGatewayCloseObserver sets the Gateway(s) used CloseObserver.
+func WithGatewayCloseObserver(observer CloseObserver) GatewayConfigOpt {
 	return func(config *gatewayConfig) {
-		config.AutoReconnect = autoReconnect
+		config.Observer = observer
 	}
 }

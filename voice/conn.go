@@ -2,12 +2,14 @@ package voice
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"sync"
 	"time"
 
 	"github.com/disgoorg/godave"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/gorilla/websocket"
 
 	botgateway "github.com/disgoorg/disgo/gateway"
 )
@@ -42,9 +44,6 @@ type (
 		// SetOpusFrameReceiver lets you inject your own OpusFrameReceiver.
 		SetOpusFrameReceiver(handler OpusFrameReceiver)
 
-		// SetEventHandlerFunc lets listen for voice gateway events.
-		SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
-
 		// Open opens the voice conn. It will connect to the voice gateway and start the Conn conn after it receives the Gateway events.
 		Open(ctx context.Context, channelID snowflake.ID, selfMute bool, selfDeaf bool) error
 
@@ -72,8 +71,7 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 			GuildID: guildID,
 			UserID:  userID,
 		},
-		openedChan: make(chan struct{}, 1),
-		ssrcs:      map[uint32]snowflake.ID{},
+		ssrcs: map[uint32]snowflake.ID{},
 	}
 
 	daveSession := cfg.DaveSessionCreate(cfg.DaveSessionLogger, godave.UserID(userID.String()), conn)
@@ -97,7 +95,7 @@ type connImpl struct {
 	audioSender   AudioSender
 	audioReceiver AudioReceiver
 
-	openedChan chan struct{}
+	openedFunc context.CancelFunc
 
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
@@ -170,10 +168,6 @@ func (c *connImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
 	c.audioReceiver.Open()
 }
 
-func (c *connImpl) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {
-	c.config.EventHandlerFunc = eventHandlerFunc
-}
-
 func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdate) {
 	if update.GuildID != c.state.GuildID || update.UserID != c.state.UserID {
 		return
@@ -198,6 +192,8 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		c.state.ChannelID = *update.ChannelID
 	}
 	c.state.SessionID = update.SessionID
+	c.state.SelfMute = update.SelfMute
+	c.state.SelfDeaf = update.SelfDeaf
 
 	c.tryOpenGateway()
 }
@@ -205,6 +201,7 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpdate) {
 	c.stateMu.Lock()
 	defer c.stateMu.Unlock()
+
 	if update.GuildID != c.state.GuildID || update.Endpoint == nil {
 		return
 	}
@@ -261,7 +258,9 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 		if err := c.udp.SetSecretKey(d.Mode, d.SecretKey); err != nil {
 			c.config.Logger.Error("voice: failed to set secret key", slog.Any("err", err))
 		}
-		c.openedChan <- struct{}{}
+		if openedFunc := c.openedFunc; openedFunc != nil {
+			openedFunc()
+		}
 
 	case GatewayMessageDataSpeaking:
 		c.ssrcsMu.Lock()
@@ -286,7 +285,20 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 	}
 }
 
-func (c *connImpl) handleGatewayClose(_ Gateway, _ error, _ bool) {
+func (c *connImpl) handleGatewayClose(_ Gateway, err error) {
+	var closeError *websocket.CloseError
+	if errors.As(err, &closeError) {
+		closeCode := GatewayCloseEventCodeByCode(closeError.Code)
+		if closeCode.NewConnection {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if err = c.Open(ctx, c.state.ChannelID, c.state.SelfMute, c.state.SelfDeaf); err != nil {
+				c.config.Logger.Error("voice: failed to reopen voice conn after full reconnect close code", slog.Any("err", err))
+				return
+			}
+		}
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	c.Close(ctx)
@@ -295,12 +307,16 @@ func (c *connImpl) handleGatewayClose(_ Gateway, _ error, _ bool) {
 func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bool, selfDeaf bool) error {
 	c.config.Logger.Debug("opening voice conn")
 
+	openedCtx, cancel := context.WithCancel(context.Background())
+	c.openedFunc = cancel
+	defer cancel()
+
 	if err := c.voiceStateUpdateFunc(ctx, c.state.GuildID, &channelID, selfMute, selfDeaf); err != nil {
 		return err
 	}
 
 	select {
-	case <-c.openedChan:
+	case <-openedCtx.Done():
 		return nil
 	case <-ctx.Done():
 		return ctx.Err()

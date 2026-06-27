@@ -56,10 +56,14 @@ type (
 	GatewayCreateFunc func(daveManager godave.Session, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
 
 	// CloseHandlerFunc is a function that handles a voice gateway close.
-	CloseHandlerFunc func(gateway Gateway, err error, reconnect bool)
+	CloseHandlerFunc func(gateway Gateway, err error)
 
 	// StateProviderFunc is a function that provides the current conn state of the voice gateway.
 	StateProviderFunc func() State
+
+	// CloseObserver is a function that observes the close of the voice gateway and can be used for monitoring.
+	// It is called with the error that caused the close and is called in its own goroutine.
+	CloseObserver func(err error)
 )
 
 // State is the current state of the voice conn.
@@ -71,6 +75,9 @@ type State struct {
 	SessionID string
 	Token     string
 	Endpoint  string
+
+	SelfMute bool
+	SelfDeaf bool
 }
 
 // Gateway is a websocket connection to the Discord voice gateway.
@@ -355,9 +362,7 @@ func (g *gatewayImpl) reconnect() {
 	if err := g.doReconnect(context.Background(), g.state); err != nil {
 		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
 
-		if g.closeHandlerFunc != nil {
-			g.closeHandlerFunc(g, err, false)
-		}
+		g.closeHandlerFunc(g, err)
 	}
 }
 
@@ -508,13 +513,17 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				g.config.Logger.Warn("failed to read next message from voice gateway", slog.Any("err", err))
 			}
 
+			if g.config.Observer != nil {
+				go g.config.Observer(err)
+			}
+
 			// make sure the connection is properly closed
 			g.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
-			if g.config.AutoReconnect && reconnect {
+			if reconnect {
 				go g.reconnect()
-			} else if g.closeHandlerFunc != nil {
-				go g.closeHandlerFunc(g, err, reconnect)
+				return
 			}
+			go g.closeHandlerFunc(g, err)
 
 			return
 		}
