@@ -67,7 +67,7 @@ type State struct {
 	GuildID snowflake.ID
 	UserID  snowflake.ID
 
-	ChannelID *snowflake.ID
+	ChannelID snowflake.ID
 	SessionID string
 	Token     string
 	Endpoint  string
@@ -180,7 +180,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 		return nil
 	})
 
-	g.daveSession.SetChannelID(godave.ChannelID(*state.ChannelID))
+	g.daveSession.SetChannelID(godave.ChannelID(state.ChannelID))
 	g.conn = conn
 	g.connMu.Unlock()
 

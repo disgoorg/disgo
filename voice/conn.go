@@ -120,7 +120,13 @@ func (c *connImpl) SendInvalidCommitWelcome(transitionID uint16) error {
 }
 
 func (c *connImpl) ChannelID() *snowflake.ID {
-	return c.state.ChannelID
+	c.stateMu.Lock()
+	defer c.stateMu.Unlock()
+	if c.state.ChannelID == 0 {
+		return nil
+	}
+	channelID := c.state.ChannelID
+	return &channelID
 }
 
 func (c *connImpl) GuildID() snowflake.ID {
@@ -173,8 +179,11 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		return
 	}
 
+	c.stateMu.Lock()
+	defer c.stateMu.Unlock()
+
 	if update.ChannelID == nil {
-		c.state.ChannelID = nil
+		c.state.ChannelID = 0
 		if c.audioSender != nil {
 			c.audioSender.Close()
 			c.audioSender = nil
@@ -186,9 +195,11 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		_ = c.udp.Close()
 		c.gateway.Close()
 	} else {
-		c.state.ChannelID = update.ChannelID
+		c.state.ChannelID = *update.ChannelID
 	}
 	c.state.SessionID = update.SessionID
+
+	c.tryOpenGateway()
 }
 
 func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpdate) {
@@ -200,10 +211,19 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 
 	c.state.Token = update.Token
 	c.state.Endpoint = *update.Endpoint
+
+	c.tryOpenGateway()
+}
+
+func (c *connImpl) tryOpenGateway() {
+	if c.state.Token == "" || c.state.Endpoint == "" || c.state.ChannelID == 0 {
+		return
+	}
+	state := c.state
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err := c.gateway.Open(ctx, c.state); err != nil {
+		if err := c.gateway.Open(ctx, state); err != nil {
 			c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
 		}
 	}()
