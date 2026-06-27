@@ -13,6 +13,20 @@ func gatewayHandlerVoiceChannelEffectSend(client *bot.Client, sequenceNumber int
 	})
 }
 
+func gatewayHandlerVoiceChannelStatusUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceChannelStatusUpdate) {
+	client.EventManager.DispatchEvent(&events.GuildVoiceChannelStatusUpdate{
+		GenericEvent:                  events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventVoiceChannelStatusUpdate: event,
+	})
+}
+
+func gatewayHandlerVoiceChannelStartTimeUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceChannelStartTimeUpdate) {
+	client.EventManager.DispatchEvent(&events.GuildVoiceChannelStartTimeUpdate{
+		GenericEvent:                     events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventVoiceChannelStartTimeUpdate: event,
+	})
+}
+
 func gatewayHandlerVoiceStateUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceStateUpdate) {
 	member := event.Member
 

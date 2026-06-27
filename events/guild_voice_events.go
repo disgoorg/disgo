@@ -46,3 +46,15 @@ type VoiceServerUpdate struct {
 	*GenericEvent
 	gateway.EventVoiceServerUpdate
 }
+
+// GuildVoiceChannelStatusUpdate indicates that the status of a discord.GuildVoiceChannel has changed (requires gateway.IntentGuilds)
+type GuildVoiceChannelStatusUpdate struct {
+	*GenericEvent
+	gateway.EventVoiceChannelStatusUpdate
+}
+
+// GuildVoiceChannelStartTimeUpdate indicates that the voice session start time of a discord.GuildVoiceChannel has changed (requires gateway.IntentGuilds)
+type GuildVoiceChannelStartTimeUpdate struct {
+	*GenericEvent
+	gateway.EventVoiceChannelStartTimeUpdate
+}

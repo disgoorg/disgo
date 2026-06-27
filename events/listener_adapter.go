@@ -45,6 +45,7 @@ type ListenerAdapter struct {
 	OnGuildChannelCreate     func(event *GuildChannelCreate)
 	OnGuildChannelUpdate     func(event *GuildChannelUpdate)
 	OnGuildChannelDelete     func(event *GuildChannelDelete)
+	OnGuildChannelInfo       func(event *GuildChannelInfo)
 	OnGuildChannelPinsUpdate func(event *GuildChannelPinsUpdate)
 
 	// DM Channel Events
@@ -127,12 +128,14 @@ type ListenerAdapter struct {
 	OnSoundboardSounds            func(event *SoundboardSounds)
 
 	// Guild Voice Events
-	OnVoiceServerUpdate           func(event *VoiceServerUpdate)
-	OnGuildVoiceChannelEffectSend func(event *GuildVoiceChannelEffectSend)
-	OnGuildVoiceStateUpdate       func(event *GuildVoiceStateUpdate)
-	OnGuildVoiceJoin              func(event *GuildVoiceJoin)
-	OnGuildVoiceMove              func(event *GuildVoiceMove)
-	OnGuildVoiceLeave             func(event *GuildVoiceLeave)
+	OnVoiceServerUpdate                func(event *VoiceServerUpdate)
+	OnGuildVoiceChannelEffectSend      func(event *GuildVoiceChannelEffectSend)
+	OnGuildVoiceChannelStatusUpdate    func(event *GuildVoiceChannelStatusUpdate)
+	OnGuildVoiceChannelStartTimeUpdate func(event *GuildVoiceChannelStartTimeUpdate)
+	OnGuildVoiceStateUpdate            func(event *GuildVoiceStateUpdate)
+	OnGuildVoiceJoin                   func(event *GuildVoiceJoin)
+	OnGuildVoiceMove                   func(event *GuildVoiceMove)
+	OnGuildVoiceLeave                  func(event *GuildVoiceLeave)
 
 	// Guild StageInstance Events
 	OnStageInstanceCreate func(event *StageInstanceCreate)
@@ -296,6 +299,10 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *GuildChannelDelete:
 		if listener := l.OnGuildChannelDelete; listener != nil {
+			listener(e)
+		}
+	case *GuildChannelInfo:
+		if listener := l.OnGuildChannelInfo; listener != nil {
 			listener(e)
 		}
 	case *GuildChannelPinsUpdate:
@@ -542,6 +549,14 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *GuildVoiceChannelEffectSend:
 		if listener := l.OnGuildVoiceChannelEffectSend; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceChannelStatusUpdate:
+		if listener := l.OnGuildVoiceChannelStatusUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceChannelStartTimeUpdate:
+		if listener := l.OnGuildVoiceChannelStartTimeUpdate; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceStateUpdate:

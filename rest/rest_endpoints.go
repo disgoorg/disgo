@@ -187,6 +187,8 @@ var (
 	ExpirePoll         = NewEndpoint(http.MethodPost, "/channels/{channel.id}/polls/{message.id}/expire")
 
 	SendSoundboardSound = NewEndpoint(http.MethodPost, "/channels/{channel.id}/send-soundboard-sound")
+
+	SetVoiceChannelStatus = NewEndpoint(http.MethodPut, "/channels/{channel.id}/voice-status")
 )
 
 // Threads

@@ -53,6 +53,8 @@ type Channels interface {
 	GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID int, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.User, error)
 	GetPollAnswerVotesPage(channelID snowflake.ID, messageID snowflake.ID, answerID int, startID snowflake.ID, limit int, opts ...RequestOpt) PollAnswerVotesPage
 	ExpirePoll(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
+
+	SetVoiceChannelStatus(channelID snowflake.ID, update discord.VoiceChannelStatusUpdate, opts ...RequestOpt) error
 }
 
 type channelImpl struct {
@@ -283,6 +285,10 @@ func (s *channelImpl) GetPollAnswerVotesPage(channelID snowflake.ID, messageID s
 func (s *channelImpl) ExpirePoll(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (message *discord.Message, err error) {
 	err = s.client.Do(ExpirePoll.Compile(nil, channelID, messageID), nil, &message, opts...)
 	return
+}
+
+func (s *channelImpl) SetVoiceChannelStatus(channelID snowflake.ID, update discord.VoiceChannelStatusUpdate, opts ...RequestOpt) error {
+	return s.client.Do(SetVoiceChannelStatus.Compile(nil, channelID), update, nil, opts...)
 }
 
 type pollAnswerVotesResponse struct {
