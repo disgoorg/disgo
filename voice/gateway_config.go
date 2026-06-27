@@ -14,8 +14,9 @@ func defaultGatewayConfig() gatewayConfig {
 }
 
 type gatewayConfig struct {
-	Logger *slog.Logger
-	Dialer *websocket.Dialer
+	Logger   *slog.Logger
+	Dialer   *websocket.Dialer
+	Observer CloseObserver
 }
 
 // GatewayConfigOpt is used to functionally configure a gatewayConfig.
@@ -39,5 +40,12 @@ func WithGatewayLogger(logger *slog.Logger) GatewayConfigOpt {
 func WithGatewayDialer(dialer *websocket.Dialer) GatewayConfigOpt {
 	return func(config *gatewayConfig) {
 		config.Dialer = dialer
+	}
+}
+
+// WithGatewayCloseObserver sets the Gateway(s) used CloseObserver.
+func WithGatewayCloseObserver(observer CloseObserver) GatewayConfigOpt {
+	return func(config *gatewayConfig) {
+		config.Observer = observer
 	}
 }

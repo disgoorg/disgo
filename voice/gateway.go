@@ -60,6 +60,10 @@ type (
 
 	// StateProviderFunc is a function that provides the current conn state of the voice gateway.
 	StateProviderFunc func() State
+
+	// CloseObserver is a function that observes the close of the voice gateway and can be used for monitoring.
+	// It is called with the error that caused the close and is called in its own goroutine.
+	CloseObserver func(err error)
 )
 
 // State is the current state of the voice conn.
@@ -507,6 +511,10 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 				reconnect = false
 			} else {
 				g.config.Logger.Warn("failed to read next message from voice gateway", slog.Any("err", err))
+			}
+
+			if g.config.Observer != nil {
+				go g.config.Observer(err)
 			}
 
 			// make sure the connection is properly closed
