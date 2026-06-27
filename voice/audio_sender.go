@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -55,6 +56,7 @@ func NewAudioSender(logger *slog.Logger, opusProvider OpusFrameProvider, conn Co
 
 type defaultAudioSender struct {
 	logger       *slog.Logger
+	mu           sync.Mutex // guards cancelFunc against Open/Close on different goroutines
 	cancelFunc   context.CancelFunc
 	opusProvider OpusFrameProvider
 	conn         Conn
@@ -65,15 +67,17 @@ type defaultAudioSender struct {
 }
 
 func (s *defaultAudioSender) Open() {
-	go s.open()
+	ctx, cancel := context.WithCancel(context.Background())
+	s.mu.Lock()
+	s.cancelFunc = cancel
+	s.mu.Unlock()
+	go s.open(ctx)
 }
 
-func (s *defaultAudioSender) open() {
+func (s *defaultAudioSender) open(ctx context.Context) {
 	defer s.logger.Debug("closing audio sender")
+	defer s.Close()
 	lastFrameSent := time.Now().UnixMilli()
-	ctx, cancel := context.WithCancel(context.Background())
-	s.cancelFunc = cancel
-	defer cancel()
 loop:
 	for {
 		select {
@@ -147,5 +151,10 @@ func (s *defaultAudioSender) handleErr(err error) {
 }
 
 func (s *defaultAudioSender) Close() {
-	s.cancelFunc()
+	s.mu.Lock()
+	cancel := s.cancelFunc
+	s.mu.Unlock()
+	if cancel != nil {
+		cancel()
+	}
 }
