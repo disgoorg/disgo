@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/disgoorg/disgo v0.19.6
-	github.com/disgoorg/godave/golibdave v0.1.1-0.20260629194543-396dffea83db
+	github.com/disgoorg/godave/golibdave v0.2.0
 	github.com/disgoorg/snowflake/v2 v2.0.3
 )
 
