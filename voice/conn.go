@@ -26,6 +26,8 @@ type (
 		// UDP returns the voice UDPConn conn used by the voice Conn.
 		UDP() UDPConn
 
+		DAVE() godave.Session
+
 		// ChannelID returns the ID of the voice channel the voice Conn is openedChan to.
 		ChannelID() *snowflake.ID
 
@@ -75,6 +77,7 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 	}
 
 	daveSession := cfg.DaveSessionCreate(cfg.DaveSessionLogger, godave.UserID(userID.String()), conn)
+	conn.dave = daveSession
 	conn.gateway = cfg.GatewayCreateFunc(daveSession, conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(cfg.Logger)}, cfg.GatewayConfigOpts...)...)
 	conn.udp = cfg.UDPConnCreateFunc(daveSession, conn.UserIDBySSRC, append([]UDPConnConfigOpt{WithUDPConnLogger(cfg.Logger)}, cfg.UDPConnConfigOpts...)...)
 
@@ -91,6 +94,7 @@ type connImpl struct {
 
 	gateway Gateway
 	udp     UDPConn
+	dave    godave.Session
 
 	audioSender   AudioSender
 	audioReceiver AudioReceiver
@@ -150,6 +154,10 @@ func (c *connImpl) SetSpeaking(ctx context.Context, flags SpeakingFlags) error {
 
 func (c *connImpl) UDP() UDPConn {
 	return c.udp
+}
+
+func (c *connImpl) DAVE() godave.Session {
+	return c.dave
 }
 
 func (c *connImpl) SetOpusFrameProvider(provider OpusFrameProvider) {

@@ -81,6 +81,10 @@ func play(client *bot.Client) {
 	}
 	go func() {
 		for {
+			if !conn.DAVE().Ready() {
+				continue
+			}
+
 			if _, err := conn.UDP().ReadPacket(); err != nil {
 				slog.Error("error reading udp packet", slog.Any("err", err))
 				return
@@ -88,7 +92,7 @@ func play(client *bot.Client) {
 		}
 	}()
 	for {
-		writeOpus(conn.UDP())
+		writeOpus(conn)
 	}
 }
 
@@ -96,7 +100,9 @@ func play(client *bot.Client) {
 // and writes its Opus frames to the io.Writer.
 //
 // [DCA0]: https://github.com/bwmarrin/dca/wiki/DCA0-specification
-func writeOpus(w io.Writer) {
+func writeOpus(conn voice.Conn) {
+	w := conn.UDP()
+
 	file, err := os.Open("nico.dca")
 	if err != nil {
 		panic("error opening file: " + err.Error())
@@ -107,6 +113,10 @@ func writeOpus(w io.Writer) {
 	var frameLen int16
 	// Don't wait for the first tick, run immediately.
 	for ; true; <-ticker.C {
+		if !conn.DAVE().Ready() {
+			continue
+		}
+
 		err = binary.Read(file, binary.LittleEndian, &frameLen)
 		if err != nil {
 			if err == io.EOF {

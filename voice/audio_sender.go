@@ -99,6 +99,11 @@ func (s *defaultAudioSender) send() {
 	if s.opusProvider == nil {
 		return
 	}
+	// we only pull frames when the DAVE session is ready
+	if !s.conn.DAVE().Ready() {
+		return
+	}
+
 	opus, err := s.opusProvider.ProvideOpusFrame()
 	if err != nil && err != io.EOF {
 		s.logger.Error("error while reading opus frame", slog.Any("err", err))

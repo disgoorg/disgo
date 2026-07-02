@@ -82,6 +82,11 @@ func (s *defaultAudioReceiver) CleanupUser(userID snowflake.ID) {
 }
 
 func (s *defaultAudioReceiver) receive() {
+	// we only pull frames when the DAVE session is ready so we can decrypt them
+	if !s.conn.DAVE().Ready() {
+		return
+	}
+
 	packet, err := s.conn.UDP().ReadPacket()
 	if errors.Is(err, net.ErrClosed) {
 		s.Close()
