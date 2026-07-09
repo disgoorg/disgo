@@ -37,20 +37,22 @@ func gatewayHandlerChannelUpdate(client *bot.Client, sequenceNumber int, shardID
 	})
 
 	if event.Type() == discord.ChannelTypeGuildText || event.Type() == discord.ChannelTypeGuildNews {
-		if member, ok := client.Caches.Member(event.GuildID(), client.ID()); ok &&
-			client.Caches.MemberPermissionsInChannel(event.GuildChannel, member).Missing(discord.PermissionViewChannel) {
-			for _, guildThread := range client.Caches.GuildThreadsInChannel(event.ID()) {
-				client.Caches.RemoveThreadMembersByThreadID(guildThread.ID())
-				client.Caches.RemoveChannel(guildThread.ID())
-				client.EventManager.DispatchEvent(&events.ThreadHide{
-					GenericThread: &events.GenericThread{
-						GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-						Thread:       guildThread,
-						ThreadID:     guildThread.ID(),
-						GuildID:      guildThread.GuildID(),
-						ParentID:     *guildThread.ParentID(),
-					},
-				})
+		if !discord.ChannelFlagsOf(event.GuildChannel).Has(discord.ChannelFlagObfuscated) {
+			if member, ok := client.Caches.Member(event.GuildID(), client.ID()); ok &&
+				client.Caches.MemberPermissionsInChannel(event.GuildChannel, member).Missing(discord.PermissionViewChannel) {
+				for _, guildThread := range client.Caches.GuildThreadsInChannel(event.ID()) {
+					client.Caches.RemoveThreadMembersByThreadID(guildThread.ID())
+					client.Caches.RemoveChannel(guildThread.ID())
+					client.EventManager.DispatchEvent(&events.ThreadHide{
+						GenericThread: &events.GenericThread{
+							GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+							Thread:       guildThread,
+							ThreadID:     guildThread.ID(),
+							GuildID:      guildThread.GuildID(),
+							ParentID:     *guildThread.ParentID(),
+						},
+					})
+				}
 			}
 		}
 	}
