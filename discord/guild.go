@@ -341,7 +341,7 @@ type GuildIncidentActionsUpdate struct {
 type GuildUpdate struct {
 	Name                        *string                                `json:"name,omitempty"`
 	VerificationLevel           omit.Omit[*VerificationLevel]          `json:"verification_level,omitzero"`
-	DefaultMessageNotifications omit.Omit[*MessageNotificationsLevel]  `json:"default_message_notification,omitzero"`
+	DefaultMessageNotifications omit.Omit[*MessageNotificationsLevel]  `json:"default_message_notifications,omitzero"`
 	ExplicitContentFilter       omit.Omit[*ExplicitContentFilterLevel] `json:"explicit_content_filter,omitzero"`
 	AFKChannelID                *snowflake.ID                          `json:"afk_channel_id,omitempty"`
 	AFKTimeout                  *int                                   `json:"afk_timeout,omitempty"`
