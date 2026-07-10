@@ -172,7 +172,7 @@ type ChannelFollowerWebhook struct {
 	SourceGuild   *WebhookSourceGuild   `json:"source_guild,omitempty"`
 	SourceChannel *WebhookSourceChannel `json:"source_channel,omitempty"`
 	User          *User                 `json:"user,omitempty"`
-	ApplicationID 	snowflake.ID          `json:"application_id,omitempty"`
+	ApplicationID snowflake.ID          `json:"application_id,omitempty"`
 }
 
 func (w *ChannelFollowerWebhook) UnmarshalJSON(data []byte) error {
