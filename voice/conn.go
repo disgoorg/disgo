@@ -336,6 +336,7 @@ func (c *connImpl) Close(ctx context.Context) {
 
 	c.gateway.Close()
 	_ = c.udp.Close()
+	_ = c.dave.Close()
 
 	c.removeConnFunc()
 }
