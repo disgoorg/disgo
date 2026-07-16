@@ -270,6 +270,18 @@ func (m WebhookMessageUpdate) RetainAttachmentsByID(attachmentIDs ...snowflake.I
 	return m
 }
 
+// UpdateAttachment returns a new WebhookMessageUpdate that retains the existing Attachment with the provided ID, using the given AttachmentKeep
+// to optionally update its description and/or spoiler status. Use [NewAttachmentKeep] together with [AttachmentKeep.WithDescription] and/or
+// [AttachmentKeep.WithSpoiler] to build the update.
+func (m WebhookMessageUpdate) UpdateAttachment(attachment AttachmentKeep) WebhookMessageUpdate {
+	if m.Attachments == nil {
+		m.Attachments = &[]AttachmentUpdate{}
+	}
+	newAttachments := append(slices.Clone(*m.Attachments), attachment)
+	m.Attachments = &newAttachments
+	return m
+}
+
 // WithAllowedMentions returns a new WebhookMessageUpdate with the provided AllowedMentions.
 func (m WebhookMessageUpdate) WithAllowedMentions(allowedMentions *AllowedMentions) WebhookMessageUpdate {
 	m.AllowedMentions = allowedMentions
