@@ -154,12 +154,20 @@ type ResolvedMember struct {
 func (ResolvedMember) isMentionableValue() {}
 
 type ResolvedChannel struct {
-	ID             snowflake.ID   `json:"id"`
-	Name           string         `json:"name"`
-	Type           ChannelType    `json:"type"`
-	Permissions    Permissions    `json:"permissions"`
-	ThreadMetadata ThreadMetadata `json:"thread_metadata"`
-	ParentID       snowflake.ID   `json:"parent_id"`
+	ID               snowflake.ID    `json:"id"`
+	Name             string          `json:"name"`
+	Type             ChannelType     `json:"type"`
+	Permissions      Permissions     `json:"permissions"`
+	LastMessageID    *snowflake.ID   `json:"last_message_id,omitempty"`
+	LastPinTimestamp *time.Time      `json:"last_pin_timestamp,omitempty"`
+	NSFW             bool            `json:"nsfw,omitempty"`
+	GuildID          snowflake.ID    `json:"guild_id"`
+	Flags            ChannelFlags    `json:"flags,omitempty"`
+	RateLimitPerUser int             `json:"rate_limit_per_user,omitempty"`
+	Topic            *string         `json:"topic,omitempty"`
+	Position         int             `json:"position,omitempty"`
+	ThreadMetadata   *ThreadMetadata `json:"thread_metadata,omitempty"`
+	ParentID         *snowflake.ID   `json:"parent_id,omitempty"`
 }
 
 func (ResolvedChannel) isMentionableValue() {}
