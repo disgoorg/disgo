@@ -76,7 +76,7 @@ func (s *memberImpl) SearchMembers(guildID snowflake.ID, query string, limit int
 
 func (s *memberImpl) AddMember(guildID snowflake.ID, userID snowflake.ID, memberAdd discord.MemberAdd, opts ...RequestOpt) (member *discord.Member, err error) {
 	err = s.client.Do(AddMember.Compile(nil, guildID, userID), memberAdd, &member, opts...)
-	if err == nil {
+	if err == nil && member != nil {
 		member.GuildID = guildID
 	}
 	return
