@@ -150,6 +150,11 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 
 	switch {
 	case rs.StatusCode >= http.StatusOK && rs.StatusCode < http.StatusMultipleChoices:
+		// we assume that if the response code is 204 No Content, the response body is empty and we don't need to unmarshal it
+		if rs.StatusCode == http.StatusNoContent {
+			return nil
+		}
+
 		if rsBody != nil && rs.Body != nil {
 			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
 				c.config.Logger.Error("error unmarshalling response body", slog.Any("err", err), slog.String("endpoint", endpoint.URL), slog.String("code", rs.Status), slog.String("body", string(rawRsBody)))
