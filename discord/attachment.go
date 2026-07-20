@@ -45,19 +45,56 @@ const (
 	AttachmentFlagsNone AttachmentFlags = 0
 )
 
+// AttachmentUpdate is used in Message Create and Edit requests to set which Attachment(s) are in the message and provide their metadata.
 type AttachmentUpdate interface {
 	attachmentUpdate()
 }
 
+// AttachmentKeep is used to retain an existing Attachment when editing a Message.
+//
+// When editing, you must provide the ID of each file to keep, and you can optionally update the Description and IsSpoiler fields of existing attachments.
 type AttachmentKeep struct {
-	ID snowflake.ID `json:"id"`
+	ID          snowflake.ID `json:"id"`
+	Description *string      `json:"description,omitempty"`
+	IsSpoiler   *bool        `json:"is_spoiler,omitempty"`
 }
 
 func (AttachmentKeep) attachmentUpdate() {}
 
+// NewAttachmentKeep returns a new AttachmentKeep with the provided ID and no other fields set.
+func NewAttachmentKeep(id snowflake.ID) AttachmentKeep {
+	return AttachmentKeep{ID: id}
+}
+
+// WithDescription returns a new AttachmentKeep with the provided description.
+func (a AttachmentKeep) WithDescription(description string) AttachmentKeep {
+	a.Description = &description
+	return a
+}
+
+// WithSpoiler returns a new AttachmentKeep with the provided spoiler setting.
+func (a AttachmentKeep) WithSpoiler(spoiler bool) AttachmentKeep {
+	a.IsSpoiler = &spoiler
+	return a
+}
+
+// AttachmentCreate is used to describe the metadata of a newly uploaded file when creating or editing a Message.
 type AttachmentCreate struct {
 	ID          int    `json:"id"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
+	IsSpoiler   *bool  `json:"is_spoiler,omitempty"`
 }
 
 func (AttachmentCreate) attachmentUpdate() {}
+
+// WithDescription returns a new AttachmentCreate with the provided description.
+func (a AttachmentCreate) WithDescription(description string) AttachmentCreate {
+	a.Description = description
+	return a
+}
+
+// WithSpoiler returns a new AttachmentCreate with the provided spoiler setting.
+func (a AttachmentCreate) WithSpoiler(spoiler bool) AttachmentCreate {
+	a.IsSpoiler = &spoiler
+	return a
+}
