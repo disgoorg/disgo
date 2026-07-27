@@ -178,6 +178,22 @@ type Guild struct {
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 }
 
+// Merge Guild updates with unpopulated fields from oldGuild, as GUILD_UPDATE does not have every field populated
+func (g *Guild) Merge(oldGuild Guild) {
+	if g.MemberCount == 0 && oldGuild.MemberCount > 0 {
+		g.MemberCount = oldGuild.MemberCount
+	}
+	if g.JoinedAt.IsZero() && !oldGuild.JoinedAt.IsZero() {
+		g.JoinedAt = oldGuild.JoinedAt
+	}
+	if g.ApproximateMemberCount == 0 && oldGuild.ApproximateMemberCount > 0 {
+		g.ApproximateMemberCount = oldGuild.ApproximateMemberCount
+	}
+	if g.ApproximatePresenceCount == 0 && oldGuild.ApproximatePresenceCount > 0 {
+		g.ApproximatePresenceCount = oldGuild.ApproximatePresenceCount
+	}
+}
+
 func (g Guild) IconURL(opts ...CDNOpt) *string {
 	if g.Icon == nil {
 		return nil

@@ -109,7 +109,10 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 }
 
 func gatewayHandlerGuildUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildUpdate) {
-	oldGuild, _ := client.Caches.Guild(event.ID)
+	oldGuild, ok := client.Caches.Guild(event.ID)
+	if ok {
+		event.Guild.Merge(oldGuild)
+	}
 	client.Caches.AddGuild(event.Guild)
 
 	client.EventManager.DispatchEvent(&events.GuildUpdate{
