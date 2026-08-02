@@ -496,7 +496,9 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 					slog.Int("code", closeError.Code),
 					slog.String("error", closeError.Text),
 				}
-				if reconnect {
+				if closeCode == GatewayCloseEventCodeDisconnected || closeCode == GatewayCloseEventCodeCallTerminated {
+					g.config.Logger.Debug(msg, args...)
+				} else if reconnect {
 					g.config.Logger.Warn(msg, args...)
 				} else {
 					g.config.Logger.Error(msg, args...)
