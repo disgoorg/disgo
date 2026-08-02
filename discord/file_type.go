@@ -9,7 +9,7 @@ import (
 // https://docs.discord.com/developers/reference#file-groups
 const MaxFileTypes = 10
 
-var fileTypeExtensionPattern = regexp.MustCompile(`^\.[\w][\w.-]*$`)
+var fileTypeExtensionPattern = regexp.MustCompile(`^\.[\w](?:[\w.-]*[\w])?$`)
 
 // NewFileType creates a new FileType for a custom file extension, e.g. NewFileType(".pdf").
 // The extension must be dot-prefixed and only contain latin letters, digits, dashes or dots.
