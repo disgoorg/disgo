@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net"
 	"sync"
 	"time"
 
@@ -99,7 +100,15 @@ type connImpl struct {
 	audioSender   AudioSender
 	audioReceiver AudioReceiver
 
-	openedFunc context.CancelFunc
+	openedChan        chan struct{}
+	gatewayOpenCancel context.CancelFunc
+	closed            bool
+
+	voiceStateReceived  bool
+	voiceServerReceived bool
+
+	// gatewayOpenMu serializes calls to Gateway.Open.
+	gatewayOpenMu sync.Mutex
 
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
@@ -186,6 +195,9 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 
 	if update.ChannelID == nil {
 		c.state.ChannelID = 0
+		c.voiceStateReceived = false
+		c.voiceServerReceived = false
+		c.cancelGatewayOpenLocked()
 		if c.audioSender != nil {
 			c.audioSender.Close()
 			c.audioSender = nil
@@ -197,13 +209,24 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		_ = c.udp.Close()
 		c.gateway.Close()
 	} else {
+		moved := c.state.ChannelID != 0 && c.state.ChannelID != *update.ChannelID
 		c.state.ChannelID = *update.ChannelID
+		if moved {
+			// A move needs a new voice-server handshake. Do not leave the old
+			// websocket or an opening goroutine around to race the server update.
+			c.cancelGatewayOpenLocked()
+			c.gateway.Close()
+			_ = c.udp.Close()
+		}
 	}
 	c.state.SessionID = update.SessionID
 	c.state.SelfMute = update.SelfMute
 	c.state.SelfDeaf = update.SelfDeaf
 
-	c.tryOpenGateway()
+	if update.ChannelID != nil {
+		c.voiceStateReceived = true
+		c.tryOpenGateway()
+	}
 }
 
 func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpdate) {
@@ -216,22 +239,51 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 
 	c.state.Token = update.Token
 	c.state.Endpoint = *update.Endpoint
-
+	c.voiceServerReceived = true
 	c.tryOpenGateway()
 }
 
 func (c *connImpl) tryOpenGateway() {
-	if c.state.Token == "" || c.state.Endpoint == "" || c.state.ChannelID == 0 {
-		return
-	}
-	state := c.state
 	go func() {
+		c.gatewayOpenMu.Lock()
+		defer c.gatewayOpenMu.Unlock()
+
+		c.stateMu.Lock()
+		status := c.gateway.Status()
+		canOpen := !c.closed && c.voiceStateReceived && c.voiceServerReceived &&
+			c.state.Token != "" && c.state.Endpoint != "" && c.state.ChannelID != 0 &&
+			(status == StatusUnconnected || status == StatusDisconnected)
+		if !canOpen {
+			c.stateMu.Unlock()
+			return
+		}
+
+		state := c.state
+		c.voiceStateReceived = false
+		c.voiceServerReceived = false
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		c.gatewayOpenCancel = cancel
+		c.stateMu.Unlock()
 		defer cancel()
-		if err := c.gateway.Open(ctx, state); err != nil {
+
+		err := c.gateway.Open(ctx, state)
+
+		c.stateMu.Lock()
+		c.gatewayOpenCancel = nil
+		c.stateMu.Unlock()
+
+		if err != nil && !errors.Is(err, context.Canceled) {
 			c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
 		}
 	}()
+}
+
+// cancelGatewayOpenLocked cancels the in-flight open. stateMu must be held.
+func (c *connImpl) cancelGatewayOpenLocked() {
+	if c.gatewayOpenCancel != nil {
+		c.gatewayOpenCancel()
+		c.gatewayOpenCancel = nil
+	}
 }
 
 func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int, data GatewayMessageData) {
@@ -266,9 +318,12 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 		if err := c.udp.SetSecretKey(d.Mode, d.SecretKey); err != nil {
 			c.config.Logger.Error("voice: failed to set secret key", slog.Any("err", err))
 		}
-		if openedFunc := c.openedFunc; openedFunc != nil {
-			openedFunc()
+		c.stateMu.Lock()
+		if c.openedChan != nil {
+			close(c.openedChan)
+			c.openedChan = nil
 		}
+		c.stateMu.Unlock()
 
 	case GatewayMessageDataSpeaking:
 		c.ssrcsMu.Lock()
@@ -316,16 +371,31 @@ func (c *connImpl) handleGatewayClose(_ Gateway, err error) {
 func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bool, selfDeaf bool) error {
 	c.config.Logger.Debug("opening voice conn")
 
-	openedCtx, cancel := context.WithCancel(context.Background())
-	c.openedFunc = cancel
-	defer cancel()
+	openedChan := make(chan struct{})
+	c.stateMu.Lock()
+	if c.closed {
+		c.stateMu.Unlock()
+		return net.ErrClosed
+	}
+	c.voiceStateReceived = false
+	c.voiceServerReceived = false
+	c.openedChan = openedChan
+	guildID := c.state.GuildID
+	c.stateMu.Unlock()
+	defer func() {
+		c.stateMu.Lock()
+		if c.openedChan == openedChan {
+			c.openedChan = nil
+		}
+		c.stateMu.Unlock()
+	}()
 
-	if err := c.voiceStateUpdateFunc(ctx, c.state.GuildID, &channelID, selfMute, selfDeaf); err != nil {
+	if err := c.voiceStateUpdateFunc(ctx, guildID, &channelID, selfMute, selfDeaf); err != nil {
 		return err
 	}
 
 	select {
-	case <-openedCtx.Done():
+	case <-openedChan:
 		return nil
 	case <-ctx.Done():
 		return ctx.Err()
@@ -333,7 +403,20 @@ func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bo
 }
 
 func (c *connImpl) Close(ctx context.Context) {
-	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
+	c.stateMu.Lock()
+	if c.closed {
+		c.stateMu.Unlock()
+		return
+	}
+	c.closed = true
+	c.state.ChannelID = 0
+	c.voiceStateReceived = false
+	c.voiceServerReceived = false
+	c.cancelGatewayOpenLocked()
+	guildID := c.state.GuildID
+	c.stateMu.Unlock()
+
+	_ = c.voiceStateUpdateFunc(ctx, guildID, nil, false, false)
 
 	c.gateway.Close()
 	_ = c.udp.Close()
