@@ -127,6 +127,7 @@ const (
 	JSONErrorCodeRequestEntityTooLarge                   JSONErrorCode = 40005
 	JSONErrorCodeFeatureTemporarilyDisabled              JSONErrorCode = 40006
 	JSONErrorCodeUserBannedFromGuild                     JSONErrorCode = 40007
+	JSONErrorCodeOnlyOneChannelParentIDModifiedAtATime   JSONErrorCode = 40009
 	JSONErrorCodeConnectionRevoked                       JSONErrorCode = 40012
 	JSONErrorCodeOnlyConsumableSKUsCanBeConsumed         JSONErrorCode = 40018
 	JSONErrorCodeCanOnlyDeleteSandboxEntitlements        JSONErrorCode = 40019
