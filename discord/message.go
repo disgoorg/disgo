@@ -215,7 +215,7 @@ const (
 	MessageReactionTypeBurst
 )
 
-// MessageActivityType is the type of MessageActivity https://discord.com/developers/docs/resources/message#message-object-message-activity-types
+// MessageActivityType is the type of MessageActivity https://docs.discord.com/developers/resources/message#message-object-message-activity-types
 type MessageActivityType int
 
 // Constants for MessageActivityType
@@ -225,6 +225,7 @@ const (
 	MessageActivityTypeListen
 	_
 	MessageActivityTypeJoinRequest
+	MessageActivityTypeStreamRequest
 )
 
 // MessageActivity is used for rich presence-related chat embeds in a Message
