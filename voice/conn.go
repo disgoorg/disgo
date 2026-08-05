@@ -101,6 +101,9 @@ type connImpl struct {
 
 	openedFunc context.CancelFunc
 
+	closeScheduledMu    sync.Mutex
+	closeScheduledTimer *time.Timer
+
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
 }
@@ -184,6 +187,8 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 	c.stateMu.Lock()
 	defer c.stateMu.Unlock()
 
+	c.cancelScheduledClose()
+
 	if update.ChannelID == nil {
 		c.state.ChannelID = 0
 		if c.audioSender != nil {
@@ -213,6 +218,8 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 	if update.GuildID != c.state.GuildID || update.Endpoint == nil {
 		return
 	}
+
+	c.cancelScheduledClose()
 
 	c.state.Token = update.Token
 	c.state.Endpoint = *update.Endpoint
@@ -297,6 +304,12 @@ func (c *connImpl) handleGatewayClose(_ Gateway, err error) {
 	var closeError *websocket.CloseError
 	if errors.As(err, &closeError) {
 		closeCode := GatewayCloseEventCodeByCode(closeError.Code)
+		if closeCode == GatewayCloseEventCodeDisconnected || closeCode == GatewayCloseEventCodeCallTerminated {
+			// Wait for voice state and server events to distinguish a move from a disconnect
+			// Fall back to a scheduled close timeout if no definitive update is received
+			c.scheduleClose(10 * time.Second)
+			return
+		}
 		if closeCode.NewConnection {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
@@ -320,6 +333,8 @@ func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bo
 	c.openedFunc = cancel
 	defer cancel()
 
+	c.cancelScheduledClose()
+
 	if err := c.voiceStateUpdateFunc(ctx, c.state.GuildID, &channelID, selfMute, selfDeaf); err != nil {
 		return err
 	}
@@ -333,6 +348,8 @@ func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bo
 }
 
 func (c *connImpl) Close(ctx context.Context) {
+	c.cancelScheduledClose()
+
 	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
 
 	c.gateway.Close()
@@ -340,4 +357,35 @@ func (c *connImpl) Close(ctx context.Context) {
 	_ = c.dave.Close()
 
 	c.removeConnFunc()
+}
+
+// scheduleClose closes the conn after timeout unless cancelScheduledClose is called first.
+// It is a no-op if a close is already scheduled.
+func (c *connImpl) scheduleClose(timeout time.Duration) {
+	c.closeScheduledMu.Lock()
+	if c.closeScheduledTimer != nil {
+		c.closeScheduledMu.Unlock()
+		return
+	}
+	c.closeScheduledTimer = time.AfterFunc(timeout, func() {
+		c.closeScheduledMu.Lock()
+		c.closeScheduledTimer = nil
+		c.closeScheduledMu.Unlock()
+
+		c.config.Logger.Warn("voice conn closed without a following voice state update, closing voice conn")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		c.Close(ctx)
+	})
+	c.closeScheduledMu.Unlock()
+}
+
+// cancelScheduledClose cancel a pending close scheduled by scheduleClose, if any.
+func (c *connImpl) cancelScheduledClose() {
+	c.closeScheduledMu.Lock()
+	if c.closeScheduledTimer != nil {
+		c.closeScheduledTimer.Stop()
+		c.closeScheduledTimer = nil
+	}
+	c.closeScheduledMu.Unlock()
 }
