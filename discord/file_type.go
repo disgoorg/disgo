@@ -6,7 +6,7 @@ import (
 )
 
 // MaxFileTypes is the maximum number of file types that can be filtered for at once.
-// https://docs.discord.com/developers/reference#file-groups
+// https://docs.discord.com/developers/reference#file-type-filtering
 const MaxFileTypes = 10
 
 var fileTypeExtensionPattern = regexp.MustCompile(`^\.[\w](?:[\w.-]*[\w])?$`)
@@ -25,7 +25,7 @@ func NewFileType(extension string) (FileType, error) {
 // It can be a preset group like FileTypeImage, FileTypeVideo or FileTypeAudio, or a custom file extension like ".pdf".
 // File types only match against the file extension, Discord does not validate the actual content of the file.
 // Up to [MaxFileTypes] file types can be specified, each file type is validated when marshaled.
-// https://docs.discord.com/developers/reference#file-groups
+// https://docs.discord.com/developers/reference#file-type-filtering
 type FileType string
 
 // Preset FileType groups.
