@@ -28,9 +28,10 @@ const (
 	OnlineStatusOffline   OnlineStatus = "offline"
 )
 
-// ClientStatus (https://discord.com/developers/docs/topics/gateway#client-status-object)
+// ClientStatus (https://docs.discord.com/developers/events/gateway-events#client-status-object)
 type ClientStatus struct {
 	Desktop OnlineStatus `json:"desktop,omitempty"`
 	Mobile  OnlineStatus `json:"mobile,omitempty"`
 	Web     OnlineStatus `json:"web,omitempty"`
+	VR      OnlineStatus `json:"vr,omitempty"`
 }
