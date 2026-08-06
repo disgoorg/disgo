@@ -30,9 +30,9 @@ type FileType string
 
 // Preset FileType groups.
 const (
-	FileTypeImage FileType = "image"
-	FileTypeVideo FileType = "video"
-	FileTypeAudio FileType = "audio"
+	FileTypeGroupImage FileType = "image"
+	FileTypeGroupVideo FileType = "video"
+	FileTypeGroupAudio FileType = "audio"
 )
 
 func (t FileType) String() string {
@@ -40,5 +40,5 @@ func (t FileType) String() string {
 }
 
 func (t FileType) isValid() bool {
-	return t == FileTypeImage || t == FileTypeVideo || t == FileTypeAudio || fileTypeExtensionPattern.MatchString(string(t))
+	return t == FileTypeGroupImage || t == FileTypeGroupVideo || t == FileTypeGroupAudio || fileTypeExtensionPattern.MatchString(string(t))
 }
