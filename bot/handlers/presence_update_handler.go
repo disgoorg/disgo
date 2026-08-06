@@ -47,7 +47,7 @@ func gatewayHandlerPresenceUpdate(client *bot.Client, sequenceNumber int, shardI
 		})
 	}
 
-	if oldClientStatus.Desktop != event.ClientStatus.Desktop || oldClientStatus.Mobile != event.ClientStatus.Mobile || oldClientStatus.Web != event.ClientStatus.Web {
+	if oldClientStatus != event.ClientStatus {
 		client.EventManager.DispatchEvent(&events.UserClientStatusUpdate{
 			GenericEvent:    genericEvent,
 			UserID:          event.PresenceUser.ID,

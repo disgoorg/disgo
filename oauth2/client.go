@@ -91,7 +91,8 @@ func (c *Client) GenerateAuthorizationURLState(params AuthorizationURLParams) (s
 	}
 
 	if params.Permissions != discord.PermissionsNone {
-		values["permissions"] = params.Permissions
+		// Permissions.String() renders display names, so the raw bitfield must be passed explicitly.
+		values["permissions"] = uint64(params.Permissions)
 	}
 	if params.GuildID != 0 {
 		values["guild_id"] = params.GuildID
