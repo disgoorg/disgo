@@ -40,5 +40,10 @@ func (t FileType) String() string {
 }
 
 func (t FileType) isValid() bool {
-	return t == FileTypeGroupImage || t == FileTypeGroupVideo || t == FileTypeGroupAudio || fileTypeExtensionPattern.MatchString(string(t))
+	switch t {
+	case FileTypeGroupImage, FileTypeGroupVideo, FileTypeGroupAudio:
+		return true
+	default:
+		return fileTypeExtensionPattern.MatchString(string(t))
+	}
 }
