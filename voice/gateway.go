@@ -26,13 +26,8 @@ const GatewayVersion = 8
 
 const maximumConnectDelay = 10 * time.Second
 
-var (
-	// ErrGatewayNotConnected is returned when the gateway is not connected and a message is attempted to be sent.
-	ErrGatewayNotConnected = fmt.Errorf("voice gateway not connected")
-
-	// ErrGatewayAlreadyConnected is returned when the gateway is already connected and a connection is attempted to be opened.
-	ErrGatewayAlreadyConnected = fmt.Errorf("voice gateway already connected")
-)
+// ErrGatewayNotConnected is returned when the gateway is not connected and a message is attempted to be sent.
+var ErrGatewayNotConnected = fmt.Errorf("voice gateway not connected")
 
 // Status returns the current status of the gateway.
 type Status int
@@ -153,7 +148,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 	g.connMu.Lock()
 	if g.conn != nil {
 		g.connMu.Unlock()
-		return ErrGatewayAlreadyConnected
+		return discord.ErrGatewayAlreadyConnected
 	}
 
 	g.state = state

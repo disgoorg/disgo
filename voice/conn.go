@@ -302,6 +302,7 @@ func (c *connImpl) handleGatewayClose(_ Gateway, err error) {
 			defer cancel()
 			if err = c.Open(ctx, c.state.ChannelID, c.state.SelfMute, c.state.SelfDeaf); err != nil {
 				c.config.Logger.Error("voice: failed to reopen voice conn after full reconnect close code", slog.Any("err", err))
+			} else {
 				return
 			}
 		}
@@ -336,6 +337,7 @@ func (c *connImpl) Close(ctx context.Context) {
 
 	c.gateway.Close()
 	_ = c.udp.Close()
+	_ = c.dave.Close()
 
 	c.removeConnFunc()
 }
