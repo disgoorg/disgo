@@ -272,18 +272,18 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 
 	case GatewayMessageDataSpeaking:
 		c.ssrcsMu.Lock()
-		defer c.ssrcsMu.Unlock()
 		c.ssrcs[d.SSRC] = d.UserID
+		c.ssrcsMu.Unlock()
 
 	case GatewayMessageDataClientDisconnect:
 		c.ssrcsMu.Lock()
-		defer c.ssrcsMu.Unlock()
 		for ssrc, userID := range c.ssrcs {
 			if userID == d.UserID {
 				delete(c.ssrcs, ssrc)
 				break
 			}
 		}
+		c.ssrcsMu.Unlock()
 		if c.audioReceiver != nil {
 			c.audioReceiver.CleanupUser(d.UserID)
 		}
