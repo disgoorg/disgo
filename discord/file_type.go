@@ -11,9 +11,9 @@ const MaxFileTypes = 10
 
 var fileTypeExtensionPattern = regexp.MustCompile(`^\.[\w](?:[\w.-]*[\w])?$`)
 
-// NewFileType creates a new FileType for a custom file extension, e.g. NewFileType(".pdf").
+// NewFileType creates a new [FileType] for a custom file extension, e.g. NewFileType(".pdf").
 // The extension must be dot-prefixed and only contain latin letters, digits, dashes or dots.
-// Use the FileTypeImage, FileTypeVideo or FileTypeAudio constants for the preset file groups.
+// Use the FileTypeGroupImage, FileTypeGroupVideo or FileTypeGroupAudio constants for the preset file groups.
 func NewFileType(extension string) (FileType, error) {
 	if !fileTypeExtensionPattern.MatchString(extension) {
 		return "", fmt.Errorf(`file type extension %q must be dot-prefixed (e.g. ".pdf") and only contain latin letters, digits, dashes or dots`, extension)
@@ -21,10 +21,19 @@ func NewFileType(extension string) (FileType, error) {
 	return FileType(extension), nil
 }
 
+// MustNewFileType creates a new [FileType], panicking instead of returning an error if the extension is invalid.
+func MustNewFileType(extension string) FileType {
+	fileType, err := NewFileType(extension)
+	if err != nil {
+		panic(err)
+	}
+	return fileType
+}
+
 // FileType represents a type of file to filter for in FileUploadComponents and ApplicationCommandOptionAttachment.
-// It can be a preset group like FileTypeImage, FileTypeVideo or FileTypeAudio, or a custom file extension like ".pdf".
+// It can be a preset group like FileTypeGroupImage, FileTypeGroupVideo or FileTypeGroupAudio, or a custom file extension like ".pdf".
 // File types only match against the file extension, Discord does not validate the actual content of the file.
-// Up to [MaxFileTypes] file types can be specified, each file type is validated when marshaled.
+// Up to [MaxFileTypes] file types can be specified.
 // https://docs.discord.com/developers/reference#file-type-filtering
 type FileType string
 
@@ -37,13 +46,4 @@ const (
 
 func (t FileType) String() string {
 	return string(t)
-}
-
-func (t FileType) isValid() bool {
-	switch t {
-	case FileTypeGroupImage, FileTypeGroupVideo, FileTypeGroupAudio:
-		return true
-	default:
-		return fileTypeExtensionPattern.MatchString(string(t))
-	}
 }

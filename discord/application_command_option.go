@@ -551,14 +551,6 @@ type ApplicationCommandOptionAttachment struct {
 }
 
 func (o ApplicationCommandOptionAttachment) MarshalJSON() ([]byte, error) {
-	if len(o.FileTypes) > MaxFileTypes {
-		return nil, fmt.Errorf("cannot have more than %d file types, got %d", MaxFileTypes, len(o.FileTypes))
-	}
-	for _, fileType := range o.FileTypes {
-		if !fileType.isValid() {
-			return nil, fmt.Errorf("invalid file type %q, must be image, video, audio or a dot-prefixed extension (e.g. \".pdf\")", fileType)
-		}
-	}
 	type applicationCommandOptionAttachment ApplicationCommandOptionAttachment
 	return json.Marshal(struct {
 		Type ApplicationCommandOptionType `json:"type"`
