@@ -14,22 +14,22 @@ type FilterFunc[T any] func(T) bool
 // The cache provides a simple way to store and retrieve entities. But is not guaranteed to be thread safe as this depends on the underlying implementation.
 type Cache[T any] interface {
 	// Get returns a copy of the entity with the given snowflake and a bool whether it was found or not.
-	Get(id snowflake.ID) (T, bool)
+	Get(id snowflake.ID, opts ...RequestOpt) (T, bool)
 
 	// Put stores the given entity with the given snowflake as key. If the entity is already present, it will be overwritten.
-	Put(id snowflake.ID, entity T)
+	Put(id snowflake.ID, entity T, opts ...RequestOpt)
 
 	// Remove removes the entity with the given snowflake as key and returns a copy of the entity and a bool whether it was removed or not.
-	Remove(id snowflake.ID) (T, bool)
+	Remove(id snowflake.ID, opts ...RequestOpt) (T, bool)
 
 	// RemoveIf removes all entities that pass the given FilterFunc
-	RemoveIf(filterFunc FilterFunc[T])
+	RemoveIf(filterFunc FilterFunc[T], opts ...RequestOpt)
 
 	// Len returns the number of entities in the cache.
-	Len() int
+	Len(opts ...RequestOpt) int
 
 	// All returns an [iter.Seq] of all entities in the cache.
-	All() iter.Seq[T]
+	All(opts ...RequestOpt) iter.Seq[T]
 }
 
 var _ Cache[any] = (*DefaultCache[any])(nil)
@@ -55,14 +55,14 @@ type DefaultCache[T any] struct {
 	cache       map[snowflake.ID]T
 }
 
-func (c *DefaultCache[T]) Get(id snowflake.ID) (T, bool) {
+func (c *DefaultCache[T]) Get(id snowflake.ID, _ ...RequestOpt) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	entity, ok := c.cache[id]
 	return entity, ok
 }
 
-func (c *DefaultCache[T]) Put(id snowflake.ID, entity T) {
+func (c *DefaultCache[T]) Put(id snowflake.ID, entity T, _ ...RequestOpt) {
 	if c.flags.Missing(c.neededFlags) {
 		return
 	}
@@ -74,7 +74,7 @@ func (c *DefaultCache[T]) Put(id snowflake.ID, entity T) {
 	c.cache[id] = entity
 }
 
-func (c *DefaultCache[T]) Remove(id snowflake.ID) (T, bool) {
+func (c *DefaultCache[T]) Remove(id snowflake.ID, _ ...RequestOpt) (T, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	entity, ok := c.cache[id]
@@ -84,7 +84,7 @@ func (c *DefaultCache[T]) Remove(id snowflake.ID) (T, bool) {
 	return entity, ok
 }
 
-func (c *DefaultCache[T]) RemoveIf(filterFunc FilterFunc[T]) {
+func (c *DefaultCache[T]) RemoveIf(filterFunc FilterFunc[T], opts ...RequestOpt) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for id, entity := range c.cache {
@@ -94,13 +94,13 @@ func (c *DefaultCache[T]) RemoveIf(filterFunc FilterFunc[T]) {
 	}
 }
 
-func (c *DefaultCache[T]) Len() int {
+func (c *DefaultCache[T]) Len(opts ...RequestOpt) int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return len(c.cache)
 }
 
-func (c *DefaultCache[T]) All() iter.Seq[T] {
+func (c *DefaultCache[T]) All(opts ...RequestOpt) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		c.mu.RLock()
 		defer c.mu.RUnlock()

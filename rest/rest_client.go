@@ -99,7 +99,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		opts = append([]RequestOpt{WithToken(discord.TokenTypeBot, c.botToken)}, opts...)
 	}
 
-	cfg := defaultRequestConfig(rq)
+	cfg := DefaultRequestConfig(rq)
 	cfg.apply(opts)
 
 	if rqBody != nil && c.config.Logger.Enabled(cfg.Ctx, slog.LevelDebug) {
