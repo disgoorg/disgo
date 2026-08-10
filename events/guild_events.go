@@ -16,37 +16,37 @@ type GenericGuild struct {
 type GuildUpdate struct {
 	*GenericGuild
 	Guild    discord.Guild
-	OldGuild discord.Guild // the old cached guild
+	OldGuild discord.CacheGuild // the old cached guild
 }
 
 // GuildAvailable is called when an unavailable discord.Guild becomes available
 type GuildAvailable struct {
 	*GenericGuild
-	Guild discord.GatewayGuild
+	Guild discord.CacheGuild
 }
 
 // GuildUnavailable is called when an available discord.Guild becomes unavailable
 type GuildUnavailable struct {
 	*GenericGuild
-	Guild discord.Guild // the old cached guild
+	Guild discord.CacheGuild // the old cached guild
 }
 
 // GuildJoin is called when the bot joins a discord.Guild
 type GuildJoin struct {
 	*GenericGuild
-	Guild discord.GatewayGuild
+	Guild discord.CacheGuild
 }
 
 // GuildLeave is called when the bot leaves a discord.Guild
 type GuildLeave struct {
 	*GenericGuild
-	Guild discord.Guild // the old cached guild
+	Guild discord.CacheGuild // the old cached guild
 }
 
 // GuildReady is called when a discord.Guild becomes loaded for the first time
 type GuildReady struct {
 	*GenericGuild
-	Guild discord.GatewayGuild
+	Guild discord.CacheGuild
 }
 
 // GuildsReady is called when all discord.Guild(s) are loaded after logging in

@@ -329,7 +329,7 @@ func (EventGuildCreate) messageData() {}
 func (EventGuildCreate) eventData()   {}
 
 type EventGuildUpdate struct {
-	discord.GatewayGuild
+	discord.Guild
 }
 
 func (EventGuildUpdate) messageData() {}

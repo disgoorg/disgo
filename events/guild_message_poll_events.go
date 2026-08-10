@@ -17,7 +17,7 @@ type GenericGuildMessagePollVote struct {
 }
 
 // Guild returns the discord.Guild where the GenericGuildMessagePollVote happened
-func (e *GenericGuildMessagePollVote) Guild() (discord.Guild, bool) {
+func (e *GenericGuildMessagePollVote) Guild() (discord.CacheGuild, bool) {
 	return e.Client().Caches.Guild(e.GuildID)
 }
 
