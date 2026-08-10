@@ -17,9 +17,9 @@ type GenericMessagePollVote struct {
 }
 
 // Guild returns the discord.Guild where the GenericMessagePollVote happened or empty if it happened in DMs
-func (e *GenericMessagePollVote) Guild() (discord.Guild, bool) {
+func (e *GenericMessagePollVote) Guild() (discord.CacheGuild, bool) {
 	if e.GuildID == nil {
-		return discord.Guild{}, false
+		return discord.CacheGuild{}, false
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }

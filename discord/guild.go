@@ -154,7 +154,6 @@ type Guild struct {
 	SystemChannelID             *snowflake.ID              `json:"system_channel_id"`
 	SystemChannelFlags          SystemChannelFlags         `json:"system_channel_flags"`
 	RulesChannelID              *snowflake.ID              `json:"rules_channel_id"`
-	MemberCount                 int                        `json:"member_count"`
 	MaxPresences                *int                       `json:"max_presences"`
 	MaxMembers                  int                        `json:"max_members"`
 	VanityURLCode               *string                    `json:"vanity_url_code"`
@@ -169,13 +168,8 @@ type Guild struct {
 	WelcomeScreen               GuildWelcomeScreen         `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
-	JoinedAt                    time.Time                  `json:"joined_at"`
 	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
 	IncidentsData               *GuildIncidentsData        `json:"incidents_data"`
-
-	// only over GET /guilds/{guild.id}
-	ApproximateMemberCount   int `json:"approximate_member_count"`
-	ApproximatePresenceCount int `json:"approximate_presence_count"`
 }
 
 func (g Guild) IconURL(opts ...CDNOpt) *string {
@@ -216,14 +210,25 @@ func (g Guild) CreatedAt() time.Time {
 
 type RestGuild struct {
 	Guild
-	Stickers []Sticker `json:"stickers"`
-	Roles    []Role    `json:"roles"`
-	Emojis   []Emoji   `json:"emojis"`
+
+	Stickers                 []Sticker `json:"stickers"`
+	Roles                    []Role    `json:"roles"`
+	Emojis                   []Emoji   `json:"emojis"`
+	ApproximateMemberCount   int       `json:"approximate_member_count"`
+	ApproximatePresenceCount int       `json:"approximate_presence_count"`
+}
+
+type CacheGuild struct {
+	Guild
+
+	JoinedAt    time.Time `json:"joined_at"`
+	Large       bool      `json:"large"`
+	MemberCount int       `json:"member_count"`
 }
 
 type GatewayGuild struct {
-	RestGuild
-	Large                bool                  `json:"large"`
+	CacheGuild
+
 	Unavailable          bool                  `json:"unavailable"`
 	VoiceStates          []VoiceState          `json:"voice_states"`
 	Members              []Member              `json:"members"`
@@ -233,6 +238,9 @@ type GatewayGuild struct {
 	StageInstances       []StageInstance       `json:"stage_instances"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
 	SoundboardSounds     []SoundboardSound     `json:"soundboard_sounds"`
+	Stickers             []Sticker             `json:"stickers"`
+	Roles                []Role                `json:"roles"`
+	Emojis               []Emoji               `json:"emojis"`
 }
 
 func (g *GatewayGuild) UnmarshalJSON(data []byte) error {

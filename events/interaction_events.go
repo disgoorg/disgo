@@ -18,11 +18,11 @@ type InteractionCreate struct {
 // Guild returns the guild that the interaction happened in if it happened in a guild.
 // If the interaction happened in a DM, it returns nil.
 // This only returns cached guilds.
-func (e *InteractionCreate) Guild() (discord.Guild, bool) {
+func (e *InteractionCreate) Guild() (discord.CacheGuild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches.Guild(*e.GuildID())
 	}
-	return discord.Guild{}, false
+	return discord.CacheGuild{}, false
 }
 
 // ApplicationCommandInteractionCreate is the base struct for all application command interaction create events.
@@ -35,11 +35,11 @@ type ApplicationCommandInteractionCreate struct {
 // Guild returns the guild that the interaction happened in if it happened in a guild.
 // If the interaction happened in a DM, it returns nil.
 // This only returns cached guilds.
-func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
-	if e.GuildID() != nil {
-		return e.Client().Caches.Guild(*e.GuildID())
+func (e *ApplicationCommandInteractionCreate) Guild() (discord.CacheGuild, bool) {
+	if e.GuildID() == nil {
+		return discord.CacheGuild{}, false
 	}
-	return discord.Guild{}, false
+	return e.Client().Caches.Guild(*e.GuildID())
 }
 
 // Acknowledge acknowledges the interaction.
@@ -95,11 +95,11 @@ type ComponentInteractionCreate struct {
 // Guild returns the guild that the interaction happened in if it happened in a guild.
 // If the interaction happened in a DM, it returns nil.
 // This only returns cached guilds.
-func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
-	if e.GuildID() != nil {
-		return e.Client().Caches.Guild(*e.GuildID())
+func (e *ComponentInteractionCreate) Guild() (discord.CacheGuild, bool) {
+	if e.GuildID() == nil {
+		return discord.CacheGuild{}, false
 	}
-	return discord.Guild{}, false
+	return e.Client().Caches.Guild(*e.GuildID())
 }
 
 // Acknowledge acknowledges the interaction.
@@ -165,11 +165,11 @@ type AutocompleteInteractionCreate struct {
 // Guild returns the guild that the interaction happened in if it happened in a guild.
 // If the interaction happened in a DM, it returns nil.
 // This only returns cached guilds.
-func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
-	if e.GuildID() != nil {
-		return e.Client().Caches.Guild(*e.GuildID())
+func (e *AutocompleteInteractionCreate) Guild() (discord.CacheGuild, bool) {
+	if e.GuildID() == nil {
+		return discord.CacheGuild{}, false
 	}
-	return discord.Guild{}, false
+	return e.Client().Caches.Guild(*e.GuildID())
 }
 
 // Acknowledge acknowledges the interaction.
@@ -206,11 +206,11 @@ type ModalSubmitInteractionCreate struct {
 // Guild returns the guild that the interaction happened in if it happened in a guild.
 // If the interaction happened in a DM, it returns nil.
 // This only returns cached guilds.
-func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
-	if e.GuildID() != nil {
-		return e.Client().Caches.Guild(*e.GuildID())
+func (e *ModalSubmitInteractionCreate) Guild() (discord.CacheGuild, bool) {
+	if e.GuildID() == nil {
+		return discord.CacheGuild{}, false
 	}
-	return discord.Guild{}, false
+	return e.Client().Caches.Guild(*e.GuildID())
 }
 
 // Acknowledge acknowledges the interaction.

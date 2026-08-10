@@ -19,9 +19,9 @@ func (e *InviteCreate) Channel() (discord.GuildChannel, bool) {
 	return e.Client().Caches.Channel(e.ChannelID)
 }
 
-func (e *InviteCreate) Guild() (discord.Guild, bool) {
+func (e *InviteCreate) Guild() (discord.CacheGuild, bool) {
 	if e.GuildID == nil {
-		return discord.Guild{}, false
+		return discord.CacheGuild{}, false
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }
@@ -40,9 +40,9 @@ func (e *InviteDelete) Channel() (discord.GuildChannel, bool) {
 	return e.Client().Caches.Channel(e.ChannelID)
 }
 
-func (e *InviteDelete) Guild() (discord.Guild, bool) {
+func (e *InviteDelete) Guild() (discord.CacheGuild, bool) {
 	if e.GuildID == nil {
-		return discord.Guild{}, false
+		return discord.CacheGuild{}, false
 	}
 	return e.Client().Caches.Guild(*e.GuildID)
 }
