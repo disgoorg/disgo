@@ -321,7 +321,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 			backoffIncrement++
 		}
 
-		timer := time.NewTimer(time.Duration(try) * delay)
+		timer := time.NewTimer(delay)
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
