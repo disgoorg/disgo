@@ -60,6 +60,8 @@ type (
 	}
 )
 
+const voiceReconnectTimeout = 30 * time.Second
+
 // NewConn returns a new default voice conn.
 func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
 	cfg := defaultConnConfig()
@@ -221,12 +223,12 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 }
 
 func (c *connImpl) tryOpenGateway() {
-	if c.state.Token == "" || c.state.Endpoint == "" || c.state.ChannelID == 0 {
+	if c.state.SessionID == "" || c.state.Token == "" || c.state.Endpoint == "" || c.state.ChannelID == 0 {
 		return
 	}
 	state := c.state
 	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), voiceReconnectTimeout)
 		defer cancel()
 		if err := c.gateway.Open(ctx, state); err != nil {
 			c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
@@ -294,18 +296,34 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 }
 
 func (c *connImpl) handleGatewayClose(_ Gateway, err error) {
+	newConnection := true
 	var closeError *websocket.CloseError
 	if errors.As(err, &closeError) {
 		closeCode := GatewayCloseEventCodeByCode(closeError.Code)
-		if closeCode.NewConnection {
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
-			if err = c.Open(ctx, c.state.ChannelID, c.state.SelfMute, c.state.SelfDeaf); err != nil {
-				c.config.Logger.Error("voice: failed to reopen voice conn after full reconnect close code", slog.Any("err", err))
-			} else {
-				return
-			}
+		newConnection = closeCode.NewConnection
+	}
+
+	if newConnection {
+		c.stateMu.Lock()
+		channelID := c.state.ChannelID
+		selfMute := c.state.SelfMute
+		selfDeaf := c.state.SelfDeaf
+		c.state.SessionID = ""
+		c.state.Token = ""
+		c.state.Endpoint = ""
+		c.stateMu.Unlock()
+
+		_ = c.udp.Close()
+		if channelID == 0 {
+			return
 		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), voiceReconnectTimeout)
+		defer cancel()
+		if err = c.Open(ctx, channelID, selfMute, selfDeaf); err != nil {
+			c.config.Logger.Error("voice: failed to reopen voice conn with a fresh session", slog.Any("err", err))
+		}
+		return
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
