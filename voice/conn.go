@@ -92,9 +92,10 @@ type connImpl struct {
 	state   State
 	stateMu sync.Mutex
 
-	gateway Gateway
-	udp     UDPConn
-	dave    godave.Session
+	gateway      Gateway
+	udp          UDPConn
+	dave         godave.Session
+	transportsMu sync.RWMutex
 
 	audioSender   AudioSender
 	audioReceiver AudioReceiver
@@ -106,19 +107,19 @@ type connImpl struct {
 }
 
 func (c *connImpl) SendMLSKeyPackage(mlsKeyPackage []byte) error {
-	return c.gateway.Send(context.Background(), OpcodeDaveMLSKeyPackage, GatewayMessageDataDaveMLSKeyPackage(mlsKeyPackage))
+	return c.Gateway().Send(context.Background(), OpcodeDaveMLSKeyPackage, GatewayMessageDataDaveMLSKeyPackage(mlsKeyPackage))
 }
 
 func (c *connImpl) SendMLSCommitWelcome(mlsCommitWelcome []byte) error {
-	return c.gateway.Send(context.Background(), OpcodeDaveMLSCommitWelcome, GatewayMessageDataDaveMLSCommitWelcome(mlsCommitWelcome))
+	return c.Gateway().Send(context.Background(), OpcodeDaveMLSCommitWelcome, GatewayMessageDataDaveMLSCommitWelcome(mlsCommitWelcome))
 }
 
 func (c *connImpl) SendReadyForTransition(transitionID uint16) error {
-	return c.gateway.Send(context.Background(), OpcodeDaveTransitionReady, GatewayMessageDataDaveProtocolReadyForTransition{TransitionID: transitionID})
+	return c.Gateway().Send(context.Background(), OpcodeDaveTransitionReady, GatewayMessageDataDaveProtocolReadyForTransition{TransitionID: transitionID})
 }
 
 func (c *connImpl) SendInvalidCommitWelcome(transitionID uint16) error {
-	return c.gateway.Send(context.Background(), OpcodeDaveMLSInvalidCommitWelcome, GatewayMessageDataDaveInvalidCommitWelcome{TransitionID: transitionID})
+	return c.Gateway().Send(context.Background(), OpcodeDaveMLSInvalidCommitWelcome, GatewayMessageDataDaveInvalidCommitWelcome{TransitionID: transitionID})
 }
 
 func (c *connImpl) ChannelID() *snowflake.ID {
@@ -142,22 +143,32 @@ func (c *connImpl) UserIDBySSRC(ssrc uint32) snowflake.ID {
 }
 
 func (c *connImpl) Gateway() Gateway {
-	return c.gateway
+	gateway, _, _ := c.transports()
+	return gateway
 }
 
 func (c *connImpl) SetSpeaking(ctx context.Context, flags SpeakingFlags) error {
-	return c.gateway.Send(ctx, OpcodeSpeaking, GatewayMessageDataSpeaking{
-		SSRC:     c.Gateway().SSRC(),
+	gateway := c.Gateway()
+	return gateway.Send(ctx, OpcodeSpeaking, GatewayMessageDataSpeaking{
+		SSRC:     gateway.SSRC(),
 		Speaking: flags,
 	})
 }
 
 func (c *connImpl) UDP() UDPConn {
-	return c.udp
+	_, udp, _ := c.transports()
+	return udp
 }
 
 func (c *connImpl) DAVE() godave.Session {
-	return c.dave
+	_, _, dave := c.transports()
+	return dave
+}
+
+func (c *connImpl) transports() (Gateway, UDPConn, godave.Session) {
+	c.transportsMu.RLock()
+	defer c.transportsMu.RUnlock()
+	return c.gateway, c.udp, c.dave
 }
 
 func (c *connImpl) SetOpusFrameProvider(provider OpusFrameProvider) {
@@ -194,8 +205,8 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 			c.audioReceiver.Close()
 			c.audioReceiver = nil
 		}
-		_ = c.udp.Close()
-		c.gateway.Close()
+		_ = c.UDP().Close()
+		c.Gateway().Close()
 	} else {
 		c.state.ChannelID = *update.ChannelID
 	}
@@ -225,10 +236,11 @@ func (c *connImpl) tryOpenGateway() {
 		return
 	}
 	state := c.state
+	gateway := c.Gateway()
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err := c.gateway.Open(ctx, state); err != nil {
+		if err := gateway.Open(ctx, state); err != nil {
 			c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
 		}
 	}()
@@ -239,7 +251,7 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 	case GatewayMessageDataReady:
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		ourAddress, ourPort, err := c.udp.Open(ctx, d.IP, d.Port, d.SSRC)
+		ourAddress, ourPort, err := c.UDP().Open(ctx, d.IP, d.Port, d.SSRC)
 		if err != nil {
 			c.config.Logger.Error("voice: failed to open voiceudp conn", slog.Any("err", err))
 			break
@@ -251,7 +263,7 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 			break
 		}
 
-		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
+		if err = gateway.Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
 			Protocol: ProtocolUDP,
 			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
@@ -263,7 +275,7 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 		}
 
 	case GatewayMessageDataSessionDescription:
-		if err := c.udp.SetSecretKey(d.Mode, d.SecretKey); err != nil {
+		if err := c.UDP().SetSecretKey(d.Mode, d.SecretKey); err != nil {
 			c.config.Logger.Error("voice: failed to set secret key", slog.Any("err", err))
 		}
 		if openedFunc := c.openedFunc; openedFunc != nil {
@@ -335,9 +347,10 @@ func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bo
 func (c *connImpl) Close(ctx context.Context) {
 	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
 
-	c.gateway.Close()
-	_ = c.udp.Close()
-	_ = c.dave.Close()
+	gateway, udp, dave := c.transports()
+	gateway.Close()
+	_ = udp.Close()
+	_ = dave.Close()
 
 	c.removeConnFunc()
 }
