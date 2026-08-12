@@ -320,12 +320,6 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State, maximumAttem
 			timer := time.NewTimer(delay)
 			select {
 			case <-ctx.Done():
-				if !timer.Stop() {
-					select {
-					case <-timer.C:
-					default:
-					}
-				}
 				return ctx.Err()
 			case <-timer.C:
 			}
