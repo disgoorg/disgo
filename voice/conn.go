@@ -322,8 +322,9 @@ func (c *connImpl) handleGatewayClose(_ Gateway, err error) {
 		defer cancel()
 		if err = c.Open(ctx, channelID, selfMute, selfDeaf); err != nil {
 			c.config.Logger.Error("voice: failed to reopen voice conn with a fresh session", slog.Any("err", err))
+		} else {
+			return
 		}
-		return
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
