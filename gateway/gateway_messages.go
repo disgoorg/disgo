@@ -8,6 +8,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // Message raw Message type
@@ -543,9 +544,40 @@ type MessageDataIdentify struct {
 	Shard          *[2]int                       `json:"shard,omitempty"`
 	Intents        Intents                       `json:"intents"`
 	Presence       *MessageDataPresenceUpdate    `json:"presence,omitempty"`
+	Capabilities   GatewayCapabilities           `json:"capabilities,omitempty"`
 }
 
 func (MessageDataIdentify) messageData() {}
+
+// GatewayCapabilities is a bitfield used to opt into in-progress gateway behaviors.
+type GatewayCapabilities int
+
+const (
+	// GatewayCapabilityChannelObfuscation opts the app into receiving obfuscated channel metadata
+	// over the Gateway for channels it can't view (temporary).
+	GatewayCapabilityChannelObfuscation GatewayCapabilities = 1 << 15
+	GatewayCapabilitiesNone             GatewayCapabilities = 0
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (c GatewayCapabilities) Add(bits ...GatewayCapabilities) GatewayCapabilities {
+	return flags.Add(c, bits...)
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (c GatewayCapabilities) Remove(bits ...GatewayCapabilities) GatewayCapabilities {
+	return flags.Remove(c, bits...)
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (c GatewayCapabilities) Has(bits ...GatewayCapabilities) bool {
+	return flags.Has(c, bits...)
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (c GatewayCapabilities) Missing(bits ...GatewayCapabilities) bool {
+	return flags.Missing(c, bits...)
+}
 
 // IdentifyCommandDataProperties is used for specifying to discord which library and OS the bot is using, is
 // automatically handled by the library and should rarely be used.
