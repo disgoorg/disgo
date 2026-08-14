@@ -78,6 +78,7 @@ type ThreadCreate interface {
 type GuildNewsThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
+	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
 }
 
 func (c GuildNewsThreadCreate) MarshalJSON() ([]byte, error) {
@@ -98,6 +99,7 @@ func (GuildNewsThreadCreate) Type() ChannelType {
 type GuildPublicThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
+	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
 }
 
 func (c GuildPublicThreadCreate) MarshalJSON() ([]byte, error) {
@@ -119,6 +121,7 @@ type GuildPrivateThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 	Invitable           *bool               `json:"invitable,omitempty"`
+	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
 }
 
 func (c GuildPrivateThreadCreate) MarshalJSON() ([]byte, error) {
