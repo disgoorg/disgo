@@ -100,6 +100,8 @@ type guildThread struct {
 	AppliedTags      []snowflake.ID `json:"applied_tags"`
 	MemberCount      int            `json:"member_count"`
 	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
+	Flags            ChannelFlags   `json:"flags"`
+	Member           *ThreadMember  `json:"member,omitempty"`
 }
 
 type guildCategoryChannel struct {
