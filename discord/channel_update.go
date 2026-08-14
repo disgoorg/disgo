@@ -76,6 +76,8 @@ type GuildThreadUpdate struct {
 	Locked              *bool                `json:"locked,omitempty"`
 	Invitable           *bool                `json:"invitable,omitempty"`
 	RateLimitPerUser    *int                 `json:"rate_limit_per_user,omitempty"`
+	Flags               *ChannelFlags        `json:"flags,omitempty"`
+	AppliedTags         *[]snowflake.ID      `json:"applied_tags,omitempty"`
 }
 
 func (GuildThreadUpdate) channelUpdate()      {}
