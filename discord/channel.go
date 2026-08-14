@@ -893,6 +893,8 @@ type GuildThread struct {
 	AppliedTags      []snowflake.ID
 	MemberCount      int
 	ThreadMetadata   ThreadMetadata
+	Flags            ChannelFlags
+	Member           *ThreadMember
 }
 
 func (c *GuildThread) UnmarshalJSON(data []byte) error {
@@ -915,6 +917,8 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 	c.AppliedTags = v.AppliedTags
 	c.MemberCount = v.MemberCount
 	c.ThreadMetadata = v.ThreadMetadata
+	c.Flags = v.Flags
+	c.Member = v.Member
 	return nil
 }
 
@@ -934,6 +938,8 @@ func (c GuildThread) MarshalJSON() ([]byte, error) {
 		AppliedTags:      c.AppliedTags,
 		MemberCount:      c.MemberCount,
 		ThreadMetadata:   c.ThreadMetadata,
+		Flags:            c.Flags,
+		Member:           c.Member,
 	})
 }
 
