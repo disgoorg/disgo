@@ -951,6 +951,10 @@ func (c GuildThread) Mention() string {
 	return ChannelMention(c.ID())
 }
 
+func (c GuildThread) IsPinned() bool {
+	return c.Flags.Has(ChannelFlagPinned)
+}
+
 func (c GuildThread) Type() ChannelType {
 	return c.channelType
 }
