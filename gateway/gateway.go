@@ -672,7 +672,9 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			}
 
 			if unknownEvent, ok := eventData.(EventUnknown); ok {
-				g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
+				if g.config.Logger.Enabled(context.Background(), slog.LevelDebug) {
+					g.config.Logger.Debug("unknown event received", slog.String("event", string(message.T)), slog.String("data", string(unknownEvent)))
+				}
 				continue
 			}
 			g.eventHandlerFunc(g, message.T, message.S, eventData)

@@ -14,7 +14,7 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 	wasUnready := client.Caches.IsGuildUnready(event.ID)
 	wasUnavailable := client.Caches.IsGuildUnavailable(event.ID)
 
-	client.Caches.AddGuild(event.Guild)
+	client.Caches.AddGuild(event.CacheGuild)
 
 	for _, channel := range event.Channels {
 		channel = discord.ApplyGuildIDToChannel(channel, event.ID) // populate unset field
@@ -77,7 +77,7 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 		client.Caches.SetGuildUnready(event.ID, false)
 		client.EventManager.DispatchEvent(&events.GuildReady{
 			GenericGuild: genericGuildEvent,
-			Guild:        event.GatewayGuild,
+			Guild:        event.CacheGuild,
 		})
 		if len(client.Caches.UnreadyGuildIDs()) == 0 {
 			client.EventManager.DispatchEvent(&events.GuildsReady{
@@ -98,19 +98,24 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 		client.Caches.SetGuildUnavailable(event.ID, false)
 		client.EventManager.DispatchEvent(&events.GuildAvailable{
 			GenericGuild: genericGuildEvent,
-			Guild:        event.GatewayGuild,
+			Guild:        event.CacheGuild,
 		})
 	} else {
 		client.EventManager.DispatchEvent(&events.GuildJoin{
 			GenericGuild: genericGuildEvent,
-			Guild:        event.GatewayGuild,
+			Guild:        event.CacheGuild,
 		})
 	}
 }
 
 func gatewayHandlerGuildUpdate(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildUpdate) {
 	oldGuild, _ := client.Caches.Guild(event.ID)
-	client.Caches.AddGuild(event.Guild)
+	client.Caches.AddGuild(discord.CacheGuild{
+		Guild:       event.Guild,
+		JoinedAt:    oldGuild.JoinedAt,
+		Large:       oldGuild.Large,
+		MemberCount: oldGuild.MemberCount,
+	})
 
 	client.EventManager.DispatchEvent(&events.GuildUpdate{
 		GenericGuild: &events.GenericGuild{

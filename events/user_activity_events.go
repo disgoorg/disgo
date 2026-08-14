@@ -28,7 +28,7 @@ func (g *GenericUserActivity) Member() (discord.Member, bool) {
 
 // Guild returns the Guild that changed their Activity.
 // This will only check cached guilds!
-func (g *GenericUserActivity) Guild() (discord.Guild, bool) {
+func (g *GenericUserActivity) Guild() (discord.CacheGuild, bool) {
 	return g.Client().Caches.Guild(g.UserID)
 }
 

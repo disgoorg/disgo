@@ -78,13 +78,18 @@ func partHeader(contentDisposition string, contentType string) textproto.MIMEHea
 func parseAttachments(files []*File) []AttachmentCreate {
 	var attachments []AttachmentCreate
 	for i, file := range files {
-		if file.Description == "" {
+		isSpoiler := file.Flags.Has(FileFlagSpoiler)
+		if file.Description == "" && !isSpoiler {
 			continue
 		}
-		attachments = append(attachments, AttachmentCreate{
+		attachment := AttachmentCreate{
 			ID:          i,
 			Description: file.Description,
-		})
+		}
+		if isSpoiler {
+			attachment.IsSpoiler = &isSpoiler
+		}
+		attachments = append(attachments, attachment)
 	}
 	return attachments
 }

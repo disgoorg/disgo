@@ -547,6 +547,7 @@ type ApplicationCommandOptionAttachment struct {
 	Description              string            `json:"description"`
 	DescriptionLocalizations map[Locale]string `json:"description_localizations,omitempty"`
 	Required                 bool              `json:"required,omitempty"`
+	FileTypes                []FileType        `json:"file_types,omitempty"`
 }
 
 func (o ApplicationCommandOptionAttachment) MarshalJSON() ([]byte, error) {

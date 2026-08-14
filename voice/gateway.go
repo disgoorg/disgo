@@ -296,7 +296,9 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 		return ErrGatewayNotConnected
 	}
 
-	g.config.Logger.DebugContext(ctx, "sending voice gateway command", slog.String("data", string(data)))
+	if g.config.Logger.Enabled(ctx, slog.LevelDebug) {
+		g.config.Logger.DebugContext(ctx, "sending voice gateway command", slog.String("data", string(data)))
+	}
 	return g.conn.WriteMessage(messageType, data)
 }
 
@@ -319,7 +321,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 			backoffIncrement++
 		}
 
-		timer := time.NewTimer(time.Duration(try) * delay)
+		timer := time.NewTimer(delay)
 		select {
 		case <-ctx.Done():
 			return ctx.Err()

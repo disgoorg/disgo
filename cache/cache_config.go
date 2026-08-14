@@ -8,7 +8,7 @@ import (
 
 func defaultConfig() config {
 	return config{
-		GuildCachePolicy:                PolicyAll[discord.Guild],
+		GuildCachePolicy:                PolicyAll[discord.CacheGuild],
 		ChannelCachePolicy:              PolicyAll[discord.GuildChannel],
 		StageInstanceCachePolicy:        PolicyAll[discord.StageInstance],
 		GuildScheduledEventCachePolicy:  PolicyAll[discord.GuildScheduledEvent],
@@ -30,7 +30,7 @@ type config struct {
 	SelfUserCache SelfUserCache
 
 	GuildCache       GuildCache
-	GuildCachePolicy Policy[discord.Guild]
+	GuildCachePolicy Policy[discord.CacheGuild]
 
 	ChannelCache       ChannelCache
 	ChannelCachePolicy Policy[discord.GuildChannel]
@@ -80,43 +80,43 @@ func (c *config) apply(opts []ConfigOpt) {
 		c.SelfUserCache = NewSelfUserCache()
 	}
 	if c.GuildCache == nil {
-		c.GuildCache = NewGuildCache(NewCache[discord.Guild](c.CacheFlags, FlagGuilds, c.GuildCachePolicy), NewSet[snowflake.ID](), NewSet[snowflake.ID]())
+		c.GuildCache = NewGuildCache(NewCache(c.CacheFlags, FlagGuilds, c.GuildCachePolicy), NewSet[snowflake.ID](), NewSet[snowflake.ID]())
 	}
 	if c.ChannelCache == nil {
-		c.ChannelCache = NewChannelCache(NewCache[discord.GuildChannel](c.CacheFlags, FlagChannels, c.ChannelCachePolicy))
+		c.ChannelCache = NewChannelCache(NewCache(c.CacheFlags, FlagChannels, c.ChannelCachePolicy))
 	}
 	if c.StageInstanceCache == nil {
-		c.StageInstanceCache = NewStageInstanceCache(NewGroupedCache[discord.StageInstance](c.CacheFlags, FlagStageInstances, c.StageInstanceCachePolicy))
+		c.StageInstanceCache = NewStageInstanceCache(NewGroupedCache(c.CacheFlags, FlagStageInstances, c.StageInstanceCachePolicy))
 	}
 	if c.GuildScheduledEventCache == nil {
-		c.GuildScheduledEventCache = NewGuildScheduledEventCache(NewGroupedCache[discord.GuildScheduledEvent](c.CacheFlags, FlagGuildScheduledEvents, c.GuildScheduledEventCachePolicy))
+		c.GuildScheduledEventCache = NewGuildScheduledEventCache(NewGroupedCache(c.CacheFlags, FlagGuildScheduledEvents, c.GuildScheduledEventCachePolicy))
 	}
 	if c.GuildSoundboardSoundCache == nil {
-		c.GuildSoundboardSoundCache = NewGuildSoundboardSoundCache(NewGroupedCache[discord.SoundboardSound](c.CacheFlags, FlagGuildSoundboardSounds, c.GuildSoundboardSoundCachePolicy))
+		c.GuildSoundboardSoundCache = NewGuildSoundboardSoundCache(NewGroupedCache(c.CacheFlags, FlagGuildSoundboardSounds, c.GuildSoundboardSoundCachePolicy))
 	}
 	if c.RoleCache == nil {
-		c.RoleCache = NewRoleCache(NewGroupedCache[discord.Role](c.CacheFlags, FlagRoles, c.RoleCachePolicy))
+		c.RoleCache = NewRoleCache(NewGroupedCache(c.CacheFlags, FlagRoles, c.RoleCachePolicy))
 	}
 	if c.MemberCache == nil {
-		c.MemberCache = NewMemberCache(NewGroupedCache[discord.Member](c.CacheFlags, FlagMembers, c.MemberCachePolicy))
+		c.MemberCache = NewMemberCache(NewGroupedCache(c.CacheFlags, FlagMembers, c.MemberCachePolicy))
 	}
 	if c.ThreadMemberCache == nil {
-		c.ThreadMemberCache = NewThreadMemberCache(NewGroupedCache[discord.ThreadMember](c.CacheFlags, FlagThreadMembers, c.ThreadMemberCachePolicy))
+		c.ThreadMemberCache = NewThreadMemberCache(NewGroupedCache(c.CacheFlags, FlagThreadMembers, c.ThreadMemberCachePolicy))
 	}
 	if c.PresenceCache == nil {
-		c.PresenceCache = NewPresenceCache(NewGroupedCache[discord.Presence](c.CacheFlags, FlagPresences, c.PresenceCachePolicy))
+		c.PresenceCache = NewPresenceCache(NewGroupedCache(c.CacheFlags, FlagPresences, c.PresenceCachePolicy))
 	}
 	if c.VoiceStateCache == nil {
-		c.VoiceStateCache = NewVoiceStateCache(NewGroupedCache[discord.VoiceState](c.CacheFlags, FlagVoiceStates, c.VoiceStateCachePolicy))
+		c.VoiceStateCache = NewVoiceStateCache(NewGroupedCache(c.CacheFlags, FlagVoiceStates, c.VoiceStateCachePolicy))
 	}
 	if c.MessageCache == nil {
-		c.MessageCache = NewMessageCache(NewGroupedCache[discord.Message](c.CacheFlags, FlagMessages, c.MessageCachePolicy))
+		c.MessageCache = NewMessageCache(NewGroupedCache(c.CacheFlags, FlagMessages, c.MessageCachePolicy))
 	}
 	if c.EmojiCache == nil {
-		c.EmojiCache = NewEmojiCache(NewGroupedCache[discord.Emoji](c.CacheFlags, FlagEmojis, c.EmojiCachePolicy))
+		c.EmojiCache = NewEmojiCache(NewGroupedCache(c.CacheFlags, FlagEmojis, c.EmojiCachePolicy))
 	}
 	if c.StickerCache == nil {
-		c.StickerCache = NewStickerCache(NewGroupedCache[discord.Sticker](c.CacheFlags, FlagStickers, c.StickerCachePolicy))
+		c.StickerCache = NewStickerCache(NewGroupedCache(c.CacheFlags, FlagStickers, c.StickerCachePolicy))
 	}
 }
 
@@ -134,8 +134,8 @@ func WithSelfUserCache(cache SelfUserCache) ConfigOpt {
 	}
 }
 
-// WithGuildCachePolicy sets the Policy[discord.Guild] of the config.
-func WithGuildCachePolicy(policy Policy[discord.Guild]) ConfigOpt {
+// WithGuildCachePolicy sets the Policy[discord.CacheGuild] of the config.
+func WithGuildCachePolicy(policy Policy[discord.CacheGuild]) ConfigOpt {
 	return func(config *config) {
 		config.GuildCachePolicy = policy
 	}

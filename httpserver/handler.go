@@ -95,10 +95,15 @@ const (
 // HandleInteraction handles an interaction from Discord's Outgoing Webhooks. It verifies and parses the interaction and then calls the passed EventHandlerFunc.
 func HandleInteraction(verifier Verifier, publicKey PublicKey, logger *slog.Logger, handleFunc EventHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// we only read & keep bodies around for logging if debug logging is enabled
+		debug := logger.Enabled(r.Context(), slog.LevelDebug)
+
 		if ok := VerifyRequest(verifier, r, publicKey); !ok {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			data, _ := io.ReadAll(r.Body)
-			logger.Debug("received http interaction with invalid signature", slog.String("body", string(data)))
+			if debug {
+				data, _ := io.ReadAll(r.Body)
+				logger.DebugContext(r.Context(), "received http interaction with invalid signature", slog.String("body", string(data)))
+			}
 			return
 		}
 
@@ -106,12 +111,18 @@ func HandleInteraction(verifier Verifier, publicKey PublicKey, logger *slog.Logg
 			_ = r.Body.Close()
 		}()
 
-		buff := new(bytes.Buffer)
-		rqData, _ := io.ReadAll(io.TeeReader(r.Body, buff))
-		logger.Debug("received http interaction", slog.String("body", string(rqData)))
+		rqBody := io.Reader(r.Body)
+		if debug {
+			data, err := io.ReadAll(r.Body)
+			if err != nil {
+				logger.ErrorContext(r.Context(), "error while reading interaction body", slog.Any("err", err))
+			}
+			logger.DebugContext(r.Context(), "received http interaction", slog.String("body", string(data)))
+			rqBody = bytes.NewReader(data)
+		}
 
 		var v EventInteractionCreate
-		if err := json.NewDecoder(buff).Decode(&v); err != nil {
+		if err := json.NewDecoder(rqBody).Decode(&v); err != nil {
 			logger.Error("error while decoding interaction", slog.Any("err", err))
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -182,22 +193,26 @@ func HandleInteraction(verifier Verifier, publicKey PublicKey, logger *slog.Logg
 			return
 		}
 
-		rsBody := &bytes.Buffer{}
-		multiWriter := io.MultiWriter(w, rsBody)
+		var rsBody bytes.Buffer
+		rsWriter := io.Writer(w)
+		if debug {
+			rsWriter = io.MultiWriter(w, &rsBody)
+		}
 
 		if multiPart, ok := body.(*discord.MultipartBuffer); ok {
 			w.Header().Set("Content-Type", multiPart.ContentType)
-			_, err = io.Copy(multiWriter, multiPart.Buffer)
+			_, err = io.Copy(rsWriter, multiPart.Buffer)
 		} else {
 			w.Header().Set("Content-Type", "application/json")
-			err = json.NewEncoder(multiWriter).Encode(body)
+			err = json.NewEncoder(rsWriter).Encode(body)
 		}
 		if err != nil {
 			errorChannel <- err
 			return
 		}
 
-		rsData, _ := io.ReadAll(rsBody)
-		logger.Debug("response to http interaction", slog.String("body", string(rsData)))
+		if debug {
+			logger.DebugContext(r.Context(), "response to http interaction", slog.String("body", rsBody.String()))
+		}
 	}
 }

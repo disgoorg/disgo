@@ -283,6 +283,18 @@ func (m MessageUpdate) RetainAttachmentsByID(attachmentIDs ...snowflake.ID) Mess
 	return m
 }
 
+// UpdateAttachment returns a new MessageUpdate that retains the existing Attachment with the provided ID, using the given AttachmentKeep to
+// optionally update its description and/or spoiler status. Use [NewAttachmentKeep] together with [AttachmentKeep.WithDescription] and/or
+// [AttachmentKeep.WithSpoiler] to build the update.
+func (m MessageUpdate) UpdateAttachment(attachment AttachmentKeep) MessageUpdate {
+	if m.Attachments == nil {
+		m.Attachments = &[]AttachmentUpdate{}
+	}
+	newAttachments := append(slices.Clone(*m.Attachments), attachment)
+	m.Attachments = &newAttachments
+	return m
+}
+
 // WithAllowedMentions returns a new MessageUpdate with the provided AllowedMentions.
 func (m MessageUpdate) WithAllowedMentions(allowedMentions *AllowedMentions) MessageUpdate {
 	m.AllowedMentions = allowedMentions

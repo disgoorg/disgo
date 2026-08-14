@@ -3,9 +3,11 @@ package discord
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/omit"
 	"github.com/disgoorg/snowflake/v2"
 
@@ -13,34 +15,60 @@ import (
 )
 
 type Application struct {
-	ID                                snowflake.ID                      `json:"id"`
-	Name                              string                            `json:"name"`
-	Icon                              *string                           `json:"icon,omitempty"`
-	Description                       string                            `json:"description"`
-	RPCOrigins                        []string                          `json:"rpc_origins"`
-	BotPublic                         bool                              `json:"bot_public"`
-	BotRequireCodeGrant               bool                              `json:"bot_require_code_grant"`
-	Bot                               *User                             `json:"bot,omitempty"`
-	TermsOfServiceURL                 *string                           `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL                  *string                           `json:"privacy_policy_url,omitempty"`
-	CustomInstallURL                  *string                           `json:"custom_install_url,omitempty"`
-	InteractionsEndpointURL           *string                           `json:"interactions_endpoint_url,omitempty"`
-	RoleConnectionsVerificationURL    *string                           `json:"role_connections_verification_url"`
-	InstallParams                     *InstallParams                    `json:"install_params"`
-	Tags                              []string                          `json:"tags"`
-	Owner                             *User                             `json:"owner,omitempty"`
-	VerifyKey                         string                            `json:"verify_key"`
-	Team                              *Team                             `json:"team,omitempty"`
-	GuildID                           *snowflake.ID                     `json:"guild_id,omitempty"`
-	Guild                             *Guild                            `json:"guild,omitempty"`
-	PrimarySkuID                      *snowflake.ID                     `json:"primary_sku_id,omitempty"`
-	Slug                              *string                           `json:"slug,omitempty"`
-	CoverImage                        *string                           `json:"cover_image,omitempty"`
+	ID                             snowflake.ID   `json:"id"`
+	Name                           string         `json:"name"`
+	Icon                           *string        `json:"icon,omitempty"`
+	Description                    string         `json:"description"`
+	RPCOrigins                     []string       `json:"rpc_origins"`
+	BotPublic                      bool           `json:"bot_public"`
+	BotRequireCodeGrant            bool           `json:"bot_require_code_grant"`
+	Bot                            *User          `json:"bot,omitempty"`
+	TermsOfServiceURL              *string        `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL               *string        `json:"privacy_policy_url,omitempty"`
+	CustomInstallURL               *string        `json:"custom_install_url,omitempty"`
+	InteractionsEndpointURL        *string        `json:"interactions_endpoint_url,omitempty"`
+	RoleConnectionsVerificationURL *string        `json:"role_connections_verification_url"`
+	InstallParams                  *InstallParams `json:"install_params"`
+	Tags                           []string       `json:"tags"`
+	Owner                          *User          `json:"owner,omitempty"`
+	VerifyKey                      string         `json:"verify_key"`
+	Team                           *Team          `json:"team,omitempty"`
+	GuildID                        *snowflake.ID  `json:"guild_id,omitempty"`
+	Guild                          *Guild         `json:"guild,omitempty"`
+	PrimarySkuID                   *snowflake.ID  `json:"primary_sku_id,omitempty"`
+	Slug                           *string        `json:"slug,omitempty"`
+	CoverImage                     *string        `json:"cover_image,omitempty"`
+	// Flags is the app's public flags. Discord sends these either as a 31-bit integer in "flags",
+	// or, for values with bits beyond bit 30 set, as a string-serialized integer in "flags_new".
+	// UnmarshalJSON transparently prefers "flags_new" when present, so this field always reflects
+	// the full flag set regardless of which one the API sent.
 	Flags                             ApplicationFlags                  `json:"flags,omitempty"`
 	ApproximateGuildCount             *int                              `json:"approximate_guild_count,omitempty"`
 	ApproximateUserInstallCount       *int                              `json:"approximate_user_install_count,omitempty"`
 	ApproximateUserAuthorizationCount *int                              `json:"approximate_user_authorization_count,omitempty"`
 	IntegrationTypesConfig            ApplicationIntegrationTypesConfig `json:"integration_types_config"`
+}
+
+// UnmarshalJSON unmarshals an application so that Application.Flags always reflects the complete flag set.
+func (a *Application) UnmarshalJSON(data []byte) error {
+	type applicationAlias Application
+	var v struct {
+		applicationAlias
+		FlagsNew *string `json:"flags_new,omitempty"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*a = Application(v.applicationAlias)
+
+	if v.FlagsNew != nil {
+		flagsNew, err := strconv.ParseInt(*v.FlagsNew, 10, 64)
+		if err != nil {
+			return err
+		}
+		a.Flags = ApplicationFlags(flagsNew)
+	}
+	return nil
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {

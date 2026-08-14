@@ -108,7 +108,9 @@ func (t *baseTransport) WriteMessage(message Message) error {
 		return err
 	}
 
-	t.logger.Debug("sending gateway message", slog.String("data", string(data)))
+	if t.logger.Enabled(context.Background(), slog.LevelDebug) {
+		t.logger.Debug("sending gateway message", slog.String("data", string(data)))
+	}
 	return t.conn.WriteMessage(websocket.TextMessage, data)
 }
 
