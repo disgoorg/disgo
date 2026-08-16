@@ -314,7 +314,8 @@ func (g *gatewayImpl) Latency() time.Duration {
 }
 
 func (g *gatewayImpl) doReconnect(ctx context.Context, state State, maximumAttempts int) error {
-	for attempt := 0; ; attempt++ {
+	var err error
+	for attempt := 0; maximumAttempts <= 0 || attempt < maximumAttempts; attempt++ {
 		delay := reconnectDelay(attempt)
 		if delay > 0 {
 			timer := time.NewTimer(delay)
@@ -325,7 +326,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State, maximumAttem
 			}
 		}
 
-		err := g.open(ctx, state)
+		err = g.open(ctx, state)
 		if err == nil {
 			// Successfully connected, our job here is done
 			return nil
@@ -347,11 +348,8 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State, maximumAttem
 		g.statusMu.Lock()
 		g.status = StatusDisconnected
 		g.statusMu.Unlock()
-
-		if maximumAttempts > 0 && attempt+1 >= maximumAttempts {
-			return fmt.Errorf("failed to reconnect voice gateway after %d attempts: %w", maximumAttempts, err)
-		}
 	}
+	return fmt.Errorf("failed to reconnect voice gateway after %d attempts: %w", maximumAttempts, err)
 }
 
 func reconnectDelay(attempt int) time.Duration {
@@ -359,10 +357,12 @@ func reconnectDelay(attempt int) time.Duration {
 		return 0
 	}
 	// Exponentially backoff up to a limit of 10s
-	exponent := min(attempt-1, 4)
-	delay := time.Duration(1<<exponent) * time.Second
-	if delay > maximumConnectDelay {
-		return maximumConnectDelay
+	delay := time.Second
+	for range attempt - 1 {
+		if delay > maximumConnectDelay/2 {
+			return maximumConnectDelay
+		}
+		delay *= 2
 	}
 	return delay
 }
