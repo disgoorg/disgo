@@ -5,23 +5,22 @@ import (
 	"time"
 )
 
-func TestReconnectDelay(t *testing.T) {
+func TestNextReconnectDelay(t *testing.T) {
 	tests := []struct {
-		attempt int
-		want    time.Duration
+		delay time.Duration
+		want  time.Duration
 	}{
-		{attempt: 0, want: 0},
-		{attempt: 1, want: time.Second},
-		{attempt: 2, want: 2 * time.Second},
-		{attempt: 3, want: 4 * time.Second},
-		{attempt: 4, want: 8 * time.Second},
-		{attempt: 5, want: maximumConnectDelay},
-		{attempt: 100, want: maximumConnectDelay},
+		{delay: 0, want: time.Second},
+		{delay: time.Second, want: 2 * time.Second},
+		{delay: 2 * time.Second, want: 4 * time.Second},
+		{delay: 4 * time.Second, want: 8 * time.Second},
+		{delay: 8 * time.Second, want: maximumConnectDelay},
+		{delay: maximumConnectDelay, want: maximumConnectDelay},
 	}
 
 	for _, tt := range tests {
-		if got := reconnectDelay(tt.attempt); got != tt.want {
-			t.Errorf("reconnectDelay(%d) = %v, want %v", tt.attempt, got, tt.want)
+		if got := nextReconnectDelay(tt.delay); got != tt.want {
+			t.Errorf("nextReconnectDelay(%v) = %v, want %v", tt.delay, got, tt.want)
 		}
 	}
 }
