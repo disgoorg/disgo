@@ -195,7 +195,7 @@ var (
 		Description:   "Disconnected: Rate Limited",
 		Explanation:   "Disconnect due to rate limit exceeded. Should not reconnect.",
 		Reconnect:     false,
-		NewConnection: true,
+		NewConnection: false,
 	}
 
 	GatewayCloseEventCodeCallTerminated = GatewayCloseEventCode{
@@ -203,7 +203,7 @@ var (
 		Description:   "Disconnected: Call Terminated",
 		Explanation:   "Disconnect all clients due to call terminated (channel deleted, voice server changed, etc.). Should not reconnect.",
 		Reconnect:     false,
-		NewConnection: true,
+		NewConnection: false,
 	}
 
 	GatewayCloseEventCodeUnknown = GatewayCloseEventCode{

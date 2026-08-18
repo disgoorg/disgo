@@ -24,7 +24,10 @@ import (
 // GatewayVersion is the version of the voice gateway we are using.
 const GatewayVersion = 8
 
-const maximumConnectDelay = 10 * time.Second
+const (
+	maximumConnectDelay      = 10 * time.Second
+	maximumReconnectAttempts = 5
+)
 
 // ErrGatewayNotConnected is returned when the gateway is not connected and a message is attempted to be sent.
 var ErrGatewayNotConnected = fmt.Errorf("voice gateway not connected")
@@ -139,7 +142,7 @@ func (g *gatewayImpl) SSRC() uint32 {
 }
 
 func (g *gatewayImpl) Open(ctx context.Context, state State) error {
-	return g.doReconnect(ctx, state)
+	return g.doReconnect(ctx, state, 0)
 }
 
 func (g *gatewayImpl) open(ctx context.Context, state State) error {
@@ -151,6 +154,10 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 		return discord.ErrGatewayAlreadyConnected
 	}
 
+	if state.SessionID != g.state.SessionID {
+		g.ssrc = 0
+		g.seq = 0
+	}
 	g.state = state
 	g.statusMu.Lock()
 	g.status = StatusConnecting
@@ -306,29 +313,26 @@ func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
-	var (
-		try              int
-		backoffIncrement int
-	)
-
+func (g *gatewayImpl) doReconnect(ctx context.Context, state State, maximumAttempts int) error {
+	var err error
+	attempt := 0
+	delay := time.Duration(0)
 	for {
-		// Exponentially backoff up to a limit of 10s
-		delay := time.Duration(1<<backoffIncrement) * time.Second
-		if delay > maximumConnectDelay {
-			delay = maximumConnectDelay
-		} else {
-			backoffIncrement++
+		if maximumAttempts > 0 && attempt >= maximumAttempts {
+			return fmt.Errorf("failed to reconnect voice gateway after %d attempts: %w", maximumAttempts, err)
+		}
+		attempt++
+
+		if delay > 0 {
+			timer := time.NewTimer(delay)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-timer.C:
+			}
 		}
 
-		timer := time.NewTimer(delay)
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-timer.C:
-		}
-
-		err := g.open(ctx, state)
+		err = g.open(ctx, state)
 		if err == nil {
 			// Successfully connected, our job here is done
 			return nil
@@ -346,17 +350,24 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State) error {
 			}
 		}
 
-		g.config.Logger.Error("failed to reconnect voice gateway", slog.Any("err", err), slog.Int("try", try), slog.Duration("delay", delay))
+		g.config.Logger.Error("failed to reconnect voice gateway", slog.Any("err", err), slog.Int("attempt", attempt), slog.Duration("delay", delay))
 		g.statusMu.Lock()
 		g.status = StatusDisconnected
 		g.statusMu.Unlock()
 
-		try++
+		delay = nextReconnectDelay(delay)
 	}
 }
 
+func nextReconnectDelay(delay time.Duration) time.Duration {
+	if delay == 0 {
+		return time.Second
+	}
+	return min(delay*2, maximumConnectDelay)
+}
+
 func (g *gatewayImpl) reconnect() {
-	if err := g.doReconnect(context.Background(), g.state); err != nil {
+	if err := g.doReconnect(context.Background(), g.state, maximumReconnectAttempts); err != nil {
 		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
 
 		g.closeHandlerFunc(g, err)
@@ -569,6 +580,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			d := message.D.(GatewayMessageDataHeartbeatACK)
 			if d.T != g.lastNonce {
 				g.config.Logger.Error("received heartbeat ack with nonce", slog.Int64("nonce", d.T), slog.Int64("last_nonce", g.lastNonce))
+				g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat ACK nonce mismatch")
 				go g.reconnect()
 				return
 			}
