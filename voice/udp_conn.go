@@ -24,10 +24,16 @@ const (
 
 	// RTPVersionPadExtend is the first byte of the RTP header.
 	// Bit index 0 and 1 represent the RTP Protocol version used. Discord uses the latest RTP protocol version, 2.
-	// Bit index 2 represents whether we pad. Opus uses an internal padding system, so RTP padding is not used.
+	// Bit index 2 represents whether we pad.
 	// Bit index 3 represents if we use extensions.
 	// Bit index 4 to 7 represent the CC or CSRC count. CSRC is Combined SSRC.
 	RTPVersionPadExtend = 0x80
+
+	// Masks for the bits described above, counted from the most significant bit
+	// as RFC 3550 section 5.1 numbers them.
+	rtpPaddingBit    = 0x20 // bit index 2
+	rtpExtensionBit  = 0x10 // bit index 3
+	rtpCSRCCountMask = 0x0F // bit index 4 to 7
 
 	// RTPPayloadType is Discord's RTP Profile Payload type.
 	// I've yet to find actual documentation on what the bits inside this value represent.
@@ -313,21 +319,16 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			continue
 		}
 
-		hasPadding := (u.receiveBuffer[0] & 0x04) != 0
-		if hasPadding {
-			paddingLen := int(u.receiveBuffer[n-1])
-			if paddingLen <= 0 || paddingLen > n-RTPHeaderSize {
-				continue
-			}
-			n -= paddingLen
-		}
+		// RTP padding lives at the end of the payload, which is encrypted, so it
+		// cannot be measured until after decryption. It is removed further down.
+		hasPadding := (u.receiveBuffer[0] & rtpPaddingBit) != 0
 
 		p := Packet{
 			Type:         packetType,
 			Sequence:     binary.BigEndian.Uint16(u.receiveBuffer[2:4]),
 			Timestamp:    binary.BigEndian.Uint32(u.receiveBuffer[4:8]),
 			SSRC:         binary.BigEndian.Uint32(u.receiveBuffer[8:RTPHeaderSize]),
-			HasExtension: (u.receiveBuffer[0] & 0x10) != 0,
+			HasExtension: (u.receiveBuffer[0] & rtpExtensionBit) != 0,
 			ExtensionID:  0,
 			Extension:    nil,
 			CSRC:         nil,
@@ -335,7 +336,7 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 			Opus:         nil,
 		}
 
-		cc := int(u.receiveBuffer[0] & 0x0F)
+		cc := int(u.receiveBuffer[0] & rtpCSRCCountMask)
 		headerLen := RTPHeaderSize + (4 * cc)
 		if n < headerLen {
 			continue
@@ -378,6 +379,16 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 
 		decrypted = decrypted[decryptedOffset:]
 
+		if hasPadding {
+			decrypted = stripRTPPadding(decrypted)
+		}
+
+		// A padding-only packet carries no media: it advances the sequence number
+		// without advancing the timestamp, and has nothing to decrypt.
+		if len(decrypted) == 0 {
+			continue
+		}
+
 		userID := godave.UserID(u.ssrcLookup(p.SSRC).String())
 		bufferCap := u.daveSession.MaxDecryptedFrameSize(userID, len(decrypted))
 		if cap(u.decryptBuffer) < bufferCap {
@@ -393,6 +404,22 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 
 		return &p, nil
 	}
+}
+
+// stripRTPPadding removes RTP padding from a decrypted payload. Per RFC 3550
+// section 5.1 the final octet holds the number of padding octets, itself
+// included. A payload whose count is missing or implausible is returned
+// unchanged rather than truncated, so a malformed packet degrades to a decrypt
+// failure instead of silent corruption.
+func stripRTPPadding(payload []byte) []byte {
+	if len(payload) == 0 {
+		return payload
+	}
+	paddingLen := int(payload[len(payload)-1])
+	if paddingLen == 0 || paddingLen > len(payload) {
+		return payload
+	}
+	return payload[:len(payload)-paddingLen]
 }
 
 func (u *udpConnImpl) Close() error {
