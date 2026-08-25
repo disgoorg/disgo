@@ -158,7 +158,7 @@ type ResolvedChannel struct {
 	Name             string          `json:"name"`
 	Type             ChannelType     `json:"type"`
 	Permissions      Permissions     `json:"permissions"`
- AppPermissions   Permissions     `json:"app_permissions"`
+	AppPermissions   Permissions     `json:"app_permissions"`
 	LastMessageID    *snowflake.ID   `json:"last_message_id,omitempty"`
 	LastPinTimestamp *time.Time      `json:"last_pin_timestamp,omitempty"`
 	NSFW             bool            `json:"nsfw,omitempty"`
