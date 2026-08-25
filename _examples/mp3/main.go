@@ -189,6 +189,7 @@ func newReadCanceller(r io.Reader) *readCanceller {
 		cancel: cancel,
 	}
 }
+
 func (rc *readCanceller) Read(p []byte) (n int, err error) {
 	select {
 	case <-rc.ctx.Done():

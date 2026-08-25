@@ -62,7 +62,6 @@ func main() {
 		),
 		bot.WithEventListenerFunc(commandListener),
 	)
-
 	if err != nil {
 		slog.Error("error while building disgo instance", slog.Any("err", err))
 		return

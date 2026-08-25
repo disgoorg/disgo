@@ -19,9 +19,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-var (
-	token = os.Getenv("disgo_token")
-)
+var token = os.Getenv("disgo_token")
 
 func main() {
 	slog.Info("starting example...")

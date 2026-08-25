@@ -119,5 +119,4 @@ func showCaseAutoMod(client *bot.Client) {
 		slog.Error("error while deleting rule", slog.Any("err", err))
 		return
 	}
-
 }

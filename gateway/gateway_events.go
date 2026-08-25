@@ -888,7 +888,7 @@ func (e EventVoiceChannelStartTimeUpdate) MarshalJSON() ([]byte, error) {
 		eventVoiceChannelStartTimeUpdate
 	}{
 		VoiceStartTime:                   voiceStartTime,
-		eventVoiceChannelStartTimeUpdate: (eventVoiceChannelStartTimeUpdate)(e),
+		eventVoiceChannelStartTimeUpdate: eventVoiceChannelStartTimeUpdate(e),
 	})
 }
 
