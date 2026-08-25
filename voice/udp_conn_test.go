@@ -2,7 +2,6 @@ package voice
 
 import (
 	"bytes"
-	"context"
 	"encoding/binary"
 	"errors"
 	"io"
@@ -220,50 +219,51 @@ func TestUDPConnCloseBeforeOpenIsNotAnError(t *testing.T) {
 	}
 }
 
-// The audio sender is started by SetOpusFrameProvider, which a caller may
-// reasonably do before Conn.Open — the same shape as the receiver. It must wait
-// rather than log on every frame, and must not Close: the conn is not closed,
-// it does not exist yet.
-func TestWriteBeforeOpenIsNotFatalToTheSender(t *testing.T) {
+// The sender must not pull a frame it cannot send.
+//
+// SetOpusFrameProvider starts the send loop, and a caller may reasonably call it
+// before Conn.Open. Discovering that at the Write is too late: the frame has
+// already been taken from the provider and there is nowhere to put it back, so
+// it is silently dropped. The existing DAVE-ready gate avoids that by returning
+// before the pull, and the not-open case belongs in the same place.
+func TestSenderDoesNotPullFramesBeforeTheConnExists(t *testing.T) {
 	t.Parallel()
 
-	_, err := newUnopenedUDPConn().Write([]byte{0x01})
-	if !errors.Is(err, ErrUDPConnNotOpen) {
-		t.Fatalf("Write before Open = %v, want ErrUDPConnNotOpen", err)
-	}
-
-	var logged countingHandler
-
-	closed := false
+	pulled := 0
 	s := &defaultAudioSender{
-		logger:     slog.New(&logged),
-		cancelFunc: func() { closed = true },
+		logger:       slog.Default(),
+		conn:         &unopenedConn{},
+		opusProvider: providerFunc(func() ([]byte, error) { pulled++; return []byte{0x01}, nil }),
 	}
 
-	s.handleErr(err)
+	s.send()
 
-	if closed {
-		t.Error("the sender closed itself because the connection was not open yet; " +
-			"not-yet-open is not closed")
-	}
-
-	if logged.n > 0 {
-		t.Errorf("the sender logged %d times for a connection that is merely not "+
-			"open yet; the send loop runs per frame, so this floods", logged.n)
+	if pulled != 0 {
+		t.Errorf("the provider was asked for %d frames before the connection existed; "+
+			"a frame pulled and not sent is a frame silently dropped", pulled)
 	}
 }
 
-// countingHandler counts records rather than formatting them.
-type countingHandler struct{ n int }
+// unopenedConn is a Conn whose UDP socket has not been opened.
+type unopenedConn struct {
+	Conn
 
-func (h *countingHandler) Enabled(context.Context, slog.Level) bool { return true }
-
-func (h *countingHandler) Handle(context.Context, slog.Record) error {
-	h.n++
-
-	return nil
+	udp UDPConn
 }
 
-func (h *countingHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
+func (c *unopenedConn) UDP() UDPConn {
+	if c.udp == nil {
+		c.udp = newUnopenedUDPConn()
+	}
 
-func (h *countingHandler) WithGroup(string) slog.Handler { return h }
+	return c.udp
+}
+
+func (c *unopenedConn) DAVE() godave.Session {
+	return godave.NewNoopSession(slog.Default(), "0", nil)
+}
+
+type providerFunc func() ([]byte, error)
+
+func (f providerFunc) ProvideOpusFrame() ([]byte, error) { return f() }
+func (providerFunc) Close()                              {}

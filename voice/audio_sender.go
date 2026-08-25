@@ -103,6 +103,12 @@ func (s *defaultAudioSender) send() {
 	if !s.conn.DAVE().Ready() {
 		return
 	}
+	// and not before the UDP conn exists, so a frame is never pulled from the
+	// provider only to be thrown away. SetOpusFrameProvider can be called before
+	// Conn.Open, and LocalAddr is nil until the socket is established.
+	if s.conn.UDP().LocalAddr() == nil {
+		return
+	}
 
 	opus, err := s.opusProvider.ProvideOpusFrame()
 	if err != nil && err != io.EOF {
@@ -146,13 +152,6 @@ func (s *defaultAudioSender) send() {
 func (s *defaultAudioSender) handleErr(err error) {
 	if errors.Is(err, net.ErrClosed) || errors.Is(err, ErrGatewayNotConnected) {
 		s.Close()
-		return
-	}
-	if errors.Is(err, ErrUDPConnNotOpen) {
-		// The sender is started by SetOpusFrameProvider, which a caller may
-		// reasonably do before Conn.Open. Wait for the connection rather than
-		// logging on every frame — and do not Close, because the conn is not
-		// closed, it does not exist yet.
 		return
 	}
 	s.logger.Error("failed to send audio", slog.Any("err", err))
