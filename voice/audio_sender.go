@@ -148,6 +148,13 @@ func (s *defaultAudioSender) handleErr(err error) {
 		s.Close()
 		return
 	}
+	if errors.Is(err, ErrUDPConnNotOpen) {
+		// The sender is started by SetOpusFrameProvider, which a caller may
+		// reasonably do before Conn.Open. Wait for the connection rather than
+		// logging on every frame — and do not Close, because the conn is not
+		// closed, it does not exist yet.
+		return
+	}
 	s.logger.Error("failed to send audio", slog.Any("err", err))
 }
 

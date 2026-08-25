@@ -2,7 +2,9 @@ package voice
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
+	"errors"
 	"io"
 	"log/slog"
 	"net"
@@ -217,3 +219,51 @@ func TestUDPConnCloseBeforeOpenIsNotAnError(t *testing.T) {
 		t.Errorf("Close before Open = %v, want nil", err)
 	}
 }
+
+// The audio sender is started by SetOpusFrameProvider, which a caller may
+// reasonably do before Conn.Open — the same shape as the receiver. It must wait
+// rather than log on every frame, and must not Close: the conn is not closed,
+// it does not exist yet.
+func TestWriteBeforeOpenIsNotFatalToTheSender(t *testing.T) {
+	t.Parallel()
+
+	_, err := newUnopenedUDPConn().Write([]byte{0x01})
+	if !errors.Is(err, ErrUDPConnNotOpen) {
+		t.Fatalf("Write before Open = %v, want ErrUDPConnNotOpen", err)
+	}
+
+	var logged countingHandler
+
+	closed := false
+	s := &defaultAudioSender{
+		logger:     slog.New(&logged),
+		cancelFunc: func() { closed = true },
+	}
+
+	s.handleErr(err)
+
+	if closed {
+		t.Error("the sender closed itself because the connection was not open yet; " +
+			"not-yet-open is not closed")
+	}
+
+	if logged.n > 0 {
+		t.Errorf("the sender logged %d times for a connection that is merely not "+
+			"open yet; the send loop runs per frame, so this floods", logged.n)
+	}
+}
+
+// countingHandler counts records rather than formatting them.
+type countingHandler struct{ n int }
+
+func (h *countingHandler) Enabled(context.Context, slog.Level) bool { return true }
+
+func (h *countingHandler) Handle(context.Context, slog.Record) error {
+	h.n++
+
+	return nil
+}
+
+func (h *countingHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
+
+func (h *countingHandler) WithGroup(string) slog.Handler { return h }
