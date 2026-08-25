@@ -67,7 +67,7 @@ func (a Activity) MarshalJSON() ([]byte, error) {
 		activity
 	}{
 		CreatedAt: a.CreatedAt.UnixMilli(),
-		activity:  (activity)(a),
+		activity:  activity(a),
 	})
 }
 

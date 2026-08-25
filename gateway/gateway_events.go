@@ -207,7 +207,7 @@ func (c ChannelInfo) MarshalJSON() ([]byte, error) {
 		channelInfo
 	}{
 		VoiceStartTime: voiceStartTime,
-		channelInfo:    (channelInfo)(c),
+		channelInfo:    channelInfo(c),
 	})
 }
 
