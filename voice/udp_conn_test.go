@@ -156,3 +156,64 @@ func TestStripRTPPadding(t *testing.T) {
 		})
 	}
 }
+
+// newUnopenedUDPConn returns a UDPConn that has never been opened, which is the
+// state a caller can reach through the public API: SetOpusFrameReceiver starts
+// the audio receiver immediately, and the receiver loops on ReadPacket, but the
+// connection is not established until Conn.Open runs.
+func newUnopenedUDPConn() UDPConn {
+	return NewUDPConn(
+		godave.NewNoopSession(slog.Default(), "0", nil),
+		func(uint32) snowflake.ID { return 0 },
+	)
+}
+
+// Before this guard existed these dereferenced a nil net.Conn and took the
+// process down with a SIGSEGV rather than returning an error.
+func TestUDPConnBeforeOpenReturnsAnError(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		call func(UDPConn) error
+	}{
+		{"ReadPacket", func(u UDPConn) error { _, err := u.ReadPacket(); return err }},
+		{"Write", func(u UDPConn) error { _, err := u.Write([]byte{0x01}); return err }},
+		{"SetDeadline", func(u UDPConn) error { return u.SetDeadline(time.Now()) }},
+		{"SetReadDeadline", func(u UDPConn) error { return u.SetReadDeadline(time.Now()) }},
+		{"SetWriteDeadline", func(u UDPConn) error { return u.SetWriteDeadline(time.Now()) }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tc.call(newUnopenedUDPConn())
+			if !errors.Is(err, ErrUDPConnNotOpen) {
+				t.Errorf("%s before Open = %v, want ErrUDPConnNotOpen", tc.name, err)
+			}
+		})
+	}
+}
+
+// The address accessors cannot report an error, so they report no address.
+func TestUDPConnAddrsBeforeOpenAreNil(t *testing.T) {
+	t.Parallel()
+
+	u := newUnopenedUDPConn()
+
+	if addr := u.LocalAddr(); addr != nil {
+		t.Errorf("LocalAddr before Open = %v, want nil", addr)
+	}
+
+	if addr := u.RemoteAddr(); addr != nil {
+		t.Errorf("RemoteAddr before Open = %v, want nil", addr)
+	}
+}
+
+// Close already guarded against this and must keep doing so.
+func TestUDPConnCloseBeforeOpenIsNotAnError(t *testing.T) {
+	t.Parallel()
+
+	if err := newUnopenedUDPConn().Close(); err != nil {
+		t.Errorf("Close before Open = %v, want nil", err)
+	}
+}

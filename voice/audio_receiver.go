@@ -92,6 +92,12 @@ func (s *defaultAudioReceiver) receive() {
 		s.Close()
 		return
 	}
+	if errors.Is(err, ErrUDPConnNotOpen) {
+		// The receiver is started by SetOpusFrameReceiver, which a caller may
+		// reasonably do before Conn.Open. Wait for the connection rather than
+		// logging on every iteration.
+		return
+	}
 	if err != nil {
 		s.logger.Error("error while reading packet", slog.Any("err", err))
 		return

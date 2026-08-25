@@ -49,6 +49,15 @@ const (
 // ErrDecryptionFailed is returned when the packet decryption fails.
 var ErrDecryptionFailed = errors.New("decryption failed")
 
+// ErrUDPConnNotOpen is returned when an operation needs the UDP connection and
+// Open has not been called yet, or Close has already run.
+//
+// The connection is established during Conn.Open, but a UDPConn is reachable
+// before that — SetOpusFrameReceiver starts the audio receiver immediately, and
+// the receiver loops on ReadPacket. Returning this is what stops that path
+// dereferencing a nil connection.
+var ErrUDPConnNotOpen = errors.New("voice udp conn not open")
+
 var (
 	_ io.Reader      = UDPConn(nil)
 	_ io.ReadCloser  = UDPConn(nil)
@@ -156,12 +165,18 @@ type udpConnImpl struct {
 func (u *udpConnImpl) LocalAddr() net.Addr {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
+	if u.conn == nil {
+		return nil
+	}
 	return u.conn.LocalAddr()
 }
 
 func (u *udpConnImpl) RemoteAddr() net.Addr {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
+	if u.conn == nil {
+		return nil
+	}
 	return u.conn.RemoteAddr()
 }
 
@@ -178,18 +193,27 @@ func (u *udpConnImpl) SetSecretKey(encryptionMode EncryptionMode, secretKey []by
 func (u *udpConnImpl) SetDeadline(t time.Time) error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
+	if u.conn == nil {
+		return ErrUDPConnNotOpen
+	}
 	return u.conn.SetDeadline(t)
 }
 
 func (u *udpConnImpl) SetReadDeadline(t time.Time) error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
+	if u.conn == nil {
+		return ErrUDPConnNotOpen
+	}
 	return u.conn.SetReadDeadline(t)
 }
 
 func (u *udpConnImpl) SetWriteDeadline(t time.Time) error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
+	if u.conn == nil {
+		return ErrUDPConnNotOpen
+	}
 	return u.conn.SetWriteDeadline(t)
 }
 
@@ -267,6 +291,10 @@ func (u *udpConnImpl) Write(p []byte) (int, error) {
 	conn := u.conn
 	u.connMu.Unlock()
 
+	if conn == nil {
+		return 0, ErrUDPConnNotOpen
+	}
+
 	binary.BigEndian.PutUint16(u.header[2:4], u.sequence)
 	u.sequence++
 
@@ -302,6 +330,10 @@ func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 	u.connMu.Lock()
 	conn := u.conn
 	u.connMu.Unlock()
+
+	if conn == nil {
+		return nil, ErrUDPConnNotOpen
+	}
 
 	for {
 		n, err := conn.Read(u.receiveBuffer)
