@@ -50,11 +50,11 @@ const (
 var ErrDecryptionFailed = errors.New("decryption failed")
 
 var (
-	_ io.Reader      = (UDPConn)(nil)
-	_ io.ReadCloser  = (UDPConn)(nil)
-	_ io.Writer      = (UDPConn)(nil)
-	_ io.WriteCloser = (UDPConn)(nil)
-	_ net.Conn       = (UDPConn)(nil)
+	_ io.Reader      = UDPConn(nil)
+	_ io.ReadCloser  = UDPConn(nil)
+	_ io.Writer      = UDPConn(nil)
+	_ io.WriteCloser = UDPConn(nil)
+	_ net.Conn       = UDPConn(nil)
 )
 
 type (

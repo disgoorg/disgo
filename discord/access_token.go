@@ -46,7 +46,7 @@ func (e AccessTokenResponse) MarshalJSON() ([]byte, error) {
 	}{
 		ExpiresIn:           int(e.ExpiresIn.Seconds()),
 		Scope:               JoinScopes(e.Scope),
-		accessTokenResponse: (accessTokenResponse)(e),
+		accessTokenResponse: accessTokenResponse(e),
 	})
 }
 
