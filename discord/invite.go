@@ -28,7 +28,8 @@ type Invite struct {
 	Channel                  *InviteChannel       `json:"channel"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
-	TargetType               InviteTargetType     `json:"target_user_type"`
+	TargetType               InviteTargetType     `json:"target_type"`
+	TargetApplication        *PartialApplication  `json:"target_application"`
 	ApproximatePresenceCount int                  `json:"approximate_presence_count"`
 	ApproximateMemberCount   int                  `json:"approximate_member_count"`
 	ExpiresAt                *time.Time           `json:"expires_at"`
@@ -119,15 +120,17 @@ func (r InviteRole) CreatedAt() time.Time {
 
 // An InviteGuild is the Guild of an Invite
 type InviteGuild struct {
-	ID                snowflake.ID      `json:"id"`
-	Name              string            `json:"name"`
-	Splash            *string           `json:"splash"`
-	Banner            *string           `json:"banner"`
-	Description       *string           `json:"description"`
-	Icon              *string           `json:"icon"`
-	Features          []GuildFeature    `json:"features"`
-	VerificationLevel VerificationLevel `json:"verification_level"`
-	VanityURLCode     *string           `json:"vanity_url_code"`
+	ID                       snowflake.ID      `json:"id"`
+	Name                     string            `json:"name"`
+	Splash                   *string           `json:"splash"`
+	Banner                   *string           `json:"banner"`
+	Description              *string           `json:"description"`
+	Icon                     *string           `json:"icon"`
+	Features                 []GuildFeature    `json:"features"`
+	VerificationLevel        VerificationLevel `json:"verification_level"`
+	VanityURLCode            *string           `json:"vanity_url_code"`
+	NSFWLevel                NSFWLevel         `json:"nsfw_level"`
+	PremiumSubscriptionCount int               `json:"premium_subscription_count"`
 }
 
 func (g InviteGuild) IconURL(opts ...CDNOpt) *string {
