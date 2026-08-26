@@ -377,6 +377,12 @@ func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
 	var closeError *websocket.CloseError
 	if errors.As(err, &closeError) {
 		closeCode := GatewayCloseEventCodeByCode(closeError.Code)
+		// Discord also sends these codes when moving between channels. The
+		// following VoiceStateUpdate/VoiceServerUpdate pair decides whether to
+		// move or close the conn, so don't tear it down here.
+		if closeCode == GatewayCloseEventCodeDisconnected || closeCode == GatewayCloseEventCodeCallTerminated {
+			return
+		}
 		newConnection = closeCode.NewConnection
 	}
 
