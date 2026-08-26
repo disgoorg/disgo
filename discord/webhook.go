@@ -88,7 +88,7 @@ type IncomingWebhook struct {
 	Token         string       `json:"token"`
 	ApplicationID snowflake.ID `json:"application_id,omitempty"`
 	User          *User        `json:"user,omitempty"`
-	URL           *string      `json:"url,omitempty"`
+	RawURL        *string      `json:"url,omitempty"`
 }
 
 func (w *IncomingWebhook) UnmarshalJSON(data []byte) error {
@@ -155,6 +155,10 @@ func (w IncomingWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, 0)
 }
 
+func (w IncomingWebhook) URL() string {
+	return WebhookURL(w.ID(), w.Token)
+}
+
 func (w IncomingWebhook) CreatedAt() time.Time {
 	return w.id.Time()
 }
@@ -172,7 +176,6 @@ type ChannelFollowerWebhook struct {
 	SourceGuild   *WebhookSourceGuild   `json:"source_guild,omitempty"`
 	SourceChannel *WebhookSourceChannel `json:"source_channel,omitempty"`
 	User          *User                 `json:"user,omitempty"`
-	ApplicationID snowflake.ID          `json:"application_id,omitempty"`
 }
 
 func (w *ChannelFollowerWebhook) UnmarshalJSON(data []byte) error {
