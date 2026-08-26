@@ -377,6 +377,10 @@ func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
 	var closeError *websocket.CloseError
 	if errors.As(err, &closeError) {
 		closeCode := GatewayCloseEventCodeByCode(closeError.Code)
+		// Wait for `ServerUpdate` and `StateUpdate` to close the gateway (a channel move could trigger this handler)
+		if closeCode == GatewayCloseEventCodeDisconnected || closeCode == GatewayCloseEventCodeCallTerminated {
+			return
+		}
 		newConnection = closeCode.NewConnection
 	}
 
