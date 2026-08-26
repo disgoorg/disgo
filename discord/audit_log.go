@@ -130,7 +130,7 @@ const (
 )
 
 const (
-	AuditLogVoiceChannelStatusUpdate AuditLogEvent = iota + 192
+	AuditLogVoiceChannelStatusCreate AuditLogEvent = iota + 192
 	AuditLogVoiceChannelStatusDelete
 )
 
