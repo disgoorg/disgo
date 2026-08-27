@@ -7,11 +7,12 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// VoiceState from Discord
+// VoiceState (https://docs.discord.com/developers/resources/voice#voice-state-object)
 type VoiceState struct {
 	GuildID                 snowflake.ID  `json:"guild_id,omitempty"`
 	ChannelID               *snowflake.ID `json:"channel_id"`
 	UserID                  snowflake.ID  `json:"user_id"`
+	Member                  *Member       `json:"member,omitempty"`
 	SessionID               string        `json:"session_id"`
 	GuildDeaf               bool          `json:"deaf"`
 	GuildMute               bool          `json:"mute"`
