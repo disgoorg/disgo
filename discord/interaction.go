@@ -148,7 +148,7 @@ func (r *ResolvedData) UnmarshalJSON(data []byte) error {
 
 type ResolvedMember struct {
 	Member
-	Permissions Permissions `json:"permissions,omitempty"`
+	Permissions *Permissions `json:"permissions,omitempty"`
 }
 
 func (ResolvedMember) isMentionableValue() {}
