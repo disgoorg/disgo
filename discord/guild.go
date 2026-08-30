@@ -121,6 +121,7 @@ const (
 	GuildFeatureNews                                  GuildFeature = "NEWS"
 	GuildFeaturePartnered                             GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                        GuildFeature = "PREVIEW_ENABLED"
+	GuildFeaturePruneRequiresAdmin                    GuildFeature = "PRUNE_REQUIRES_ADMIN"
 	GuildFeatureRaidAlertsDisabled                    GuildFeature = "RAID_ALERTS_DISABLED"
 	GuildFeatureRoleIcons                             GuildFeature = "ROLE_ICONS"
 	GuildFeatureRoleSubscriptionsAvailableForPurchase GuildFeature = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
