@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -55,9 +56,13 @@ func NewAudioSender(logger *slog.Logger, opusProvider OpusFrameProvider, conn Co
 
 type defaultAudioSender struct {
 	logger       *slog.Logger
-	cancelFunc   context.CancelFunc
 	opusProvider OpusFrameProvider
 	conn         Conn
+
+	// Open and Close reach this from different goroutines: the voice gateway
+	// starts a loop registered before Conn.Open, and the caller closes it.
+	mu         sync.Mutex
+	cancelFunc context.CancelFunc
 
 	silentFrames      int
 	sentSpeakingStop  bool
@@ -65,15 +70,17 @@ type defaultAudioSender struct {
 }
 
 func (s *defaultAudioSender) Open() {
-	go s.open()
-}
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-func (s *defaultAudioSender) open() {
-	defer s.logger.Debug("closing audio sender")
-	lastFrameSent := time.Now().UnixMilli()
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
-	defer cancel()
+	go s.open(ctx)
+}
+
+func (s *defaultAudioSender) open(ctx context.Context) {
+	defer s.logger.Debug("closing audio sender")
+	lastFrameSent := time.Now().UnixMilli()
 loop:
 	for {
 		select {
@@ -152,5 +159,11 @@ func (s *defaultAudioSender) handleErr(err error) {
 }
 
 func (s *defaultAudioSender) Close() {
-	s.cancelFunc()
+	s.mu.Lock()
+	cancel := s.cancelFunc
+	s.mu.Unlock()
+
+	if cancel != nil {
+		cancel()
+	}
 }
