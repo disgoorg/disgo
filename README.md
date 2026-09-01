@@ -144,7 +144,7 @@ or in these projects:
 
 ## Libraries for DisGo
 
-* [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
+* [strut](https://github.com/schphe/strut) is a struct oriented command framework for disgo
 
 
 ## Other interesting Projects to look at
