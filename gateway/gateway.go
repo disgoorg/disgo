@@ -517,6 +517,7 @@ func (g *gatewayImpl) identify() error {
 		Intents:        g.config.Intents,
 		Presence:       g.config.Presence,
 		Shard:          &[2]int{g.ShardID(), g.ShardCount()},
+		Capabilities:   g.config.Capabilities,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
