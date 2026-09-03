@@ -36,8 +36,9 @@ type config struct {
 	VoiceManager           voice.Manager
 	VoiceManagerConfigOpts []voice.ManagerConfigOpt
 
-	Gateway           gateway.Gateway
-	GatewayConfigOpts []gateway.ConfigOpt
+	Gateway             gateway.Gateway
+	GatewayCloseHandler func(g gateway.Gateway, err error)
+	GatewayConfigOpts   []gateway.ConfigOpt
 
 	ShardManager           sharding.ShardManager
 	ShardManagerConfigOpts []sharding.ConfigOpt
@@ -61,6 +62,11 @@ func (c *config) apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	c.Logger = c.Logger.With(slog.String("name", "bot"))
+	if c.GatewayCloseHandler != nil {
+		c.GatewayCloseHandler = func(g gateway.Gateway, err error) {
+			c.Logger.Error("gateway closed unexpectedly and can't reconnect", slog.Int("shard_id", g.ShardID()), slog.Int("shard_count", g.ShardCount()), slog.Any("err", err))
+		}
+	}
 }
 
 // WithLogger lets you inject your own Logger implementing *slog.Logger.
@@ -140,6 +146,14 @@ func WithGateway(gateway gateway.Gateway) ConfigOpt {
 func WithDefaultGateway() ConfigOpt {
 	return func(config *config) {
 		config.GatewayConfigOpts = append(config.GatewayConfigOpts, gateway.WithDefault())
+	}
+}
+
+// WithGatewayCloseHandler sets the function which is called when a [gateway.Gateway] is unexpectedly closed and can't reconnect.
+// This is also used as the default for the [sharding.ShardManager].
+func WithGatewayCloseHandler(f func(g gateway.Gateway, err error)) ConfigOpt {
+	return func(config *config) {
+		config.GatewayCloseHandler = f
 	}
 }
 
@@ -308,7 +322,7 @@ func BuildClient(
 			),
 		}, cfg.GatewayConfigOpts...)
 
-		cfg.Gateway = gateway.New(token, defaultGatewayEventHandlerFunc(client), cfg.GatewayConfigOpts...)
+		cfg.Gateway = gateway.New(token, defaultGatewayEventHandlerFunc(client), cfg.GatewayCloseHandler, cfg.GatewayConfigOpts...)
 	}
 	client.Gateway = cfg.Gateway
 
@@ -341,7 +355,7 @@ func BuildClient(
 			),
 		}, cfg.ShardManagerConfigOpts...)
 
-		cfg.ShardManager = sharding.New(token, defaultGatewayEventHandlerFunc(client), cfg.ShardManagerConfigOpts...)
+		cfg.ShardManager = sharding.New(token, defaultGatewayEventHandlerFunc(client), cfg.GatewayCloseHandler, cfg.ShardManagerConfigOpts...)
 	}
 	client.ShardManager = cfg.ShardManager
 
