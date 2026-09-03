@@ -19,6 +19,7 @@ func defaultConfig() config {
 		AutoReconnect:       true,
 		EnableResumeURL:     true,
 		IdentifyRateLimiter: NewNoopIdentifyRateLimiter(),
+		MessageBufferSize:   20,
 	}
 }
 
@@ -67,6 +68,8 @@ type config struct {
 	// Device is the Device it should send on login. Defaults to "disgo".
 	Device       string
 	CloseHandler CloseHandlerFunc
+	// MessageBufferSize is the size of the message buffer channel. Defaults to 20.
+	MessageBufferSize int
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
@@ -261,5 +264,13 @@ func WithDevice(device string) ConfigOpt {
 func WithCloseHandler(closeHandler CloseHandlerFunc) ConfigOpt {
 	return func(config *config) {
 		config.CloseHandler = closeHandler
+	}
+}
+
+// WithMessageBufferSize sets the size of the message buffer channel.
+// Defaults to 20.
+func WithMessageBufferSize(size int) ConfigOpt {
+	return func(config *config) {
+		config.MessageBufferSize = size
 	}
 }
