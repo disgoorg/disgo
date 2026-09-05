@@ -17,6 +17,7 @@ var (
 	MentionTypeChannel         = MentionType{regexp.MustCompile(`<#(\d+)>`)}
 	MentionTypeEmoji           = MentionType{regexp.MustCompile(`<a?:(\w+):(\d+)>`)}
 	MentionTypeTimestamp       = MentionType{regexp.MustCompile(`<t:(?P<time>-?\d{1,17})(?::(?P<format>[tTdDfFsSR]))?>`)}
+	MentionTypeGameProfile     = MentionType{regexp.MustCompile(`<@\$(\d+)>`)}
 	MentionTypeSlashCommand    = MentionType{regexp.MustCompile(`</(\w+) ?((\w+)|(\w+ \w+)):(\d+)>`)}
 	MentionTypeHere            = MentionType{regexp.MustCompile(`@here`)}
 	MentionTypeEveryone        = MentionType{regexp.MustCompile(`@everyone`)}
@@ -65,6 +66,10 @@ func TimestampMention(timestamp int64) string {
 
 func FormattedTimestampMention(timestamp int64, style TimestampStyle) string {
 	return fmt.Sprintf("<t:%d:%s>", timestamp, style)
+}
+
+func GameProfileMention(id snowflake.ID) string {
+	return fmt.Sprintf("<@$%s>", id)
 }
 
 // SlashCommandMention creates a slash command mention.
