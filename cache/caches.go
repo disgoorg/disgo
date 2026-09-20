@@ -48,6 +48,8 @@ type GuildCache interface {
 	IsGuildUnready(guildID snowflake.ID) bool
 	SetGuildUnready(guildID snowflake.ID, unready bool)
 	UnreadyGuildIDs() []snowflake.ID
+	// UnreadyGuildsLen returns how many guilds are still unready.
+	UnreadyGuildsLen() int
 
 	IsGuildUnavailable(guildID snowflake.ID) bool
 	SetGuildUnavailable(guildID snowflake.ID, unavailable bool)
@@ -88,6 +90,10 @@ func (c *guildCacheImpl) SetGuildUnready(guildID snowflake.ID, unready bool) {
 	} else if !c.unreadyGuilds.Has(guildID) && unready {
 		c.unreadyGuilds.Add(guildID)
 	}
+}
+
+func (c *guildCacheImpl) UnreadyGuildsLen() int {
+	return c.unreadyGuilds.Len()
 }
 
 func (c *guildCacheImpl) UnreadyGuildIDs() []snowflake.ID {
