@@ -117,8 +117,6 @@ type HTTPServerEventHandler interface {
 }
 
 type eventManagerImpl struct {
-	mu sync.Mutex
-
 	client             *Client
 	logger             *slog.Logger
 	eventListenerMu    sync.Mutex
@@ -129,8 +127,6 @@ type eventManagerImpl struct {
 }
 
 func (e *eventManagerImpl) HandleGatewayEvent(gateway gateway.Gateway, eventType gateway.EventType, sequenceNumber int, event gateway.EventData) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
 	if handler, ok := e.gatewayHandlers[eventType]; ok {
 		handler.HandleGatewayEvent(e.client, sequenceNumber, gateway.ShardID(), event)
 	} else {
@@ -139,8 +135,6 @@ func (e *eventManagerImpl) HandleGatewayEvent(gateway gateway.Gateway, eventType
 }
 
 func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
 	e.httpServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
 }
 
