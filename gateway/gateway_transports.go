@@ -193,9 +193,11 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 func (t *zstdStreamTransport) Close() error {
 	connClose := t.conn.Close()
 	t.buffer.Reset()
-	if t.inflator != nil {
-		t.inflator.Close()
-	}
+	// Dropped rather than closed. Close tears down decoder state that the read loop may be in
+	// the middle of using, which is a nil dereference inside the decoder rather than an error.
+	// Nothing leaks: WithDecoderConcurrency(1) above means the decoder runs synchronously with
+	// no goroutines of its own, so it is ordinary garbage once the transport lets go of it.
+	t.inflator = nil
 	return connClose
 }
 
@@ -259,9 +261,9 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 func (t *zlibStreamTransport) Close() error {
 	connClose := t.conn.Close()
 	t.buffer.Reset()
-	if t.inflator != nil {
-		_ = t.inflator.Close()
-	}
+	// Same as the zstd transport: dropped rather than closed, so nothing tears down state the
+	// read loop may still be using. zlib's reader holds no goroutines either.
+	t.inflator = nil
 	return connClose
 }
 
