@@ -44,7 +44,6 @@ type config struct {
 	IdentifyRateLimiter gateway.IdentifyRateLimiter
 	// IdentifyRateLimiterConfigOpts are the gateway.IdentifyRateLimiterConfigOpt(s) which are applied to the gateway.IdentifyRateLimiter.
 	IdentifyRateLimiterConfigOpts []gateway.IdentifyRateLimiterConfigOpt
-	CloseHandler                  gateway.CloseHandlerFunc
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Server.
@@ -146,10 +145,9 @@ func WithDefaultIdentifyRateLimiterConfigOpt(opts ...gateway.IdentifyRateLimiter
 	}
 }
 
-// WithCloseHandler sets the function which is called when a gateway.Gateway is closed and could not reconnect (or auto reconnecting is disabled).
-// If auto-scaling is enabled and the shard was closed due to [gateway.CloseEventCodeShardingRequired], the closeHandler will not be called.
-func WithCloseHandler(closeHandler gateway.CloseHandlerFunc) ConfigOpt {
+// WithCloseInterceptor lets you inject a close handler into the ShardManager which is called when a shard is closed.
+func WithCloseInterceptor(closeHandler gateway.CloseHandlerFunc) ConfigOpt {
 	return func(config *config) {
-		config.CloseHandler = closeHandler
+		config.GatewayConfigOpts = append(config.GatewayConfigOpts, gateway.WithCloseInterceptor(closeHandler))
 	}
 }
