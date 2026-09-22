@@ -976,7 +976,7 @@ func (c *cachesImpl) MemberPermissions(member discord.Member) discord.Permission
 }
 
 func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
-	if discord.ChannelFlagsOf(channel).Has(discord.ChannelFlagObfuscated) {
+	if channel.Flags().Has(discord.ChannelFlagObfuscated) {
 		return discord.PermissionsNone
 	}
 
