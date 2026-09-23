@@ -113,6 +113,7 @@ type guildCategoryChannel struct {
 	Position             int                   `json:"position"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	Name                 string                `json:"name"`
+	Flags                ChannelFlags          `json:"flags"`
 }
 
 func (t *guildCategoryChannel) UnmarshalJSON(data []byte) error {
@@ -176,6 +177,7 @@ type guildStageVoiceChannel struct {
 	LastMessageID        *snowflake.ID         `json:"last_message_id"`
 	NSFW                 bool                  `json:"nsfw"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
+	Flags                ChannelFlags          `json:"flags"`
 }
 
 func (t *guildStageVoiceChannel) UnmarshalJSON(data []byte) error {

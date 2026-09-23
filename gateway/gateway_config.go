@@ -66,6 +66,7 @@ type config struct {
 	Browser string
 	// Device is the Device it should send on login. Defaults to "disgo".
 	Device       string
+	Capabilities GatewayCapabilities
 	CloseHandler CloseHandlerFunc
 }
 
@@ -261,5 +262,13 @@ func WithDevice(device string) ConfigOpt {
 func WithCloseHandler(closeHandler CloseHandlerFunc) ConfigOpt {
 	return func(config *config) {
 		config.CloseHandler = closeHandler
+	}
+}
+
+// WithCapabilities sets the GatewayCapabilities for the Gateway.
+// See here for more information: https://discord.com/developers/docs/events/gateway-events#identify-gateway-capabilities
+func WithCapabilities(capabilities ...GatewayCapabilities) ConfigOpt {
+	return func(config *config) {
+		config.Capabilities = config.Capabilities.Add(capabilities...)
 	}
 }
