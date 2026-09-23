@@ -42,6 +42,7 @@ const (
 	_
 	ChannelFlagRequireTag
 	ChannelFlagHideMediaDownloadOptions ChannelFlags = 1 << 15
+	ChannelFlagSpoiler                  ChannelFlags = 1 << 21
 	ChannelFlagObfuscated               ChannelFlags = 1 << 17
 	ChannelFlagsNone                    ChannelFlags = 0
 )

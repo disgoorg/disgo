@@ -31,6 +31,7 @@ type GuildTextChannelCreate struct {
 	NSFW                          bool                  `json:"nsfw,omitempty"`
 	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
+	Flags                         ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (c GuildTextChannelCreate) Type() ChannelType {
@@ -67,6 +68,7 @@ type GuildVoiceChannelCreate struct {
 	NSFW                 bool                  `json:"nsfw,omitempty"`
 	RTCRegion            string                `json:"rtc_region,omitempty"`
 	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode,omitempty"`
+	Flags                ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (c GuildVoiceChannelCreate) Type() ChannelType {
@@ -132,6 +134,7 @@ type GuildNewsChannelCreate struct {
 	NSFW                          bool                  `json:"nsfw,omitempty"`
 	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
+	Flags                         ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (c GuildNewsChannelCreate) Type() ChannelType {
@@ -200,6 +203,7 @@ type GuildForumChannelCreate struct {
 	DefaultSortOrder              DefaultSortOrder      `json:"default_sort_order"`
 	DefaultForumLayout            DefaultForumLayout    `json:"default_forum_layout"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
+	Flags                         ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (c GuildForumChannelCreate) Type() ChannelType {
@@ -231,6 +235,7 @@ type GuildMediaChannelCreate struct {
 	AvailableTags                 []ChannelTag          `json:"available_tags"`
 	DefaultSortOrder              DefaultSortOrder      `json:"default_sort_order"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
+	Flags                         ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (c GuildMediaChannelCreate) Type() ChannelType {
