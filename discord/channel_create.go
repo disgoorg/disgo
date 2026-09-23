@@ -29,7 +29,7 @@ type GuildTextChannelCreate struct {
 	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
 	NSFW                          bool                  `json:"nsfw,omitempty"`
-	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
+	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
@@ -130,7 +130,7 @@ type GuildNewsChannelCreate struct {
 	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
 	NSFW                          bool                  `json:"nsfw,omitempty"`
-	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
+	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
