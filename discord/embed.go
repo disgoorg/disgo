@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/disgoorg/json/v2"
+
 	"github.com/disgoorg/disgo/internal/flags"
 )
 
@@ -20,6 +22,7 @@ const (
 	EmbedTypeLink                  EmbedType = "link"
 	EmbedTypeAutoModerationMessage EmbedType = "auto_moderation_message"
 	EmbedTypePollResult            EmbedType = "poll_result"
+	EmbedTypeComponents            EmbedType = "components"
 )
 
 // NewEmbed returns a new Embed struct with no fields set.
@@ -29,20 +32,43 @@ func NewEmbed() Embed {
 
 // Embed allows you to send embeds to discord
 type Embed struct {
-	Title       string         `json:"title,omitempty"`
-	Type        EmbedType      `json:"type,omitempty"`
-	Description string         `json:"description,omitempty"`
-	URL         string         `json:"url,omitempty"`
-	Timestamp   *time.Time     `json:"timestamp,omitempty"`
-	Color       int            `json:"color,omitempty"`
-	Footer      *EmbedFooter   `json:"footer,omitempty"`
-	Image       *EmbedResource `json:"image,omitempty"`
-	Thumbnail   *EmbedResource `json:"thumbnail,omitempty"`
-	Video       *EmbedResource `json:"video,omitempty"`
-	Provider    *EmbedProvider `json:"provider,omitempty"`
-	Author      *EmbedAuthor   `json:"author,omitempty"`
-	Fields      []EmbedField   `json:"fields,omitempty"`
-	Flags       EmbedFlags     `json:"flags,omitempty"`
+	Title       string            `json:"title,omitempty"`
+	Type        EmbedType         `json:"type,omitempty"`
+	Description string            `json:"description,omitempty"`
+	URL         string            `json:"url,omitempty"`
+	Timestamp   *time.Time        `json:"timestamp,omitempty"`
+	Color       int               `json:"color,omitempty"`
+	Footer      *EmbedFooter      `json:"footer,omitempty"`
+	Image       *EmbedResource    `json:"image,omitempty"`
+	Thumbnail   *EmbedResource    `json:"thumbnail,omitempty"`
+	Video       *EmbedResource    `json:"video,omitempty"`
+	Provider    *EmbedProvider    `json:"provider,omitempty"`
+	Author      *EmbedAuthor      `json:"author,omitempty"`
+	Fields      []EmbedField      `json:"fields,omitempty"`
+	Flags       EmbedFlags        `json:"flags,omitempty"`
+	Components  []LayoutComponent `json:"components,omitempty"`
+}
+
+// UnmarshalJSON unmarshals the Embed from JSON. Components are only present on EmbedTypeComponents embeds.
+// https://docs.discord.com/developers/link-previews/component-embeds
+func (e *Embed) UnmarshalJSON(data []byte) error {
+	type embed Embed
+	var v struct {
+		Components []UnmarshalComponent `json:"components"`
+		embed
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = Embed(v.embed)
+
+	if len(v.Components) > 0 {
+		e.Components = unmarshalComponents(v.Components)
+	}
+
+	return nil
 }
 
 type EmbedFlags int
