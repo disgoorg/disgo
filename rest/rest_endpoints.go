@@ -277,6 +277,10 @@ var (
 	DeleteInvite                  = NewEndpoint(http.MethodDelete, "/invites/{code}")
 	GetInviteTargetUsers          = NewEndpoint(http.MethodGet, "/invites/{code}/target-users")
 	SetInviteTargetUsers          = NewEndpoint(http.MethodPut, "/invites/{code}/target-users")
+	AddInviteTargetUser           = NewEndpoint(http.MethodPut, "/invites/{code}/target-users/{user.id}")
+	RemoveInviteTargetUser        = NewEndpoint(http.MethodDelete, "/invites/{code}/target-users/{user.id}")
+	BulkAddInviteTargetUsers      = NewEndpoint(http.MethodPost, "/invites/{code}/target-users/bulk-add")
+	BulkDeleteInviteTargetUsers   = NewEndpoint(http.MethodPost, "/invites/{code}/target-users/bulk-delete")
 	GetInviteTargetUsersJobStatus = NewEndpoint(http.MethodGet, "/invites/{code}/target-users/job-status")
 
 	GetGuildInvites   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/invites")

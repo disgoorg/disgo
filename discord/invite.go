@@ -157,19 +157,22 @@ type InviteCreate struct {
 	TargetType          InviteTargetType `json:"target_type,omitempty"`
 	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
 	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
-	TargetUserIDs       []snowflake.ID   `json:"-"`
-	RoleIDs             []snowflake.ID   `json:"role_ids,omitempty"`
+	// Mutually exclusive with the target_users_file CSV upload.
+	TargetUserIDs []snowflake.ID `json:"target_user_ids,omitempty"`
+	RoleIDs       []snowflake.ID `json:"role_ids,omitempty"`
 }
 
 // ToBody returns the InviteCreate ready for body
 func (i InviteCreate) ToBody() (any, error) {
-	if len(i.TargetUserIDs) > 0 {
-		return payloadWithTargetUserIDs(i, i.TargetUserIDs)
-	}
 	return i, nil
 }
 
 type InviteTargetUsersUpdate []snowflake.ID
+
+// InviteTargetUsersBulk is used to bulk add or remove target users from an invite.
+type InviteTargetUsersBulk struct {
+	UserIDs []snowflake.ID `json:"user_ids"`
+}
 
 // ToBody returns the InviteTargetUsersUpdate ready for body
 func (i InviteTargetUsersUpdate) ToBody() (any, error) {
