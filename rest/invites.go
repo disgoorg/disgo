@@ -37,11 +37,7 @@ func (s *inviteImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord
 }
 
 func (s *inviteImpl) CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (invite *discord.Invite, err error) {
-	body, err := inviteCreate.ToBody()
-	if err != nil {
-		return
-	}
-	err = s.client.Do(CreateInvite.Compile(nil, channelID), body, &invite, opts...)
+	err = s.client.Do(CreateInvite.Compile(nil, channelID), inviteCreate, &invite, opts...)
 	return
 }
 

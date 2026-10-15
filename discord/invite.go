@@ -6,7 +6,6 @@ import (
 	"mime/multipart"
 	"time"
 
-	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -162,45 +161,24 @@ type InviteCreate struct {
 	RoleIDs       []snowflake.ID `json:"role_ids,omitempty"`
 }
 
-// ToBody returns the InviteCreate ready for body
-func (i InviteCreate) ToBody() (any, error) {
-	return i, nil
-}
-
 type InviteTargetUsersUpdate []snowflake.ID
+
+// ToBody returns the InviteTargetUsersUpdate ready for body
+func (i InviteTargetUsersUpdate) ToBody() (any, error) {
+	return payloadWithTargetUserIDs(i)
+}
 
 // InviteTargetUsersBulk is used to bulk add or remove target users from an invite.
 type InviteTargetUsersBulk struct {
 	UserIDs []snowflake.ID `json:"user_ids"`
 }
 
-// ToBody returns the InviteTargetUsersUpdate ready for body
-func (i InviteTargetUsersUpdate) ToBody() (any, error) {
-	return payloadWithTargetUserIDs(nil, i)
-}
-
-func payloadWithTargetUserIDs(v any, targetUsersIDs []snowflake.ID) (*MultipartBuffer, error) {
+func payloadWithTargetUserIDs(targetUsersIDs []snowflake.ID) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 	defer func() {
 		_ = writer.Close()
 	}()
-
-	if v != nil {
-		payload, err := json.Marshal(v)
-		if err != nil {
-			return nil, err
-		}
-
-		part, err := writer.CreatePart(partHeader(`form-data; name="payload_json"`, "application/json"))
-		if err != nil {
-			return nil, err
-		}
-
-		if _, err = part.Write(payload); err != nil {
-			return nil, err
-		}
-	}
 
 	part, err := writer.CreatePart(partHeader(`form-data; name="target_users_file"; filename="users.csv"`, "text/csv"))
 	if err != nil {
