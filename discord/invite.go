@@ -3,9 +3,11 @@ package discord
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"mime/multipart"
 	"time"
 
+	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -156,16 +158,31 @@ type InviteCreate struct {
 	TargetType          InviteTargetType `json:"target_type,omitempty"`
 	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
 	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
-	// Mutually exclusive with the target_users_file CSV upload.
-	TargetUserIDs []snowflake.ID `json:"target_user_ids,omitempty"`
-	RoleIDs       []snowflake.ID `json:"role_ids,omitempty"`
+	// TargetUserIDs are the users able to see and accept this invite, uploaded as a target_users_file CSV.
+	// Mutually exclusive with TargetUserIDsJSON.
+	TargetUserIDs []snowflake.ID `json:"-"`
+	// TargetUserIDsJSON are the users able to see and accept this invite (max 1000), sent as the JSON
+	// target_user_ids field. Mutually exclusive with TargetUserIDs.
+	TargetUserIDsJSON []snowflake.ID `json:"target_user_ids,omitempty"`
+	RoleIDs           []snowflake.ID `json:"role_ids,omitempty"`
+}
+
+// ToBody returns the InviteCreate ready for body.
+func (i InviteCreate) ToBody() (any, error) {
+	if len(i.TargetUserIDs) > 0 && len(i.TargetUserIDsJSON) > 0 {
+		return nil, errors.New("target_users_file and target_user_ids are mutually exclusive, only one can be sent")
+	}
+	if len(i.TargetUserIDs) > 0 {
+		return payloadWithTargetUserIDs(i, i.TargetUserIDs)
+	}
+	return i, nil
 }
 
 type InviteTargetUsersUpdate []snowflake.ID
 
 // ToBody returns the InviteTargetUsersUpdate ready for body
 func (i InviteTargetUsersUpdate) ToBody() (any, error) {
-	return payloadWithTargetUserIDs(i)
+	return payloadWithTargetUserIDs(nil, i)
 }
 
 // InviteTargetUsersBulk is used to bulk add or remove target users from an invite.
@@ -173,12 +190,28 @@ type InviteTargetUsersBulk struct {
 	UserIDs []snowflake.ID `json:"user_ids"`
 }
 
-func payloadWithTargetUserIDs(targetUsersIDs []snowflake.ID) (*MultipartBuffer, error) {
+func payloadWithTargetUserIDs(v any, targetUsersIDs []snowflake.ID) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 	defer func() {
 		_ = writer.Close()
 	}()
+
+	if v != nil {
+		payload, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+
+		part, err := writer.CreatePart(partHeader(`form-data; name="payload_json"`, "application/json"))
+		if err != nil {
+			return nil, err
+		}
+
+		if _, err = part.Write(payload); err != nil {
+			return nil, err
+		}
+	}
 
 	part, err := writer.CreatePart(partHeader(`form-data; name="target_users_file"; filename="users.csv"`, "text/csv"))
 	if err != nil {
