@@ -19,6 +19,7 @@ const (
 	AuditLogEventChannelOverwriteCreate
 	AuditLogEventChannelOverwriteUpdate
 	AuditLogEventChannelOverwriteDelete
+	AuditLogEventChannelPositionUpdate
 )
 
 const (
@@ -37,6 +38,7 @@ const (
 	AuditLogEventRoleCreate AuditLogEvent = iota + 30
 	AuditLogEventRoleUpdate
 	AuditLogEventRoleDelete
+	AuditLogEventRolePositionUpdate
 )
 
 const (
