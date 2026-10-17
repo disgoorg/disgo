@@ -100,6 +100,11 @@ type connImpl struct {
 
 	audioSender   AudioSender
 	audioReceiver AudioReceiver
+	// audio loops can only start once the udp conn is open (ready event) and
+	// its secret key is set (session description); the setters may run earlier.
+	udpOpened    bool
+	secretKeySet bool
+	audioMu      sync.Mutex
 
 	openedFunc context.CancelFunc
 
@@ -168,19 +173,76 @@ func (c *connImpl) DAVE() godave.Session {
 }
 
 func (c *connImpl) SetOpusFrameProvider(provider OpusFrameProvider) {
-	if c.audioSender != nil {
-		c.audioSender.Close()
+	sender := c.config.AudioSenderCreateFunc(c.config.Logger, provider, c)
+
+	c.audioMu.Lock()
+	old := c.audioSender
+	c.audioSender = sender
+	start := c.udpOpened && c.secretKeySet
+	c.audioMu.Unlock()
+
+	if old != nil {
+		old.Close()
 	}
-	c.audioSender = c.config.AudioSenderCreateFunc(c.config.Logger, provider, c)
-	c.audioSender.Open()
+	if start {
+		sender.Open()
+	}
 }
 
 func (c *connImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
-	if c.audioReceiver != nil {
-		c.audioReceiver.Close()
+	receiver := c.config.AudioReceiverCreateFunc(c.config.Logger, handler, c)
+
+	c.audioMu.Lock()
+	old := c.audioReceiver
+	c.audioReceiver = receiver
+	start := c.udpOpened && c.secretKeySet
+	c.audioMu.Unlock()
+
+	if old != nil {
+		old.Close()
 	}
-	c.audioReceiver = c.config.AudioReceiverCreateFunc(c.config.Logger, handler, c)
-	c.audioReceiver.Open()
+	if start {
+		receiver.Open()
+	}
+}
+
+// startAudioOn sets flag and starts the audio loops once both flags hold.
+// Open runs outside audioMu because the implementations are user-provided.
+func (c *connImpl) startAudioOn(flag *bool) {
+	c.audioMu.Lock()
+	if *flag {
+		c.audioMu.Unlock()
+		return
+	}
+	*flag = true
+	sender, receiver := c.audioSender, c.audioReceiver
+	start := c.udpOpened && c.secretKeySet
+	c.audioMu.Unlock()
+
+	if !start {
+		return
+	}
+	if sender != nil {
+		sender.Open()
+	}
+	if receiver != nil {
+		receiver.Open()
+	}
+}
+
+func (c *connImpl) closeAudio() {
+	c.audioMu.Lock()
+	sender, receiver := c.audioSender, c.audioReceiver
+	c.audioSender, c.audioReceiver = nil, nil
+	c.udpOpened, c.secretKeySet = false, false
+	c.audioMu.Unlock()
+
+	if sender != nil {
+		sender.Close()
+	}
+	if receiver != nil {
+		receiver.Close()
+	}
 }
 
 func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdate) {
@@ -194,14 +256,7 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 	if update.ChannelID == nil {
 		c.state.ChannelID = 0
 		c.resetVoiceEventsLocked()
-		if c.audioSender != nil {
-			c.audioSender.Close()
-			c.audioSender = nil
-		}
-		if c.audioReceiver != nil {
-			c.audioReceiver.Close()
-			c.audioReceiver = nil
-		}
+		c.closeAudio()
 		_ = c.udp.Close()
 		c.gateway.Close()
 	} else {
@@ -257,6 +312,7 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 			c.config.Logger.Error("voice: failed to open voiceudp conn", slog.Any("err", err))
 			break
 		}
+		c.startAudioOn(&c.udpOpened)
 
 		encryptionMode, err := ChooseEncryptionMode(d.Modes)
 		if err != nil {
@@ -278,6 +334,8 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 	case GatewayMessageDataSessionDescription:
 		if err := c.udp.SetSecretKey(d.Mode, d.SecretKey); err != nil {
 			c.config.Logger.Error("voice: failed to set secret key", slog.Any("err", err))
+		} else {
+			c.startAudioOn(&c.secretKeySet)
 		}
 		if openedFunc := c.openedFunc; openedFunc != nil {
 			openedFunc()
@@ -297,8 +355,11 @@ func (c *connImpl) handleMessage(gateway Gateway, op Opcode, sequenceNumber int,
 			}
 		}
 		c.ssrcsMu.Unlock()
-		if c.audioReceiver != nil {
-			c.audioReceiver.CleanupUser(d.UserID)
+		c.audioMu.Lock()
+		receiver := c.audioReceiver
+		c.audioMu.Unlock()
+		if receiver != nil {
+			receiver.CleanupUser(d.UserID)
 		}
 	}
 	if c.config.EventHandlerFunc != nil {
