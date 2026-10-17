@@ -3,6 +3,7 @@ package discord
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"mime/multipart"
 	"time"
 
@@ -157,14 +158,22 @@ type InviteCreate struct {
 	TargetType          InviteTargetType `json:"target_type,omitempty"`
 	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
 	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
-	TargetUserIDs       []snowflake.ID   `json:"-"`
-	RoleIDs             []snowflake.ID   `json:"role_ids,omitempty"`
+	// TargetUsersFile are the users able to see and accept this invite, uploaded as a target_users_file CSV.
+	// Mutually exclusive with TargetUserIDs.
+	TargetUsersFile []snowflake.ID `json:"-"`
+	// TargetUserIDs are the users able to see and accept this invite (max 1000), sent as the JSON
+	// target_user_ids field. Mutually exclusive with TargetUsersFile.
+	TargetUserIDs []snowflake.ID `json:"target_user_ids,omitempty"`
+	RoleIDs       []snowflake.ID `json:"role_ids,omitempty"`
 }
 
-// ToBody returns the InviteCreate ready for body
+// ToBody returns the InviteCreate ready for body.
 func (i InviteCreate) ToBody() (any, error) {
-	if len(i.TargetUserIDs) > 0 {
-		return payloadWithTargetUserIDs(i, i.TargetUserIDs)
+	if len(i.TargetUsersFile) > 0 && len(i.TargetUserIDs) > 0 {
+		return nil, errors.New("TargetUsersFile and TargetUserIDs are mutually exclusive, only one can be sent")
+	}
+	if len(i.TargetUsersFile) > 0 {
+		return payloadWithTargetUserIDs(i, i.TargetUsersFile)
 	}
 	return i, nil
 }
@@ -174,6 +183,11 @@ type InviteTargetUsersUpdate []snowflake.ID
 // ToBody returns the InviteTargetUsersUpdate ready for body
 func (i InviteTargetUsersUpdate) ToBody() (any, error) {
 	return payloadWithTargetUserIDs(nil, i)
+}
+
+// InviteTargetUsersBulk is used to bulk add or remove target users from an invite.
+type InviteTargetUsersBulk struct {
+	UserIDs []snowflake.ID `json:"user_ids"`
 }
 
 func payloadWithTargetUserIDs(v any, targetUsersIDs []snowflake.ID) (*MultipartBuffer, error) {

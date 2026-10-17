@@ -18,6 +18,10 @@ type Invites interface {
 	DeleteInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
 	GetInviteTargetUsers(code string, opts ...RequestOpt) (targetUsers *string, err error)
 	UpdateInviteTargetUsers(code string, inviteTargetUsersUpdate discord.InviteTargetUsersUpdate, opts ...RequestOpt) (err error)
+	AddInviteTargetUser(code string, userID snowflake.ID, opts ...RequestOpt) error
+	RemoveInviteTargetUser(code string, userID snowflake.ID, opts ...RequestOpt) error
+	BulkAddInviteTargetUsers(code string, userIDs []snowflake.ID, opts ...RequestOpt) error
+	BulkDeleteInviteTargetUsers(code string, userIDs []snowflake.ID, opts ...RequestOpt) error
 	GetInviteTargetUsersJobStatus(code string, opts ...RequestOpt) (targetUsersJobStatus *discord.TargetUsersJobStatus, err error)
 	GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
 	GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
@@ -58,6 +62,22 @@ func (s *inviteImpl) UpdateInviteTargetUsers(code string, inviteTargetUsersUpdat
 	}
 	err = s.client.Do(SetInviteTargetUsers.Compile(nil, code), body, nil, opts...)
 	return
+}
+
+func (s *inviteImpl) AddInviteTargetUser(code string, userID snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(AddInviteTargetUser.Compile(nil, code, userID), nil, nil, opts...)
+}
+
+func (s *inviteImpl) RemoveInviteTargetUser(code string, userID snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(RemoveInviteTargetUser.Compile(nil, code, userID), nil, nil, opts...)
+}
+
+func (s *inviteImpl) BulkAddInviteTargetUsers(code string, userIDs []snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(BulkAddInviteTargetUsers.Compile(nil, code), discord.InviteTargetUsersBulk{UserIDs: userIDs}, nil, opts...)
+}
+
+func (s *inviteImpl) BulkDeleteInviteTargetUsers(code string, userIDs []snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(BulkDeleteInviteTargetUsers.Compile(nil, code), discord.InviteTargetUsersBulk{UserIDs: userIDs}, nil, opts...)
 }
 
 func (s *inviteImpl) GetInviteTargetUsersJobStatus(code string, opts ...RequestOpt) (targetUsersJobStatus *discord.TargetUsersJobStatus, err error) {

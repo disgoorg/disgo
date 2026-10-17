@@ -118,6 +118,7 @@ const (
 	JSONErrorCodeMaximumWebhooksPerGuildReached                JSONErrorCode = 30058
 	JSONErrorCodeMaximumChannelPermissionOverwritesReached     JSONErrorCode = 30060
 	JSONErrorCodeChannelsForGuildTooLarge                      JSONErrorCode = 30061
+	JSONErrorCodeMaximumInviteTargetUsersReached               JSONErrorCode = 30084
 
 	// Temporary/rate limit errors
 	JSONErrorCodeUnauthorized                            JSONErrorCode = 40001
@@ -143,6 +144,8 @@ const (
 	JSONErrorCodeTagRequiredToCreateForumPost            JSONErrorCode = 40067
 	JSONErrorCodeEntitlementAlreadyGrantedForResource    JSONErrorCode = 40074
 	JSONErrorCodeInteractionMaxFollowUpMessagesReached   JSONErrorCode = 40094
+	JSONErrorCodeInviteTargetUsersAlreadyProcessing      JSONErrorCode = 40114
+	JSONErrorCodeInviteTargetUsersFileNotProcessed       JSONErrorCode = 40115
 
 	// Cloudflare blocking
 	JSONErrorCodeCloudflareBlockingRequest JSONErrorCode = 40333
