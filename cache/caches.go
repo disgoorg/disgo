@@ -1012,13 +1012,13 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 		}
 	}
 
-	if overwrite, ok := channel.PermissionOverwrites().Member(member.User.ID); ok {
-		allow |= overwrite.Allow
-		deny |= overwrite.Deny
-	}
-
 	permissions &= ^deny
 	permissions |= allow
+
+	if overwrite, ok := channel.PermissionOverwrites().Member(member.User.ID); ok {
+		permissions &= ^overwrite.Deny
+		permissions |= overwrite.Allow
+	}
 
 	if member.CommunicationDisabledUntil != nil && member.CommunicationDisabledUntil.After(time.Now()) {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
