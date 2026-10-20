@@ -54,10 +54,12 @@ func gatewayHandlerVoiceStateUpdate(client *bot.Client, sequenceNumber int, shar
 	})
 
 	if oldOk && oldVoiceState.ChannelID != nil && event.ChannelID != nil {
-		client.EventManager.DispatchEvent(&events.GuildVoiceMove{
-			GenericGuildVoiceState: genericGuildVoiceEvent,
-			OldVoiceState:          oldVoiceState,
-		})
+		if *oldVoiceState.ChannelID != *event.ChannelID {
+			client.EventManager.DispatchEvent(&events.GuildVoiceMove{
+				GenericGuildVoiceState: genericGuildVoiceEvent,
+				OldVoiceState:          oldVoiceState,
+			})
+		}
 	} else if (oldOk || oldVoiceState.ChannelID == nil) && event.ChannelID != nil {
 		client.EventManager.DispatchEvent(&events.GuildVoiceJoin{
 			GenericGuildVoiceState: genericGuildVoiceEvent,
