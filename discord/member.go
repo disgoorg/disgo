@@ -128,13 +128,13 @@ type MemberAdd struct {
 
 // MemberUpdate is used to modify a member
 type MemberUpdate struct {
-	ChannelID                  *snowflake.ID         `json:"channel_id,omitempty"`
-	Nick                       *string               `json:"nick,omitempty"`
-	Roles                      *[]snowflake.ID       `json:"roles,omitempty"`
-	Mute                       *bool                 `json:"mute,omitempty"`
-	Deaf                       *bool                 `json:"deaf,omitempty"`
-	Flags                      *MemberFlags          `json:"flags,omitempty"`
-	CommunicationDisabledUntil omit.Omit[*time.Time] `json:"communication_disabled_until,omitzero"`
+	ChannelID                  omit.Omit[*snowflake.ID] `json:"channel_id,omitzero"`
+	Nick                       *string                  `json:"nick,omitempty"`
+	Roles                      *[]snowflake.ID          `json:"roles,omitempty"`
+	Mute                       *bool                    `json:"mute,omitempty"`
+	Deaf                       *bool                    `json:"deaf,omitempty"`
+	Flags                      *MemberFlags             `json:"flags,omitempty"`
+	CommunicationDisabledUntil omit.Omit[*time.Time]    `json:"communication_disabled_until,omitzero"`
 }
 
 // CurrentMemberUpdate is used to update the current member
