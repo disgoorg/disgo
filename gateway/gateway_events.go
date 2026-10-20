@@ -900,6 +900,17 @@ type EventVoiceStateUpdate struct {
 	Member discord.Member `json:"member"`
 }
 
+func (e *EventVoiceStateUpdate) UnmarshalJSON(data []byte) error {
+	type eventVoiceStateUpdate EventVoiceStateUpdate
+	var v eventVoiceStateUpdate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventVoiceStateUpdate(v)
+	e.Member.GuildID = e.GuildID
+	return nil
+}
+
 func (EventVoiceStateUpdate) messageData() {}
 func (EventVoiceStateUpdate) eventData()   {}
 
