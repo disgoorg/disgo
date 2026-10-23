@@ -638,6 +638,14 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			}
 
 		case OpcodeDispatch:
+			// ignore events from a stale connection, which was closed while this message was being received
+			g.connMu.Lock()
+			sameConn := g.conn == conn
+			g.connMu.Unlock()
+			if !sameConn {
+				return
+			}
+
 			// set last sequence received
 			g.config.LastSequenceReceived = &message.S
 
