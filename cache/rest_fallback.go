@@ -1,9 +1,8 @@
-package bot
+package cache
 
 import (
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/disgo/rest"
@@ -52,23 +51,23 @@ func (f RestFallbackFlags) Missing(bits ...RestFallbackFlags) bool {
 	return flags.Missing(f, bits...)
 }
 
-var _ cache.Caches = (*restFallbackCachesImpl)(nil)
+var _ Caches = (*restFallbackCachesImpl)(nil)
 
-// NewRestFallbackCaches wraps a cache.Caches and provides automatic REST fallback
+// NewRestFallbackCaches wraps a Caches implementation and provides automatic REST fallback
 // for cache misses on enabled entity types.
-func NewRestFallbackCaches(caches cache.Caches, rest rest.Rest, flags RestFallbackFlags) cache.Caches {
-	if flags == RestFallbackFlagsNone || rest == nil {
+func NewRestFallbackCaches(caches Caches, rest rest.Rest, fallbackFlags RestFallbackFlags) Caches {
+	if fallbackFlags == RestFallbackFlagsNone || rest == nil {
 		return caches
 	}
 	return &restFallbackCachesImpl{
 		Caches: caches,
 		rest:   rest,
-		flags:  flags,
+		flags:  fallbackFlags,
 	}
 }
 
 type restFallbackCachesImpl struct {
-	cache.Caches
+	Caches
 	rest  rest.Rest
 	flags RestFallbackFlags
 }

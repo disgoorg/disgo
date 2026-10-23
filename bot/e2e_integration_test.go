@@ -78,10 +78,10 @@ func TestEndToEnd_LRU_TTL_And_RestFallback(t *testing.T) {
 	mock := &fullMockRest{}
 
 	// 2. Wrap with REST fallback enabled for Members, Channels, Roles
-	fallbackCaches := bot.NewRestFallbackCaches(
+	fallbackCaches := cache.NewRestFallbackCaches(
 		caches,
 		mock,
-		bot.RestFallbackFlagMembers|bot.RestFallbackFlagChannels|bot.RestFallbackFlagRoles,
+		cache.RestFallbackFlagMembers|cache.RestFallbackFlagChannels|cache.RestFallbackFlagRoles,
 	)
 
 	// 3. Request user1 -> cache miss -> REST call -> cached
@@ -176,3 +176,11 @@ func TestTTL_Expiration_InCache(t *testing.T) {
 		t.Fatalf("expected item to expire after 50ms, got: %v", val)
 	}
 }
+
+func TestBot_WithRestFallback(t *testing.T) {
+	opt := bot.WithRestFallback(cache.RestFallbackFlagMembers)
+	if opt == nil {
+		t.Fatalf("expected non-nil option")
+	}
+}
+

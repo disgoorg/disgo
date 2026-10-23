@@ -1,4 +1,4 @@
-package bot
+package cache_test
 
 import (
 	"errors"
@@ -56,7 +56,7 @@ func TestRestFallbackCaches_Member(t *testing.T) {
 	}
 
 	// 1. Without fallback enabled
-	disabledWrapper := NewRestFallbackCaches(caches, mock, RestFallbackFlagsNone)
+	disabledWrapper := cache.NewRestFallbackCaches(caches, mock, cache.RestFallbackFlagsNone)
 	if _, ok := disabledWrapper.Member(guildID, userID); ok {
 		t.Fatalf("expected not ok when disabled")
 	}
@@ -65,7 +65,7 @@ func TestRestFallbackCaches_Member(t *testing.T) {
 	}
 
 	// 2. With fallback enabled
-	enabledWrapper := NewRestFallbackCaches(caches, mock, RestFallbackFlagMembers)
+	enabledWrapper := cache.NewRestFallbackCaches(caches, mock, cache.RestFallbackFlagMembers)
 	member, ok := enabledWrapper.Member(guildID, userID)
 	if !ok || member.User.Username != "testuser" {
 		t.Fatalf("expected to fetch member via rest, got ok=%v, member=%+v", ok, member)
@@ -99,7 +99,7 @@ func TestRestFallbackCaches_Role(t *testing.T) {
 		},
 	}
 
-	wrapper := NewRestFallbackCaches(caches, mock, RestFallbackFlagRoles)
+	wrapper := cache.NewRestFallbackCaches(caches, mock, cache.RestFallbackFlagRoles)
 	role, ok := wrapper.Role(guildID, roleID)
 	if !ok || role.Name != "Admin" {
 		t.Fatalf("expected role Admin, got ok=%v, role=%+v", ok, role)
