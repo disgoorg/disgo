@@ -536,6 +536,11 @@ func (g *gatewayImpl) resume() error {
 	g.statusMu.Lock()
 	g.status = StatusResuming
 	g.statusMu.Unlock()
+
+	if g.config.SessionID == nil || g.config.LastSequenceReceived == nil {
+		return fmt.Errorf("cannot resume: missing session_id or last_sequence_received")
+	}
+
 	resume := MessageDataResume{
 		Token:     g.token,
 		SessionID: *g.config.SessionID,
@@ -656,7 +661,11 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 				g.statusMu.Unlock()
 				ready(nil)
 			} else if _, ok = eventData.(EventResumed); ok {
-				g.config.Logger.Debug("successfully resumed", slog.String("session_id", *g.config.SessionID))
+				sessionID := ""
+				if g.config.SessionID != nil {
+					sessionID = *g.config.SessionID
+				}
+				g.config.Logger.Debug("successfully resumed", slog.String("session_id", sessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
