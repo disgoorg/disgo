@@ -656,7 +656,11 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 				g.statusMu.Unlock()
 				ready(nil)
 			} else if _, ok = eventData.(EventResumed); ok {
-				g.config.Logger.Debug("successfully resumed", slog.String("session_id", *g.config.SessionID))
+				sessionID := ""
+				if g.config.SessionID != nil {
+					sessionID = *g.config.SessionID
+				}
+				g.config.Logger.Debug("successfully resumed", slog.String("session_id", sessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
