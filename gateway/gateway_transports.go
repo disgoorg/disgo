@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
+	"sync/atomic"
 
 	"github.com/disgoorg/json/v2"
 	"github.com/gorilla/websocket"
@@ -77,6 +79,14 @@ type transport interface {
 type baseTransport struct {
 	conn   *websocket.Conn
 	logger *slog.Logger
+	closed atomic.Bool
+}
+
+// closeConn closes the underlying connection. websocket.Conn keeps returning frames it already
+// buffered after being closed, so ReceiveMessage has to check closed to stop delivering them.
+func (t *baseTransport) closeConn() error {
+	t.closed.Store(true)
+	return t.conn.Close()
 }
 
 func (t *baseTransport) parseMessage(r io.Reader) (*Message, error) {
@@ -172,6 +182,9 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
+	if t.closed.Load() {
+		return nil, net.ErrClosed
+	}
 
 	if mt != websocket.BinaryMessage {
 		return nil, fmt.Errorf("expected binary message, received %d", mt)
@@ -191,7 +204,7 @@ func (t *zstdStreamTransport) ReceiveMessage() (*Message, error) {
 }
 
 func (t *zstdStreamTransport) Close() error {
-	connClose := t.conn.Close()
+	connClose := t.closeConn()
 	t.buffer.Reset()
 	// Dropped rather than closed. Close tears down decoder state that the read loop may be in
 	// the middle of using, which is a nil dereference inside the decoder rather than an error.
@@ -234,6 +247,9 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 		if err != nil {
 			return nil, err
 		}
+		if t.closed.Load() {
+			return nil, net.ErrClosed
+		}
 		if mt != websocket.BinaryMessage {
 			return nil, fmt.Errorf("expected binary message, received %d", mt)
 		}
@@ -259,7 +275,7 @@ func (t *zlibStreamTransport) ReceiveMessage() (*Message, error) {
 }
 
 func (t *zlibStreamTransport) Close() error {
-	connClose := t.conn.Close()
+	connClose := t.closeConn()
 	t.buffer.Reset()
 	// Same as the zstd transport: dropped rather than closed, so nothing tears down state the
 	// read loop may still be using. zlib's reader holds no goroutines either.
@@ -287,6 +303,9 @@ func (t *zlibPayloadTransport) ReceiveMessage() (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
+	if t.closed.Load() {
+		return nil, net.ErrClosed
+	}
 
 	if mt == websocket.BinaryMessage {
 		reader, err := zlib.NewReader(r)
@@ -303,5 +322,5 @@ func (t *zlibPayloadTransport) ReceiveMessage() (*Message, error) {
 }
 
 func (t *zlibPayloadTransport) Close() error {
-	return t.conn.Close()
+	return t.closeConn()
 }

@@ -40,12 +40,12 @@ type config struct {
 	ShardID int
 	// ShardCount is the shardCount of the Gateway. Defaults to 1.
 	ShardCount int
-	// SessionID is the last sessionID of the Gateway. Defaults to nil (no resume).
-	SessionID *string
-	// ResumeURL is the last resumeURL of the Gateway. Defaults to nil (no resume).
-	ResumeURL *string
-	// LastSequenceReceived is the last sequence received by the Gateway. Defaults to nil (no resume).
-	LastSequenceReceived *int
+	// SessionID is the session ID used to resume on the first connection. Defaults to empty (no resume).
+	SessionID string
+	// ResumeURL is the resume URL used to resume on the first connection. Defaults to empty (no resume).
+	ResumeURL string
+	// LastSequenceReceived is the sequence used to resume on the first connection. Defaults to 0 (no resume).
+	LastSequenceReceived int
 	// AutoReconnect is whether the Gateway should automatically reconnect or call the CloseHandlerFunc. Defaults to true.
 	AutoReconnect bool
 	// EnableRawEvents is whether the Gateway should emit EventRaw. Defaults to false.
@@ -136,7 +136,7 @@ func WithURL(url string) ConfigOpt {
 // WithResumeURL sets the Gateway Resume URL for the Gateway.
 func WithResumeURL(url string) ConfigOpt {
 	return func(config *config) {
-		config.ResumeURL = &url
+		config.ResumeURL = url
 	}
 }
 
@@ -160,7 +160,7 @@ func WithShardCount(shardCount int) ConfigOpt {
 // If sessionID and lastSequence is present while connecting, the Gateway will try to resume the session.
 func WithSessionID(sessionID string) ConfigOpt {
 	return func(config *config) {
-		config.SessionID = &sessionID
+		config.SessionID = sessionID
 	}
 }
 
@@ -168,7 +168,7 @@ func WithSessionID(sessionID string) ConfigOpt {
 // If sessionID and lastSequence is present while connecting, the Gateway will try to resume the session.
 func WithSequence(sequence int) ConfigOpt {
 	return func(config *config) {
-		config.LastSequenceReceived = &sequence
+		config.LastSequenceReceived = sequence
 	}
 }
 
