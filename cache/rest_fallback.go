@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"sync"
+
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -51,13 +53,61 @@ func (f RestFallbackFlags) Missing(bits ...RestFallbackFlags) bool {
 	return flags.Missing(f, bits...)
 }
 
+type sfCall struct {
+	wg  sync.WaitGroup
+	val any
+	err error
+}
+
+type singleflight struct {
+	mu sync.Mutex
+	m  map[string]*sfCall
+}
+
+func (g *singleflight) Do(key string, fn func() (any, error)) (any, error) {
+	g.mu.Lock()
+	if g.m == nil {
+		g.m = make(map[string]*sfCall)
+	}
+	if c, ok := g.m[key]; ok {
+		g.mu.Unlock()
+		c.wg.Wait()
+		return c.val, c.err
+	}
+	c := new(sfCall)
+	c.wg.Add(1)
+	g.m[key] = c
+	g.mu.Unlock()
+
+	defer func() {
+		g.mu.Lock()
+		delete(g.m, key)
+		g.mu.Unlock()
+		c.wg.Done()
+	}()
+
+	c.val, c.err = fn()
+	return c.val, c.err
+}
+
 var _ Caches = (*restFallbackCachesImpl)(nil)
 
 // NewRestFallbackCaches wraps a Caches implementation and provides automatic REST fallback
-// for cache misses on enabled entity types.
+// for cache misses on enabled entity types. In-flight requests for the same entity are
+// automatically deduplicated to prevent request storms.
+//
+// If the provided caches instance is already wrapped with REST fallback, the existing wrapper
+// is updated with the merged fallback flags and rest client rather than double-wrapped.
 func NewRestFallbackCaches(caches Caches, rest rest.Rest, fallbackFlags RestFallbackFlags) Caches {
 	if fallbackFlags == RestFallbackFlagsNone || rest == nil {
 		return caches
+	}
+	if existing, ok := caches.(*restFallbackCachesImpl); ok {
+		existing.flags = existing.flags.Add(fallbackFlags)
+		if rest != nil {
+			existing.rest = rest
+		}
+		return existing
 	}
 	return &restFallbackCachesImpl{
 		Caches: caches,
@@ -70,6 +120,7 @@ type restFallbackCachesImpl struct {
 	Caches
 	rest  rest.Rest
 	flags RestFallbackFlags
+	sf    singleflight
 }
 
 func (c *restFallbackCachesImpl) Member(guildID snowflake.ID, userID snowflake.ID) (discord.Member, bool) {
@@ -79,12 +130,22 @@ func (c *restFallbackCachesImpl) Member(guildID snowflake.ID, userID snowflake.I
 	if !c.flags.Has(RestFallbackFlagMembers) {
 		return discord.Member{}, false
 	}
-	member, err := c.rest.GetMember(guildID, userID)
+	key := "member:" + guildID.String() + ":" + userID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if member, ok := c.Caches.Member(guildID, userID); ok {
+			return member, nil
+		}
+		member, err := c.rest.GetMember(guildID, userID)
+		if err != nil {
+			return discord.Member{}, err
+		}
+		c.Caches.AddMember(*member)
+		return *member, nil
+	})
 	if err != nil {
 		return discord.Member{}, false
 	}
-	c.Caches.AddMember(*member)
-	return *member, true
+	return val.(discord.Member), true
 }
 
 func (c *restFallbackCachesImpl) SelfMember(guildID snowflake.ID) (discord.Member, bool) {
@@ -108,18 +169,33 @@ func (c *restFallbackCachesImpl) Guild(guildID snowflake.ID) (discord.CacheGuild
 	if !c.flags.Has(RestFallbackFlagGuilds) {
 		return discord.CacheGuild{}, false
 	}
-	restGuild, err := c.rest.GetGuild(guildID, true)
+	key := "guild:" + guildID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if guild, ok := c.Caches.Guild(guildID); ok {
+			return guild, nil
+		}
+		restGuild, err := c.rest.GetGuild(guildID, true)
+		if err != nil {
+			return discord.CacheGuild{}, err
+		}
+		cacheGuild := discord.CacheGuild{
+			Guild:       restGuild.Guild,
+			MemberCount: restGuild.ApproximateMemberCount,
+		}
+		c.Caches.GuildCache().Put(guildID, cacheGuild)
+		return cacheGuild, nil
+	})
 	if err != nil {
 		return discord.CacheGuild{}, false
 	}
-	cacheGuild := discord.CacheGuild{
-		Guild:       restGuild.Guild,
-		MemberCount: restGuild.ApproximateMemberCount,
-	}
-	c.Caches.GuildCache().Put(guildID, cacheGuild)
-	return cacheGuild, true
+	return val.(discord.CacheGuild), true
 }
 
+// Channel returns the discord.GuildChannel for the given channelID.
+//
+// Note: As defined by the Caches interface, Disgo's channel cache only stores guild channels.
+// Non-guild channels (such as DM channels) returned by the REST fallback do not implement
+// discord.GuildChannel and will return (nil, false).
 func (c *restFallbackCachesImpl) Channel(channelID snowflake.ID) (discord.GuildChannel, bool) {
 	if ch, ok := c.Caches.Channel(channelID); ok {
 		return ch, true
@@ -127,15 +203,25 @@ func (c *restFallbackCachesImpl) Channel(channelID snowflake.ID) (discord.GuildC
 	if !c.flags.Has(RestFallbackFlagChannels) {
 		return nil, false
 	}
-	ch, err := c.rest.GetChannel(channelID)
-	if err != nil {
+	key := "channel:" + channelID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if ch, ok := c.Caches.Channel(channelID); ok {
+			return ch, nil
+		}
+		ch, err := c.rest.GetChannel(channelID)
+		if err != nil {
+			return nil, err
+		}
+		if guildCh, ok := ch.(discord.GuildChannel); ok {
+			c.Caches.AddChannel(guildCh)
+			return guildCh, nil
+		}
+		return nil, nil
+	})
+	if err != nil || val == nil {
 		return nil, false
 	}
-	if guildCh, ok := ch.(discord.GuildChannel); ok {
-		c.Caches.AddChannel(guildCh)
-		return guildCh, true
-	}
-	return nil, false
+	return val.(discord.GuildChannel), true
 }
 
 func (c *restFallbackCachesImpl) Role(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool) {
@@ -145,12 +231,22 @@ func (c *restFallbackCachesImpl) Role(guildID snowflake.ID, roleID snowflake.ID)
 	if !c.flags.Has(RestFallbackFlagRoles) {
 		return discord.Role{}, false
 	}
-	roles, err := c.rest.GetRoles(guildID)
+	key := "roles:" + guildID.String()
+	_, err := c.sf.Do(key, func() (any, error) {
+		if _, ok := c.Caches.Role(guildID, roleID); ok {
+			return nil, nil
+		}
+		roles, err := c.rest.GetRoles(guildID)
+		if err != nil {
+			return nil, err
+		}
+		for _, r := range roles {
+			c.Caches.AddRole(r)
+		}
+		return nil, nil
+	})
 	if err != nil {
 		return discord.Role{}, false
-	}
-	for _, r := range roles {
-		c.Caches.AddRole(r)
 	}
 	return c.Caches.Role(guildID, roleID)
 }
@@ -162,12 +258,22 @@ func (c *restFallbackCachesImpl) Message(channelID snowflake.ID, messageID snowf
 	if !c.flags.Has(RestFallbackFlagMessages) {
 		return discord.Message{}, false
 	}
-	msg, err := c.rest.GetMessage(channelID, messageID)
+	key := "message:" + channelID.String() + ":" + messageID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if msg, ok := c.Caches.Message(channelID, messageID); ok {
+			return msg, nil
+		}
+		msg, err := c.rest.GetMessage(channelID, messageID)
+		if err != nil {
+			return discord.Message{}, err
+		}
+		c.Caches.AddMessage(*msg)
+		return *msg, nil
+	})
 	if err != nil {
 		return discord.Message{}, false
 	}
-	c.Caches.AddMessage(*msg)
-	return *msg, true
+	return val.(discord.Message), true
 }
 
 func (c *restFallbackCachesImpl) Emoji(guildID snowflake.ID, emojiID snowflake.ID) (discord.Emoji, bool) {
@@ -177,12 +283,22 @@ func (c *restFallbackCachesImpl) Emoji(guildID snowflake.ID, emojiID snowflake.I
 	if !c.flags.Has(RestFallbackFlagEmojis) {
 		return discord.Emoji{}, false
 	}
-	emoji, err := c.rest.GetEmoji(guildID, emojiID)
+	key := "emoji:" + guildID.String() + ":" + emojiID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if emoji, ok := c.Caches.Emoji(guildID, emojiID); ok {
+			return emoji, nil
+		}
+		emoji, err := c.rest.GetEmoji(guildID, emojiID)
+		if err != nil {
+			return discord.Emoji{}, err
+		}
+		c.Caches.AddEmoji(*emoji)
+		return *emoji, nil
+	})
 	if err != nil {
 		return discord.Emoji{}, false
 	}
-	c.Caches.AddEmoji(*emoji)
-	return *emoji, true
+	return val.(discord.Emoji), true
 }
 
 func (c *restFallbackCachesImpl) Sticker(guildID snowflake.ID, stickerID snowflake.ID) (discord.Sticker, bool) {
@@ -192,12 +308,22 @@ func (c *restFallbackCachesImpl) Sticker(guildID snowflake.ID, stickerID snowfla
 	if !c.flags.Has(RestFallbackFlagStickers) {
 		return discord.Sticker{}, false
 	}
-	sticker, err := c.rest.GetSticker(stickerID)
+	key := "sticker:" + stickerID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if sticker, ok := c.Caches.Sticker(guildID, stickerID); ok {
+			return sticker, nil
+		}
+		sticker, err := c.rest.GetSticker(stickerID)
+		if err != nil {
+			return discord.Sticker{}, err
+		}
+		c.Caches.AddSticker(*sticker)
+		return *sticker, nil
+	})
 	if err != nil {
 		return discord.Sticker{}, false
 	}
-	c.Caches.AddSticker(*sticker)
-	return *sticker, true
+	return val.(discord.Sticker), true
 }
 
 func (c *restFallbackCachesImpl) StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID) (discord.StageInstance, bool) {
@@ -207,12 +333,22 @@ func (c *restFallbackCachesImpl) StageInstance(guildID snowflake.ID, stageInstan
 	if !c.flags.Has(RestFallbackFlagStageInstances) {
 		return discord.StageInstance{}, false
 	}
-	stage, err := c.rest.GetStageInstance(stageInstanceID)
+	key := "stage:" + stageInstanceID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if stage, ok := c.Caches.StageInstance(guildID, stageInstanceID); ok {
+			return stage, nil
+		}
+		stage, err := c.rest.GetStageInstance(stageInstanceID)
+		if err != nil {
+			return discord.StageInstance{}, err
+		}
+		c.Caches.AddStageInstance(*stage)
+		return *stage, nil
+	})
 	if err != nil {
 		return discord.StageInstance{}, false
 	}
-	c.Caches.AddStageInstance(*stage)
-	return *stage, true
+	return val.(discord.StageInstance), true
 }
 
 func (c *restFallbackCachesImpl) GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID) (discord.GuildScheduledEvent, bool) {
@@ -222,10 +358,20 @@ func (c *restFallbackCachesImpl) GuildScheduledEvent(guildID snowflake.ID, guild
 	if !c.flags.Has(RestFallbackFlagGuildScheduledEvents) {
 		return discord.GuildScheduledEvent{}, false
 	}
-	event, err := c.rest.GetGuildScheduledEvent(guildID, guildScheduledEventID, false)
+	key := "event:" + guildID.String() + ":" + guildScheduledEventID.String()
+	val, err := c.sf.Do(key, func() (any, error) {
+		if event, ok := c.Caches.GuildScheduledEvent(guildID, guildScheduledEventID); ok {
+			return event, nil
+		}
+		event, err := c.rest.GetGuildScheduledEvent(guildID, guildScheduledEventID, false)
+		if err != nil {
+			return discord.GuildScheduledEvent{}, err
+		}
+		c.Caches.AddGuildScheduledEvent(*event)
+		return *event, nil
+	})
 	if err != nil {
 		return discord.GuildScheduledEvent{}, false
 	}
-	c.Caches.AddGuildScheduledEvent(*event)
-	return *event, true
+	return val.(discord.GuildScheduledEvent), true
 }

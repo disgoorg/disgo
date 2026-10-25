@@ -2,7 +2,10 @@ package cache_test
 
 import (
 	"errors"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/disgoorg/snowflake/v2"
 
@@ -81,6 +84,98 @@ func TestRestFallbackCaches_Member(t *testing.T) {
 	}
 	if restCalls != 1 {
 		t.Fatalf("expected rest calls to remain 1, got %d", restCalls)
+	}
+}
+
+func TestRestFallbackCaches_ConcurrentMissDeduplication(t *testing.T) {
+	caches := cache.New(cache.WithCaches(cache.FlagsAll))
+	guildID := snowflake.ID(123)
+	userID := snowflake.ID(789)
+
+	var restCalls atomic.Int32
+	mock := &mockRest{
+		getMemberFunc: func(gID snowflake.ID, uID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error) {
+			restCalls.Add(1)
+			// Simulate network latency so concurrent callers overlap
+			time.Sleep(20 * time.Millisecond)
+			return &discord.Member{
+				GuildID: gID,
+				User:    discord.User{ID: uID, Username: "concurrent_user"},
+			}, nil
+		},
+	}
+
+	wrapper := cache.NewRestFallbackCaches(caches, mock, cache.RestFallbackFlagMembers)
+
+	const numGoroutines = 50
+	var wg sync.WaitGroup
+	wg.Add(numGoroutines)
+
+	for i := 0; i < numGoroutines; i++ {
+		go func() {
+			defer wg.Done()
+			member, ok := wrapper.Member(guildID, userID)
+			if !ok || member.User.Username != "concurrent_user" {
+				t.Errorf("failed to get member: ok=%v, member=%+v", ok, member)
+			}
+		}()
+	}
+	wg.Wait()
+
+	// In-flight singleflight request coalescing ensures only 1 REST call was made
+	if calls := restCalls.Load(); calls != 1 {
+		t.Fatalf("expected exactly 1 REST call due to request deduplication, got %d", calls)
+	}
+}
+
+func TestRestFallbackCaches_NonGuildChannel(t *testing.T) {
+	caches := cache.New(cache.WithCaches(cache.FlagsAll))
+	channelID := snowflake.ID(999)
+
+	mock := &mockRest{
+		getChannelFunc: func(cID snowflake.ID, opts ...rest.RequestOpt) (discord.Channel, error) {
+			// Return a direct message channel, which does not implement discord.GuildChannel
+			return &discord.DMChannel{}, nil
+		},
+	}
+
+	wrapper := cache.NewRestFallbackCaches(caches, mock, cache.RestFallbackFlagChannels)
+	ch, ok := wrapper.Channel(channelID)
+	if ok || ch != nil {
+		t.Fatalf("expected non-guild channel to return (nil, false), got ok=%v, ch=%+v", ok, ch)
+	}
+}
+
+func TestRestFallbackCaches_PreventDoubleWrapping(t *testing.T) {
+	caches := cache.New(cache.WithCaches(cache.FlagsAll))
+	mock := &mockRest{}
+
+	wrapper1 := cache.NewRestFallbackCaches(caches, mock, cache.RestFallbackFlagMembers)
+	wrapper2 := cache.NewRestFallbackCaches(wrapper1, mock, cache.RestFallbackFlagChannels)
+
+	// Verify that wrapper2 is the exact same instance as wrapper1, not a nested wrapper
+	if wrapper1 != wrapper2 {
+		t.Fatalf("expected NewRestFallbackCaches to reuse existing wrapper instance to avoid double-wrapping")
+	}
+}
+
+func TestRestFallbackCaches_RestError(t *testing.T) {
+	caches := cache.New(cache.WithCaches(cache.FlagsAll))
+	mock := &mockRest{
+		getMemberFunc: func(guildID snowflake.ID, userID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error) {
+			return nil, errors.New("discord 404 not found")
+		},
+	}
+
+	wrapper := cache.NewRestFallbackCaches(caches, mock, cache.RestFallbackFlagMembers)
+	_, ok := wrapper.Member(1, 2)
+	if ok {
+		t.Fatalf("expected error from REST to return ok=false")
+	}
+
+	// Verify it was not stored in the underlying cache
+	if _, ok := caches.Member(1, 2); ok {
+		t.Fatalf("expected failed request not to be cached")
 	}
 }
 

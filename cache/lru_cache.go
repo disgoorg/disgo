@@ -17,6 +17,7 @@ type lruConfig[T any] struct {
 }
 
 // WithLRUTTL sets the time-to-live for items in the LRUCache.
+// If ttl <= 0, TTL expiration is disabled and entries do not expire.
 func WithLRUTTL[T any](ttl time.Duration) LRUCacheOpt[T] {
 	return func(c *lruConfig[T]) {
 		c.ttl = ttl
@@ -24,6 +25,7 @@ func WithLRUTTL[T any](ttl time.Duration) LRUCacheOpt[T] {
 }
 
 // WithLRUOnEvict sets a callback function that is called when an entity is evicted from the cache.
+// Callbacks are always executed outside the cache mutex, allowing reentrant operations on the cache.
 func WithLRUOnEvict[T any](onEvict func(id snowflake.ID, entity T)) LRUCacheOpt[T] {
 	return func(c *lruConfig[T]) {
 		c.onEvict = onEvict
@@ -106,26 +108,22 @@ func (c *LRUCache[T]) isExpired(entry *lruEntry[T], now time.Time) bool {
 	return c.ttl > 0 && !entry.expiresAt.IsZero() && now.After(entry.expiresAt)
 }
 
-func (c *LRUCache[T]) evictOldest() (T, bool) {
+func (c *LRUCache[T]) evictOldestLocked() (snowflake.ID, T, bool) {
 	oldest := c.tail.prev
 	if oldest == c.head {
 		var zero T
-		return zero, false
+		return 0, zero, false
 	}
 	c.removeEntry(oldest)
 	delete(c.cache, oldest.id)
-	if c.onEvict != nil {
-		c.onEvict(oldest.id, oldest.entity)
-	}
-	return oldest.entity, true
+	return oldest.id, oldest.entity, true
 }
 
 func (c *LRUCache[T]) Get(id snowflake.ID) (T, bool) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	entry, ok := c.cache[id]
 	if !ok {
+		c.mu.Unlock()
 		var zero T
 		return zero, false
 	}
@@ -134,8 +132,11 @@ func (c *LRUCache[T]) Get(id snowflake.ID) (T, bool) {
 	if c.isExpired(entry, now) {
 		c.removeEntry(entry)
 		delete(c.cache, id)
+		entity := entry.entity
+		c.mu.Unlock()
+
 		if c.onEvict != nil {
-			c.onEvict(id, entry.entity)
+			c.onEvict(id, entity)
 		}
 		var zero T
 		return zero, false
@@ -144,10 +145,14 @@ func (c *LRUCache[T]) Get(id snowflake.ID) (T, bool) {
 	if c.capacity > 0 {
 		c.moveToHead(entry)
 	}
+	entity := entry.entity
+	c.mu.Unlock()
 
-	return entry.entity, true
+	return entity, true
 }
 
+// Put stores the given entity with the given snowflake as key. If the entity is already
+// present, its value and TTL expiration are updated, and it is marked as most-recently-used.
 func (c *LRUCache[T]) Put(id snowflake.ID, entity T) {
 	if c.flags.Missing(c.neededFlags) {
 		return
@@ -157,8 +162,6 @@ func (c *LRUCache[T]) Put(id snowflake.ID, entity T) {
 	}
 
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	now := time.Now()
 	var expiresAt time.Time
 	if c.ttl > 0 {
@@ -171,11 +174,17 @@ func (c *LRUCache[T]) Put(id snowflake.ID, entity T) {
 		if c.capacity > 0 {
 			c.moveToHead(entry)
 		}
+		c.mu.Unlock()
 		return
 	}
 
+	var (
+		evictedID     snowflake.ID
+		evictedEntity T
+		hadEvicted    bool
+	)
 	if c.capacity > 0 && len(c.cache) >= c.capacity {
-		c.evictOldest()
+		evictedID, evictedEntity, hadEvicted = c.evictOldestLocked()
 	}
 
 	entry := &lruEntry[T]{
@@ -185,45 +194,65 @@ func (c *LRUCache[T]) Put(id snowflake.ID, entity T) {
 	}
 	c.cache[id] = entry
 	c.insertHead(entry)
+	c.mu.Unlock()
+
+	if hadEvicted && c.onEvict != nil {
+		c.onEvict(evictedID, evictedEntity)
+	}
 }
 
+// Remove removes the entity with the given snowflake as key and returns a copy of the entity
+// and a bool whether it was removed or not. If an eviction callback is configured, it will be
+// invoked outside the lock after removal.
 func (c *LRUCache[T]) Remove(id snowflake.ID) (T, bool) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	entry, ok := c.cache[id]
 	if !ok {
+		c.mu.Unlock()
 		var zero T
 		return zero, false
 	}
 
 	c.removeEntry(entry)
 	delete(c.cache, id)
+	expired := c.isExpired(entry, time.Now())
+	entity := entry.entity
+	c.mu.Unlock()
 
-	if c.isExpired(entry, time.Now()) {
+	if c.onEvict != nil {
+		c.onEvict(id, entity)
+	}
+
+	if expired {
 		var zero T
 		return zero, false
 	}
-
-	return entry.entity, true
+	return entity, true
 }
 
 func (c *LRUCache[T]) RemoveIf(filterFunc FilterFunc[T]) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	now := time.Now()
-	curr := c.head.next
-	for curr != c.tail {
+	type evictedItem struct {
+		id     snowflake.ID
+		entity T
+	}
+	var evicted []evictedItem
+	for curr := c.head.next; curr != c.tail; {
 		next := curr.next
 		if c.isExpired(curr, now) || filterFunc(curr.entity) {
 			c.removeEntry(curr)
 			delete(c.cache, curr.id)
 			if c.onEvict != nil {
-				c.onEvict(curr.id, curr.entity)
+				evicted = append(evicted, evictedItem{id: curr.id, entity: curr.entity})
 			}
 		}
 		curr = next
+	}
+	c.mu.Unlock()
+
+	for _, item := range evicted {
+		c.onEvict(item.id, item.entity)
 	}
 }
 
@@ -231,7 +260,7 @@ func (c *LRUCache[T]) Len() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	if c.ttl == 0 {
+	if c.ttl <= 0 {
 		return len(c.cache)
 	}
 
@@ -248,17 +277,19 @@ func (c *LRUCache[T]) Len() int {
 func (c *LRUCache[T]) All() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		c.mu.RLock()
-		defer c.mu.RUnlock()
-
 		now := time.Now()
-		curr := c.head.next
-		for curr != c.tail {
+		items := make([]T, 0, len(c.cache))
+		for curr := c.head.next; curr != c.tail; curr = curr.next {
 			if !c.isExpired(curr, now) {
-				if !yield(curr.entity) {
-					break
-				}
+				items = append(items, curr.entity)
 			}
-			curr = curr.next
+		}
+		c.mu.RUnlock()
+
+		for _, entity := range items {
+			if !yield(entity) {
+				break
+			}
 		}
 	}
 }

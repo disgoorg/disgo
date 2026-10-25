@@ -18,6 +18,7 @@ type groupedLRUConfig[T any] struct {
 }
 
 // WithGroupedLRUTTL sets the time-to-live for items in the GroupedLRUCache.
+// If ttl <= 0, TTL expiration is disabled and entries do not expire.
 func WithGroupedLRUTTL[T any](ttl time.Duration) GroupedLRUCacheOpt[T] {
 	return func(c *groupedLRUConfig[T]) {
 		c.ttl = ttl
@@ -33,6 +34,7 @@ func WithGroupedLRUMaxGroups[T any](maxGroups int) GroupedLRUCacheOpt[T] {
 }
 
 // WithGroupedLRUOnEvict sets a callback function that is called when an entity is evicted from the cache.
+// Callbacks are always executed outside the cache mutex, allowing reentrant operations on the cache.
 func WithGroupedLRUOnEvict[T any](onEvict func(groupID snowflake.ID, id snowflake.ID, entity T)) GroupedLRUCacheOpt[T] {
 	return func(c *groupedLRUConfig[T]) {
 		c.onEvict = onEvict
@@ -88,18 +90,21 @@ func (g *lruGroup[T]) moveToHead(entry *groupedLRUEntry[T]) {
 	g.insertHead(entry)
 }
 
-func (g *lruGroup[T]) evictOldest(onEvict func(groupID snowflake.ID, id snowflake.ID, entity T)) (T, bool) {
+func (g *lruGroup[T]) evictOldestLocked() (snowflake.ID, T, bool) {
 	oldest := g.tail.prev
 	if oldest == g.head {
 		var zero T
-		return zero, false
+		return 0, zero, false
 	}
 	g.removeEntry(oldest)
 	delete(g.cache, oldest.id)
-	if onEvict != nil {
-		onEvict(oldest.groupID, oldest.id, oldest.entity)
-	}
-	return oldest.entity, true
+	return oldest.id, oldest.entity, true
+}
+
+type evictedGroupedItem[T any] struct {
+	groupID snowflake.ID
+	id      snowflake.ID
+	entity  T
 }
 
 var _ GroupedCache[any] = (*GroupedLRUCache[any])(nil)
@@ -174,16 +179,16 @@ func (c *GroupedLRUCache[T]) isExpired(entry *groupedLRUEntry[T], now time.Time)
 
 func (c *GroupedLRUCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, bool) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	group, ok := c.groups[groupID]
 	if !ok {
+		c.mu.Unlock()
 		var zero T
 		return zero, false
 	}
 
 	entry, ok := group.cache[id]
 	if !ok {
+		c.mu.Unlock()
 		var zero T
 		return zero, false
 	}
@@ -192,8 +197,11 @@ func (c *GroupedLRUCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, bool
 	if c.isExpired(entry, now) {
 		group.removeEntry(entry)
 		delete(group.cache, id)
+		entity := entry.entity
+		c.mu.Unlock()
+
 		if c.onEvict != nil {
-			c.onEvict(groupID, id, entry.entity)
+			c.onEvict(groupID, id, entity)
 		}
 		var zero T
 		return zero, false
@@ -205,10 +213,14 @@ func (c *GroupedLRUCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, bool
 	if c.maxGroups > 0 {
 		c.moveGroupToHead(group)
 	}
+	entity := entry.entity
+	c.mu.Unlock()
 
-	return entry.entity, true
+	return entity, true
 }
 
+// Put stores the given entity with the given groupID and snowflake as key. If the entity is
+// already present, its value and TTL expiration are updated, and it is marked as most-recently-used.
 func (c *GroupedLRUCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T) {
 	if c.flags.Missing(c.neededFlags) {
 		return
@@ -218,13 +230,13 @@ func (c *GroupedLRUCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T
 	}
 
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	now := time.Now()
 	var expiresAt time.Time
 	if c.ttl > 0 {
 		expiresAt = now.Add(c.ttl)
 	}
+
+	var evicted []evictedGroupedItem[T]
 
 	group, ok := c.groups[groupID]
 	if !ok {
@@ -236,7 +248,11 @@ func (c *GroupedLRUCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T
 				delete(c.groups, oldestGroup.id)
 				if c.onEvict != nil {
 					for _, e := range oldestGroup.cache {
-						c.onEvict(oldestGroup.id, e.id, e.entity)
+						evicted = append(evicted, evictedGroupedItem[T]{
+							groupID: oldestGroup.id,
+							id:      e.id,
+							entity:  e.entity,
+						})
 					}
 				}
 			}
@@ -254,11 +270,18 @@ func (c *GroupedLRUCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T
 		if c.maxItemsPerGroup > 0 {
 			group.moveToHead(entry)
 		}
+		c.mu.Unlock()
 		return
 	}
 
 	if c.maxItemsPerGroup > 0 && len(group.cache) >= c.maxItemsPerGroup {
-		group.evictOldest(c.onEvict)
+		if eID, eEntity, ok := group.evictOldestLocked(); ok && c.onEvict != nil {
+			evicted = append(evicted, evictedGroupedItem[T]{
+				groupID: groupID,
+				id:      eID,
+				entity:  eEntity,
+			})
+		}
 	}
 
 	entry := &groupedLRUEntry[T]{
@@ -269,59 +292,81 @@ func (c *GroupedLRUCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T
 	}
 	group.cache[id] = entry
 	group.insertHead(entry)
+	c.mu.Unlock()
+
+	for _, item := range evicted {
+		c.onEvict(item.groupID, item.id, item.entity)
+	}
 }
 
+// Remove removes the entity with the given groupID and snowflake as key and returns a copy of the
+// entity and a bool whether it was removed or not. If an eviction callback is configured, it will be
+// invoked outside the lock after removal.
 func (c *GroupedLRUCache[T]) Remove(groupID snowflake.ID, id snowflake.ID) (T, bool) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	group, ok := c.groups[groupID]
 	if !ok {
+		c.mu.Unlock()
 		var zero T
 		return zero, false
 	}
 
 	entry, ok := group.cache[id]
 	if !ok {
+		c.mu.Unlock()
 		var zero T
 		return zero, false
 	}
 
 	group.removeEntry(entry)
 	delete(group.cache, id)
+	expired := c.isExpired(entry, time.Now())
+	entity := entry.entity
+	c.mu.Unlock()
 
-	if c.isExpired(entry, time.Now()) {
+	if c.onEvict != nil {
+		c.onEvict(groupID, id, entity)
+	}
+
+	if expired {
 		var zero T
 		return zero, false
 	}
-
-	return entry.entity, true
+	return entity, true
 }
 
 func (c *GroupedLRUCache[T]) GroupRemove(groupID snowflake.ID) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	group, ok := c.groups[groupID]
 	if !ok {
+		c.mu.Unlock()
 		return
 	}
 
 	c.removeGroup(group)
 	delete(c.groups, groupID)
 
+	var evicted []evictedGroupedItem[T]
 	if c.onEvict != nil {
 		for _, e := range group.cache {
-			c.onEvict(groupID, e.id, e.entity)
+			evicted = append(evicted, evictedGroupedItem[T]{
+				groupID: groupID,
+				id:      e.id,
+				entity:  e.entity,
+			})
 		}
+	}
+	c.mu.Unlock()
+
+	for _, item := range evicted {
+		c.onEvict(item.groupID, item.id, item.entity)
 	}
 }
 
 func (c *GroupedLRUCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	now := time.Now()
+	var evicted []evictedGroupedItem[T]
 	for groupID, group := range c.groups {
 		curr := group.head.next
 		for curr != group.tail {
@@ -330,24 +375,33 @@ func (c *GroupedLRUCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
 				group.removeEntry(curr)
 				delete(group.cache, curr.id)
 				if c.onEvict != nil {
-					c.onEvict(groupID, curr.id, curr.entity)
+					evicted = append(evicted, evictedGroupedItem[T]{
+						groupID: groupID,
+						id:      curr.id,
+						entity:  curr.entity,
+					})
 				}
 			}
 			curr = next
 		}
 	}
+	c.mu.Unlock()
+
+	for _, item := range evicted {
+		c.onEvict(item.groupID, item.id, item.entity)
+	}
 }
 
 func (c *GroupedLRUCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T]) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	group, ok := c.groups[groupID]
 	if !ok {
+		c.mu.Unlock()
 		return
 	}
 
 	now := time.Now()
+	var evicted []evictedGroupedItem[T]
 	curr := group.head.next
 	for curr != group.tail {
 		next := curr.next
@@ -355,10 +409,19 @@ func (c *GroupedLRUCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc Grou
 			group.removeEntry(curr)
 			delete(group.cache, curr.id)
 			if c.onEvict != nil {
-				c.onEvict(groupID, curr.id, curr.entity)
+				evicted = append(evicted, evictedGroupedItem[T]{
+					groupID: groupID,
+					id:      curr.id,
+					entity:  curr.entity,
+				})
 			}
 		}
 		curr = next
+	}
+	c.mu.Unlock()
+
+	for _, item := range evicted {
+		c.onEvict(item.groupID, item.id, item.entity)
 	}
 }
 
@@ -366,16 +429,20 @@ func (c *GroupedLRUCache[T]) Len() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
+	if c.ttl <= 0 {
+		total := 0
+		for _, group := range c.groups {
+			total += len(group.cache)
+		}
+		return total
+	}
+
 	now := time.Now()
 	total := 0
 	for _, group := range c.groups {
-		if c.ttl == 0 {
-			total += len(group.cache)
-		} else {
-			for _, entry := range group.cache {
-				if !c.isExpired(entry, now) {
-					total++
-				}
+		for _, entry := range group.cache {
+			if !c.isExpired(entry, now) {
+				total++
 			}
 		}
 	}
@@ -391,7 +458,7 @@ func (c *GroupedLRUCache[T]) GroupLen(groupID snowflake.ID) int {
 		return 0
 	}
 
-	if c.ttl == 0 {
+	if c.ttl <= 0 {
 		return len(group.cache)
 	}
 
@@ -408,21 +475,29 @@ func (c *GroupedLRUCache[T]) GroupLen(groupID snowflake.ID) int {
 func (c *GroupedLRUCache[T]) All() iter.Seq2[snowflake.ID, T] {
 	return func(yield func(snowflake.ID, T) bool) {
 		c.mu.RLock()
-		defer c.mu.RUnlock()
-
 		now := time.Now()
+		type pair struct {
+			groupID snowflake.ID
+			entity  T
+		}
+		var items []pair
 		gCurr := c.groupHead.next
 		for gCurr != c.groupTail {
 			curr := gCurr.head.next
 			for curr != gCurr.tail {
 				if !c.isExpired(curr, now) {
-					if !yield(curr.groupID, curr.entity) {
-						return
-					}
+					items = append(items, pair{groupID: curr.groupID, entity: curr.entity})
 				}
 				curr = curr.next
 			}
 			gCurr = gCurr.next
+		}
+		c.mu.RUnlock()
+
+		for _, item := range items {
+			if !yield(item.groupID, item.entity) {
+				return
+			}
 		}
 	}
 }
@@ -430,22 +505,27 @@ func (c *GroupedLRUCache[T]) All() iter.Seq2[snowflake.ID, T] {
 func (c *GroupedLRUCache[T]) GroupAll(groupID snowflake.ID) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		c.mu.RLock()
-		defer c.mu.RUnlock()
-
 		group, ok := c.groups[groupID]
 		if !ok {
+			c.mu.RUnlock()
 			return
 		}
 
 		now := time.Now()
+		var items []T
 		curr := group.head.next
 		for curr != group.tail {
 			if !c.isExpired(curr, now) {
-				if !yield(curr.entity) {
-					return
-				}
+				items = append(items, curr.entity)
 			}
 			curr = curr.next
+		}
+		c.mu.RUnlock()
+
+		for _, item := range items {
+			if !yield(item) {
+				return
+			}
 		}
 	}
 }
