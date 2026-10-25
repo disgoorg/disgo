@@ -139,7 +139,7 @@ func (c *restFallbackCachesImpl) Member(guildID snowflake.ID, userID snowflake.I
 		if err != nil {
 			return discord.Member{}, err
 		}
-		c.Caches.AddMember(*member)
+		c.AddMember(*member)
 		return *member, nil
 	})
 	if err != nil {
@@ -155,7 +155,7 @@ func (c *restFallbackCachesImpl) SelfMember(guildID snowflake.ID) (discord.Membe
 	if !c.flags.Has(RestFallbackFlagMembers) {
 		return discord.Member{}, false
 	}
-	selfUser, ok := c.Caches.SelfUser()
+	selfUser, ok := c.SelfUser()
 	if !ok {
 		return discord.Member{}, false
 	}
@@ -182,7 +182,7 @@ func (c *restFallbackCachesImpl) Guild(guildID snowflake.ID) (discord.CacheGuild
 			Guild:       restGuild.Guild,
 			MemberCount: restGuild.ApproximateMemberCount,
 		}
-		c.Caches.GuildCache().Put(guildID, cacheGuild)
+		c.GuildCache().Put(guildID, cacheGuild)
 		return cacheGuild, nil
 	})
 	if err != nil {
@@ -213,7 +213,7 @@ func (c *restFallbackCachesImpl) Channel(channelID snowflake.ID) (discord.GuildC
 			return nil, err
 		}
 		if guildCh, ok := ch.(discord.GuildChannel); ok {
-			c.Caches.AddChannel(guildCh)
+			c.AddChannel(guildCh)
 			return guildCh, nil
 		}
 		return nil, nil
@@ -241,7 +241,7 @@ func (c *restFallbackCachesImpl) Role(guildID snowflake.ID, roleID snowflake.ID)
 			return nil, err
 		}
 		for _, r := range roles {
-			c.Caches.AddRole(r)
+			c.AddRole(r)
 		}
 		return nil, nil
 	})
@@ -267,7 +267,7 @@ func (c *restFallbackCachesImpl) Message(channelID snowflake.ID, messageID snowf
 		if err != nil {
 			return discord.Message{}, err
 		}
-		c.Caches.AddMessage(*msg)
+		c.AddMessage(*msg)
 		return *msg, nil
 	})
 	if err != nil {
@@ -292,7 +292,7 @@ func (c *restFallbackCachesImpl) Emoji(guildID snowflake.ID, emojiID snowflake.I
 		if err != nil {
 			return discord.Emoji{}, err
 		}
-		c.Caches.AddEmoji(*emoji)
+		c.AddEmoji(*emoji)
 		return *emoji, nil
 	})
 	if err != nil {
@@ -317,7 +317,7 @@ func (c *restFallbackCachesImpl) Sticker(guildID snowflake.ID, stickerID snowfla
 		if err != nil {
 			return discord.Sticker{}, err
 		}
-		c.Caches.AddSticker(*sticker)
+		c.AddSticker(*sticker)
 		return *sticker, nil
 	})
 	if err != nil {
@@ -342,7 +342,7 @@ func (c *restFallbackCachesImpl) StageInstance(guildID snowflake.ID, stageInstan
 		if err != nil {
 			return discord.StageInstance{}, err
 		}
-		c.Caches.AddStageInstance(*stage)
+		c.AddStageInstance(*stage)
 		return *stage, nil
 	})
 	if err != nil {
@@ -367,7 +367,7 @@ func (c *restFallbackCachesImpl) GuildScheduledEvent(guildID snowflake.ID, guild
 		if err != nil {
 			return discord.GuildScheduledEvent{}, err
 		}
-		c.Caches.AddGuildScheduledEvent(*event)
+		c.AddGuildScheduledEvent(*event)
 		return *event, nil
 	})
 	if err != nil {
