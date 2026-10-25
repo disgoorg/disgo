@@ -201,10 +201,19 @@ type gatewayImpl struct {
 	lastHeartbeatReceived time.Time
 }
 
-func (g *gatewayImpl) setHeartbeatCancel(cancel context.CancelFunc) {
+// startHeartbeat creates the heartbeat context before spawning the goroutine,
+// so a close that races with it always finds a cancel func to call.
+func (g *gatewayImpl) startHeartbeat() {
+	ctx, cancel := context.WithCancel(context.Background())
 	g.heartbeatMu.Lock()
+	prevCancel := g.heartbeatCancel
 	g.heartbeatCancel = cancel
+	g.lastHeartbeatReceived = time.Now()
 	g.heartbeatMu.Unlock()
+	if prevCancel != nil {
+		prevCancel()
+	}
+	go g.heartbeat(ctx.Done())
 }
 
 func (g *gatewayImpl) cancelHeartbeat() {
@@ -518,19 +527,14 @@ func (g *gatewayImpl) reconnect() {
 	}
 }
 
-func (g *gatewayImpl) heartbeat() {
+func (g *gatewayImpl) heartbeat(stop <-chan struct{}) {
 	defer g.config.Logger.Debug("exiting heartbeat goroutine")
-
-	ctx, cancel := context.WithCancel(context.Background())
-	g.setHeartbeatCancel(cancel)
-
-	g.setLastHeartbeatReceived(time.Now())
 
 	// Send heartbeats periodically every `heartbeat_interval`
 	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
 	for {
 		select {
-		case <-ctx.Done():
+		case <-stop:
 			return
 
 		case <-heartbeatTicker.C:
@@ -696,7 +700,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 		switch message.Op {
 		case OpcodeHello:
 			g.heartbeatInterval = time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
-			go g.heartbeat()
+			g.startHeartbeat()
 
 			if g.getSession().canResume() {
 				err = g.resume()
