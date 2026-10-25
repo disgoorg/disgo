@@ -152,6 +152,7 @@ type GuildAudioChannel interface {
 	Bitrate() int
 
 	// RTCRegion returns the configured voice server region of the GuildAudioChannel.
+	// This is empty if the region is selected automatically.
 	RTCRegion() string
 
 	guildAudioChannel()
@@ -550,7 +551,7 @@ type GuildVoiceChannel struct {
 	bitrate              int
 	UserLimit            int
 	parentID             *snowflake.ID
-	rtcRegion            string
+	rtcRegion            *string
 	VideoQualityMode     VideoQualityMode
 	lastMessageID        *snowflake.ID
 	nsfw                 bool
@@ -634,7 +635,10 @@ func (c GuildVoiceChannel) Bitrate() int {
 }
 
 func (c GuildVoiceChannel) RTCRegion() string {
-	return c.rtcRegion
+	if c.rtcRegion == nil {
+		return ""
+	}
+	return *c.rtcRegion
 }
 
 func (c GuildVoiceChannel) Position() int {
@@ -1082,7 +1086,7 @@ type GuildStageVoiceChannel struct {
 	name                 string
 	bitrate              int
 	parentID             *snowflake.ID
-	rtcRegion            string
+	rtcRegion            *string
 	VideoQualityMode     VideoQualityMode
 	lastMessageID        *snowflake.ID
 	nsfw                 bool
@@ -1164,7 +1168,10 @@ func (c GuildStageVoiceChannel) Bitrate() int {
 }
 
 func (c GuildStageVoiceChannel) RTCRegion() string {
-	return c.rtcRegion
+	if c.rtcRegion == nil {
+		return ""
+	}
+	return *c.rtcRegion
 }
 
 func (c GuildStageVoiceChannel) Position() int {
