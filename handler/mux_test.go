@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"context"
 	"maps"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
 
+	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/rest"
@@ -310,4 +313,158 @@ func TestMux(t *testing.T) {
 			t.Errorf("expected %+v, got %+v", d.expected, recorder.Response)
 		}
 	}
+}
+
+type roundTripperFunc func(req *http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
+func TestContextPropagation(t *testing.T) {
+	slashData, err := os.ReadFile("testdata/command/slash_command.json")
+	if err != nil {
+		t.Fatalf("failed to read slash command data: %v", err)
+	}
+
+	type ctxKey struct{}
+
+	var capturedCtxs []context.Context
+	restClient := rest.NewClient("",
+		rest.WithRateLimiter(rest.NewNoopRateLimiter()),
+		rest.WithHTTPClient(&http.Client{
+			Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+				capturedCtxs = append(capturedCtxs, req.Context())
+				return &http.Response{
+					StatusCode: http.StatusNoContent,
+					Body:       http.NoBody,
+				}, nil
+			}),
+		}),
+	)
+	client := &bot.Client{
+		Rest: rest.New(restClient),
+	}
+
+	t.Run("default event context is propagated", func(t *testing.T) {
+		capturedCtxs = nil
+
+		mux := New()
+		mux.Use(func(next Handler) Handler {
+			return func(e *InteractionEvent) error {
+				e.Ctx = context.WithValue(e.Ctx, ctxKey{}, "middleware-ctx")
+				return next(e)
+			}
+		})
+		mux.SlashCommand("/foo", func(data discord.SlashCommandInteractionData, e *CommandEvent) error {
+			if err := e.CreateMessage(discord.MessageCreate{Content: "bar"}); err != nil {
+				return err
+			}
+			return e.DeleteInteractionResponse()
+		})
+
+		interaction, err := discord.UnmarshalInteraction(slashData)
+		if err != nil {
+			t.Fatalf("failed to unmarshal interaction: %v", err)
+		}
+
+		mux.OnEvent(&events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(client, 0, 0),
+			Interaction:  interaction,
+			Respond: func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
+				return restClient.Do(rest.CreateInteractionResponse.Compile(nil, interaction.ID(), interaction.Token()), nil, nil, opts...)
+			},
+		})
+
+		if len(capturedCtxs) != 2 {
+			t.Fatalf("expected 2 requests, got %d", len(capturedCtxs))
+		}
+		for i, ctx := range capturedCtxs {
+			if got := ctx.Value(ctxKey{}); got != "middleware-ctx" {
+				t.Errorf("request %d: expected context value %q, got %v", i, "middleware-ctx", got)
+			}
+		}
+	})
+
+	t.Run("reassigned handler event context is propagated", func(t *testing.T) {
+		capturedCtxs = nil
+
+		mux := New()
+		mux.Use(func(next Handler) Handler {
+			return func(e *InteractionEvent) error {
+				e.Ctx = context.WithValue(e.Ctx, ctxKey{}, "middleware-ctx")
+				return next(e)
+			}
+		})
+		mux.SlashCommand("/foo", func(data discord.SlashCommandInteractionData, e *CommandEvent) error {
+			e.Ctx = context.WithValue(e.Ctx, ctxKey{}, "handler-ctx")
+			if err := e.CreateMessage(discord.MessageCreate{Content: "bar"}); err != nil {
+				return err
+			}
+			return e.DeleteInteractionResponse()
+		})
+
+		interaction, err := discord.UnmarshalInteraction(slashData)
+		if err != nil {
+			t.Fatalf("failed to unmarshal interaction: %v", err)
+		}
+
+		mux.OnEvent(&events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(client, 0, 0),
+			Interaction:  interaction,
+			Respond: func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
+				return restClient.Do(rest.CreateInteractionResponse.Compile(nil, interaction.ID(), interaction.Token()), nil, nil, opts...)
+			},
+		})
+
+		if len(capturedCtxs) != 2 {
+			t.Fatalf("expected 2 requests, got %d", len(capturedCtxs))
+		}
+		for i, ctx := range capturedCtxs {
+			if got := ctx.Value(ctxKey{}); got != "handler-ctx" {
+				t.Errorf("request %d: expected context value %q, got %v", i, "handler-ctx", got)
+			}
+		}
+	})
+
+	t.Run("explicit WithCtx overrides event context", func(t *testing.T) {
+		capturedCtxs = nil
+
+		mux := New()
+		mux.Use(func(next Handler) Handler {
+			return func(e *InteractionEvent) error {
+				e.Ctx = context.WithValue(e.Ctx, ctxKey{}, "middleware-ctx")
+				return next(e)
+			}
+		})
+		mux.SlashCommand("/foo", func(data discord.SlashCommandInteractionData, e *CommandEvent) error {
+			customCtx := context.WithValue(context.Background(), ctxKey{}, "custom-ctx")
+			if err := e.CreateMessage(discord.MessageCreate{Content: "bar"}, rest.WithCtx(customCtx)); err != nil {
+				return err
+			}
+			return e.DeleteInteractionResponse(rest.WithCtx(customCtx))
+		})
+
+		interaction, err := discord.UnmarshalInteraction(slashData)
+		if err != nil {
+			t.Fatalf("failed to unmarshal interaction: %v", err)
+		}
+
+		mux.OnEvent(&events.InteractionCreate{
+			GenericEvent: events.NewGenericEvent(client, 0, 0),
+			Interaction:  interaction,
+			Respond: func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
+				return restClient.Do(rest.CreateInteractionResponse.Compile(nil, interaction.ID(), interaction.Token()), nil, nil, opts...)
+			},
+		})
+
+		if len(capturedCtxs) != 2 {
+			t.Fatalf("expected 2 requests, got %d", len(capturedCtxs))
+		}
+		for i, ctx := range capturedCtxs {
+			if got := ctx.Value(ctxKey{}); got != "custom-ctx" {
+				t.Errorf("request %d: expected context value %q, got %v", i, "custom-ctx", got)
+			}
+		}
+	})
 }
