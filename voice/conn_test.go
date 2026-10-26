@@ -603,6 +603,50 @@ func TestRealAudioLoopsDoNotRunBeforeOpen(t *testing.T) {
 	}
 }
 
+// Conn can call Open on a loop a replacement has just closed; it must not
+// start, or nothing is left to stop it.
+func TestClosedRealAudioLoopsDoNotOpen(t *testing.T) {
+	conn := newRealConn()
+	conn.udp = &udpConnStub{packet: &Packet{SSRC: 1}}
+
+	pulled := make(chan struct{}, 1)
+	sender := NewAudioSender(conn.config.Logger, signalProvider{pulled: pulled}, conn)
+	received := make(chan struct{}, 1)
+	receiver := NewAudioReceiver(conn.config.Logger, signalReceiver{received: received}, conn)
+
+	sender.Close()
+	sender.Open()
+	receiver.Close()
+	receiver.Open()
+
+	select {
+	case <-pulled:
+		t.Fatal("a closed sender pulled a frame after Open")
+	case <-received:
+		t.Fatal("a closed receiver handled a packet after Open")
+	case <-time.After(200 * time.Millisecond):
+	}
+}
+
+// The sender closes itself on a closed udp conn and the conn closes it again
+// on leave; the provider and receiver must still be closed once.
+func TestClosingRealAudioLoopTwiceClosesOnce(t *testing.T) {
+	conn := newRealConn()
+	provider := &closeCountingProvider{}
+	receiver := &closeCountingReceiver{}
+	audioSender := NewAudioSender(conn.config.Logger, provider, conn)
+	audioReceiver := NewAudioReceiver(conn.config.Logger, receiver, conn)
+
+	audioSender.Close()
+	audioSender.Close()
+	audioReceiver.Close()
+	audioReceiver.Close()
+
+	if provider.closes != 1 || receiver.closes != 1 {
+		t.Errorf("provider closed %d times, receiver %d; want 1 each", provider.closes, receiver.closes)
+	}
+}
+
 func newRealConn() *connImpl {
 	return NewConn(1, 2,
 		func(context.Context, snowflake.ID, *snowflake.ID, bool, bool) error { return nil },
@@ -776,3 +820,14 @@ type nopReceiver struct{}
 func (nopReceiver) ReceiveOpusFrame(snowflake.ID, *Packet) error { return nil }
 func (nopReceiver) CleanupUser(snowflake.ID)                     {}
 func (nopReceiver) Close()                                       {}
+
+type closeCountingProvider struct{ closes int }
+
+func (*closeCountingProvider) ProvideOpusFrame() ([]byte, error) { return nil, nil }
+func (p *closeCountingProvider) Close()                          { p.closes++ }
+
+type closeCountingReceiver struct{ closes int }
+
+func (*closeCountingReceiver) ReceiveOpusFrame(snowflake.ID, *Packet) error { return nil }
+func (*closeCountingReceiver) CleanupUser(snowflake.ID)                     {}
+func (r *closeCountingReceiver) Close()                                     { r.closes++ }
