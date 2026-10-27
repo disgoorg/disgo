@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log/slog"
 	"net"
-	"sync"
 
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -53,22 +52,20 @@ func NewAudioReceiver(logger *slog.Logger, opusReceiver OpusFrameReceiver, conn 
 
 type defaultAudioReceiver struct {
 	logger       *slog.Logger
-	mu           sync.Mutex // guards cancelFunc against Open/Close on different goroutines
 	cancelFunc   context.CancelFunc
 	opusReceiver OpusFrameReceiver
 	conn         Conn
 }
 
 func (s *defaultAudioReceiver) Open() {
-	ctx, cancel := context.WithCancel(context.Background())
-	s.mu.Lock()
-	s.cancelFunc = cancel
-	s.mu.Unlock()
-	go s.open(ctx)
+	go s.open()
 }
 
-func (s *defaultAudioReceiver) open(ctx context.Context) {
+func (s *defaultAudioReceiver) open() {
 	defer s.logger.Debug("closing audio receiver")
+	ctx, cancel := context.WithCancel(context.Background())
+	s.cancelFunc = cancel
+	defer cancel()
 loop:
 	for {
 		select {
@@ -107,11 +104,6 @@ func (s *defaultAudioReceiver) receive() {
 }
 
 func (s *defaultAudioReceiver) Close() {
-	s.mu.Lock()
-	cancel := s.cancelFunc
-	s.mu.Unlock()
-	if cancel != nil {
-		cancel()
-	}
+	s.cancelFunc()
 	s.opusReceiver.Close()
 }

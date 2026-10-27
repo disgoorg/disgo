@@ -203,17 +203,18 @@ type gatewayImpl struct {
 
 // startHeartbeat creates the heartbeat context before spawning the goroutine,
 // so a close that races with it always finds a cancel func to call.
-func (g *gatewayImpl) startHeartbeat() {
+func (g *gatewayImpl) startHeartbeat(interval time.Duration) {
 	ctx, cancel := context.WithCancel(context.Background())
 	g.heartbeatMu.Lock()
 	prevCancel := g.heartbeatCancel
 	g.heartbeatCancel = cancel
+	g.heartbeatInterval = interval
 	g.lastHeartbeatReceived = time.Now()
 	g.heartbeatMu.Unlock()
 	if prevCancel != nil {
 		prevCancel()
 	}
-	go g.heartbeat(ctx.Done())
+	go g.heartbeat(ctx.Done(), interval)
 }
 
 func (g *gatewayImpl) cancelHeartbeat() {
@@ -527,11 +528,11 @@ func (g *gatewayImpl) reconnect() {
 	}
 }
 
-func (g *gatewayImpl) heartbeat(stop <-chan struct{}) {
+func (g *gatewayImpl) heartbeat(stop <-chan struct{}, interval time.Duration) {
 	defer g.config.Logger.Debug("exiting heartbeat goroutine")
 
 	// Send heartbeats periodically every `heartbeat_interval`
-	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
+	heartbeatTicker := time.NewTicker(interval)
 	for {
 		select {
 		case <-stop:
@@ -559,7 +560,10 @@ func (g *gatewayImpl) sendHeartbeat() {
 
 	sequence := g.getSession().sequence
 
-	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
+	g.heartbeatMu.Lock()
+	timeout := g.heartbeatInterval
+	g.heartbeatMu.Unlock()
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	if err := g.sendInternal(ctx, InternalCommandType, OpcodeHeartbeat, MessageDataHeartbeat(sequence)); err != nil {
 		if errors.Is(err, discord.ErrShardNotConnected) || errors.Is(err, syscall.EPIPE) {
@@ -699,8 +703,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 
 		switch message.Op {
 		case OpcodeHello:
-			g.heartbeatInterval = time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
-			g.startHeartbeat()
+			g.startHeartbeat(time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond)
 
 			if g.getSession().canResume() {
 				err = g.resume()
