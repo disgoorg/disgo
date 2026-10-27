@@ -767,7 +767,27 @@ type UnfurledMediaItem struct {
 	AttachmentID snowflake.ID `json:"attachment_id,omitempty"`
 	// LoadingState is the loading state of the media item. This can't be set by bots.
 	LoadingState UnfurledMediaItemLoadingState `json:"loading_state,omitempty"`
+	// ContentScanMetadata holds the results of Discord's content scanning, if the media item has been scanned. This can't be set by bots.
+	//
+	// Content scanning runs after the message is sent, so this may not be present on the initial message and can be added later in a message update event.
+	ContentScanMetadata *UnfurledMediaItemContentScanMetadata `json:"content_scan_metadata,omitempty"`
 }
+
+// UnfurledMediaItemContentScanMetadata holds the results of Discord's content scanning for an [UnfurledMediaItem].
+type UnfurledMediaItemContentScanMetadata struct {
+	// Flags are the content scan metadata flags combined as a bitfield.
+	Flags UnfurledMediaItemContentScanMetadataFlags `json:"flags"`
+}
+
+// UnfurledMediaItemContentScanMetadataFlags are the flags set by Discord's content scanning on an [UnfurledMediaItem].
+type UnfurledMediaItemContentScanMetadataFlags int
+
+const (
+	UnfurledMediaItemContentScanMetadataFlagIsExplicitContent UnfurledMediaItemContentScanMetadataFlags = 1 << iota
+	UnfurledMediaItemContentScanMetadataFlagIsGoreContent
+	UnfurledMediaItemContentScanMetadataFlagIsSelfHarmContent
+	UnfurledMediaItemContentScanMetadataFlagsNone UnfurledMediaItemContentScanMetadataFlags = 0
+)
 
 type UnfurledMediaItemFlags int
 
