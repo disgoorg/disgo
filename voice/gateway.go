@@ -133,7 +133,6 @@ type gatewayImpl struct {
 
 	heartbeatMu           sync.Mutex
 	heartbeatCancel       context.CancelFunc
-	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
 	lastNonce             int64
@@ -141,7 +140,7 @@ type gatewayImpl struct {
 
 // startHeartbeat creates the heartbeat context before spawning the goroutine,
 // so a close that races with it always finds a cancel func to call.
-func (g *gatewayImpl) startHeartbeat() {
+func (g *gatewayImpl) startHeartbeat(interval time.Duration) {
 	ctx, cancel := context.WithCancel(context.Background())
 	g.heartbeatMu.Lock()
 	prevCancel := g.heartbeatCancel
@@ -151,7 +150,7 @@ func (g *gatewayImpl) startHeartbeat() {
 	if prevCancel != nil {
 		prevCancel()
 	}
-	go g.heartbeat(ctx.Done())
+	go g.heartbeat(ctx.Done(), interval)
 }
 
 func (g *gatewayImpl) cancelHeartbeat() {
@@ -474,11 +473,11 @@ func (g *gatewayImpl) reconnect() {
 	}
 }
 
-func (g *gatewayImpl) heartbeat(stop <-chan struct{}) {
+func (g *gatewayImpl) heartbeat(stop <-chan struct{}, interval time.Duration) {
 	defer g.config.Logger.Debug("exiting voice heartbeat goroutine")
 
 	// Send heartbeats periodically every `heartbeat_interval`
-	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
+	heartbeatTicker := time.NewTicker(interval)
 	for {
 		select {
 		case <-stop:
@@ -494,17 +493,17 @@ func (g *gatewayImpl) heartbeat(stop <-chan struct{}) {
 				return
 			}
 
-			g.sendHeartbeat()
+			g.sendHeartbeat(interval)
 		}
 	}
 }
 
-func (g *gatewayImpl) sendHeartbeat() {
+func (g *gatewayImpl) sendHeartbeat(timeout time.Duration) {
 	g.config.Logger.Debug("sending heartbeat")
 
 	nonce := time.Now().UnixMilli()
 	g.setLastNonce(nonce)
-	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat{
@@ -646,8 +645,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 		switch message.Op {
 		case OpcodeHello:
 			d := message.D.(GatewayMessageDataHello)
-			g.heartbeatInterval = time.Duration(d.HeartbeatInterval) * time.Millisecond
-			g.startHeartbeat()
+			g.startHeartbeat(time.Duration(d.HeartbeatInterval) * time.Millisecond)
 
 			if ssrc, seq := g.ssrcAndSeq(); ssrc == 0 || seq == 0 {
 				err = g.identify()
