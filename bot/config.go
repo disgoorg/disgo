@@ -46,8 +46,9 @@ type config struct {
 	PublicKey            string
 	HTTPServerConfigOpts []httpserver.ConfigOpt
 
-	Caches          cache.Caches
-	CacheConfigOpts []cache.ConfigOpt
+	Caches            cache.Caches
+	CacheConfigOpts   []cache.ConfigOpt
+	RestFallbackFlags cache.RestFallbackFlags
 
 	MemberChunkingManager MemberChunkingManager
 	MemberChunkingFilter  MemberChunkingFilter
@@ -197,6 +198,20 @@ func WithCaches(caches cache.Caches) ConfigOpt {
 func WithCacheConfigOpts(opts ...cache.ConfigOpt) ConfigOpt {
 	return func(config *config) {
 		config.CacheConfigOpts = append(config.CacheConfigOpts, opts...)
+	}
+}
+
+// WithRestFallback enables automatic REST fallback when entities are missing from the cache.
+// If called with no arguments, it enables fallback for all supported entity types (cache.RestFallbackFlagsAll).
+func WithRestFallback(flags ...cache.RestFallbackFlags) ConfigOpt {
+	return func(config *config) {
+		if len(flags) == 0 {
+			config.RestFallbackFlags = cache.RestFallbackFlagsAll
+			return
+		}
+		for _, f := range flags {
+			config.RestFallbackFlags = config.RestFallbackFlags.Add(f)
+		}
 	}
 }
 
@@ -364,6 +379,9 @@ func BuildClient(
 
 	if cfg.Caches == nil {
 		cfg.Caches = cache.New(cfg.CacheConfigOpts...)
+	}
+	if cfg.RestFallbackFlags != cache.RestFallbackFlagsNone && client.Rest != nil {
+		cfg.Caches = cache.NewRestFallbackCaches(cfg.Caches, client.Rest, cfg.RestFallbackFlags)
 	}
 	client.Caches = cfg.Caches
 
