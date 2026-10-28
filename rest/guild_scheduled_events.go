@@ -30,7 +30,7 @@ type guildScheduledEventImpl struct {
 func (s *guildScheduledEventImpl) GetGuildScheduledEvents(guildID snowflake.ID, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvents []discord.GuildScheduledEvent, err error) {
 	queryValues := discord.QueryValues{}
 	if withUserCounts {
-		queryValues["with_user_counts"] = true
+		queryValues["with_user_count"] = true
 	}
 	err = s.client.Do(GetGuildScheduledEvents.Compile(queryValues, guildID), nil, &guildScheduledEvents, opts...)
 	return
@@ -39,7 +39,7 @@ func (s *guildScheduledEventImpl) GetGuildScheduledEvents(guildID snowflake.ID, 
 func (s *guildScheduledEventImpl) GetGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
 	queryValues := discord.QueryValues{}
 	if withUserCounts {
-		queryValues["with_user_counts"] = true
+		queryValues["with_user_count"] = true
 	}
 	err = s.client.Do(GetGuildScheduledEvent.Compile(queryValues, guildID, guildScheduledEventID), nil, &guildScheduledEvent, opts...)
 	return
