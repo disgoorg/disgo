@@ -13,8 +13,8 @@ func NewGuildScheduledEvents(client Client) GuildScheduledEvents {
 }
 
 type GuildScheduledEvents interface {
-	GetGuildScheduledEvents(guildID snowflake.ID, withUserCounts bool, opts ...RequestOpt) ([]discord.GuildScheduledEvent, error)
-	GetGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withUserCounts bool, opts ...RequestOpt) (*discord.GuildScheduledEvent, error)
+	GetGuildScheduledEvents(guildID snowflake.ID, withUserCount bool, opts ...RequestOpt) ([]discord.GuildScheduledEvent, error)
+	GetGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withUserCount bool, opts ...RequestOpt) (*discord.GuildScheduledEvent, error)
 	CreateGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventCreate discord.GuildScheduledEventCreate, opts ...RequestOpt) (*discord.GuildScheduledEvent, error)
 	UpdateGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...RequestOpt) (*discord.GuildScheduledEvent, error)
 	DeleteGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...RequestOpt) error
@@ -27,18 +27,18 @@ type guildScheduledEventImpl struct {
 	client Client
 }
 
-func (s *guildScheduledEventImpl) GetGuildScheduledEvents(guildID snowflake.ID, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvents []discord.GuildScheduledEvent, err error) {
+func (s *guildScheduledEventImpl) GetGuildScheduledEvents(guildID snowflake.ID, withUserCount bool, opts ...RequestOpt) (guildScheduledEvents []discord.GuildScheduledEvent, err error) {
 	queryValues := discord.QueryValues{}
-	if withUserCounts {
+	if withUserCount {
 		queryValues["with_user_count"] = true
 	}
 	err = s.client.Do(GetGuildScheduledEvents.Compile(queryValues, guildID), nil, &guildScheduledEvents, opts...)
 	return
 }
 
-func (s *guildScheduledEventImpl) GetGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
+func (s *guildScheduledEventImpl) GetGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withUserCount bool, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
 	queryValues := discord.QueryValues{}
-	if withUserCounts {
+	if withUserCount {
 		queryValues["with_user_count"] = true
 	}
 	err = s.client.Do(GetGuildScheduledEvent.Compile(queryValues, guildID, guildScheduledEventID), nil, &guildScheduledEvent, opts...)
