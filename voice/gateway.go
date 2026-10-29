@@ -150,7 +150,7 @@ func (g *gatewayImpl) startHeartbeat(interval time.Duration) {
 	if prevCancel != nil {
 		prevCancel()
 	}
-	go g.heartbeat(ctx.Done(), interval)
+	go g.heartbeat(ctx, interval)
 }
 
 func (g *gatewayImpl) cancelHeartbeat() {
@@ -473,14 +473,14 @@ func (g *gatewayImpl) reconnect() {
 	}
 }
 
-func (g *gatewayImpl) heartbeat(stop <-chan struct{}, interval time.Duration) {
+func (g *gatewayImpl) heartbeat(ctx context.Context, interval time.Duration) {
 	defer g.config.Logger.Debug("exiting voice heartbeat goroutine")
 
 	// Send heartbeats periodically every `heartbeat_interval`
 	heartbeatTicker := time.NewTicker(interval)
 	for {
 		select {
-		case <-stop:
+		case <-ctx.Done():
 			return
 
 		case <-heartbeatTicker.C:
