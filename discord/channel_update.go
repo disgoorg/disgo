@@ -25,6 +25,7 @@ type GuildTextChannelUpdate struct {
 	ParentID                      *snowflake.ID          `json:"parent_id,omitempty"`
 	DefaultAutoArchiveDuration    *AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
 	DefaultThreadRateLimitPerUser *int                   `json:"default_thread_rate_limit_per_user,omitempty"`
+	Flags                         *ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (GuildTextChannelUpdate) channelUpdate()      {}
@@ -41,6 +42,7 @@ type GuildVoiceChannelUpdate struct {
 	RTCRegion            *string                `json:"rtc_region,omitempty"`
 	NSFW                 *bool                  `json:"nsfw,omitempty"`
 	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode,omitempty"`
+	Flags                *ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (GuildVoiceChannelUpdate) channelUpdate()      {}
@@ -64,6 +66,7 @@ type GuildNewsChannelUpdate struct {
 	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                   *snowflake.ID          `json:"parent_id,omitempty"`
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration,omitempty"`
+	Flags                      *ChannelFlags          `json:"flags,omitempty"`
 }
 
 func (GuildNewsChannelUpdate) channelUpdate()      {}
@@ -106,7 +109,7 @@ type GuildForumChannelUpdate struct {
 	NSFW                          *bool                            `json:"nsfw,omitempty"`
 	PermissionOverwrites          *[]PermissionOverwrite           `json:"permission_overwrites,omitempty"`
 	ParentID                      *snowflake.ID                    `json:"parent_id,omitempty"`
-	RateLimitPerUser              *int                             `json:"rate_limit_per_user"`
+	RateLimitPerUser              *int                             `json:"rate_limit_per_user,omitempty"`
 	AvailableTags                 *[]ChannelTag                    `json:"available_tags,omitempty"`
 	Flags                         *ChannelFlags                    `json:"flags,omitempty"`
 	DefaultReactionEmoji          omit.Omit[*DefaultReactionEmoji] `json:"default_reaction_emoji,omitzero"`
@@ -125,7 +128,7 @@ type GuildMediaChannelUpdate struct {
 	NSFW                          *bool                            `json:"nsfw,omitempty"`
 	PermissionOverwrites          *[]PermissionOverwrite           `json:"permission_overwrites,omitempty"`
 	ParentID                      *snowflake.ID                    `json:"parent_id,omitempty"`
-	RateLimitPerUser              *int                             `json:"rate_limit_per_user"`
+	RateLimitPerUser              *int                             `json:"rate_limit_per_user,omitempty"`
 	AvailableTags                 *[]ChannelTag                    `json:"available_tags,omitempty"`
 	Flags                         *ChannelFlags                    `json:"flags,omitempty"`
 	DefaultReactionEmoji          omit.Omit[*DefaultReactionEmoji] `json:"default_reaction_emoji,omitzero"`

@@ -153,4 +153,5 @@ func (s *defaultAudioSender) handleErr(err error) {
 
 func (s *defaultAudioSender) Close() {
 	s.cancelFunc()
+	s.opusProvider.Close()
 }

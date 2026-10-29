@@ -1,4 +1,4 @@
-module github.com/disgoorg/disgo/_examples/voice2
+module github.com/disgoorg/disgo/_examples/voice/dave_go
 
 go 1.26.0
 

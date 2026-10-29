@@ -12,10 +12,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/godave"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/kazzmir/opus-go/opus"
+	"github.com/thomas-vilte/dave-go/session"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -49,7 +49,7 @@ func main() {
 			go play(e.Client())
 		}),
 		bot.WithVoiceManagerConfigOpts(
-			voice.WithDaveSessionCreateFunc(godave.NewNoopSession),
+			voice.WithDaveSessionCreateFunc(session.CreateFunc()),
 		),
 	)
 	if err != nil {

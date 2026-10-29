@@ -48,6 +48,8 @@ type GuildCache interface {
 	IsGuildUnready(guildID snowflake.ID) bool
 	SetGuildUnready(guildID snowflake.ID, unready bool)
 	UnreadyGuildIDs() []snowflake.ID
+	// UnreadyGuildsLen returns how many guilds are still unready.
+	UnreadyGuildsLen() int
 
 	IsGuildUnavailable(guildID snowflake.ID) bool
 	SetGuildUnavailable(guildID snowflake.ID, unavailable bool)
@@ -88,6 +90,10 @@ func (c *guildCacheImpl) SetGuildUnready(guildID snowflake.ID, unready bool) {
 	} else if !c.unreadyGuilds.Has(guildID) && unready {
 		c.unreadyGuilds.Add(guildID)
 	}
+}
+
+func (c *guildCacheImpl) UnreadyGuildsLen() int {
+	return c.unreadyGuilds.Len()
 }
 
 func (c *guildCacheImpl) UnreadyGuildIDs() []snowflake.ID {
@@ -976,6 +982,10 @@ func (c *cachesImpl) MemberPermissions(member discord.Member) discord.Permission
 }
 
 func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
+	if channel.Flags().Has(discord.ChannelFlagObfuscated) {
+		return discord.PermissionsNone
+	}
+
 	permissions := c.MemberPermissions(member)
 	if permissions.Has(discord.PermissionAdministrator) {
 		return discord.PermissionsAll
@@ -1002,13 +1012,13 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 		}
 	}
 
-	if overwrite, ok := channel.PermissionOverwrites().Member(member.User.ID); ok {
-		allow |= overwrite.Allow
-		deny |= overwrite.Deny
-	}
-
 	permissions &= ^deny
 	permissions |= allow
+
+	if overwrite, ok := channel.PermissionOverwrites().Member(member.User.ID); ok {
+		permissions &= ^overwrite.Deny
+		permissions |= overwrite.Allow
+	}
 
 	if member.CommunicationDisabledUntil != nil && member.CommunicationDisabledUntil.After(time.Now()) {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory

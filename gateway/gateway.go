@@ -163,7 +163,23 @@ func New(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gat
 		eventHandlerFunc: eventHandlerFunc,
 		token:            token,
 		status:           StatusUnconnected,
+		session: session{
+			id:        cfg.SessionID,
+			sequence:  cfg.LastSequenceReceived,
+			resumeURL: cfg.ResumeURL,
+		},
 	}
+}
+
+// session holds the state required to resume a gateway session. Empty values mean there is nothing to resume.
+type session struct {
+	id        string
+	sequence  int
+	resumeURL string
+}
+
+func (s session) canResume() bool {
+	return s.id != "" && s.sequence != 0
 }
 
 type gatewayImpl struct {
@@ -176,6 +192,8 @@ type gatewayImpl struct {
 	heartbeatCancel context.CancelFunc
 	status          Status
 	statusMu        sync.Mutex
+	session         session
+	sessionMu       sync.Mutex
 
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
@@ -191,15 +209,39 @@ func (g *gatewayImpl) ShardCount() int {
 }
 
 func (g *gatewayImpl) SessionID() *string {
-	return g.config.SessionID
+	s := g.getSession()
+	if s.id == "" {
+		return nil
+	}
+	return &s.id
 }
 
 func (g *gatewayImpl) LastSequenceReceived() *int {
-	return g.config.LastSequenceReceived
+	s := g.getSession()
+	if s.sequence == 0 {
+		return nil
+	}
+	return &s.sequence
 }
 
 func (g *gatewayImpl) ResumeURL() *string {
-	return g.config.ResumeURL
+	s := g.getSession()
+	if s.resumeURL == "" {
+		return nil
+	}
+	return &s.resumeURL
+}
+
+func (g *gatewayImpl) getSession() session {
+	g.sessionMu.Lock()
+	defer g.sessionMu.Unlock()
+	return g.session
+}
+
+func (g *gatewayImpl) clearSession() {
+	g.sessionMu.Lock()
+	defer g.sessionMu.Unlock()
+	g.session = session{}
 }
 
 func (g *gatewayImpl) Intents() Intents {
@@ -222,7 +264,8 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusConnecting
 	g.statusMu.Unlock()
 
-	if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
+	s := g.getSession()
+	if !s.canResume() {
 		if err := g.config.IdentifyRateLimiter.Wait(ctx, g.config.ShardID); err != nil {
 			g.config.Logger.ErrorContext(ctx, "failed to wait for identify rate limiter", slog.Any("err", err))
 			g.connMu.Unlock()
@@ -232,8 +275,8 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	}
 
 	wsURL := g.config.URL
-	if g.config.ResumeURL != nil && g.config.EnableResumeURL {
-		wsURL = *g.config.ResumeURL
+	if s.resumeURL != "" && g.config.EnableResumeURL {
+		wsURL = s.resumeURL
 	}
 
 	values := url.Values{}
@@ -332,9 +375,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
-			g.config.SessionID = nil
-			g.config.ResumeURL = nil
-			g.config.LastSequenceReceived = nil
+			g.clearSession()
 		}
 	}
 	g.statusMu.Lock()
@@ -478,10 +519,7 @@ func (g *gatewayImpl) heartbeat() {
 func (g *gatewayImpl) sendHeartbeat() {
 	g.config.Logger.Debug("sending heartbeat")
 
-	sequence := 0
-	if g.config.LastSequenceReceived != nil {
-		sequence = *g.config.LastSequenceReceived
-	}
+	sequence := g.getSession().sequence
 
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
@@ -517,6 +555,7 @@ func (g *gatewayImpl) identify() error {
 		Intents:        g.config.Intents,
 		Presence:       g.config.Presence,
 		Shard:          &[2]int{g.ShardID(), g.ShardCount()},
+		Capabilities:   g.config.Capabilities,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -535,10 +574,11 @@ func (g *gatewayImpl) resume() error {
 	g.statusMu.Lock()
 	g.status = StatusResuming
 	g.statusMu.Unlock()
+	s := g.getSession()
 	resume := MessageDataResume{
 		Token:     g.token,
-		SessionID: *g.config.SessionID,
-		Seq:       *g.config.LastSequenceReceived,
+		SessionID: s.id,
+		Seq:       s.sequence,
 	}
 	g.config.Logger.Debug("sending Resume command")
 
@@ -582,9 +622,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 				reconnect = closeCode.Reconnect
 
 				if closeCode == CloseEventCodeInvalidSeq {
-					g.config.LastSequenceReceived = nil
-					g.config.SessionID = nil
-					g.config.ResumeURL = nil
+					g.clearSession()
 				}
 				msg := "gateway close received"
 				args := []any{
@@ -626,10 +664,10 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			g.heartbeatInterval = time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
 			go g.heartbeat()
 
-			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
-				err = g.identify()
-			} else {
+			if g.getSession().canResume() {
 				err = g.resume()
+			} else {
+				err = g.identify()
 			}
 			if err != nil {
 				ready(err)
@@ -638,7 +676,9 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 
 		case OpcodeDispatch:
 			// set last sequence received
-			g.config.LastSequenceReceived = &message.S
+			g.sessionMu.Lock()
+			g.session.sequence = message.S
+			g.sessionMu.Unlock()
 
 			eventData, ok := message.D.(EventData)
 			if !ok && message.D != nil {
@@ -647,15 +687,17 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			}
 
 			if readyEvent, ok := eventData.(EventReady); ok {
-				g.config.SessionID = &readyEvent.SessionID
-				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
-				g.config.Logger.Debug("successfully identified", slog.String("session_id", *g.config.SessionID))
+				g.sessionMu.Lock()
+				g.session.id = readyEvent.SessionID
+				g.session.resumeURL = readyEvent.ResumeGatewayURL
+				g.sessionMu.Unlock()
+				g.config.Logger.Debug("successfully identified", slog.String("session_id", readyEvent.SessionID))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
 				ready(nil)
 			} else if _, ok = eventData.(EventResumed); ok {
-				g.config.Logger.Debug("successfully resumed", slog.String("session_id", *g.config.SessionID))
+				g.config.Logger.Debug("successfully resumed", slog.String("session_id", g.getSession().id))
 				g.statusMu.Lock()
 				g.status = StatusReady
 				g.statusMu.Unlock()
@@ -706,10 +748,7 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			if canResume {
 				code = websocket.CloseServiceRestart
 			} else {
-				// clear resume info
-				g.config.SessionID = nil
-				g.config.LastSequenceReceived = nil
-				g.config.ResumeURL = nil
+				g.clearSession()
 			}
 
 			g.config.Logger.Warn("received invalid session", slog.Bool("can_resume", bool(canResume)))

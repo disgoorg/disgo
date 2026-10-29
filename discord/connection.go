@@ -15,7 +15,8 @@ type Connection struct {
 type ConnectionType string
 
 const (
-	ConnectionTypeAmazonMusic        ConnectionType = "amazon-music"
+	ConnectionTypeAmazonMusic ConnectionType = "amazon-music"
+	// Deprecated: will be removed permanently on 2026-09-22.
 	ConnectionTypeBattleNet          ConnectionType = "battlenet"
 	ConnectionTypeBluesky            ConnectionType = "bluesky"
 	ConnectionTypeBungie             ConnectionType = "bungie"

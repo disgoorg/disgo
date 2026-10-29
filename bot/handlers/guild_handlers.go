@@ -79,7 +79,7 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 			GenericGuild: genericGuildEvent,
 			Guild:        event.CacheGuild,
 		})
-		if len(client.Caches.UnreadyGuildIDs()) == 0 {
+		if client.Caches.UnreadyGuildsLen() == 0 {
 			client.EventManager.DispatchEvent(&events.GuildsReady{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			})

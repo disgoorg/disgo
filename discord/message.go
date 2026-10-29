@@ -96,28 +96,29 @@ func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflak
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID                   snowflake.ID          `json:"id"`
-	GuildID              *snowflake.ID         `json:"guild_id"`
-	Reactions            []MessageReaction     `json:"reactions"`
-	Attachments          []Attachment          `json:"attachments"`
-	TTS                  bool                  `json:"tts"`
-	Embeds               []Embed               `json:"embeds,omitempty"`
-	Components           []LayoutComponent     `json:"components,omitempty"`
-	CreatedAt            time.Time             `json:"timestamp"`
-	Mentions             []User                `json:"mentions"`
-	MentionEveryone      bool                  `json:"mention_everyone"`
-	MentionRoles         []snowflake.ID        `json:"mention_roles"`
-	MentionChannels      []MentionChannel      `json:"mention_channels"`
-	Pinned               bool                  `json:"pinned"`
-	EditedTimestamp      *time.Time            `json:"edited_timestamp"`
-	Author               User                  `json:"author"`
-	Member               *Member               `json:"member"`
-	Content              string                `json:"content,omitempty"`
-	ChannelID            snowflake.ID          `json:"channel_id"`
-	Type                 MessageType           `json:"type"`
-	Flags                MessageFlags          `json:"flags"`
-	MessageReference     *MessageReference     `json:"message_reference,omitempty"`
-	MessageSnapshots     []MessageSnapshot     `json:"message_snapshots,omitempty"`
+	ID               snowflake.ID      `json:"id"`
+	GuildID          *snowflake.ID     `json:"guild_id"`
+	Reactions        []MessageReaction `json:"reactions"`
+	Attachments      []Attachment      `json:"attachments"`
+	TTS              bool              `json:"tts"`
+	Embeds           []Embed           `json:"embeds,omitempty"`
+	Components       []LayoutComponent `json:"components,omitempty"`
+	CreatedAt        time.Time         `json:"timestamp"`
+	Mentions         []User            `json:"mentions"`
+	MentionEveryone  bool              `json:"mention_everyone"`
+	MentionRoles     []snowflake.ID    `json:"mention_roles"`
+	MentionChannels  []MentionChannel  `json:"mention_channels"`
+	Pinned           bool              `json:"pinned"`
+	EditedTimestamp  *time.Time        `json:"edited_timestamp"`
+	Author           User              `json:"author"`
+	Member           *Member           `json:"member"`
+	Content          string            `json:"content,omitempty"`
+	ChannelID        snowflake.ID      `json:"channel_id"`
+	Type             MessageType       `json:"type"`
+	Flags            MessageFlags      `json:"flags"`
+	MessageReference *MessageReference `json:"message_reference,omitempty"`
+	MessageSnapshots []MessageSnapshot `json:"message_snapshots,omitempty"`
+	// Deprecated: use InteractionMetadata instead.
 	Interaction          *MessageInteraction   `json:"interaction,omitempty"`
 	WebhookID            *snowflake.ID         `json:"webhook_id,omitempty"`
 	Activity             *MessageActivity      `json:"activity,omitempty"`

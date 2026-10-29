@@ -71,11 +71,13 @@ func (r *Mux) OnEvent(event bot.Event) {
 		ctx = context.Background()
 	}
 
+	ic := *e
 	ie := &InteractionEvent{
-		InteractionCreate: e,
+		InteractionCreate: &ic,
 		Ctx:               ctx,
 		Vars:              make(map[string]string),
 	}
+	ic.Respond = wrapRespond(e.Respond, &ie.Ctx)
 	if err := r.Handle(path, ie); err != nil {
 		if r.errorHandler != nil {
 			r.errorHandler(ie, err)
@@ -320,7 +322,8 @@ func (r *Mux) Error(h ErrorHandler) {
 }
 
 // DefaultContext sets the default context for this router.
-// This context will be used for all interaction events.
+// This context is attached to each interaction event for the entire handler execution
+// and is used by default for all interaction response and follow-up REST calls on the event.
 func (r *Mux) DefaultContext(ctx func() context.Context) {
 	r.defaultContext = ctx
 }
