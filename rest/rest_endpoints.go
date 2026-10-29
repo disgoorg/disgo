@@ -293,14 +293,14 @@ var (
 	UpdateCurrentApplication = NewEndpoint(http.MethodPatch, "/applications/@me")
 
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
-	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
+	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands/{command.id}")
 	CreateGlobalCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/commands")
 	SetGlobalCommands   = NewEndpoint(http.MethodPut, "/applications/{application.id}/commands")
 	UpdateGlobalCommand = NewEndpoint(http.MethodPatch, "/applications/{application.id}/commands/{command.id}")
 	DeleteGlobalCommand = NewEndpoint(http.MethodDelete, "/applications/{application.id}/commands/{command.id}")
 
 	GetGuildCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands")
-	GetGuildCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/command/{command.id}")
+	GetGuildCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
 	CreateGuildCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/guilds/{guild.id}/commands")
 	SetGuildCommands   = NewEndpoint(http.MethodPut, "/applications/{application.id}/guilds/{guild.id}/commands")
 	UpdateGuildCommand = NewEndpoint(http.MethodPatch, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")

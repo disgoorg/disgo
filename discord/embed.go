@@ -75,7 +75,10 @@ type EmbedFlags int
 
 const (
 	EmbedFlagsNone                   EmbedFlags = 0
+	EmbedFlagContainsExplicitContent EmbedFlags = 1 << 4
 	EmbedFlagIsContentInventoryEntry EmbedFlags = 1 << 5
+	EmbedFlagContainsGoreContent     EmbedFlags = 1 << 6
+	EmbedFlagContainsSelfHarmContent EmbedFlags = 1 << 7
 )
 
 // WithTitle Withs the title of the Embed
