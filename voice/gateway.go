@@ -488,14 +488,18 @@ func (g *gatewayImpl) heartbeat(ctx context.Context, interval time.Duration) {
 			if lastHeartbeatSent.After(lastHeartbeatReceived) {
 				lastHeartbeatAgo := time.Since(lastHeartbeatReceived)
 				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("last_heartbeat_ago", lastHeartbeatAgo))
-				g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat ACK not received")
-				go g.reconnect()
+				g.closeAndReconnect("heartbeat ACK not received")
 				return
 			}
 
 			g.sendHeartbeat(interval)
 		}
 	}
+}
+
+func (g *gatewayImpl) closeAndReconnect(reason string) {
+	g.CloseWithCode(websocket.CloseServiceRestart, reason)
+	go g.reconnect()
 }
 
 func (g *gatewayImpl) sendHeartbeat(timeout time.Duration) {
@@ -514,8 +518,7 @@ func (g *gatewayImpl) sendHeartbeat(timeout time.Duration) {
 			return
 		}
 		g.config.Logger.Error("failed to send heartbeat", slog.Any("err", err))
-		g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat timeout")
-		go g.reconnect()
+		g.closeAndReconnect("heartbeat timeout")
 		return
 	}
 	g.setLastHeartbeatSent(time.Now())
