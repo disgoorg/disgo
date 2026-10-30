@@ -55,6 +55,9 @@ var (
 	UpdateGuild       = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}")
 	GetGuildVanityURL = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/vanity-url")
 
+	GetGuildMemberPermissions = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/permissions/member/{user.id}")
+	GetGuildRolePermissions   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/permissions/role/{role.id}")
+
 	CreateGuildChannel     = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/channels")
 	GetGuildChannels       = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/channels")
 	UpdateChannelPositions = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/channels")
@@ -179,6 +182,9 @@ var (
 
 	UpdatePermissionOverwrite = NewEndpoint(http.MethodPut, "/channels/{channel.id}/permissions/{overwrite.id}")
 	DeletePermissionOverwrite = NewEndpoint(http.MethodDelete, "/channels/{channel.id}/permissions/{overwrite.id}")
+
+	GetChannelMemberPermissions = NewEndpoint(http.MethodGet, "/channels/{channel.id}/permissions/member/{user.id}")
+	GetChannelRolePermissions   = NewEndpoint(http.MethodGet, "/channels/{channel.id}/permissions/role/{role.id}")
 
 	SendTyping    = NewEndpoint(http.MethodPost, "/channels/{channel.id}/typing")
 	FollowChannel = NewEndpoint(http.MethodPost, "/channels/{channel.id}/followers")
