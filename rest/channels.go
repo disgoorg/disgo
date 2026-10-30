@@ -25,8 +25,8 @@ type Channels interface {
 	UpdatePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, permissionOverwrite discord.PermissionOverwriteUpdate, opts ...RequestOpt) error
 	DeletePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) error
 
-	GetChannelMemberPermissions(channelID snowflake.ID, userID snowflake.ID, withImplicit bool, opts ...RequestOpt) (discord.Permissions, error)
-	GetChannelRolePermissions(channelID snowflake.ID, roleID snowflake.ID, withImplicit bool, opts ...RequestOpt) (discord.Permissions, error)
+	GetChannelMemberPermissions(channelID snowflake.ID, userID snowflake.ID, implicit bool, opts ...RequestOpt) (discord.Permissions, error)
+	GetChannelRolePermissions(channelID snowflake.ID, roleID snowflake.ID, implicit bool, opts ...RequestOpt) (discord.Permissions, error)
 
 	SendTyping(channelID snowflake.ID, opts ...RequestOpt) error
 
@@ -112,9 +112,9 @@ func (s *channelImpl) DeletePermissionOverwrite(channelID snowflake.ID, overwrit
 	return s.client.Do(DeletePermissionOverwrite.Compile(nil, channelID, overwriteID), nil, nil, opts...)
 }
 
-func (s *channelImpl) GetChannelMemberPermissions(channelID snowflake.ID, userID snowflake.ID, withImplicit bool, opts ...RequestOpt) (permissions discord.Permissions, err error) {
+func (s *channelImpl) GetChannelMemberPermissions(channelID snowflake.ID, userID snowflake.ID, implicit bool, opts ...RequestOpt) (permissions discord.Permissions, err error) {
 	values := discord.QueryValues{
-		"implicit": withImplicit,
+		"implicit": implicit,
 	}
 	var rs permissionsResponse
 	err = s.client.Do(GetChannelMemberPermissions.Compile(values, channelID, userID), nil, &rs, opts...)
@@ -124,9 +124,9 @@ func (s *channelImpl) GetChannelMemberPermissions(channelID snowflake.ID, userID
 	return
 }
 
-func (s *channelImpl) GetChannelRolePermissions(channelID snowflake.ID, roleID snowflake.ID, withImplicit bool, opts ...RequestOpt) (permissions discord.Permissions, err error) {
+func (s *channelImpl) GetChannelRolePermissions(channelID snowflake.ID, roleID snowflake.ID, implicit bool, opts ...RequestOpt) (permissions discord.Permissions, err error) {
 	values := discord.QueryValues{
-		"implicit": withImplicit,
+		"implicit": implicit,
 	}
 	var rs permissionsResponse
 	err = s.client.Do(GetChannelRolePermissions.Compile(values, channelID, roleID), nil, &rs, opts...)
