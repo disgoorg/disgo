@@ -25,6 +25,9 @@ type Channels interface {
 	UpdatePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, permissionOverwrite discord.PermissionOverwriteUpdate, opts ...RequestOpt) error
 	DeletePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) error
 
+	GetChannelMemberPermissions(channelID snowflake.ID, userID snowflake.ID, implicit bool, opts ...RequestOpt) (discord.Permissions, error)
+	GetChannelRolePermissions(channelID snowflake.ID, roleID snowflake.ID, implicit bool, opts ...RequestOpt) (discord.Permissions, error)
+
 	SendTyping(channelID snowflake.ID, opts ...RequestOpt) error
 
 	GetMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
@@ -107,6 +110,30 @@ func (s *channelImpl) UpdatePermissionOverwrite(channelID snowflake.ID, overwrit
 
 func (s *channelImpl) DeletePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeletePermissionOverwrite.Compile(nil, channelID, overwriteID), nil, nil, opts...)
+}
+
+func (s *channelImpl) GetChannelMemberPermissions(channelID snowflake.ID, userID snowflake.ID, implicit bool, opts ...RequestOpt) (permissions discord.Permissions, err error) {
+	values := discord.QueryValues{
+		"implicit": implicit,
+	}
+	var rs permissionsResponse
+	err = s.client.Do(GetChannelMemberPermissions.Compile(values, channelID, userID), nil, &rs, opts...)
+	if err == nil {
+		permissions = rs.Permissions
+	}
+	return
+}
+
+func (s *channelImpl) GetChannelRolePermissions(channelID snowflake.ID, roleID snowflake.ID, implicit bool, opts ...RequestOpt) (permissions discord.Permissions, err error) {
+	values := discord.QueryValues{
+		"implicit": implicit,
+	}
+	var rs permissionsResponse
+	err = s.client.Do(GetChannelRolePermissions.Compile(values, channelID, roleID), nil, &rs, opts...)
+	if err == nil {
+		permissions = rs.Permissions
+	}
+	return
 }
 
 func (s *channelImpl) SendTyping(channelID snowflake.ID, opts ...RequestOpt) error {

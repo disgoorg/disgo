@@ -35,6 +35,9 @@ type Guilds interface {
 	DeleteRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 	GetRoleMemberCounts(guildID snowflake.ID, opts ...RequestOpt) (map[snowflake.ID]int, error)
 
+	GetGuildMemberPermissions(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (discord.Permissions, error)
+	GetGuildRolePermissions(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (discord.Permissions, error)
+
 	GetBans(guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.Ban, error)
 	GetBansPage(guildID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Ban]
 	GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.Ban, error)
@@ -168,6 +171,24 @@ func (s *guildImpl) DeleteRole(guildID snowflake.ID, roleID snowflake.ID, opts .
 
 func (s *guildImpl) GetRoleMemberCounts(guildID snowflake.ID, opts ...RequestOpt) (memberCounts map[snowflake.ID]int, err error) {
 	err = s.client.Do(GetRoleMemberCounts.Compile(nil, guildID), nil, &memberCounts, opts...)
+	return
+}
+
+func (s *guildImpl) GetGuildMemberPermissions(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (permissions discord.Permissions, err error) {
+	var rs permissionsResponse
+	err = s.client.Do(GetGuildMemberPermissions.Compile(nil, guildID, userID), nil, &rs, opts...)
+	if err == nil {
+		permissions = rs.Permissions
+	}
+	return
+}
+
+func (s *guildImpl) GetGuildRolePermissions(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (permissions discord.Permissions, err error) {
+	var rs permissionsResponse
+	err = s.client.Do(GetGuildRolePermissions.Compile(nil, guildID, roleID), nil, &rs, opts...)
+	if err == nil {
+		permissions = rs.Permissions
+	}
 	return
 }
 
@@ -349,4 +370,8 @@ func (s *guildImpl) SearchGuildMessages(ctx context.Context, guildID snowflake.I
 		case <-time.After(retryAfter):
 		}
 	}
+}
+
+type permissionsResponse struct {
+	Permissions discord.Permissions `json:"permissions"`
 }
