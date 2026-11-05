@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"bytes"
+	"reflect"
 	"testing"
 
 	"github.com/disgoorg/json/v2"
@@ -137,59 +139,89 @@ func TestApplicationCommandPermissions_UnknownType(t *testing.T) {
 	}
 }
 
+func TestUnmarshalApplicationCommand_UnknownOptionType(t *testing.T) {
+	var v UnmarshalApplicationCommand
+	if err := json.Unmarshal([]byte(`{"id":"1","type":1,"name":"cmd","options":[{"type":99,"name":"opt","description":"new"}]}`), &v); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	cmd, ok := v.ApplicationCommand.(SlashCommand)
+	if !ok || len(cmd.Options) != 1 {
+		t.Fatalf("expected SlashCommand with 1 option, got %#v", v.ApplicationCommand)
+	}
+	o, ok := cmd.Options[0].(UnknownApplicationCommandOption)
+	if !ok {
+		t.Fatalf("expected UnknownApplicationCommandOption, got %T", cmd.Options[0])
+	}
+	if o.Type() != 99 || o.OptionName() != "opt" || o.OptionDescription() != "new" {
+		t.Errorf("unexpected option: %+v", o)
+	}
+}
+
 func TestUnknownTypes_MarshalJSONKeepsPayload(t *testing.T) {
+	// A nested object and an integer above 2^53 catch merges that rebuild or float-convert fields.
+	const extra = `"nested":{"a":1,"b":[true]},"big":12345678901234567891`
+
 	tests := []struct {
 		name   string
 		data   string
 		decode func([]byte) (json.Marshaler, error)
-		want   map[string]any
+		want   string
 	}{
 		{
 			name: "channel",
-			data: `{"id":"1","type":99,"new_field":"kept"}`,
+			data: `{"id":"1","type":99,` + extra + `}`,
 			decode: func(data []byte) (json.Marshaler, error) {
 				var v UnmarshalChannel
-				err := json.Unmarshal(data, &v)
-				if err != nil {
+				if err := json.Unmarshal(data, &v); err != nil {
 					return nil, err
 				}
 				return ApplyGuildIDToChannel(v.Channel.(GuildChannel), 2), nil
 			},
-			want: map[string]any{"id": "1", "type": float64(99), "guild_id": "2", "new_field": "kept"},
+			want: `{"id":"1","type":99,"guild_id":"2",` + extra + `}`,
 		},
 		{
 			name: "webhook",
-			data: `{"id":"1","type":99,"name":"hook","new_field":"kept"}`,
+			data: `{"id":"1","type":99,` + extra + `}`,
 			decode: func(data []byte) (json.Marshaler, error) {
 				var v UnmarshalWebhook
 				err := json.Unmarshal(data, &v)
 				return v.Webhook, err
 			},
-			want: map[string]any{"id": "1", "type": float64(99), "name": "hook", "new_field": "kept"},
 		},
 		{
 			name: "integration",
-			data: `{"id":"1","type":"new_kind","new_field":"kept"}`,
+			data: `{"id":"1","type":"new_kind","account":{"id":"a","extra":1},` + extra + `}`,
 			decode: func(data []byte) (json.Marshaler, error) {
 				var v UnmarshalIntegration
 				err := json.Unmarshal(data, &v)
 				return v.Integration, err
 			},
-			want: map[string]any{"id": "1", "type": "new_kind", "new_field": "kept"},
 		},
 		{
 			name: "application command",
-			data: `{"id":"1","type":99,"name":"launch","new_field":"kept"}`,
+			data: `{"id":"1","type":99,` + extra + `}`,
 			decode: func(data []byte) (json.Marshaler, error) {
 				var v UnmarshalApplicationCommand
 				err := json.Unmarshal(data, &v)
 				return v.ApplicationCommand, err
 			},
-			want: map[string]any{"id": "1", "type": float64(99), "name": "launch", "new_field": "kept"},
+		},
+		{
+			name: "application command option",
+			data: `{"type":99,"name":"opt",` + extra + `}`,
+			decode: func(data []byte) (json.Marshaler, error) {
+				var v UnmarshalApplicationCommandOption
+				err := json.Unmarshal(data, &v)
+				return v.ApplicationCommandOption, err
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			want := tt.want
+			if want == "" {
+				want = tt.data
+			}
 			v, err := tt.decode([]byte(tt.data))
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
@@ -198,15 +230,20 @@ func TestUnknownTypes_MarshalJSONKeepsPayload(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
-			var out map[string]any
-			if err = json.Unmarshal(data, &out); err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
-			for k, want := range tt.want {
-				if out[k] != want {
-					t.Errorf("%s: expected %v, got %v in %s", k, want, out[k], data)
-				}
+			if got, exp := decodeNumbers(t, data), decodeNumbers(t, []byte(want)); !reflect.DeepEqual(got, exp) {
+				t.Errorf("expected %s, got %s", want, data)
 			}
 		})
 	}
+}
+
+func decodeNumbers(t *testing.T, data []byte) map[string]any {
+	t.Helper()
+	d := json.NewDecoder(bytes.NewReader(data))
+	d.UseNumber()
+	var out map[string]any
+	if err := d.Decode(&out); err != nil {
+		t.Fatalf("unexpected error decoding %s: %v", data, err)
+	}
+	return out
 }

@@ -1459,7 +1459,7 @@ var (
 )
 
 // UnknownChannel is a Channel with a type the library does not recognize yet.
-// It exposes the fields most channel types share, and Data holds the full payload.
+// It exposes the fields most channel types share. Data holds the full payload, and MarshalJSON returns it.
 type UnknownChannel struct {
 	id                   snowflake.ID
 	channelType          ChannelType
@@ -1508,19 +1508,32 @@ func (c *UnknownChannel) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON returns Data, with guild_id set when it was applied after decoding.
 func (c UnknownChannel) MarshalJSON() ([]byte, error) {
-	data, err := json.Marshal(struct {
-		ID      snowflake.ID `json:"id"`
-		Type    ChannelType  `json:"type"`
-		GuildID snowflake.ID `json:"guild_id,omitempty"`
-	}{
-		ID:      c.id,
-		Type:    c.channelType,
-		GuildID: c.guildID,
-	})
-	if err != nil || len(c.Data) == 0 {
-		return data, err
+	if len(c.Data) == 0 {
+		return json.Marshal(struct {
+			ID      snowflake.ID `json:"id"`
+			Type    ChannelType  `json:"type"`
+			GuildID snowflake.ID `json:"guild_id,omitempty"`
+		}{
+			ID:      c.id,
+			Type:    c.channelType,
+			GuildID: c.guildID,
+		})
 	}
-	return json.Merge(c.Data, data)
+	if c.guildID == 0 {
+		return c.Data, nil
+	}
+
+	// Raw values rather than json.Merge, which would turn every number into a float64.
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(c.Data, &fields); err != nil {
+		return nil, err
+	}
+	guildID, err := json.Marshal(c.guildID)
+	if err != nil {
+		return nil, err
+	}
+	fields["guild_id"] = guildID
+	return json.Marshal(fields)
 }
 
 func (c UnknownChannel) String() string {

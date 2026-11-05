@@ -243,7 +243,7 @@ func (i GuildSubscriptionIntegration) CreatedAt() time.Time {
 }
 
 // UnknownIntegration is an Integration with a type the library does not recognize yet.
-// Data holds the full payload.
+// Data holds the full payload, and MarshalJSON returns it when set.
 type UnknownIntegration struct {
 	IntegrationType IntegrationType    `json:"type"`
 	IntegrationID   snowflake.ID       `json:"id"`
@@ -265,12 +265,11 @@ func (i *UnknownIntegration) UnmarshalJSON(data []byte) error {
 }
 
 func (i UnknownIntegration) MarshalJSON() ([]byte, error) {
-	type unknownIntegration UnknownIntegration
-	data, err := json.Marshal(unknownIntegration(i))
-	if err != nil || len(i.Data) == 0 {
-		return data, err
+	if len(i.Data) > 0 {
+		return i.Data, nil
 	}
-	return json.Merge(i.Data, data)
+	type unknownIntegration UnknownIntegration
+	return json.Marshal(unknownIntegration(i))
 }
 
 func (i UnknownIntegration) Type() IntegrationType {

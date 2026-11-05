@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"fmt"
+	"slices"
 
 	"github.com/disgoorg/json/v2"
 )
@@ -107,7 +107,9 @@ func (u *UnmarshalApplicationCommandOption) UnmarshalJSON(data []byte) error {
 		applicationCommandOption = v
 
 	default:
-		err = fmt.Errorf("unknown application command option with type %d received", oType.Type)
+		var v UnknownApplicationCommandOption
+		err = json.Unmarshal(data, &v)
+		applicationCommandOption = v
 	}
 
 	if err != nil {
@@ -572,4 +574,47 @@ func (o ApplicationCommandOptionAttachment) OptionDescription() string {
 func (ApplicationCommandOptionAttachment) applicationCommandOption() {}
 func (ApplicationCommandOptionAttachment) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeAttachment
+}
+
+var _ ApplicationCommandOption = (*UnknownApplicationCommandOption)(nil)
+
+// UnknownApplicationCommandOption is an ApplicationCommandOption with a type the library does not recognize yet.
+// Data holds the full payload, and MarshalJSON returns it when set.
+type UnknownApplicationCommandOption struct {
+	OptionType  ApplicationCommandOptionType `json:"type"`
+	Name        string                       `json:"name"`
+	Description string                       `json:"description"`
+	Data        json.RawMessage              `json:"-"`
+}
+
+func (o *UnknownApplicationCommandOption) UnmarshalJSON(data []byte) error {
+	type unknownApplicationCommandOption UnknownApplicationCommandOption
+	var v unknownApplicationCommandOption
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*o = UnknownApplicationCommandOption(v)
+	o.Data = slices.Clone(data)
+	return nil
+}
+
+func (o UnknownApplicationCommandOption) MarshalJSON() ([]byte, error) {
+	if len(o.Data) > 0 {
+		return o.Data, nil
+	}
+	type unknownApplicationCommandOption UnknownApplicationCommandOption
+	return json.Marshal(unknownApplicationCommandOption(o))
+}
+
+func (o UnknownApplicationCommandOption) OptionName() string {
+	return o.Name
+}
+
+func (o UnknownApplicationCommandOption) OptionDescription() string {
+	return o.Description
+}
+
+func (UnknownApplicationCommandOption) applicationCommandOption() {}
+func (o UnknownApplicationCommandOption) Type() ApplicationCommandOptionType {
+	return o.OptionType
 }

@@ -340,7 +340,7 @@ func (ApplicationWebhook) webhook() {}
 var _ Webhook = (*UnknownWebhook)(nil)
 
 // UnknownWebhook is a Webhook with a type the library does not recognize yet.
-// Data holds the full payload.
+// Data holds the full payload, and MarshalJSON returns it when set.
 type UnknownWebhook struct {
 	id          snowflake.ID
 	webhookType WebhookType
@@ -373,8 +373,11 @@ func (w *UnknownWebhook) UnmarshalJSON(data []byte) error {
 }
 
 func (w UnknownWebhook) MarshalJSON() ([]byte, error) {
+	if len(w.Data) > 0 {
+		return w.Data, nil
+	}
 	type unknownWebhook UnknownWebhook
-	data, err := json.Marshal(struct {
+	return json.Marshal(struct {
 		ID     snowflake.ID `json:"id"`
 		Type   WebhookType  `json:"type"`
 		Name   string       `json:"name"`
@@ -387,10 +390,6 @@ func (w UnknownWebhook) MarshalJSON() ([]byte, error) {
 		Avatar:         w.avatar,
 		unknownWebhook: unknownWebhook(w),
 	})
-	if err != nil || len(w.Data) == 0 {
-		return data, err
-	}
-	return json.Merge(w.Data, data)
 }
 
 func (w UnknownWebhook) Type() WebhookType {
