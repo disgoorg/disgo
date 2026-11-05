@@ -15,7 +15,7 @@ func TestUnmarshalEventData_UnknownChannelType(t *testing.T) {
 		eventType EventType
 		data      string
 	}{
-		{EventTypeGuildCreate, `{"id":"1","channels":[` + channel + `]}`},
+		{EventTypeGuildCreate, `{"id":"1","channels":[{"id":"3","type":0,"name":"general"},` + channel + `]}`},
 		{EventTypeChannelCreate, channel},
 		{EventTypeChannelUpdate, channel},
 		{EventTypeChannelDelete, channel},
@@ -30,7 +30,10 @@ func TestUnmarshalEventData_UnknownChannelType(t *testing.T) {
 			var ch discord.GuildChannel
 			switch e := e.(type) {
 			case EventGuildCreate:
-				ch = e.Channels[0]
+				if _, ok := e.Channels[0].(discord.GuildTextChannel); !ok {
+					t.Errorf("expected GuildTextChannel, got %T", e.Channels[0])
+				}
+				ch = e.Channels[1]
 			case EventChannelCreate:
 				ch = e.GuildChannel
 			case EventChannelUpdate:

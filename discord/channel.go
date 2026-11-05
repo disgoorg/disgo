@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -1500,7 +1501,8 @@ func (c *UnknownChannel) UnmarshalJSON(data []byte) error {
 	c.lastMessageID = v.LastMessageID
 	c.lastPinTimestamp = v.LastPinTimestamp
 	c.flags = v.Flags
-	c.Data = data
+	// data aliases the caller's buffer, which for a dispatch is the whole event.
+	c.Data = slices.Clone(data)
 	return nil
 }
 

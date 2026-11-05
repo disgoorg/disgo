@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -259,7 +260,7 @@ func (i *UnknownIntegration) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*i = UnknownIntegration(v)
-	i.Data = data
+	i.Data = slices.Clone(data)
 	return nil
 }
 

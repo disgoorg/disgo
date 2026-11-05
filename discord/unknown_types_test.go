@@ -62,48 +62,6 @@ func TestUnmarshalChannel_UnknownType(t *testing.T) {
 	}
 }
 
-func TestUnknownChannel_MarshalJSON(t *testing.T) {
-	var v UnmarshalChannel
-	if err := json.Unmarshal([]byte(`{"id":"1","type":99,"new_field":"kept"}`), &v); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	c := ApplyGuildIDToChannel(v.Channel.(GuildChannel), 2)
-
-	data, err := json.Marshal(c)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	var out map[string]any
-	if err = json.Unmarshal(data, &out); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if out["new_field"] != "kept" || out["guild_id"] != "2" || out["id"] != "1" || out["type"] != float64(99) {
-		t.Errorf("unexpected json: %s", data)
-	}
-}
-
-func TestGatewayGuild_UnknownChannelType(t *testing.T) {
-	data := `{"id": "1000000000000000000", "channels": [
-		{"id": "1000000000000000005", "type": 0, "name": "general"},
-		` + unknownGuildChannelJSON + `
-	]}`
-
-	var g GatewayGuild
-	if err := json.Unmarshal([]byte(data), &g); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(g.Channels) != 2 {
-		t.Fatalf("expected 2 channels, got %d", len(g.Channels))
-	}
-	if _, ok := g.Channels[0].(GuildTextChannel); !ok {
-		t.Errorf("expected GuildTextChannel, got %T", g.Channels[0])
-	}
-	if _, ok := g.Channels[1].(UnknownChannel); !ok {
-		t.Errorf("expected UnknownChannel, got %T", g.Channels[1])
-	}
-}
-
 func TestInteractionChannel_UnknownType(t *testing.T) {
 	var c InteractionChannel
 	if err := json.Unmarshal([]byte(`{"id":"1","type":99,"permissions":"2048"}`), &c); err != nil {
@@ -128,18 +86,6 @@ func TestUnmarshalWebhook_UnknownType(t *testing.T) {
 	}
 	if w.Type() != 99 || w.ID() != 1 || w.Name() != "hook" || w.ChannelID != 2 || w.GuildID != 3 {
 		t.Errorf("unexpected webhook: %+v", w)
-	}
-
-	data, err := json.Marshal(w)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	var out map[string]any
-	if err = json.Unmarshal(data, &out); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if out["new_field"] != float64(1) || out["type"] != float64(99) {
-		t.Errorf("unexpected json: %s", data)
 	}
 }
 
@@ -188,5 +134,79 @@ func TestApplicationCommandPermissions_UnknownType(t *testing.T) {
 	}
 	if u.Type() != 99 || u.ID() != snowflake.ID(5) || u.Permission {
 		t.Errorf("unexpected permission: %+v", u)
+	}
+}
+
+func TestUnknownTypes_MarshalJSONKeepsPayload(t *testing.T) {
+	tests := []struct {
+		name   string
+		data   string
+		decode func([]byte) (json.Marshaler, error)
+		want   map[string]any
+	}{
+		{
+			name: "channel",
+			data: `{"id":"1","type":99,"new_field":"kept"}`,
+			decode: func(data []byte) (json.Marshaler, error) {
+				var v UnmarshalChannel
+				err := json.Unmarshal(data, &v)
+				if err != nil {
+					return nil, err
+				}
+				return ApplyGuildIDToChannel(v.Channel.(GuildChannel), 2), nil
+			},
+			want: map[string]any{"id": "1", "type": float64(99), "guild_id": "2", "new_field": "kept"},
+		},
+		{
+			name: "webhook",
+			data: `{"id":"1","type":99,"name":"hook","new_field":"kept"}`,
+			decode: func(data []byte) (json.Marshaler, error) {
+				var v UnmarshalWebhook
+				err := json.Unmarshal(data, &v)
+				return v.Webhook, err
+			},
+			want: map[string]any{"id": "1", "type": float64(99), "name": "hook", "new_field": "kept"},
+		},
+		{
+			name: "integration",
+			data: `{"id":"1","type":"new_kind","new_field":"kept"}`,
+			decode: func(data []byte) (json.Marshaler, error) {
+				var v UnmarshalIntegration
+				err := json.Unmarshal(data, &v)
+				return v.Integration, err
+			},
+			want: map[string]any{"id": "1", "type": "new_kind", "new_field": "kept"},
+		},
+		{
+			name: "application command",
+			data: `{"id":"1","type":99,"name":"launch","new_field":"kept"}`,
+			decode: func(data []byte) (json.Marshaler, error) {
+				var v UnmarshalApplicationCommand
+				err := json.Unmarshal(data, &v)
+				return v.ApplicationCommand, err
+			},
+			want: map[string]any{"id": "1", "type": float64(99), "name": "launch", "new_field": "kept"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v, err := tt.decode([]byte(tt.data))
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			data, err := json.Marshal(v)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			var out map[string]any
+			if err = json.Unmarshal(data, &out); err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			for k, want := range tt.want {
+				if out[k] != want {
+					t.Errorf("%s: expected %v, got %v in %s", k, want, out[k], data)
+				}
+			}
+		})
 	}
 }

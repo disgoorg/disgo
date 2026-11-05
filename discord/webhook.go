@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -345,48 +346,46 @@ type UnknownWebhook struct {
 	webhookType WebhookType
 	name        string
 	avatar      *string
-	ChannelID   snowflake.ID
-	GuildID     snowflake.ID
-	Data        json.RawMessage
+	ChannelID   snowflake.ID    `json:"channel_id,omitempty"`
+	GuildID     snowflake.ID    `json:"guild_id,omitempty"`
+	Data        json.RawMessage `json:"-"`
 }
 
 func (w *UnknownWebhook) UnmarshalJSON(data []byte) error {
+	type unknownWebhook UnknownWebhook
 	var v struct {
-		ID        snowflake.ID `json:"id"`
-		Type      WebhookType  `json:"type"`
-		Name      string       `json:"name"`
-		Avatar    *string      `json:"avatar"`
-		ChannelID snowflake.ID `json:"channel_id"`
-		GuildID   snowflake.ID `json:"guild_id"`
+		ID     snowflake.ID `json:"id"`
+		Type   WebhookType  `json:"type"`
+		Name   string       `json:"name"`
+		Avatar *string      `json:"avatar"`
+		unknownWebhook
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
+	*w = UnknownWebhook(v.unknownWebhook)
 	w.id = v.ID
 	w.webhookType = v.Type
 	w.name = v.Name
 	w.avatar = v.Avatar
-	w.ChannelID = v.ChannelID
-	w.GuildID = v.GuildID
-	w.Data = data
+	w.Data = slices.Clone(data)
 	return nil
 }
 
 func (w UnknownWebhook) MarshalJSON() ([]byte, error) {
+	type unknownWebhook UnknownWebhook
 	data, err := json.Marshal(struct {
-		ID        snowflake.ID `json:"id"`
-		Type      WebhookType  `json:"type"`
-		Name      string       `json:"name"`
-		Avatar    *string      `json:"avatar"`
-		ChannelID snowflake.ID `json:"channel_id,omitempty"`
-		GuildID   snowflake.ID `json:"guild_id,omitempty"`
+		ID     snowflake.ID `json:"id"`
+		Type   WebhookType  `json:"type"`
+		Name   string       `json:"name"`
+		Avatar *string      `json:"avatar"`
+		unknownWebhook
 	}{
-		ID:        w.id,
-		Type:      w.webhookType,
-		Name:      w.name,
-		Avatar:    w.avatar,
-		ChannelID: w.ChannelID,
-		GuildID:   w.GuildID,
+		ID:             w.id,
+		Type:           w.webhookType,
+		Name:           w.name,
+		Avatar:         w.avatar,
+		unknownWebhook: unknownWebhook(w),
 	})
 	if err != nil || len(w.Data) == 0 {
 		return data, err
@@ -411,13 +410,10 @@ func (w UnknownWebhook) Avatar() *string {
 }
 
 func (w UnknownWebhook) EffectiveAvatarURL(opts ...CDNOpt) string {
-	if w.Avatar() == nil {
-		return w.DefaultAvatarURL(opts...)
-	}
 	if avatar := w.AvatarURL(opts...); avatar != nil {
 		return *avatar
 	}
-	return ""
+	return w.DefaultAvatarURL(opts...)
 }
 
 func (w UnknownWebhook) AvatarURL(opts ...CDNOpt) *string {

@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -610,12 +611,15 @@ func (c *UnknownApplicationCommand) UnmarshalJSON(data []byte) error {
 	c.integrationTypes = v.IntegrationTypes
 	c.contexts = v.Contexts
 	c.version = v.Version
-	c.Data = data
+	c.Data = slices.Clone(data)
 	return nil
 }
 
 func (c UnknownApplicationCommand) MarshalJSON() ([]byte, error) {
-	data, err := json.Marshal(rawContextCommand{
+	if len(c.Data) > 0 {
+		return c.Data, nil
+	}
+	return json.Marshal(rawContextCommand{
 		ID:                       c.id,
 		Type:                     c.commandType,
 		ApplicationID:            c.applicationID,
@@ -630,10 +634,6 @@ func (c UnknownApplicationCommand) MarshalJSON() ([]byte, error) {
 		Contexts:                 c.contexts,
 		Version:                  c.version,
 	})
-	if err != nil || len(c.Data) == 0 {
-		return data, err
-	}
-	return json.Merge(c.Data, data)
 }
 
 func (c UnknownApplicationCommand) ID() snowflake.ID {
