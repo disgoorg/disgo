@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -227,7 +228,9 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 		channel = v
 
 	default:
-		err = fmt.Errorf("unknown channel with type %d received", cType.Type)
+		var v UnknownChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
 	}
 
 	if err != nil {
@@ -1449,6 +1452,146 @@ func (c GuildMediaChannel) Flags() ChannelFlags {
 func (GuildMediaChannel) channel()      {}
 func (GuildMediaChannel) guildChannel() {}
 
+var (
+	_ Channel        = (*UnknownChannel)(nil)
+	_ GuildChannel   = (*UnknownChannel)(nil)
+	_ MessageChannel = (*UnknownChannel)(nil)
+)
+
+// UnknownChannel is a Channel with a type the library does not recognize yet.
+// It exposes the fields most channel types share. Data holds the full payload, and MarshalJSON returns it.
+type UnknownChannel struct {
+	id                   snowflake.ID
+	channelType          ChannelType
+	guildID              snowflake.ID
+	position             int
+	permissionOverwrites PermissionOverwrites
+	name                 string
+	parentID             *snowflake.ID
+	lastMessageID        *snowflake.ID
+	lastPinTimestamp     *time.Time
+	flags                ChannelFlags
+	Data                 json.RawMessage
+}
+
+func (c *UnknownChannel) UnmarshalJSON(data []byte) error {
+	var v struct {
+		ID                   snowflake.ID                   `json:"id"`
+		Type                 ChannelType                    `json:"type"`
+		GuildID              snowflake.ID                   `json:"guild_id"`
+		Position             int                            `json:"position"`
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		Name                 string                         `json:"name"`
+		ParentID             *snowflake.ID                  `json:"parent_id"`
+		LastMessageID        *snowflake.ID                  `json:"last_message_id"`
+		LastPinTimestamp     *time.Time                     `json:"last_pin_timestamp"`
+		Flags                ChannelFlags                   `json:"flags"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.id = v.ID
+	c.channelType = v.Type
+	c.guildID = v.GuildID
+	c.position = v.Position
+	c.permissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	c.name = v.Name
+	c.parentID = v.ParentID
+	c.lastMessageID = v.LastMessageID
+	c.lastPinTimestamp = v.LastPinTimestamp
+	c.flags = v.Flags
+	// data aliases the caller's buffer, which for a dispatch is the whole event.
+	c.Data = slices.Clone(data)
+	return nil
+}
+
+// MarshalJSON returns Data, with guild_id set when it was applied after decoding.
+func (c UnknownChannel) MarshalJSON() ([]byte, error) {
+	if len(c.Data) == 0 {
+		return json.Marshal(struct {
+			ID      snowflake.ID `json:"id"`
+			Type    ChannelType  `json:"type"`
+			GuildID snowflake.ID `json:"guild_id,omitempty"`
+		}{
+			ID:      c.id,
+			Type:    c.channelType,
+			GuildID: c.guildID,
+		})
+	}
+	if c.guildID == 0 {
+		return c.Data, nil
+	}
+
+	// Raw values rather than json.Merge, which would turn every number into a float64.
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(c.Data, &fields); err != nil {
+		return nil, err
+	}
+	guildID, err := json.Marshal(c.guildID)
+	if err != nil {
+		return nil, err
+	}
+	fields["guild_id"] = guildID
+	return json.Marshal(fields)
+}
+
+func (c UnknownChannel) String() string {
+	return channelString(c)
+}
+
+func (c UnknownChannel) Mention() string {
+	return ChannelMention(c.ID())
+}
+
+func (c UnknownChannel) Type() ChannelType {
+	return c.channelType
+}
+
+func (c UnknownChannel) ID() snowflake.ID {
+	return c.id
+}
+
+func (c UnknownChannel) Name() string {
+	return c.name
+}
+
+func (c UnknownChannel) GuildID() snowflake.ID {
+	return c.guildID
+}
+
+func (c UnknownChannel) Position() int {
+	return c.position
+}
+
+func (c UnknownChannel) ParentID() *snowflake.ID {
+	return c.parentID
+}
+
+func (c UnknownChannel) PermissionOverwrites() PermissionOverwrites {
+	return c.permissionOverwrites
+}
+
+func (c UnknownChannel) LastMessageID() *snowflake.ID {
+	return c.lastMessageID
+}
+
+func (c UnknownChannel) LastPinTimestamp() *time.Time {
+	return c.lastPinTimestamp
+}
+
+func (c UnknownChannel) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
+func (c UnknownChannel) Flags() ChannelFlags {
+	return c.flags
+}
+
+func (UnknownChannel) channel()        {}
+func (UnknownChannel) guildChannel()   {}
+func (UnknownChannel) messageChannel() {}
+
 type FollowedChannel struct {
 	ChannelID snowflake.ID `json:"channel_id"`
 	WebhookID snowflake.ID `json:"webhook_id"`
@@ -1553,6 +1696,9 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 		c.guildID = guildID
 		return c
 	case GuildMediaChannel:
+		c.guildID = guildID
+		return c
+	case UnknownChannel:
 		c.guildID = guildID
 		return c
 	default:

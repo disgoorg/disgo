@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"fmt"
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -66,7 +66,9 @@ func (w *UnmarshalWebhook) UnmarshalJSON(data []byte) error {
 		webhook = v
 
 	default:
-		err = fmt.Errorf("unknown webhook with type %d received", wType.Type)
+		var v UnknownWebhook
+		err = json.Unmarshal(data, &v)
+		webhook = v
 	}
 
 	if err != nil {
@@ -334,6 +336,102 @@ func (w ApplicationWebhook) CreatedAt() time.Time {
 }
 
 func (ApplicationWebhook) webhook() {}
+
+var _ Webhook = (*UnknownWebhook)(nil)
+
+// UnknownWebhook is a Webhook with a type the library does not recognize yet.
+// Data holds the full payload, and MarshalJSON returns it when set.
+type UnknownWebhook struct {
+	id          snowflake.ID
+	webhookType WebhookType
+	name        string
+	avatar      *string
+	ChannelID   snowflake.ID    `json:"channel_id,omitempty"`
+	GuildID     snowflake.ID    `json:"guild_id,omitempty"`
+	Data        json.RawMessage `json:"-"`
+}
+
+func (w *UnknownWebhook) UnmarshalJSON(data []byte) error {
+	type unknownWebhook UnknownWebhook
+	var v struct {
+		ID     snowflake.ID `json:"id"`
+		Type   WebhookType  `json:"type"`
+		Name   string       `json:"name"`
+		Avatar *string      `json:"avatar"`
+		unknownWebhook
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*w = UnknownWebhook(v.unknownWebhook)
+	w.id = v.ID
+	w.webhookType = v.Type
+	w.name = v.Name
+	w.avatar = v.Avatar
+	w.Data = slices.Clone(data)
+	return nil
+}
+
+func (w UnknownWebhook) MarshalJSON() ([]byte, error) {
+	if len(w.Data) > 0 {
+		return w.Data, nil
+	}
+	type unknownWebhook UnknownWebhook
+	return json.Marshal(struct {
+		ID     snowflake.ID `json:"id"`
+		Type   WebhookType  `json:"type"`
+		Name   string       `json:"name"`
+		Avatar *string      `json:"avatar"`
+		unknownWebhook
+	}{
+		ID:             w.id,
+		Type:           w.webhookType,
+		Name:           w.name,
+		Avatar:         w.avatar,
+		unknownWebhook: unknownWebhook(w),
+	})
+}
+
+func (w UnknownWebhook) Type() WebhookType {
+	return w.webhookType
+}
+
+func (w UnknownWebhook) ID() snowflake.ID {
+	return w.id
+}
+
+func (w UnknownWebhook) Name() string {
+	return w.name
+}
+
+func (w UnknownWebhook) Avatar() *string {
+	return w.avatar
+}
+
+func (w UnknownWebhook) EffectiveAvatarURL(opts ...CDNOpt) string {
+	if avatar := w.AvatarURL(opts...); avatar != nil {
+		return *avatar
+	}
+	return w.DefaultAvatarURL(opts...)
+}
+
+func (w UnknownWebhook) AvatarURL(opts ...CDNOpt) *string {
+	if w.Avatar() == nil {
+		return nil
+	}
+	url := formatAssetURL(UserAvatar, opts, w.ID(), *w.Avatar())
+	return &url
+}
+
+func (w UnknownWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
+	return formatAssetURL(DefaultUserAvatar, opts, 0)
+}
+
+func (w UnknownWebhook) CreatedAt() time.Time {
+	return w.id.Time()
+}
+
+func (UnknownWebhook) webhook() {}
 
 type WebhookSourceGuild struct {
 	ID   snowflake.ID `json:"id"`

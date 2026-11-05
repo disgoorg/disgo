@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"fmt"
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -76,7 +76,9 @@ func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 		applicationCommand = v
 
 	default:
-		err = fmt.Errorf("unknown application command with type %d received", cType.Type)
+		var v UnknownApplicationCommand
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
 	}
 
 	if err != nil {
@@ -568,3 +570,126 @@ const (
 	EntryPointCommandHandlerTypeAppHandler EntryPointCommandHandlerType = iota + 1
 	EntryPointCommandHandlerTypeDiscordLaunchActivity
 )
+
+var _ ApplicationCommand = (*UnknownApplicationCommand)(nil)
+
+// UnknownApplicationCommand is an ApplicationCommand with a type the library does not recognize yet.
+// Data holds the full payload.
+type UnknownApplicationCommand struct {
+	id                       snowflake.ID
+	commandType              ApplicationCommandType
+	applicationID            snowflake.ID
+	guildID                  *snowflake.ID
+	name                     string
+	nameLocalizations        map[Locale]string
+	nameLocalized            string
+	defaultMemberPermissions Permissions
+	dmPermission             bool
+	nsfw                     bool
+	integrationTypes         []ApplicationIntegrationType
+	contexts                 []InteractionContextType
+	version                  snowflake.ID
+	Data                     json.RawMessage
+}
+
+func (c *UnknownApplicationCommand) UnmarshalJSON(data []byte) error {
+	var v rawContextCommand
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.id = v.ID
+	c.commandType = v.Type
+	c.applicationID = v.ApplicationID
+	c.guildID = v.GuildID
+	c.name = v.Name
+	c.nameLocalizations = v.NameLocalizations
+	c.nameLocalized = v.NameLocalized
+	c.defaultMemberPermissions = v.DefaultMemberPermissions
+	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
+	c.integrationTypes = v.IntegrationTypes
+	c.contexts = v.Contexts
+	c.version = v.Version
+	c.Data = slices.Clone(data)
+	return nil
+}
+
+func (c UnknownApplicationCommand) MarshalJSON() ([]byte, error) {
+	if len(c.Data) > 0 {
+		return c.Data, nil
+	}
+	return json.Marshal(rawContextCommand{
+		ID:                       c.id,
+		Type:                     c.commandType,
+		ApplicationID:            c.applicationID,
+		GuildID:                  c.guildID,
+		Name:                     c.name,
+		NameLocalizations:        c.nameLocalizations,
+		NameLocalized:            c.nameLocalized,
+		DefaultMemberPermissions: c.defaultMemberPermissions,
+		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
+		IntegrationTypes:         c.integrationTypes,
+		Contexts:                 c.contexts,
+		Version:                  c.version,
+	})
+}
+
+func (c UnknownApplicationCommand) ID() snowflake.ID {
+	return c.id
+}
+
+func (c UnknownApplicationCommand) Type() ApplicationCommandType {
+	return c.commandType
+}
+
+func (c UnknownApplicationCommand) ApplicationID() snowflake.ID {
+	return c.applicationID
+}
+
+func (c UnknownApplicationCommand) GuildID() *snowflake.ID {
+	return c.guildID
+}
+
+func (c UnknownApplicationCommand) Name() string {
+	return c.name
+}
+
+func (c UnknownApplicationCommand) NameLocalizations() map[Locale]string {
+	return c.nameLocalizations
+}
+
+func (c UnknownApplicationCommand) NameLocalized() string {
+	return c.nameLocalized
+}
+
+func (c UnknownApplicationCommand) DefaultMemberPermissions() Permissions {
+	return c.defaultMemberPermissions
+}
+
+func (c UnknownApplicationCommand) DMPermission() bool {
+	return c.dmPermission
+}
+
+func (c UnknownApplicationCommand) NSFW() bool {
+	return c.nsfw
+}
+
+func (c UnknownApplicationCommand) IntegrationTypes() []ApplicationIntegrationType {
+	return c.integrationTypes
+}
+
+func (c UnknownApplicationCommand) Contexts() []InteractionContextType {
+	return c.contexts
+}
+
+func (c UnknownApplicationCommand) Version() snowflake.ID {
+	return c.version
+}
+
+func (c UnknownApplicationCommand) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
+func (UnknownApplicationCommand) applicationCommand() {}

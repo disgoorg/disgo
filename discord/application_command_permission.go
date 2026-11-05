@@ -1,8 +1,6 @@
 package discord
 
 import (
-	"fmt"
-
 	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -87,7 +85,9 @@ func (p *UnmarshalApplicationCommandPermission) UnmarshalJSON(data []byte) error
 		applicationCommandPermission = v
 
 	default:
-		err = fmt.Errorf("unknown application command permission with type %d received", pType.Type)
+		var v UnknownApplicationCommandPermission
+		err = json.Unmarshal(data, &v)
+		applicationCommandPermission = v
 	}
 
 	if err != nil {
@@ -175,3 +175,21 @@ func (ApplicationCommandPermissionChannel) Type() ApplicationCommandPermissionTy
 }
 func (p ApplicationCommandPermissionChannel) ID() snowflake.ID            { return p.ChannelID }
 func (ApplicationCommandPermissionChannel) applicationCommandPermission() {}
+
+// UnknownApplicationCommandPermission is an ApplicationCommandPermission with a type the library does not recognize yet.
+type UnknownApplicationCommandPermission struct {
+	PermissionType ApplicationCommandPermissionType `json:"type"`
+	PermissionID   snowflake.ID                     `json:"id"`
+	Permission     bool                             `json:"permission"`
+}
+
+func (p UnknownApplicationCommandPermission) MarshalJSON() ([]byte, error) {
+	type unknownApplicationCommandPermission UnknownApplicationCommandPermission
+	return json.Marshal(unknownApplicationCommandPermission(p))
+}
+
+func (p UnknownApplicationCommandPermission) Type() ApplicationCommandPermissionType {
+	return p.PermissionType
+}
+func (p UnknownApplicationCommandPermission) ID() snowflake.ID            { return p.PermissionID }
+func (UnknownApplicationCommandPermission) applicationCommandPermission() {}
