@@ -1,8 +1,6 @@
 package discord
 
 import (
-	"fmt"
-
 	"github.com/disgoorg/json/v2"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -77,7 +75,9 @@ func (o *UnmarshalPermissionOverwrite) UnmarshalJSON(data []byte) error {
 		overwrite = v
 
 	default:
-		err = fmt.Errorf("unknown permission overwrite with type %d received", oType.Type)
+		var v UnknownPermissionOverwrite
+		err = json.Unmarshal(data, &v)
+		overwrite = v
 	}
 
 	if err != nil {
@@ -136,6 +136,22 @@ func (o MemberPermissionOverwrite) MarshalJSON() ([]byte, error) {
 
 func (o MemberPermissionOverwrite) Type() PermissionOverwriteType {
 	return PermissionOverwriteTypeMember
+}
+
+// UnknownPermissionOverwrite is a PermissionOverwrite with a type the library does not recognize yet.
+type UnknownPermissionOverwrite struct {
+	OverwriteType PermissionOverwriteType `json:"type"`
+	OverwriteID   snowflake.ID            `json:"id"`
+	Allow         Permissions             `json:"allow"`
+	Deny          Permissions             `json:"deny"`
+}
+
+func (o UnknownPermissionOverwrite) ID() snowflake.ID {
+	return o.OverwriteID
+}
+
+func (o UnknownPermissionOverwrite) Type() PermissionOverwriteType {
+	return o.OverwriteType
 }
 
 type PermissionOverwriteUpdate interface {
