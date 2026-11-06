@@ -106,7 +106,7 @@ func (t *baseTransport) parseMessage(r io.Reader) (*Message, error) {
 	err := json.NewDecoder(r).Decode(&message)
 	if err != nil {
 		t.logger.Error("error while parsing gateway message", slog.Any("err", err))
-		return nil, err
+		return nil, nil
 	}
 
 	return &message, nil
