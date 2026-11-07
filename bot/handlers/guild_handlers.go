@@ -36,6 +36,7 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 		client.Caches.AddMember(member)
 	}
 
+	client.Caches.RemoveVoiceStatesByGuildID(event.ID)
 	for _, voiceState := range event.VoiceStates {
 		voiceState.GuildID = event.ID // populate unset field
 		client.Caches.AddVoiceState(voiceState)
@@ -63,6 +64,7 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 		client.Caches.AddGuildSoundboardSound(soundboardSound)
 	}
 
+	client.Caches.RemovePresencesByGuildID(event.ID)
 	for _, presence := range event.Presences {
 		presence.GuildID = event.ID // populate unset field
 		client.Caches.AddPresence(presence)
