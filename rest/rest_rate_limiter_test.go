@@ -65,3 +65,36 @@ func TestRateLimiterUnlockRetryAfter(t *testing.T) {
 		})
 	}
 }
+
+func TestRateLimiterUnlockResetAfter(t *testing.T) {
+	for _, test := range []struct {
+		value string
+		delay time.Duration
+	}{
+		{value: "0.25", delay: 250 * time.Millisecond},
+		{value: "1.25", delay: 1250 * time.Millisecond},
+		{value: "2", delay: 2 * time.Second},
+	} {
+		t.Run(test.value, func(t *testing.T) {
+			limiter := &rateLimiterImpl{config: defaultRateLimiterConfig(), buckets: map[string]*bucket{}}
+			endpoint := GetChannel.Compile(nil, 123)
+			if err := limiter.Wait(context.Background(), endpoint); err != nil {
+				t.Fatal(err)
+			}
+			header := http.Header{}
+			header.Set("X-RateLimit-Bucket", "test-bucket")
+			header.Set("X-RateLimit-Limit", "5")
+			header.Set("X-RateLimit-Remaining", "0")
+			header.Set("X-RateLimit-Reset-After", test.value)
+			before := time.Now()
+			if err := limiter.Unlock(endpoint, &http.Response{StatusCode: http.StatusOK, Header: header}); err != nil {
+				t.Fatal(err)
+			}
+			after := time.Now()
+			reset := limiter.getBucket(endpoint, false).Reset
+			if reset.Before(before.Add(test.delay)) || reset.After(after.Add(test.delay)) {
+				t.Fatalf("reset = %v, want between %v and %v", reset, before.Add(test.delay), after.Add(test.delay))
+			}
+		})
+	}
+}

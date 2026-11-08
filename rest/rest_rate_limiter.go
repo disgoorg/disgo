@@ -263,7 +263,7 @@ func (l *rateLimiterImpl) Unlock(endpoint *CompiledEndpoint, rs *http.Response) 
 			return fmt.Errorf("invalid reset after %s: %w", resetAfterHeader, err)
 		}
 
-		b.Reset = time.Now().Add(time.Duration(resetAfter) * time.Second)
+		b.Reset = time.Now().Add(time.Duration(resetAfter * float64(time.Second)))
 	} else if resetHeader != "" {
 		reset, err := strconv.ParseFloat(resetHeader, 64)
 		if err != nil {
