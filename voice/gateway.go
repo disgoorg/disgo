@@ -120,25 +120,113 @@ type gatewayImpl struct {
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
 
+	seqMu sync.Mutex
 	ssrc  uint32
 	state State
 	seq   int
 
-	daveSession     godave.Session
-	conn            *websocket.Conn
-	connMu          sync.Mutex
-	heartbeatCancel context.CancelFunc
-	status          Status
-	statusMu        sync.Mutex
+	daveSession godave.Session
+	conn        *websocket.Conn
+	connMu      sync.Mutex
+	status      Status
+	statusMu    sync.Mutex
 
-	heartbeatInterval     time.Duration
+	heartbeatMu           sync.Mutex
+	heartbeatCancel       context.CancelFunc
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
 	lastNonce             int64
 }
 
+// startHeartbeat creates the heartbeat context before spawning the goroutine,
+// so a close that races with it always finds a cancel func to call.
+func (g *gatewayImpl) startHeartbeat(interval time.Duration) {
+	ctx, cancel := context.WithCancel(context.Background())
+	g.heartbeatMu.Lock()
+	prevCancel := g.heartbeatCancel
+	g.heartbeatCancel = cancel
+	g.lastHeartbeatReceived = time.Now()
+	g.heartbeatMu.Unlock()
+	if prevCancel != nil {
+		prevCancel()
+	}
+	go g.heartbeat(ctx, interval)
+}
+
+func (g *gatewayImpl) cancelHeartbeat() {
+	g.heartbeatMu.Lock()
+	cancel := g.heartbeatCancel
+	g.heartbeatMu.Unlock()
+	if cancel != nil {
+		cancel()
+	}
+}
+
+func (g *gatewayImpl) setLastHeartbeatSent(t time.Time) {
+	g.heartbeatMu.Lock()
+	g.lastHeartbeatSent = t
+	g.heartbeatMu.Unlock()
+}
+
+func (g *gatewayImpl) setLastHeartbeatReceived(t time.Time) {
+	g.heartbeatMu.Lock()
+	g.lastHeartbeatReceived = t
+	g.heartbeatMu.Unlock()
+}
+
+func (g *gatewayImpl) heartbeatTimes() (sent, received time.Time) {
+	g.heartbeatMu.Lock()
+	defer g.heartbeatMu.Unlock()
+	return g.lastHeartbeatSent, g.lastHeartbeatReceived
+}
+
+func (g *gatewayImpl) setLastNonce(nonce int64) {
+	g.heartbeatMu.Lock()
+	g.lastNonce = nonce
+	g.heartbeatMu.Unlock()
+}
+
+func (g *gatewayImpl) getLastNonce() int64 {
+	g.heartbeatMu.Lock()
+	defer g.heartbeatMu.Unlock()
+	return g.lastNonce
+}
+
 func (g *gatewayImpl) SSRC() uint32 {
+	g.seqMu.Lock()
+	defer g.seqMu.Unlock()
 	return g.ssrc
+}
+
+func (g *gatewayImpl) setSeq(seq int) {
+	g.seqMu.Lock()
+	g.seq = seq
+	g.seqMu.Unlock()
+}
+
+func (g *gatewayImpl) getSeq() int {
+	g.seqMu.Lock()
+	defer g.seqMu.Unlock()
+	return g.seq
+}
+
+func (g *gatewayImpl) setSSRC(ssrc uint32) {
+	g.seqMu.Lock()
+	g.ssrc = ssrc
+	g.seqMu.Unlock()
+}
+
+func (g *gatewayImpl) resetSeqSSRC() {
+	g.seqMu.Lock()
+	g.ssrc = 0
+	g.seq = 0
+	g.seqMu.Unlock()
+}
+
+func (g *gatewayImpl) ssrcAndSeq() (uint32, int) {
+	g.seqMu.Lock()
+	defer g.seqMu.Unlock()
+	return g.ssrc, g.seq
 }
 
 func (g *gatewayImpl) Open(ctx context.Context, state State) error {
@@ -155,8 +243,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 	}
 
 	if state.SessionID != g.state.SessionID {
-		g.ssrc = 0
-		g.seq = 0
+		g.resetSeqSSRC()
 	}
 	g.state = state
 	g.statusMu.Lock()
@@ -164,7 +251,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 	g.statusMu.Unlock()
 
 	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, GatewayVersion)
-	g.lastHeartbeatSent = time.Now()
+	g.setLastHeartbeatSent(time.Now())
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		var body []byte
@@ -225,10 +312,8 @@ func (g *gatewayImpl) Close() {
 }
 
 func (g *gatewayImpl) CloseWithCode(code int, message string) {
-	if g.heartbeatCancel != nil {
-		g.config.Logger.Debug("closing heartbeat goroutine")
-		g.heartbeatCancel()
-	}
+	g.config.Logger.Debug("closing heartbeat goroutine")
+	g.cancelHeartbeat()
 
 	g.connMu.Lock()
 	defer g.connMu.Unlock()
@@ -242,8 +327,7 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
-			g.ssrc = 0
-			g.seq = 0
+			g.resetSeqSSRC()
 		}
 	}
 	g.statusMu.Lock()
@@ -324,7 +408,8 @@ func (g *gatewayImpl) sendLocked(ctx context.Context, messageType int, data []by
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
-	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
+	sent, received := g.heartbeatTimes()
+	return received.Sub(sent)
 }
 
 func (g *gatewayImpl) doReconnect(ctx context.Context, state State, maximumAttempts int) error {
@@ -388,55 +473,55 @@ func (g *gatewayImpl) reconnect() {
 	}
 }
 
-func (g *gatewayImpl) heartbeat() {
+func (g *gatewayImpl) heartbeat(ctx context.Context, interval time.Duration) {
 	defer g.config.Logger.Debug("exiting voice heartbeat goroutine")
 
-	ctx, cancel := context.WithCancel(context.Background())
-	g.heartbeatCancel = cancel
-
-	g.lastHeartbeatReceived = time.Now()
-
 	// Send heartbeats periodically every `heartbeat_interval`
-	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
+	heartbeatTicker := time.NewTicker(interval)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 
 		case <-heartbeatTicker.C:
-			if g.lastHeartbeatSent.After(g.lastHeartbeatReceived) {
-				lastHeartbeatAgo := time.Since(g.lastHeartbeatReceived)
+			lastHeartbeatSent, lastHeartbeatReceived := g.heartbeatTimes()
+			if lastHeartbeatSent.After(lastHeartbeatReceived) {
+				lastHeartbeatAgo := time.Since(lastHeartbeatReceived)
 				g.config.Logger.Warn("ACK of last heartbeat not received, connection went zombie", slog.Duration("last_heartbeat_ago", lastHeartbeatAgo))
-				g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat ACK not received")
-				go g.reconnect()
+				g.closeAndReconnect("heartbeat ACK not received")
 				return
 			}
 
-			g.sendHeartbeat()
+			g.sendHeartbeat(interval)
 		}
 	}
 }
 
-func (g *gatewayImpl) sendHeartbeat() {
+func (g *gatewayImpl) closeAndReconnect(reason string) {
+	g.CloseWithCode(websocket.CloseServiceRestart, reason)
+	go g.reconnect()
+}
+
+func (g *gatewayImpl) sendHeartbeat(timeout time.Duration) {
 	g.config.Logger.Debug("sending heartbeat")
 
-	g.lastNonce = time.Now().UnixMilli()
-	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
+	nonce := time.Now().UnixMilli()
+	g.setLastNonce(nonce)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat{
-		T:      g.lastNonce,
-		SeqAck: g.seq,
+		T:      nonce,
+		SeqAck: g.getSeq(),
 	}); err != nil {
 		if !errors.Is(err, ErrGatewayNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
 		g.config.Logger.Error("failed to send heartbeat", slog.Any("err", err))
-		g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat timeout")
-		go g.reconnect()
+		g.closeAndReconnect("heartbeat timeout")
 		return
 	}
-	g.lastHeartbeatSent = time.Now()
+	g.setLastHeartbeatSent(time.Now())
 }
 
 func (g *gatewayImpl) identify() error {
@@ -474,7 +559,7 @@ func (g *gatewayImpl) resume() error {
 		GuildID:   g.state.GuildID,
 		SessionID: g.state.SessionID,
 		Token:     g.state.Token,
-		SeqAck:    g.seq,
+		SeqAck:    g.getSeq(),
 	}
 	g.config.Logger.Debug("sending Resume command")
 
@@ -557,16 +642,15 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 		}
 
 		if message.Seq > 0 {
-			g.seq = message.Seq
+			g.setSeq(message.Seq)
 		}
 
 		switch message.Op {
 		case OpcodeHello:
 			d := message.D.(GatewayMessageDataHello)
-			g.heartbeatInterval = time.Duration(d.HeartbeatInterval) * time.Millisecond
-			go g.heartbeat()
+			g.startHeartbeat(time.Duration(d.HeartbeatInterval) * time.Millisecond)
 
-			if g.ssrc == 0 || g.seq == 0 {
+			if ssrc, seq := g.ssrcAndSeq(); ssrc == 0 || seq == 0 {
 				err = g.identify()
 			} else {
 				err = g.resume()
@@ -581,7 +665,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 			g.status = StatusReady
 			g.statusMu.Unlock()
 			d := message.D.(GatewayMessageDataReady)
-			g.ssrc = d.SSRC
+			g.setSSRC(d.SSRC)
 			ready(nil)
 
 		case OpcodeResumed:
@@ -592,13 +676,13 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 
 		case OpcodeHeartbeatACK:
 			d := message.D.(GatewayMessageDataHeartbeatACK)
-			if d.T != g.lastNonce {
-				g.config.Logger.Error("received heartbeat ack with nonce", slog.Int64("nonce", d.T), slog.Int64("last_nonce", g.lastNonce))
+			if lastNonce := g.getLastNonce(); d.T != lastNonce {
+				g.config.Logger.Error("received heartbeat ack with nonce", slog.Int64("nonce", d.T), slog.Int64("last_nonce", lastNonce))
 				g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat ACK nonce mismatch")
 				go g.reconnect()
 				return
 			}
-			g.lastHeartbeatReceived = time.Now()
+			g.setLastHeartbeatReceived(time.Now())
 
 		case OpcodeSessionDescription:
 			d := message.D.(GatewayMessageDataSessionDescription)
