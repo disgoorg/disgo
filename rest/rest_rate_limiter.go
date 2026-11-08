@@ -198,14 +198,11 @@ func (l *rateLimiterImpl) Unlock(endpoint *CompiledEndpoint, rs *http.Response) 
 	if rs == nil || rs.Header == nil {
 		return nil
 	}
+
 	bucketHeader := rs.Header.Get("X-RateLimit-Bucket")
-
-	// if we don't have a bucket header, we can't update anything
-	if bucketHeader == "" {
-		return nil
+	if bucketHeader != "" {
+		b.ID = bucketHeader
 	}
-
-	b.ID = bucketHeader
 
 	global := rs.Header.Get("X-RateLimit-Global") != ""
 	cloudflare := rs.Header.Get("via") == ""
@@ -235,6 +232,11 @@ func (l *rateLimiterImpl) Unlock(endpoint *CompiledEndpoint, rs *http.Response) 
 			b.Reset = reset
 			l.config.Logger.Warn("rate limit exceeded", slog.String("endpoint", endpoint.URL), slog.Int("retry_after", retryAfter))
 		}
+		return nil
+	}
+
+	// Bucket headers are optional on 429 responses, but required to update a normal response's bucket.
+	if bucketHeader == "" {
 		return nil
 	}
 
