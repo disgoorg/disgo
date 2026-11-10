@@ -505,7 +505,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context) error {
 				return err
 			}
 		}
-		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
+		if errors.Is(err, discord.ErrGatewayAlreadyConnected) || errors.Is(err, discord.ErrGatewayPayload) {
 			return err
 		}
 
@@ -698,6 +698,16 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			return
 		}
 		if message == nil {
+			g.statusMu.Lock()
+			status := g.status
+			g.statusMu.Unlock()
+			// A decode failure while waiting for HELLO, READY, or RESUMED cannot be skipped.
+			// Reconnecting would receive the same payload, so return the error and stop.
+			if status == StatusWaitingForHello || status == StatusWaitingForReady || status == StatusResuming {
+				ready(discord.ErrGatewayPayload)
+				return
+			}
+
 			// No message (probably parsing error), just continue as the transport already logged it
 			continue
 		}
