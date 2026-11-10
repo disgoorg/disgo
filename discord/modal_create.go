@@ -36,7 +36,11 @@ func (m *ModalCreate) UnmarshalJSON(data []byte) error {
 	*m = ModalCreate(v.modalCreate)
 
 	if len(v.Components) > 0 {
-		m.Components = unmarshalComponents(v.Components)
+		components, err := unmarshalComponents(v.Components)
+		if err != nil {
+			return err
+		}
+		m.Components = components
 	}
 
 	return nil

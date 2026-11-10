@@ -54,7 +54,11 @@ func (m *MessageCreate) UnmarshalJSON(data []byte) error {
 	*m = MessageCreate(v.messageCreate)
 
 	if len(v.Components) > 0 {
-		m.Components = unmarshalComponents(v.Components)
+		components, err := unmarshalComponents(v.Components)
+		if err != nil {
+			return err
+		}
+		m.Components = components
 	}
 
 	return nil

@@ -362,7 +362,11 @@ func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	c.ID = actionRowComponent.ID
 	components := make([]InteractiveComponent, 0, len(actionRowComponent.Components))
 	for _, component := range actionRowComponent.Components {
-		components = append(components, component.Component.(InteractiveComponent))
+		interactiveComponent, ok := component.Component.(InteractiveComponent)
+		if !ok {
+			return fmt.Errorf("unexpected component type %T for action row component", component.Component)
+		}
+		components = append(components, interactiveComponent)
 	}
 	c.Components = components
 	return nil
@@ -841,12 +845,20 @@ func (c *SectionComponent) UnmarshalJSON(data []byte) error {
 
 	components := make([]SectionSubComponent, 0, len(sectionComponent.Components))
 	for _, component := range sectionComponent.Components {
-		components = append(components, component.Component.(SectionSubComponent))
+		sectionSubComponent, ok := component.Component.(SectionSubComponent)
+		if !ok {
+			return fmt.Errorf("unexpected component type %T for section component", component.Component)
+		}
+		components = append(components, sectionSubComponent)
 	}
 	c.Components = components
 
 	if sectionComponent.Accessory != nil {
-		c.Accessory = sectionComponent.Accessory.Component.(SectionAccessoryComponent)
+		sectionAccessory, ok := sectionComponent.Accessory.Component.(SectionAccessoryComponent)
+		if !ok {
+			return fmt.Errorf("unexpected component type %T for section accessory", sectionComponent.Accessory.Component)
+		}
+		c.Accessory = sectionAccessory
 	} else {
 		c.Accessory = nil
 	}
@@ -1299,7 +1311,11 @@ func (c *ContainerComponent) UnmarshalJSON(data []byte) error {
 
 	components := make([]ContainerSubComponent, 0, len(containerComponent.Components))
 	for _, component := range containerComponent.Components {
-		components = append(components, component.Component.(ContainerSubComponent))
+		containerSubComponent, ok := component.Component.(ContainerSubComponent)
+		if !ok {
+			return fmt.Errorf("unexpected component type %T for container component", component.Component)
+		}
+		components = append(components, containerSubComponent)
 	}
 	c.Components = components
 	return nil
@@ -1425,7 +1441,11 @@ func (c *LabelComponent) UnmarshalJSON(data []byte) error {
 	c.ID = labelComponent.ID
 	c.Label = labelComponent.Label
 	c.Description = labelComponent.Description
-	c.Component = labelComponent.Component.Component.(LabelSubComponent)
+	labelSubComponent, ok := labelComponent.Component.Component.(LabelSubComponent)
+	if !ok {
+		return fmt.Errorf("unexpected component type %T for label component", labelComponent.Component.Component)
+	}
+	c.Component = labelSubComponent
 	return nil
 }
 

@@ -52,7 +52,11 @@ func (m *WebhookMessageCreate) UnmarshalJSON(data []byte) error {
 	*m = WebhookMessageCreate(v.webhookMessageCreate)
 
 	if len(v.Components) > 0 {
-		m.Components = unmarshalComponents(v.Components)
+		components, err := unmarshalComponents(v.Components)
+		if err != nil {
+			return err
+		}
+		m.Components = components
 	}
 
 	return nil

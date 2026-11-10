@@ -152,7 +152,11 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	*m = Message(v.message)
 
 	if len(v.Components) > 0 {
-		m.Components = unmarshalComponents(v.Components)
+		components, err := unmarshalComponents(v.Components)
+		if err != nil {
+			return err
+		}
+		m.Components = components
 	}
 
 	if m.Member != nil && m.GuildID != nil {
@@ -293,7 +297,11 @@ func (m *PartialMessage) UnmarshalJSON(data []byte) error {
 	*m = PartialMessage(v.partialMessage)
 
 	if len(v.Components) > 0 {
-		m.Components = unmarshalComponents(v.Components)
+		components, err := unmarshalComponents(v.Components)
+		if err != nil {
+			return err
+		}
+		m.Components = components
 	}
 
 	return nil
@@ -394,12 +402,16 @@ type MessageCall struct {
 	EndedTimestamp *time.Time     `json:"ended_timestamp"`
 }
 
-func unmarshalComponents(components []UnmarshalComponent) []LayoutComponent {
+func unmarshalComponents(components []UnmarshalComponent) ([]LayoutComponent, error) {
 	c := make([]LayoutComponent, len(components))
 	for i := range components {
-		c[i] = components[i].Component.(LayoutComponent)
+		layoutComponent, ok := components[i].Component.(LayoutComponent)
+		if !ok {
+			return nil, fmt.Errorf("unexpected component type %T for layout component", components[i].Component)
+		}
+		c[i] = layoutComponent
 	}
-	return c
+	return c, nil
 }
 
 // Nonce is a string or int used when sending a message to discord.

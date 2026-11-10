@@ -65,7 +65,11 @@ func (e *Embed) UnmarshalJSON(data []byte) error {
 	*e = Embed(v.embed)
 
 	if len(v.Components) > 0 {
-		e.Components = unmarshalComponents(v.Components)
+		components, err := unmarshalComponents(v.Components)
+		if err != nil {
+			return err
+		}
+		e.Components = components
 	}
 
 	return nil

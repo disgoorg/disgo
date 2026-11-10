@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"fmt"
 	"iter"
 
 	"github.com/disgoorg/json/v2"
@@ -112,7 +113,11 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 
 	components := make([]LayoutComponent, 0, len(iData.Components))
 	for _, containerComponent := range iData.Components {
-		components = append(components, containerComponent.Component.(LayoutComponent))
+		layoutComponent, ok := containerComponent.Component.(LayoutComponent)
+		if !ok {
+			return fmt.Errorf("unexpected component type %T for modal submit component", containerComponent.Component)
+		}
+		components = append(components, layoutComponent)
 	}
 	d.Components = components
 
