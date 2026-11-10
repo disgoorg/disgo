@@ -196,6 +196,10 @@ type gatewayImpl struct {
 	heartbeatMu     sync.Mutex
 	heartbeatCancel context.CancelFunc
 
+	reconnectCtx    context.Context
+	reconnectCancel context.CancelFunc
+	reconnectMu     sync.Mutex
+
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
@@ -404,6 +408,14 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 	g.config.Logger.DebugContext(ctx, "closing heartbeat goroutine")
 	g.cancelHeartbeat()
 
+	// stop a pending reconnect loop so Close isn't ignored during its backoff
+	g.reconnectMu.Lock()
+	reconnectCancel := g.reconnectCancel
+	g.reconnectMu.Unlock()
+	if reconnectCancel != nil {
+		reconnectCancel()
+	}
+
 	g.connMu.Lock()
 	defer g.connMu.Unlock()
 	if g.conn != nil {
@@ -497,6 +509,10 @@ func (g *gatewayImpl) doReconnect(ctx context.Context) error {
 			// Successfully connected, our job here is done
 			return nil
 		}
+		if errors.Is(err, context.Canceled) {
+			// the gateway was closed while we were opening, stop reconnecting
+			return err
+		}
 
 		var closeError *websocket.CloseError
 		if errors.As(err, &closeError) {
@@ -519,7 +535,27 @@ func (g *gatewayImpl) doReconnect(ctx context.Context) error {
 }
 
 func (g *gatewayImpl) reconnect() {
-	if err := g.doReconnect(context.Background()); err != nil {
+	ctx, cancel := context.WithCancel(context.Background())
+	g.reconnectMu.Lock()
+	if g.reconnectCancel != nil {
+		g.reconnectCancel()
+	}
+	g.reconnectCtx = ctx
+	g.reconnectCancel = cancel
+	g.reconnectMu.Unlock()
+
+	defer func() {
+		cancel()
+		g.reconnectMu.Lock()
+		if g.reconnectCtx == ctx {
+			g.reconnectCtx = nil
+			g.reconnectCancel = nil
+		}
+		g.reconnectMu.Unlock()
+	}()
+
+	// an intentional Close cancels this context; exiting due to it is not an error
+	if err := g.doReconnect(ctx); err != nil && !errors.Is(err, context.Canceled) {
 		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
 
 		if g.config.CloseHandler != nil {
