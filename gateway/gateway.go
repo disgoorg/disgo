@@ -698,7 +698,16 @@ func (g *gatewayImpl) listen(conn transport, ready func(error)) {
 			return
 		}
 		if message == nil {
-			// No message (probably parsing error), just continue as the transport already logged it
+			// No message (probably parsing error). While the gateway is not ready yet, this means
+			// a handshake message (HELLO/READY/RESUMED) failed to decode: waiting for it would
+			// never complete and would leave the shard half-connected, so fail the open instead.
+			g.statusMu.Lock()
+			status := g.status
+			g.statusMu.Unlock()
+			if status != StatusReady {
+				ready(errors.New("failed to decode gateway handshake message"))
+				return
+			}
 			continue
 		}
 
