@@ -899,7 +899,7 @@ func New(opts ...ConfigOpt) Caches {
 	cfg := defaultConfig()
 	cfg.apply(opts)
 
-	return &cachesImpl{
+	var caches Caches = &cachesImpl{
 		config:                    cfg,
 		selfUserCache:             cfg.SelfUserCache,
 		guildCache:                cfg.GuildCache,
@@ -916,6 +916,12 @@ func New(opts ...ConfigOpt) Caches {
 		emojiCache:                cfg.EmojiCache,
 		stickerCache:              cfg.StickerCache,
 	}
+
+	if cfg.RestFallbackFlags != RestFallbackFlagsNone && cfg.Rest != nil {
+		caches = NewRestFallbackCaches(caches, cfg.Rest, cfg.RestFallbackFlags)
+	}
+
+	return caches
 }
 
 // these type aliases are needed to allow having the GuildCache, ChannelCache, etc. as methods on the cachesImpl struct
