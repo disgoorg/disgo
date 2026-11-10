@@ -30,6 +30,8 @@ type (
 
 	// AudioSender is used to send audio to a Conn.
 	AudioSender interface {
+		// Open starts sending audio to the Conn. It can be called after Close, and
+		// should do nothing in that case.
 		Open()
 		Close()
 	}

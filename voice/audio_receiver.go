@@ -20,7 +20,8 @@ type (
 
 	// AudioReceiver is used to receive audio from a voice connection and pass it to an OpusFrameReceiver.
 	AudioReceiver interface {
-		// Open starts receiving audio from the voice connection.
+		// Open starts receiving audio from the voice connection. It can be called
+		// after Close, and should do nothing in that case.
 		Open()
 
 		// CleanupUser cleans up any audio resources for the given user.
