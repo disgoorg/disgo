@@ -362,7 +362,9 @@ func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	c.ID = actionRowComponent.ID
 	components := make([]InteractiveComponent, 0, len(actionRowComponent.Components))
 	for _, component := range actionRowComponent.Components {
-		components = append(components, component.Component.(InteractiveComponent))
+		if interactive, ok := component.Component.(InteractiveComponent); ok {
+			components = append(components, interactive)
+		}
 	}
 	c.Components = components
 	return nil
@@ -841,12 +843,16 @@ func (c *SectionComponent) UnmarshalJSON(data []byte) error {
 
 	components := make([]SectionSubComponent, 0, len(sectionComponent.Components))
 	for _, component := range sectionComponent.Components {
-		components = append(components, component.Component.(SectionSubComponent))
+		if sub, ok := component.Component.(SectionSubComponent); ok {
+			components = append(components, sub)
+		}
 	}
 	c.Components = components
 
 	if sectionComponent.Accessory != nil {
-		c.Accessory = sectionComponent.Accessory.Component.(SectionAccessoryComponent)
+		if accessory, ok := sectionComponent.Accessory.Component.(SectionAccessoryComponent); ok {
+			c.Accessory = accessory
+		}
 	} else {
 		c.Accessory = nil
 	}
@@ -1299,7 +1305,9 @@ func (c *ContainerComponent) UnmarshalJSON(data []byte) error {
 
 	components := make([]ContainerSubComponent, 0, len(containerComponent.Components))
 	for _, component := range containerComponent.Components {
-		components = append(components, component.Component.(ContainerSubComponent))
+		if sub, ok := component.Component.(ContainerSubComponent); ok {
+			components = append(components, sub)
+		}
 	}
 	c.Components = components
 	return nil
@@ -1425,7 +1433,9 @@ func (c *LabelComponent) UnmarshalJSON(data []byte) error {
 	c.ID = labelComponent.ID
 	c.Label = labelComponent.Label
 	c.Description = labelComponent.Description
-	c.Component = labelComponent.Component.Component.(LabelSubComponent)
+	if sub, ok := labelComponent.Component.Component.(LabelSubComponent); ok {
+		c.Component = sub
+	}
 	return nil
 }
 

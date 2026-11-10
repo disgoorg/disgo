@@ -109,12 +109,7 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	}
 
 	d.CustomID = iData.CustomID
-
-	components := make([]LayoutComponent, 0, len(iData.Components))
-	for _, containerComponent := range iData.Components {
-		components = append(components, containerComponent.Component.(LayoutComponent))
-	}
-	d.Components = components
+	d.Components = unmarshalComponents(iData.Components)
 
 	d.Resolved = iData.Resolved
 	return nil
