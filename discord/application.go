@@ -38,10 +38,7 @@ type Application struct {
 	PrimarySkuID                   *snowflake.ID  `json:"primary_sku_id,omitempty"`
 	Slug                           *string        `json:"slug,omitempty"`
 	CoverImage                     *string        `json:"cover_image,omitempty"`
-	// Flags is the app's public flags. Discord sends these either as a 31-bit integer in "flags",
-	// or, for values with bits beyond bit 30 set, as a string-serialized integer in "flags_new".
-	// UnmarshalJSON transparently prefers "flags_new" when present, so this field always reflects
-	// the full flag set regardless of which one the API sent.
+	// Flags is the app's public flags. Values with bits beyond bit 30 arrive in "flags_new" and override "flags".
 	Flags                             ApplicationFlags                  `json:"flags,omitempty"`
 	ApproximateGuildCount             *int                              `json:"approximate_guild_count,omitempty"`
 	ApproximateUserInstallCount       *int                              `json:"approximate_user_install_count,omitempty"`
@@ -49,26 +46,33 @@ type Application struct {
 	IntegrationTypesConfig            ApplicationIntegrationTypesConfig `json:"integration_types_config"`
 }
 
-// UnmarshalJSON unmarshals an application so that Application.Flags always reflects the complete flag set.
 func (a *Application) UnmarshalJSON(data []byte) error {
-	type applicationAlias Application
-	var v struct {
-		applicationAlias
-		FlagsNew *string `json:"flags_new,omitempty"`
-	}
-	if err := json.Unmarshal(data, &v); err != nil {
+	type application Application
+	if err := json.Unmarshal(data, (*application)(a)); err != nil {
 		return err
 	}
-	*a = Application(v.applicationAlias)
 
-	if v.FlagsNew != nil {
-		flagsNew, err := strconv.ParseInt(*v.FlagsNew, 10, 64)
-		if err != nil {
-			return err
-		}
-		a.Flags = ApplicationFlags(flagsNew)
+	f, err := unmarshalFlagsNew(data, a.Flags)
+	if err != nil {
+		return err
 	}
+	a.Flags = f
 	return nil
+}
+
+func unmarshalFlagsNew(data any, flags ApplicationFlags) (ApplicationFlags, error) {
+	var v struct {
+		FlagsNew *string `json:"flags_new,omitempty"`
+	}
+	if err := json.Unmarshal(data.([]byte), &v); err != nil || v.FlagsNew == nil {
+		return flags, err
+	}
+
+	parsed, err := strconv.ParseInt(*v.FlagsNew, 10, 64)
+	if err != nil {
+		return flags, err
+	}
+	return ApplicationFlags(parsed), nil
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {
@@ -107,6 +111,20 @@ type ApplicationUpdate struct {
 type PartialApplication struct {
 	ID    snowflake.ID     `json:"id"`
 	Flags ApplicationFlags `json:"flags"`
+}
+
+func (a *PartialApplication) UnmarshalJSON(data []byte) error {
+	type partialApplication PartialApplication
+	if err := json.Unmarshal(data, (*partialApplication)(a)); err != nil {
+		return err
+	}
+
+	f, err := unmarshalFlagsNew(data, a.Flags)
+	if err != nil {
+		return err
+	}
+	a.Flags = f
+	return nil
 }
 
 type AuthorizationInformation struct {
