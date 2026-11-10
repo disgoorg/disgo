@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -19,7 +20,8 @@ type (
 
 	// AudioReceiver is used to receive audio from a voice connection and pass it to an OpusFrameReceiver.
 	AudioReceiver interface {
-		// Open starts receiving audio from the voice connection.
+		// Open starts receiving audio from the voice connection. It can be called
+		// after Close, and should do nothing in that case.
 		Open()
 
 		// CleanupUser cleans up any audio resources for the given user.
@@ -53,20 +55,32 @@ func NewAudioReceiver(logger *slog.Logger, opusReceiver OpusFrameReceiver, conn 
 
 type defaultAudioReceiver struct {
 	logger       *slog.Logger
-	cancelFunc   context.CancelFunc
 	opusReceiver OpusFrameReceiver
 	conn         Conn
+
+	// Open and Close reach this from different goroutines: the voice gateway
+	// starts a loop registered before Conn.Open, and the caller closes it.
+	// Conn can also call Open just after a replacement closed it, so a closed
+	// loop must never start.
+	mu         sync.Mutex
+	cancelFunc context.CancelFunc
+	closed     bool
 }
 
 func (s *defaultAudioReceiver) Open() {
-	go s.open()
-}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return
+	}
 
-func (s *defaultAudioReceiver) open() {
-	defer s.logger.Debug("closing audio receiver")
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
-	defer cancel()
+	go s.open(ctx)
+}
+
+func (s *defaultAudioReceiver) open(ctx context.Context) {
+	defer s.logger.Debug("closing audio receiver")
 loop:
 	for {
 		select {
@@ -107,6 +121,17 @@ func (s *defaultAudioReceiver) receive() {
 }
 
 func (s *defaultAudioReceiver) Close() {
-	s.cancelFunc()
+	s.mu.Lock()
+	if s.closed {
+		s.mu.Unlock()
+		return
+	}
+	s.closed = true
+	cancel := s.cancelFunc
+	s.mu.Unlock()
+
+	if cancel != nil {
+		cancel()
+	}
 	s.opusReceiver.Close()
 }
