@@ -437,7 +437,7 @@ func (g *gatewayImpl) doReconnect(ctx context.Context, state State, maximumAttem
 			return nil
 		}
 
-		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
+		if errors.Is(err, discord.ErrGatewayAlreadyConnected) || errors.Is(err, discord.ErrGatewayPayload) {
 			return err
 		}
 
@@ -638,6 +638,15 @@ func (g *gatewayImpl) listen(conn *websocket.Conn, ready func(error)) {
 		message, err := g.parseMessage(mt, reader)
 		if err != nil {
 			g.config.Logger.Error("error while parsing voice gateway event", slog.Any("err", err))
+			g.statusMu.Lock()
+			status := g.status
+			g.statusMu.Unlock()
+			// A decode failure while waiting for HELLO, READY, or RESUMED cannot be skipped.
+			// Reconnecting would receive the same payload, so return the error and stop.
+			if status == StatusWaitingForHello || status == StatusWaitingForReady || status == StatusResuming {
+				ready(discord.ErrGatewayPayload)
+				return
+			}
 			continue
 		}
 
