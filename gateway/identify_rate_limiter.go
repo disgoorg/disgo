@@ -56,6 +56,7 @@ func (r *identifyRateLimiterImpl) Close(ctx context.Context) {
 	r.config.Logger.Debug("closing shard rate limiter")
 	var wg sync.WaitGroup
 	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	for key := range r.buckets {
 		wg.Add(1)
@@ -64,6 +65,7 @@ func (r *identifyRateLimiterImpl) Close(ctx context.Context) {
 			defer wg.Done()
 			if err := b.mu.CLock(ctx); err != nil {
 				r.config.Logger.Error("failed to close bucket", slog.Any("err", err))
+				return
 			}
 			b.mu.Unlock()
 		}()
