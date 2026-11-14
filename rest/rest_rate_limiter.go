@@ -198,14 +198,11 @@ func (l *rateLimiterImpl) Unlock(endpoint *CompiledEndpoint, rs *http.Response) 
 	if rs == nil || rs.Header == nil {
 		return nil
 	}
+
 	bucketHeader := rs.Header.Get("X-RateLimit-Bucket")
-
-	// if we don't have a bucket header, we can't update anything
-	if bucketHeader == "" {
-		return nil
+	if bucketHeader != "" {
+		b.ID = bucketHeader
 	}
-
-	b.ID = bucketHeader
 
 	global := rs.Header.Get("X-RateLimit-Global") != ""
 	cloudflare := rs.Header.Get("via") == ""
@@ -238,6 +235,11 @@ func (l *rateLimiterImpl) Unlock(endpoint *CompiledEndpoint, rs *http.Response) 
 		return nil
 	}
 
+	// Bucket headers are optional on 429 responses, but required to update a normal response's bucket.
+	if bucketHeader == "" {
+		return nil
+	}
+
 	if limitHeader != "" {
 		limit, err := strconv.Atoi(limitHeader)
 		if err != nil {
@@ -261,7 +263,7 @@ func (l *rateLimiterImpl) Unlock(endpoint *CompiledEndpoint, rs *http.Response) 
 			return fmt.Errorf("invalid reset after %s: %w", resetAfterHeader, err)
 		}
 
-		b.Reset = time.Now().Add(time.Duration(resetAfter) * time.Second)
+		b.Reset = time.Now().Add(time.Duration(resetAfter * float64(time.Second)))
 	} else if resetHeader != "" {
 		reset, err := strconv.ParseFloat(resetHeader, 64)
 		if err != nil {

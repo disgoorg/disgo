@@ -40,8 +40,10 @@ const (
 	AttachmentFlagIsThumbnail
 	AttachmentFlagIsRemix
 	AttachmentFlagIsSpoiler
-	_
+	AttachmentFlagContainsExplicitContent
 	AttachmentFlagIsAnimated
+	AttachmentFlagContainsGoreContent
+	AttachmentFlagContainsSelfHarmContent
 	AttachmentFlagsNone AttachmentFlags = 0
 )
 

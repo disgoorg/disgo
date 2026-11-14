@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
@@ -15,6 +17,7 @@ func gatewayHandlerGuildCreate(client *bot.Client, sequenceNumber int, shardID i
 	wasUnavailable := client.Caches.IsGuildUnavailable(event.ID)
 
 	client.Caches.AddGuild(event.CacheGuild)
+	removeGuildCollections(client, event.ID)
 
 	for _, channel := range event.Channels {
 		channel = discord.ApplyGuildIDToChannel(channel, event.ID) // populate unset field
@@ -133,22 +136,14 @@ func gatewayHandlerGuildDelete(client *bot.Client, sequenceNumber int, shardID i
 	}
 
 	guild, _ := client.Caches.RemoveGuild(event.ID)
-	client.Caches.RemoveVoiceStatesByGuildID(event.ID)
-	client.Caches.RemovePresencesByGuildID(event.ID)
 	// TODO: figure out a better way to remove thread members from cache via guild id without requiring cached GuildThreads
 	for channel := range client.Caches.Channels() {
 		if guildThread, ok := channel.(discord.GuildThread); ok && guildThread.GuildID() == event.ID {
 			client.Caches.RemoveThreadMembersByThreadID(guildThread.ID())
 		}
 	}
-	client.Caches.RemoveChannelsByGuildID(event.ID)
-	client.Caches.RemoveEmojisByGuildID(event.ID)
-	client.Caches.RemoveStickersByGuildID(event.ID)
-	client.Caches.RemoveRolesByGuildID(event.ID)
+	removeGuildCollections(client, event.ID)
 	client.Caches.RemoveMembersByGuildID(event.ID)
-	client.Caches.RemoveStageInstancesByGuildID(event.ID)
-	client.Caches.RemoveGuildScheduledEventsByGuildID(event.ID)
-	client.Caches.RemoveGuildSoundboardSoundsByGuildID(event.ID)
 	client.Caches.RemoveMessagesByGuildID(event.ID)
 
 	genericGuildEvent := &events.GenericGuild{
@@ -179,4 +174,18 @@ func gatewayHandlerGuildAuditLogEntryCreate(client *bot.Client, sequenceNumber i
 		GenericGuild:  genericGuildEvent,
 		AuditLogEntry: event.AuditLogEntry,
 	})
+}
+
+// removeGuildCollections removes the cached guild collections that GUILD_CREATE sends in full.
+// Members, thread members and messages are not part of it, GUILD_CREATE only sends a subset or none of them.
+func removeGuildCollections(client *bot.Client, guildID snowflake.ID) {
+	client.Caches.RemoveChannelsByGuildID(guildID)
+	client.Caches.RemoveRolesByGuildID(guildID)
+	client.Caches.RemoveEmojisByGuildID(guildID)
+	client.Caches.RemoveStickersByGuildID(guildID)
+	client.Caches.RemoveVoiceStatesByGuildID(guildID)
+	client.Caches.RemovePresencesByGuildID(guildID)
+	client.Caches.RemoveStageInstancesByGuildID(guildID)
+	client.Caches.RemoveGuildScheduledEventsByGuildID(guildID)
+	client.Caches.RemoveGuildSoundboardSoundsByGuildID(guildID)
 }

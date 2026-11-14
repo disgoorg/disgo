@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"fmt"
+	"slices"
 	"time"
 
 	"github.com/disgoorg/json/v2"
@@ -83,7 +83,9 @@ func (i *UnmarshalIntegration) UnmarshalJSON(data []byte) error {
 		integration = v
 
 	default:
-		err = fmt.Errorf("unknown integration with type %s received", cType.Type)
+		var v UnknownIntegration
+		err = json.Unmarshal(data, &v)
+		integration = v
 	}
 
 	if err != nil {
@@ -237,5 +239,47 @@ func (i GuildSubscriptionIntegration) ID() snowflake.ID {
 }
 
 func (i GuildSubscriptionIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
+}
+
+// UnknownIntegration is an Integration with a type the library does not recognize yet.
+// Data holds the full payload, and MarshalJSON returns it when set.
+type UnknownIntegration struct {
+	IntegrationType IntegrationType    `json:"type"`
+	IntegrationID   snowflake.ID       `json:"id"`
+	Name            string             `json:"name"`
+	Enabled         bool               `json:"enabled"`
+	Account         IntegrationAccount `json:"account"`
+	Data            json.RawMessage    `json:"-"`
+}
+
+func (i *UnknownIntegration) UnmarshalJSON(data []byte) error {
+	type unknownIntegration UnknownIntegration
+	var v unknownIntegration
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*i = UnknownIntegration(v)
+	i.Data = slices.Clone(data)
+	return nil
+}
+
+func (i UnknownIntegration) MarshalJSON() ([]byte, error) {
+	if len(i.Data) > 0 {
+		return i.Data, nil
+	}
+	type unknownIntegration UnknownIntegration
+	return json.Marshal(unknownIntegration(i))
+}
+
+func (i UnknownIntegration) Type() IntegrationType {
+	return i.IntegrationType
+}
+
+func (i UnknownIntegration) ID() snowflake.ID {
+	return i.IntegrationID
+}
+
+func (i UnknownIntegration) CreatedAt() time.Time {
 	return i.IntegrationID.Time()
 }

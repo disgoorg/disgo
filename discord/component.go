@@ -362,7 +362,9 @@ func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	c.ID = actionRowComponent.ID
 	components := make([]InteractiveComponent, 0, len(actionRowComponent.Components))
 	for _, component := range actionRowComponent.Components {
-		components = append(components, component.Component.(InteractiveComponent))
+		if interactive, ok := component.Component.(InteractiveComponent); ok {
+			components = append(components, interactive)
+		}
 	}
 	c.Components = components
 	return nil
@@ -767,7 +769,27 @@ type UnfurledMediaItem struct {
 	AttachmentID snowflake.ID `json:"attachment_id,omitempty"`
 	// LoadingState is the loading state of the media item. This can't be set by bots.
 	LoadingState UnfurledMediaItemLoadingState `json:"loading_state,omitempty"`
+	// ContentScanMetadata holds the results of Discord's content scanning, if the media item has been scanned. This can't be set by bots.
+	//
+	// Content scanning runs after the message is sent, so this may not be present on the initial message and can be added later in a message update event.
+	ContentScanMetadata *UnfurledMediaItemContentScanMetadata `json:"content_scan_metadata,omitempty"`
 }
+
+// UnfurledMediaItemContentScanMetadata holds the results of Discord's content scanning for an [UnfurledMediaItem].
+type UnfurledMediaItemContentScanMetadata struct {
+	// Flags are the content scan metadata flags combined as a bitfield.
+	Flags UnfurledMediaItemContentScanMetadataFlags `json:"flags"`
+}
+
+// UnfurledMediaItemContentScanMetadataFlags are the flags set by Discord's content scanning on an [UnfurledMediaItem].
+type UnfurledMediaItemContentScanMetadataFlags int
+
+const (
+	UnfurledMediaItemContentScanMetadataFlagIsExplicitContent UnfurledMediaItemContentScanMetadataFlags = 1 << iota
+	UnfurledMediaItemContentScanMetadataFlagIsGoreContent
+	UnfurledMediaItemContentScanMetadataFlagIsSelfHarmContent
+	UnfurledMediaItemContentScanMetadataFlagsNone UnfurledMediaItemContentScanMetadataFlags = 0
+)
 
 type UnfurledMediaItemFlags int
 
@@ -821,12 +843,16 @@ func (c *SectionComponent) UnmarshalJSON(data []byte) error {
 
 	components := make([]SectionSubComponent, 0, len(sectionComponent.Components))
 	for _, component := range sectionComponent.Components {
-		components = append(components, component.Component.(SectionSubComponent))
+		if sub, ok := component.Component.(SectionSubComponent); ok {
+			components = append(components, sub)
+		}
 	}
 	c.Components = components
 
 	if sectionComponent.Accessory != nil {
-		c.Accessory = sectionComponent.Accessory.Component.(SectionAccessoryComponent)
+		if accessory, ok := sectionComponent.Accessory.Component.(SectionAccessoryComponent); ok {
+			c.Accessory = accessory
+		}
 	} else {
 		c.Accessory = nil
 	}
@@ -1279,7 +1305,9 @@ func (c *ContainerComponent) UnmarshalJSON(data []byte) error {
 
 	components := make([]ContainerSubComponent, 0, len(containerComponent.Components))
 	for _, component := range containerComponent.Components {
-		components = append(components, component.Component.(ContainerSubComponent))
+		if sub, ok := component.Component.(ContainerSubComponent); ok {
+			components = append(components, sub)
+		}
 	}
 	c.Components = components
 	return nil
@@ -1405,7 +1433,9 @@ func (c *LabelComponent) UnmarshalJSON(data []byte) error {
 	c.ID = labelComponent.ID
 	c.Label = labelComponent.Label
 	c.Description = labelComponent.Description
-	c.Component = labelComponent.Component.Component.(LabelSubComponent)
+	if sub, ok := labelComponent.Component.Component.(LabelSubComponent); ok {
+		c.Component = sub
+	}
 	return nil
 }
 

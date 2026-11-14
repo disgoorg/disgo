@@ -10,6 +10,7 @@ var (
 	ErrNoShardManager          = errors.New("no shard manager configured")
 	ErrNoGateway               = errors.New("no gateway configured")
 	ErrGatewayAlreadyConnected = errors.New("gateway is already connected")
+	ErrGatewayPayload          = errors.New("failed to decode a gateway payload")
 	ErrShardNotConnected       = errors.New("shard is not connected")
 	ErrShardNotReady           = errors.New("shard is not ready")
 	ErrShardNotFound           = errors.New("shard not found in shard manager")

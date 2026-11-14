@@ -395,9 +395,11 @@ type MessageCall struct {
 }
 
 func unmarshalComponents(components []UnmarshalComponent) []LayoutComponent {
-	c := make([]LayoutComponent, len(components))
+	c := make([]LayoutComponent, 0, len(components))
 	for i := range components {
-		c[i] = components[i].Component.(LayoutComponent)
+		if layout, ok := components[i].Component.(LayoutComponent); ok {
+			c = append(c, layout)
+		}
 	}
 	return c
 }

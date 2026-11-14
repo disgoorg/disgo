@@ -55,6 +55,9 @@ var (
 	UpdateGuild       = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}")
 	GetGuildVanityURL = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/vanity-url")
 
+	GetGuildMemberPermissions = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/permissions/member/{user.id}")
+	GetGuildRolePermissions   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/permissions/role/{role.id}")
+
 	CreateGuildChannel     = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/channels")
 	GetGuildChannels       = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/channels")
 	UpdateChannelPositions = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/channels")
@@ -180,6 +183,9 @@ var (
 	UpdatePermissionOverwrite = NewEndpoint(http.MethodPut, "/channels/{channel.id}/permissions/{overwrite.id}")
 	DeletePermissionOverwrite = NewEndpoint(http.MethodDelete, "/channels/{channel.id}/permissions/{overwrite.id}")
 
+	GetChannelMemberPermissions = NewEndpoint(http.MethodGet, "/channels/{channel.id}/permissions/member/{user.id}")
+	GetChannelRolePermissions   = NewEndpoint(http.MethodGet, "/channels/{channel.id}/permissions/role/{role.id}")
+
 	SendTyping    = NewEndpoint(http.MethodPost, "/channels/{channel.id}/typing")
 	FollowChannel = NewEndpoint(http.MethodPost, "/channels/{channel.id}/followers")
 
@@ -293,14 +299,14 @@ var (
 	UpdateCurrentApplication = NewEndpoint(http.MethodPatch, "/applications/@me")
 
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
-	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
+	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands/{command.id}")
 	CreateGlobalCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/commands")
 	SetGlobalCommands   = NewEndpoint(http.MethodPut, "/applications/{application.id}/commands")
 	UpdateGlobalCommand = NewEndpoint(http.MethodPatch, "/applications/{application.id}/commands/{command.id}")
 	DeleteGlobalCommand = NewEndpoint(http.MethodDelete, "/applications/{application.id}/commands/{command.id}")
 
 	GetGuildCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands")
-	GetGuildCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/command/{command.id}")
+	GetGuildCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
 	CreateGuildCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/guilds/{guild.id}/commands")
 	SetGuildCommands   = NewEndpoint(http.MethodPut, "/applications/{application.id}/guilds/{guild.id}/commands")
 	UpdateGuildCommand = NewEndpoint(http.MethodPatch, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
