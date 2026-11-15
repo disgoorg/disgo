@@ -1882,8 +1882,8 @@ func (c CheckboxComponent) WithDefault(def bool) CheckboxComponent {
 	return c
 }
 
-// NewCheckboxComponent creates a new CheckboxComponent with the provided customID.
-func NewCheckboxComponent(customID string) CheckboxComponent {
+// NewCheckbox creates a new CheckboxComponent with the provided customID.
+func NewCheckbox(customID string) CheckboxComponent {
 	return CheckboxComponent{
 		CustomID: customID,
 	}
