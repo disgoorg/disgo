@@ -325,3 +325,18 @@ func (d ModalSubmitInteractionData) Attachments(customID string) []Attachment {
 	}
 	return nil
 }
+
+func (d ModalSubmitInteractionData) Checkbox(customID string) (CheckboxComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		checkboxComponent, ok := component.(CheckboxComponent)
+		return checkboxComponent, ok
+	}
+	return CheckboxComponent{}, false
+}
+
+func (d ModalSubmitInteractionData) OptBool(customID string) (bool, bool) {
+	if checkbox, ok := d.Checkbox(customID); ok {
+		return checkbox.Value, ok
+	}
+	return false, false
+}

@@ -1882,6 +1882,13 @@ func (c CheckboxComponent) WithDefault(def bool) CheckboxComponent {
 	return c
 }
 
+// NewCheckbox creates a new CheckboxComponent with the provided customID.
+func NewCheckbox(customID string) CheckboxComponent {
+	return CheckboxComponent{
+		CustomID: customID,
+	}
+}
+
 // NewUnknownComponent creates a new [UnknownComponent] with the provided type and data.
 // This is useful for handling unknown components, but should be avoided if possible.
 func NewUnknownComponent(componentType ComponentType, data json.RawMessage) UnknownComponent {
