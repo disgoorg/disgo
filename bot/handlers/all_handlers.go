@@ -24,6 +24,7 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeHeartbeatAck, gatewayHandlerHeartbeatAck),
 	bot.NewGatewayEventHandler(gateway.EventTypeReady, gatewayHandlerReady),
 	bot.NewGatewayEventHandler(gateway.EventTypeResumed, gatewayHandlerResumed),
+	bot.NewGatewayEventHandler(gateway.EventTypeRateLimited, gatewayHandlerRateLimited),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeApplicationCommandPermissionsUpdate, gatewayHandlerApplicationCommandPermissionsUpdate),
 

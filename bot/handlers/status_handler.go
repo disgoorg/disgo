@@ -38,3 +38,10 @@ func gatewayHandlerResumed(client *bot.Client, sequenceNumber int, shardID int, 
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 	})
 }
+
+func gatewayHandlerRateLimited(client *bot.Client, sequenceNumber int, shardID int, event gateway.EventRateLimited) {
+	client.EventManager.DispatchEvent(&events.GatewayRateLimited{
+		GenericEvent:     events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventRateLimited: event,
+	})
+}
