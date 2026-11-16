@@ -362,8 +362,8 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.conn = t
 	g.connMu.Unlock()
 
-	// reset rate limiter when connecting
-	g.config.RateLimiter.Reset()
+	// A new connection gets a fresh command budget.
+	g.config.RateLimiter = NewRateLimiter(g.config.RateLimiterConfigOpts...)
 
 	g.statusMu.Lock()
 	g.status = StatusWaitingForHello

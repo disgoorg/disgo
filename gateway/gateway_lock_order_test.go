@@ -19,7 +19,6 @@ type lockCheckRateLimiter struct {
 }
 
 func (r *lockCheckRateLimiter) Close(context.Context) {}
-func (r *lockCheckRateLimiter) Reset()                {}
 func (r *lockCheckRateLimiter) Unlock()               {}
 func (r *lockCheckRateLimiter) Wait(context.Context, RateLimiterCommandType) error {
 	if r.g.statusMu.TryLock() {

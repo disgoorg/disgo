@@ -18,8 +18,6 @@ func (l *noopRateLimiter) MaxRetries() int { return 0 }
 
 func (l *noopRateLimiter) Close(_ context.Context) {}
 
-func (l *noopRateLimiter) Reset() {}
-
 func (l *noopRateLimiter) Wait(_ context.Context, _ *CompiledEndpoint) error { return nil }
 
 func (l *noopRateLimiter) Unlock(_ *CompiledEndpoint, _ *http.Response) error { return nil }
