@@ -4,6 +4,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest"
 )
 
 func defaultConfig() config {
@@ -67,6 +68,9 @@ type config struct {
 
 	StickerCache       StickerCache
 	StickerCachePolicy Policy[discord.Sticker]
+
+	Rest              rest.Rest
+	RestFallbackFlags RestFallbackFlags
 }
 
 // ConfigOpt is a type alias for a function that takes a config and is used to configure your Caches.
@@ -124,6 +128,21 @@ func (c *config) apply(opts []ConfigOpt) {
 func WithCaches(flags ...Flags) ConfigOpt {
 	return func(config *config) {
 		config.CacheFlags = config.CacheFlags.Add(flags...)
+	}
+}
+
+// WithRestFallback enables automatic REST fallback when entities are missing from the cache.
+// If called with no flags, it enables fallback for all supported entity types (RestFallbackFlagsAll).
+func WithRestFallback(rest rest.Rest, flags ...RestFallbackFlags) ConfigOpt {
+	return func(config *config) {
+		config.Rest = rest
+		if len(flags) == 0 {
+			config.RestFallbackFlags = RestFallbackFlagsAll
+			return
+		}
+		for _, f := range flags {
+			config.RestFallbackFlags = config.RestFallbackFlags.Add(f)
+		}
 	}
 }
 
