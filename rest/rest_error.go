@@ -222,6 +222,7 @@ const (
 	JSONErrorCodeCannotSendVoiceMessagesInChannel                               JSONErrorCode = 50173
 	JSONErrorCodeUserAccountMustFirstBeVerified                                 JSONErrorCode = 50178
 	JSONErrorCodeProvidedFileDoesNotHaveValidDuration                           JSONErrorCode = 50192
+	JSONErrorCodeInviteIsExpired                                                JSONErrorCode = 50270
 	JSONErrorCodeCannotSendMessagesToThisUserDueToHavingNoMutualGuilds          JSONErrorCode = 50278
 
 	// Permission error
