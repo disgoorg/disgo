@@ -531,6 +531,14 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 type MessageDataUnknown json.RawMessage
 
+func (m MessageDataUnknown) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(m).MarshalJSON()
+}
+
+func (m *MessageDataUnknown) UnmarshalJSON(data []byte) error {
+	return (*json.RawMessage)(m).UnmarshalJSON(data)
+}
+
 func (MessageDataUnknown) messageData() {}
 
 // MessageDataHeartbeat is used to ensure the websocket connection remains open, and disconnect if not.

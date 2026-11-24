@@ -68,6 +68,14 @@ func (RateLimitedMetadataRequestGuildMembers) ratelimitedmetadata() {}
 
 type RateLimitedMetadataUnknown json.RawMessage
 
+func (m RateLimitedMetadataUnknown) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(m).MarshalJSON()
+}
+
+func (m *RateLimitedMetadataUnknown) UnmarshalJSON(data []byte) error {
+	return (*json.RawMessage)(m).UnmarshalJSON(data)
+}
+
 func (RateLimitedMetadataUnknown) ratelimitedmetadata() {}
 
 type EventRateLimited struct {
@@ -99,7 +107,7 @@ func (e *EventRateLimited) UnmarshalJSON(data []byte) error {
 		meta = v
 
 	default:
-		meta = RateLimitedMetadataUnknown{}
+		meta = RateLimitedMetadataUnknown(event.Meta)
 	}
 
 	if err != nil {
