@@ -109,7 +109,7 @@ func (p *ThreadMemberPage) Next() bool {
 	}
 
 	if len(p.Items) > 0 {
-		p.ID = p.Items[0].UserID
+		p.ID = p.Items[len(p.Items)-1].UserID
 	}
 
 	p.Items, p.Err = p.getItems(p.ID)
@@ -134,7 +134,7 @@ func (p *PollAnswerVotesPage) Next() bool {
 	}
 
 	if len(p.Items) > 0 {
-		p.ID = p.Items[0].ID
+		p.ID = p.Items[len(p.Items)-1].ID
 	}
 
 	p.Items, p.Err = p.getItems(p.ID)

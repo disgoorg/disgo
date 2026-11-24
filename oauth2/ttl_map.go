@@ -14,20 +14,26 @@ func newTTLMap(maxTTL time.Duration) *ttlMap {
 	m := &ttlMap{
 		maxTTL: maxTTL,
 		m:      map[string]value{},
+		stop:   make(chan struct{}),
 	}
 
 	if maxTTL > 0 {
 		go func() {
 			ticker := time.NewTicker(10 * time.Second)
 			defer ticker.Stop()
-			for now := range ticker.C {
-				m.mu.Lock()
-				for k, v := range m.m {
-					if now.Unix()-v.insertedAt > int64(m.maxTTL) {
-						delete(m.m, k)
+			for {
+				select {
+				case <-m.stop:
+					return
+				case <-ticker.C:
+					m.mu.Lock()
+					for k, v := range m.m {
+						if time.Since(time.Unix(v.insertedAt, 0)) > m.maxTTL {
+							delete(m.m, k)
+						}
 					}
+					m.mu.Unlock()
 				}
-				m.mu.Unlock()
 			}
 		}()
 	}
@@ -36,9 +42,17 @@ func newTTLMap(maxTTL time.Duration) *ttlMap {
 }
 
 type ttlMap struct {
-	maxTTL time.Duration
-	m      map[string]value
-	mu     sync.Mutex
+	maxTTL   time.Duration
+	m        map[string]value
+	mu       sync.Mutex
+	stop     chan struct{}
+	stopOnce sync.Once
+}
+
+func (m *ttlMap) close() {
+	m.stopOnce.Do(func() {
+		close(m.stop)
+	})
 }
 
 func (m *ttlMap) put(k string, v string) {
