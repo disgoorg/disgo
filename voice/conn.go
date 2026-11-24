@@ -204,6 +204,8 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 		}
 		_ = c.udp.Close()
 		c.gateway.Close()
+		_ = c.dave.Close()
+		c.removeConnFunc()
 	} else {
 		c.state.ChannelID = *update.ChannelID
 		c.voiceStateReceived = true
@@ -369,6 +371,15 @@ func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bo
 
 func (c *connImpl) Close(ctx context.Context) {
 	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
+
+	if c.audioSender != nil {
+		c.audioSender.Close()
+		c.audioSender = nil
+	}
+	if c.audioReceiver != nil {
+		c.audioReceiver.Close()
+		c.audioReceiver = nil
+	}
 
 	c.gateway.Close()
 	_ = c.udp.Close()

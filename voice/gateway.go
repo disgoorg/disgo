@@ -285,7 +285,7 @@ func (g *gatewayImpl) open(ctx context.Context, state State) error {
 	g.statusMu.Unlock()
 
 	var readyOnce sync.Once
-	readyChan := make(chan error)
+	readyChan := make(chan error, 1)
 	go g.listen(g.conn, func(err error) {
 		readyOnce.Do(func() {
 			readyChan <- err
