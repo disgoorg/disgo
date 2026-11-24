@@ -10,8 +10,13 @@ type testEvent struct {
 	client *Client
 }
 
-func (e *testEvent) Client() *Client       { return e.client }
-func (e *testEvent) SequenceNumber() int    { return 1 }
+func (e *testEvent) Client() *Client {
+	return e.client
+}
+
+func (e *testEvent) SequenceNumber() int {
+	return 1
+}
 
 func TestWaitForEvent_ContextCancelNoDeadlock(t *testing.T) {
 	client := &Client{
