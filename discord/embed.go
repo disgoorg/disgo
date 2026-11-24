@@ -17,6 +17,7 @@ const (
 	EmbedTypeRich                  EmbedType = "rich"
 	EmbedTypeImage                 EmbedType = "image"
 	EmbedTypeVideo                 EmbedType = "video"
+	EmbedTypeAudio                 EmbedType = "audio"
 	EmbedTypeGifV                  EmbedType = "gifv"
 	EmbedTypeArticle               EmbedType = "article"
 	EmbedTypeLink                  EmbedType = "link"
@@ -42,6 +43,7 @@ type Embed struct {
 	Image       *EmbedResource    `json:"image,omitempty"`
 	Thumbnail   *EmbedResource    `json:"thumbnail,omitempty"`
 	Video       *EmbedResource    `json:"video,omitempty"`
+	Audio       *EmbedAudio       `json:"audio,omitempty"`
 	Provider    *EmbedProvider    `json:"provider,omitempty"`
 	Author      *EmbedAuthor      `json:"author,omitempty"`
 	Fields      []EmbedField      `json:"fields,omitempty"`
@@ -356,6 +358,14 @@ type EmbedResource struct {
 	PlaceholderVersion int                `json:"placeholder_version,omitempty"`
 	Description        string             `json:"description,omitempty"`
 	Flags              EmbedResourceFlags `json:"flags,omitempty"`
+}
+
+// The EmbedAudio of an Embed
+type EmbedAudio struct {
+	URL         string `json:"url,omitempty"`
+	ProxyURL    string `json:"proxy_url,omitempty"`
+	ContentType string `json:"content_type,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 // The EmbedProvider of an Embed
