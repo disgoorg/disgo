@@ -370,7 +370,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.statusMu.Unlock()
 
 	var readyOnce sync.Once
-	readyChan := make(chan error)
+	readyChan := make(chan error, 1)
 	go g.listen(t, func(err error) { // nolint:gosec
 		readyOnce.Do(func() {
 			readyChan <- err

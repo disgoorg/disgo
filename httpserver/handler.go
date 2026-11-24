@@ -67,8 +67,9 @@ func VerifyRequest(verifier Verifier, r *http.Request, key PublicKey) bool {
 
 	msg.WriteString(timestamp)
 
+	oldBody := r.Body
 	defer func() {
-		_ = r.Body.Close()
+		_ = oldBody.Close()
 	}()
 	var body bytes.Buffer
 
