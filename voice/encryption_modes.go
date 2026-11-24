@@ -67,8 +67,10 @@ func (n *NoopEncrypter) Encrypt(header [RTPHeaderSize]byte, data []byte) []byte 
 }
 
 func (n *NoopEncrypter) Decrypt(rtpHeaderSize int, packet []byte) ([]byte, error) {
-	n.recBuf = n.recBuf[:0]
-	copy(n.recBuf, packet)
+	if len(packet) < rtpHeaderSize {
+		return nil, fmt.Errorf("packet too short for decryption")
+	}
+	n.recBuf = append(n.recBuf[:0], packet...)
 
 	return n.recBuf[rtpHeaderSize:], nil
 }
