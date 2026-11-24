@@ -1,9 +1,11 @@
 package gateway
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/json/v2"
 )
 
 // A dispatch that fails to decode makes the gateway reconnect and replay it, so
@@ -47,5 +49,41 @@ func TestUnmarshalEventData_UnknownChannelType(t *testing.T) {
 				t.Errorf("expected UnknownChannel, got %T", ch)
 			}
 		})
+	}
+}
+
+func TestUnknownRawMessageTypesMarshal(t *testing.T) {
+	payload := json.RawMessage(`{"guild_id":"1","self_mute":false}`)
+
+	tests := []struct {
+		name  string
+		value any
+	}{
+		{name: "message data", value: MessageDataUnknown(payload)},
+		{name: "event", value: EventUnknown(payload)},
+		{name: "rate limit metadata", value: RateLimitedMetadataUnknown(payload)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := json.Marshal(tt.value)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(got) != string(payload) {
+				t.Fatalf("marshal = %s, want %s", got, payload)
+			}
+		})
+	}
+
+	event, err := UnmarshalEventData([]byte(`{"opcode":99,"retry_after":1.5,"meta":{"future":true}}`), EventTypeRateLimited)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := json.Marshal(event)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(got, []byte(`"meta":{"future":true}`)) {
+		t.Fatalf("rate limited event = %s", got)
 	}
 }
