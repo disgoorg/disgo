@@ -36,6 +36,7 @@ func gatewayHandlerGuildEmojisUpdate(client *bot.Client, sequenceNumber int, sha
 	}
 
 	for _, newEmoji := range event.Emojis {
+		newEmoji.GuildID = event.GuildID
 		oldEmoji, ok := deletedEmojis[newEmoji.ID]
 		if ok {
 			delete(deletedEmojis, newEmoji.ID)
