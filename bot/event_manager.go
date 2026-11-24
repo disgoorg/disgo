@@ -2,6 +2,7 @@ package bot
 
 import (
 	"log/slog"
+	"slices"
 	"sync"
 
 	"github.com/disgoorg/disgo/gateway"
@@ -146,9 +147,12 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 		}
 	}()
 	e.eventListenerMu.Lock()
-	defer e.eventListenerMu.Unlock()
-	for _, listener := range e.eventListeners {
-		if e.asyncEventsEnabled {
+	listeners := slices.Clone(e.eventListeners)
+	async := e.asyncEventsEnabled
+	e.eventListenerMu.Unlock()
+
+	for _, listener := range listeners {
+		if async {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
@@ -176,7 +180,9 @@ func (e *eventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
 	for _, listener := range listeners {
 		for i, l := range e.eventListeners {
 			if l == listener {
-				e.eventListeners = append(e.eventListeners[:i], e.eventListeners[i+1:]...)
+				copy(e.eventListeners[i:], e.eventListeners[i+1:])
+				e.eventListeners[len(e.eventListeners)-1] = nil
+				e.eventListeners = e.eventListeners[:len(e.eventListeners)-1]
 				break
 			}
 		}

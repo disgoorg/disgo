@@ -27,18 +27,23 @@ func WaitForEvent[E Event](client *Client, ctx context.Context, filterFunc func(
 // The close function needs to be called to stop the event collector.
 func NewEventCollector[E Event](client *Client, filterFunc func(e E) bool) (<-chan E, func()) {
 	ch := make(chan E)
+	done := make(chan struct{})
 	var once sync.Once
 
 	handler := NewListenerFunc(func(e E) {
 		if !filterFunc(e) {
 			return
 		}
-		ch <- e
+		select {
+		case ch <- e:
+		case <-done:
+		}
 	})
 	client.EventManager.AddEventListeners(handler)
 
 	return ch, func() {
 		once.Do(func() {
+			close(done)
 			client.EventManager.RemoveEventListeners(handler)
 			close(ch)
 		})
