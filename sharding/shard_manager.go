@@ -90,13 +90,13 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error, reconn
 
 	m.shardsMu.Lock()
 	delete(m.shards, shard.ShardID())
-	defer m.shardsMu.Unlock()
 
 	oldShardCount := m.config.ShardCount
 	newShardCount := shard.ShardCount() * m.config.ShardSplitCount
 	if newShardCount > m.config.ShardCount {
 		m.config.ShardCount = newShardCount
 	}
+	m.shardsMu.Unlock()
 
 	newShardID := shard.ShardID()
 	var newShardIDs []int
@@ -232,7 +232,13 @@ func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCoun
 	m.shards[shardID] = shard
 	m.shardsMu.Unlock()
 
-	return shard.Open(ctx)
+	if err := shard.Open(ctx); err != nil {
+		m.shardsMu.Lock()
+		delete(m.shards, shardID)
+		m.shardsMu.Unlock()
+		return err
+	}
+	return nil
 }
 
 func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
