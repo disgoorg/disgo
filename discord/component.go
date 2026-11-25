@@ -680,9 +680,7 @@ func NewLinkMenuActionItem(label string, url string) MenuActionItemComponent {
 	}
 }
 
-var (
-	_ Component = (*MenuActionItemComponent)(nil)
-)
+var _ Component = (*MenuActionItemComponent)(nil)
 
 // MenuActionItemComponent is an item inside an [OverflowMenuGroup] which is shown when the [OverflowMenuComponent] is opened.
 // This component is currently in preview.
