@@ -37,6 +37,7 @@
 //
 // - [Router.Component]: for component handlers
 // - [Router.ButtonComponent]: for button component handlers
+// - [Router.MenuActionItemComponent]: for menu action item component handlers
 // - [Router.SelectMenuComponent]: for select menu component handlers
 //
 // - [Router.Modal]: for modal handlers

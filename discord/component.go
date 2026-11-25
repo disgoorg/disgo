@@ -37,6 +37,9 @@ const (
 	ComponentTypeRadioGroup
 	ComponentTypeCheckboxGroup
 	ComponentTypeCheckbox
+	_
+	ComponentTypeOverflowMenu
+	ComponentTypeMenuActionItem
 )
 
 // Component is an interface for all components.
@@ -59,6 +62,8 @@ const (
 // [RadioGroupComponent] (only supported in modals)
 // [CheckboxGroupComponent] (only supported in modals)
 // [CheckboxComponent] (only supported in modals)
+// [OverflowMenuComponent]
+// [MenuActionItemComponent]
 // [UnknownComponent]
 type Component interface {
 	json.Marshaler
@@ -89,6 +94,7 @@ type ComponentIter interface {
 // [RadioGroupComponent] (only supported in modals)
 // [CheckboxGroupComponent] (only supported in modals)
 // [CheckboxComponent] (only supported in modals)
+// [OverflowMenuComponent]
 // [UnknownComponent]
 type InteractiveComponent interface {
 	Component
@@ -125,6 +131,7 @@ type SectionSubComponent interface {
 // SectionAccessoryComponent is an interface for all components that can be present as an accessory in [SectionComponent.Accessory].
 // [ButtonComponent]
 // [ThumbnailComponent]
+// [OverflowMenuComponent]
 // [UnknownComponent]
 type SectionAccessoryComponent interface {
 	Component
@@ -280,6 +287,16 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 
 	case ComponentTypeCheckbox:
 		var v CheckboxComponent
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeOverflowMenu:
+		var v OverflowMenuComponent
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeMenuActionItem:
+		var v MenuActionItemComponent
 		err = json.Unmarshal(data, &v)
 		component = v
 	default:
@@ -613,6 +630,249 @@ func (c ButtonComponent) AsDisabled() ButtonComponent {
 // WithDisabled returns a new ButtonComponent but disabled/enabled
 func (c ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
 	c.Disabled = disabled
+	return c
+}
+
+// MenuActionItemStyle defines how the MenuActionItemComponent looks.
+type MenuActionItemStyle int
+
+// Supported MenuActionItemStyle(s)
+const (
+	MenuActionItemStyleDefault MenuActionItemStyle = iota + 1
+	MenuActionItemStyleDanger
+	MenuActionItemStyleLink
+)
+
+// NewMenuActionItem creates a new [MenuActionItemComponent] with the provided parameters. Link MenuActionItemComponent(s) need a URL and other MenuActionItemComponent(s) need a customID.
+func NewMenuActionItem(style MenuActionItemStyle, label string, customID string, url string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style:    style,
+		CustomID: customID,
+		URL:      url,
+		Label:    label,
+	}
+}
+
+// NewDefaultMenuActionItem creates a new MenuActionItemComponent with MenuActionItemStyleDefault & the provided parameters
+func NewDefaultMenuActionItem(label string, customID string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style:    MenuActionItemStyleDefault,
+		Label:    label,
+		CustomID: customID,
+	}
+}
+
+// NewDangerMenuActionItem creates a new MenuActionItemComponent with MenuActionItemStyleDanger & the provided parameters
+func NewDangerMenuActionItem(label string, customID string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style:    MenuActionItemStyleDanger,
+		Label:    label,
+		CustomID: customID,
+	}
+}
+
+// NewLinkMenuActionItem creates a new link MenuActionItemComponent with MenuActionItemStyleLink & the provided parameters
+func NewLinkMenuActionItem(label string, url string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style: MenuActionItemStyleLink,
+		Label: label,
+		URL:   url,
+	}
+}
+
+var (
+	_ Component = (*MenuActionItemComponent)(nil)
+)
+
+// MenuActionItemComponent is an item inside an [OverflowMenuGroup] which is shown when the [OverflowMenuComponent] is opened.
+// This component is currently in preview.
+type MenuActionItemComponent struct {
+	ID          int                 `json:"id,omitempty"`
+	CustomID    string              `json:"custom_id,omitempty"`
+	Label       string              `json:"label"`
+	Style       MenuActionItemStyle `json:"style"`
+	Description string              `json:"description,omitempty"`
+	URL         string              `json:"url,omitempty"`
+	Emoji       *ComponentEmoji     `json:"emoji,omitempty"`
+	Disabled    bool                `json:"disabled,omitempty"`
+}
+
+func (c MenuActionItemComponent) MarshalJSON() ([]byte, error) {
+	type menuActionItemComponent MenuActionItemComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		menuActionItemComponent
+	}{
+		Type:                    c.Type(),
+		menuActionItemComponent: menuActionItemComponent(c),
+	})
+}
+
+func (MenuActionItemComponent) Type() ComponentType {
+	return ComponentTypeMenuActionItem
+}
+
+func (c MenuActionItemComponent) GetID() int {
+	return c.ID
+}
+
+func (MenuActionItemComponent) component() {}
+
+// WithID returns a new MenuActionItemComponent with the provided id
+func (c MenuActionItemComponent) WithID(id int) MenuActionItemComponent {
+	c.ID = id
+	return c
+}
+
+// WithStyle returns a new MenuActionItemComponent with the provided style
+func (c MenuActionItemComponent) WithStyle(style MenuActionItemStyle) MenuActionItemComponent {
+	c.Style = style
+	return c
+}
+
+// WithLabel returns a new MenuActionItemComponent with the provided label
+func (c MenuActionItemComponent) WithLabel(label string) MenuActionItemComponent {
+	c.Label = label
+	return c
+}
+
+// WithDescription returns a new MenuActionItemComponent with the provided description
+func (c MenuActionItemComponent) WithDescription(description string) MenuActionItemComponent {
+	c.Description = description
+	return c
+}
+
+// WithEmoji returns a new MenuActionItemComponent with the provided Emoji
+func (c MenuActionItemComponent) WithEmoji(emoji ComponentEmoji) MenuActionItemComponent {
+	c.Emoji = &emoji
+	return c
+}
+
+// WithCustomID returns a new MenuActionItemComponent with the provided custom id
+func (c MenuActionItemComponent) WithCustomID(customID string) MenuActionItemComponent {
+	c.CustomID = customID
+	return c
+}
+
+// WithURL returns a new MenuActionItemComponent with the provided URL
+func (c MenuActionItemComponent) WithURL(url string) MenuActionItemComponent {
+	c.URL = url
+	return c
+}
+
+// AsEnabled returns a new MenuActionItemComponent but enabled
+func (c MenuActionItemComponent) AsEnabled() MenuActionItemComponent {
+	c.Disabled = false
+	return c
+}
+
+// AsDisabled returns a new MenuActionItemComponent but disabled
+func (c MenuActionItemComponent) AsDisabled() MenuActionItemComponent {
+	c.Disabled = true
+	return c
+}
+
+// WithDisabled returns a new MenuActionItemComponent but disabled/enabled
+func (c MenuActionItemComponent) WithDisabled(disabled bool) MenuActionItemComponent {
+	c.Disabled = disabled
+	return c
+}
+
+// NewOverflowMenuGroup creates a new [OverflowMenuGroup] with the provided components.
+func NewOverflowMenuGroup(components ...MenuActionItemComponent) OverflowMenuGroup {
+	return OverflowMenuGroup{
+		Components: components,
+	}
+}
+
+// OverflowMenuGroup is a group of [MenuActionItemComponent]s shown inside an [OverflowMenuComponent].
+type OverflowMenuGroup struct {
+	Label      string                    `json:"label,omitempty"`
+	Components []MenuActionItemComponent `json:"components"`
+}
+
+// WithLabel returns a new OverflowMenuGroup with the provided label
+func (c OverflowMenuGroup) WithLabel(label string) OverflowMenuGroup {
+	c.Label = label
+	return c
+}
+
+// WithComponents returns a new OverflowMenuGroup with the provided components
+func (c OverflowMenuGroup) WithComponents(components ...MenuActionItemComponent) OverflowMenuGroup {
+	c.Components = components
+	return c
+}
+
+// AddComponents returns a new OverflowMenuGroup with the provided MenuActionItemComponent(s) added
+func (c OverflowMenuGroup) AddComponents(components ...MenuActionItemComponent) OverflowMenuGroup {
+	c.Components = append(c.Components, components...)
+	return c
+}
+
+// NewOverflowMenu creates a new [OverflowMenuComponent] with the provided groups.
+func NewOverflowMenu(groups ...OverflowMenuGroup) OverflowMenuComponent {
+	return OverflowMenuComponent{
+		Groups: groups,
+	}
+}
+
+var (
+	_ Component                 = (*OverflowMenuComponent)(nil)
+	_ InteractiveComponent      = (*OverflowMenuComponent)(nil)
+	_ SectionAccessoryComponent = (*OverflowMenuComponent)(nil)
+)
+
+// OverflowMenuComponent is a component which shows a menu of grouped [MenuActionItemComponent]s when clicked.
+// It can only be used in an [ActionRowComponent] or as a [SectionComponent] accessory and requires [MessageFlagIsComponentsV2].
+// This component is currently in preview.
+type OverflowMenuComponent struct {
+	ID     int                 `json:"id,omitempty"`
+	Groups []OverflowMenuGroup `json:"groups"`
+}
+
+func (c OverflowMenuComponent) MarshalJSON() ([]byte, error) {
+	type overflowMenuComponent OverflowMenuComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		overflowMenuComponent
+	}{
+		Type:                  c.Type(),
+		overflowMenuComponent: overflowMenuComponent(c),
+	})
+}
+
+func (OverflowMenuComponent) Type() ComponentType {
+	return ComponentTypeOverflowMenu
+}
+
+func (c OverflowMenuComponent) GetID() int {
+	return c.ID
+}
+
+// GetCustomID returns an empty string as an OverflowMenuComponent has no customID.
+func (c OverflowMenuComponent) GetCustomID() string {
+	return ""
+}
+
+func (OverflowMenuComponent) component()                 {}
+func (OverflowMenuComponent) interactiveComponent()      {}
+func (OverflowMenuComponent) sectionAccessoryComponent() {}
+
+// WithID returns a new OverflowMenuComponent with the provided id
+func (c OverflowMenuComponent) WithID(id int) OverflowMenuComponent {
+	c.ID = id
+	return c
+}
+
+// WithGroups returns a new OverflowMenuComponent with the provided groups
+func (c OverflowMenuComponent) WithGroups(groups ...OverflowMenuGroup) OverflowMenuComponent {
+	c.Groups = groups
+	return c
+}
+
+// AddGroups returns a new OverflowMenuComponent with the provided group(s) added
+func (c OverflowMenuComponent) AddGroups(groups ...OverflowMenuGroup) OverflowMenuComponent {
+	c.Groups = append(c.Groups, groups...)
 	return c
 }
 

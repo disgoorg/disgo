@@ -42,6 +42,11 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
+	case ComponentTypeMenuActionItem:
+		var v MenuActionItemInteractionData
+		err = json.Unmarshal(interaction.Data, &v)
+		interactionData = v
+
 	case ComponentTypeStringSelectMenu:
 		var v StringSelectMenuInteractionData
 		err = json.Unmarshal(interaction.Data, &v)
@@ -139,6 +144,10 @@ func (i ComponentInteraction) ButtonInteractionData() ButtonInteractionData {
 	return i.Data.(ButtonInteractionData)
 }
 
+func (i ComponentInteraction) MenuActionItemInteractionData() MenuActionItemInteractionData {
+	return i.Data.(MenuActionItemInteractionData)
+}
+
 func (i ComponentInteraction) SelectMenuInteractionData() SelectMenuInteractionData {
 	return i.Data.(SelectMenuInteractionData)
 }
@@ -205,6 +214,41 @@ func (d ButtonInteractionData) CustomID() string {
 }
 
 func (ButtonInteractionData) componentInteractionData() {}
+
+type rawMenuActionItemInteractionData struct {
+	ComponentType ComponentType `json:"component_type"`
+	CustomID      string        `json:"custom_id"`
+}
+
+type MenuActionItemInteractionData struct {
+	customID string
+}
+
+func (d *MenuActionItemInteractionData) UnmarshalJSON(data []byte) error {
+	var v rawMenuActionItemInteractionData
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	d.customID = v.CustomID
+	return nil
+}
+
+func (d MenuActionItemInteractionData) MarshalJSON() ([]byte, error) {
+	return json.Marshal(rawMenuActionItemInteractionData{
+		ComponentType: d.Type(),
+		CustomID:      d.customID,
+	})
+}
+
+func (MenuActionItemInteractionData) Type() ComponentType {
+	return ComponentTypeMenuActionItem
+}
+
+func (d MenuActionItemInteractionData) CustomID() string {
+	return d.customID
+}
+
+func (MenuActionItemInteractionData) componentInteractionData() {}
 
 type stringSelectMenuInteractionData struct {
 	ComponentType ComponentType `json:"component_type"`
