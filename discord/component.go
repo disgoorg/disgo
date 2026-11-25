@@ -683,7 +683,6 @@ func NewLinkMenuActionItem(label string, url string) MenuActionItemComponent {
 var _ Component = (*MenuActionItemComponent)(nil)
 
 // MenuActionItemComponent is an item inside an [OverflowMenuGroup] which is shown when the [OverflowMenuComponent] is opened.
-// This component is currently in preview.
 type MenuActionItemComponent struct {
 	ID          int                 `json:"id,omitempty"`
 	CustomID    string              `json:"custom_id,omitempty"`
@@ -822,7 +821,6 @@ var (
 
 // OverflowMenuComponent is a component which shows a menu of grouped [MenuActionItemComponent]s when clicked.
 // It can only be used in an [ActionRowComponent] or as a [SectionComponent] accessory and requires [MessageFlagIsComponentsV2].
-// This component is currently in preview.
 type OverflowMenuComponent struct {
 	ID     int                 `json:"id,omitempty"`
 	Groups []OverflowMenuGroup `json:"groups"`
