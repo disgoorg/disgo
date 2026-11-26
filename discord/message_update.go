@@ -171,8 +171,8 @@ func (m MessageUpdate) UpdateComponent(id int, component LayoutComponent) Messag
 	return m
 }
 
-// AddActionRow returns a new MessageUpdate with a new ActionRowComponent containing the provided InteractiveComponent(s) added.
-func (m MessageUpdate) AddActionRow(components ...InteractiveComponent) MessageUpdate {
+// AddActionRow returns a new MessageUpdate with a new ActionRowComponent containing the provided ActionRowSubComponent(s) added.
+func (m MessageUpdate) AddActionRow(components ...ActionRowSubComponent) MessageUpdate {
 	if m.Components == nil {
 		m.Components = &[]LayoutComponent{}
 	}

@@ -282,6 +282,17 @@ func (r *Mux) ButtonComponent(pattern string, h ButtonComponentHandler) {
 	})
 }
 
+// MenuActionItemComponent registers the given MenuActionItemComponentHandler to the current Router.
+func (r *Mux) MenuActionItemComponent(pattern string, h MenuActionItemComponentHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[MenuActionItemComponentHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
+		t2:      []int{int(discord.ComponentTypeMenuActionItem)},
+	})
+}
+
 // SelectMenuComponent registers the given SelectMenuComponentHandler to the current Router.
 func (r *Mux) SelectMenuComponent(pattern string, h SelectMenuComponentHandler) {
 	checkPattern(pattern)

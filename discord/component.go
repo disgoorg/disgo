@@ -37,6 +37,9 @@ const (
 	ComponentTypeRadioGroup
 	ComponentTypeCheckboxGroup
 	ComponentTypeCheckbox
+	_
+	ComponentTypeOverflowMenu
+	ComponentTypeMenuActionItem
 )
 
 // Component is an interface for all components.
@@ -59,6 +62,8 @@ const (
 // [RadioGroupComponent] (only supported in modals)
 // [CheckboxGroupComponent] (only supported in modals)
 // [CheckboxComponent] (only supported in modals)
+// [OverflowMenuComponent]
+// [MenuActionItemComponent]
 // [UnknownComponent]
 type Component interface {
 	json.Marshaler
@@ -89,6 +94,7 @@ type ComponentIter interface {
 // [RadioGroupComponent] (only supported in modals)
 // [CheckboxGroupComponent] (only supported in modals)
 // [CheckboxComponent] (only supported in modals)
+// [MenuActionItemComponent]
 // [UnknownComponent]
 type InteractiveComponent interface {
 	Component
@@ -96,6 +102,22 @@ type InteractiveComponent interface {
 	GetCustomID() string
 	// interactiveComponent is a marker to simulate unions.
 	interactiveComponent()
+}
+
+// ActionRowSubComponent is an interface for all components that can be present in an [ActionRowComponent].
+// [ButtonComponent]
+// [StringSelectMenuComponent]
+// [TextInputComponent] (only supported in modals)
+// [UserSelectMenuComponent]
+// [RoleSelectMenuComponent]
+// [MentionableSelectMenuComponent]
+// [ChannelSelectMenuComponent]
+// [OverflowMenuComponent]
+// [UnknownComponent]
+type ActionRowSubComponent interface {
+	Component
+	// actionRowSubComponent is a marker to simulate unions.
+	actionRowSubComponent()
 }
 
 // LayoutComponent is an interface for all components that can be present as a top level component in a [Message].
@@ -125,6 +147,7 @@ type SectionSubComponent interface {
 // SectionAccessoryComponent is an interface for all components that can be present as an accessory in [SectionComponent.Accessory].
 // [ButtonComponent]
 // [ThumbnailComponent]
+// [OverflowMenuComponent]
 // [UnknownComponent]
 type SectionAccessoryComponent interface {
 	Component
@@ -282,6 +305,16 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 		var v CheckboxComponent
 		err = json.Unmarshal(data, &v)
 		component = v
+
+	case ComponentTypeOverflowMenu:
+		var v OverflowMenuComponent
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeMenuActionItem:
+		var v MenuActionItemComponent
+		err = json.Unmarshal(data, &v)
+		component = v
 	default:
 		var v UnknownComponent
 		err = json.Unmarshal(data, &v)
@@ -321,7 +354,7 @@ func (c ComponentEmoji) WithAnimated(animated bool) ComponentEmoji {
 	return c
 }
 
-func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
+func NewActionRow(components ...ActionRowSubComponent) ActionRowComponent {
 	return ActionRowComponent{
 		Components: components,
 	}
@@ -335,8 +368,8 @@ var (
 )
 
 type ActionRowComponent struct {
-	ID         int                    `json:"id,omitempty"`
-	Components []InteractiveComponent `json:"components"`
+	ID         int                     `json:"id,omitempty"`
+	Components []ActionRowSubComponent `json:"components"`
 }
 
 func (c ActionRowComponent) MarshalJSON() ([]byte, error) {
@@ -360,10 +393,10 @@ func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	}
 
 	c.ID = actionRowComponent.ID
-	components := make([]InteractiveComponent, 0, len(actionRowComponent.Components))
+	components := make([]ActionRowSubComponent, 0, len(actionRowComponent.Components))
 	for _, component := range actionRowComponent.Components {
-		if interactive, ok := component.Component.(InteractiveComponent); ok {
-			components = append(components, interactive)
+		if sub, ok := component.Component.(ActionRowSubComponent); ok {
+			components = append(components, sub)
 		}
 	}
 	c.Components = components
@@ -382,12 +415,19 @@ func (ActionRowComponent) component()             {}
 func (ActionRowComponent) layoutComponent()       {}
 func (ActionRowComponent) containerSubComponent() {}
 
-// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) of the ActionRowComponent.
+// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) of the ActionRowComponent and their sub Component(s).
 func (c ActionRowComponent) SubComponents() iter.Seq[Component] {
 	return func(yield func(Component) bool) {
 		for _, cc := range c.Components {
 			if !yield(cc) {
 				return
+			}
+			if ic, ok := cc.(ComponentIter); ok {
+				for ccc := range ic.SubComponents() {
+					if !yield(ccc) {
+						return
+					}
+				}
 			}
 		}
 	}
@@ -400,13 +440,13 @@ func (c ActionRowComponent) WithID(id int) ActionRowComponent {
 }
 
 // WithComponents returns a new ActionRowComponent with the provided Component(s)
-func (c ActionRowComponent) WithComponents(components ...InteractiveComponent) ActionRowComponent {
+func (c ActionRowComponent) WithComponents(components ...ActionRowSubComponent) ActionRowComponent {
 	c.Components = components
 	return c
 }
 
 // UpdateComponent returns a new ActionRowComponent with the Component which has the id replaced with the provided Component.
-func (c ActionRowComponent) UpdateComponent(id int, component InteractiveComponent) ActionRowComponent {
+func (c ActionRowComponent) UpdateComponent(id int, component ActionRowSubComponent) ActionRowComponent {
 	for i, cc := range c.Components {
 		if cc.GetID() == id {
 			c.Components[i] = component
@@ -417,7 +457,7 @@ func (c ActionRowComponent) UpdateComponent(id int, component InteractiveCompone
 }
 
 // AddComponents returns a new ActionRowComponent with the provided Component(s) added
-func (c ActionRowComponent) AddComponents(components ...InteractiveComponent) ActionRowComponent {
+func (c ActionRowComponent) AddComponents(components ...ActionRowSubComponent) ActionRowComponent {
 	c.Components = append(c.Components, components...)
 	return c
 }
@@ -554,6 +594,7 @@ func (c ButtonComponent) GetCustomID() string {
 
 func (ButtonComponent) component()                 {}
 func (ButtonComponent) interactiveComponent()      {}
+func (ButtonComponent) actionRowSubComponent()     {}
 func (ButtonComponent) sectionAccessoryComponent() {}
 
 // WithID returns a new ButtonComponent with the provided id
@@ -613,6 +654,284 @@ func (c ButtonComponent) AsDisabled() ButtonComponent {
 // WithDisabled returns a new ButtonComponent but disabled/enabled
 func (c ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
 	c.Disabled = disabled
+	return c
+}
+
+// MenuActionItemStyle defines how the MenuActionItemComponent looks.
+type MenuActionItemStyle int
+
+// Supported MenuActionItemStyle(s)
+const (
+	MenuActionItemStyleDefault MenuActionItemStyle = iota + 1
+	MenuActionItemStyleDanger
+	MenuActionItemStyleLink
+)
+
+// NewMenuActionItem creates a new [MenuActionItemComponent] with the provided parameters. Link MenuActionItemComponent(s) need a URL and other MenuActionItemComponent(s) need a customID.
+func NewMenuActionItem(style MenuActionItemStyle, label string, customID string, url string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style:    style,
+		CustomID: customID,
+		URL:      url,
+		Label:    label,
+	}
+}
+
+// NewDefaultMenuActionItem creates a new MenuActionItemComponent with MenuActionItemStyleDefault & the provided parameters
+func NewDefaultMenuActionItem(label string, customID string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style:    MenuActionItemStyleDefault,
+		Label:    label,
+		CustomID: customID,
+	}
+}
+
+// NewDangerMenuActionItem creates a new MenuActionItemComponent with MenuActionItemStyleDanger & the provided parameters
+func NewDangerMenuActionItem(label string, customID string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style:    MenuActionItemStyleDanger,
+		Label:    label,
+		CustomID: customID,
+	}
+}
+
+// NewLinkMenuActionItem creates a new link MenuActionItemComponent with MenuActionItemStyleLink & the provided parameters
+func NewLinkMenuActionItem(label string, url string) MenuActionItemComponent {
+	return MenuActionItemComponent{
+		Style: MenuActionItemStyleLink,
+		Label: label,
+		URL:   url,
+	}
+}
+
+var (
+	_ Component            = (*MenuActionItemComponent)(nil)
+	_ InteractiveComponent = (*MenuActionItemComponent)(nil)
+)
+
+// MenuActionItemComponent is an item inside an [OverflowMenuGroup] which is shown when the [OverflowMenuComponent] is opened.
+type MenuActionItemComponent struct {
+	ID          int                 `json:"id,omitempty"`
+	CustomID    string              `json:"custom_id,omitempty"`
+	Label       string              `json:"label"`
+	Style       MenuActionItemStyle `json:"style"`
+	Description string              `json:"description,omitempty"`
+	URL         string              `json:"url,omitempty"`
+	Emoji       *ComponentEmoji     `json:"emoji,omitempty"`
+	Disabled    bool                `json:"disabled,omitempty"`
+}
+
+func (c MenuActionItemComponent) MarshalJSON() ([]byte, error) {
+	type menuActionItemComponent MenuActionItemComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		menuActionItemComponent
+	}{
+		Type:                    c.Type(),
+		menuActionItemComponent: menuActionItemComponent(c),
+	})
+}
+
+func (MenuActionItemComponent) Type() ComponentType {
+	return ComponentTypeMenuActionItem
+}
+
+func (c MenuActionItemComponent) GetID() int {
+	return c.ID
+}
+
+func (c MenuActionItemComponent) GetCustomID() string {
+	return c.CustomID
+}
+
+func (MenuActionItemComponent) component()            {}
+func (MenuActionItemComponent) interactiveComponent() {}
+
+// WithID returns a new MenuActionItemComponent with the provided id
+func (c MenuActionItemComponent) WithID(id int) MenuActionItemComponent {
+	c.ID = id
+	return c
+}
+
+// WithStyle returns a new MenuActionItemComponent with the provided style
+func (c MenuActionItemComponent) WithStyle(style MenuActionItemStyle) MenuActionItemComponent {
+	c.Style = style
+	return c
+}
+
+// WithLabel returns a new MenuActionItemComponent with the provided label
+func (c MenuActionItemComponent) WithLabel(label string) MenuActionItemComponent {
+	c.Label = label
+	return c
+}
+
+// WithDescription returns a new MenuActionItemComponent with the provided description
+func (c MenuActionItemComponent) WithDescription(description string) MenuActionItemComponent {
+	c.Description = description
+	return c
+}
+
+// WithEmoji returns a new MenuActionItemComponent with the provided Emoji
+func (c MenuActionItemComponent) WithEmoji(emoji ComponentEmoji) MenuActionItemComponent {
+	c.Emoji = &emoji
+	return c
+}
+
+// WithCustomID returns a new MenuActionItemComponent with the provided custom id
+func (c MenuActionItemComponent) WithCustomID(customID string) MenuActionItemComponent {
+	c.CustomID = customID
+	return c
+}
+
+// WithURL returns a new MenuActionItemComponent with the provided URL
+func (c MenuActionItemComponent) WithURL(url string) MenuActionItemComponent {
+	c.URL = url
+	return c
+}
+
+// AsEnabled returns a new MenuActionItemComponent but enabled
+func (c MenuActionItemComponent) AsEnabled() MenuActionItemComponent {
+	c.Disabled = false
+	return c
+}
+
+// AsDisabled returns a new MenuActionItemComponent but disabled
+func (c MenuActionItemComponent) AsDisabled() MenuActionItemComponent {
+	c.Disabled = true
+	return c
+}
+
+// WithDisabled returns a new MenuActionItemComponent but disabled/enabled
+func (c MenuActionItemComponent) WithDisabled(disabled bool) MenuActionItemComponent {
+	c.Disabled = disabled
+	return c
+}
+
+// NewOverflowMenuGroup creates a new [OverflowMenuGroup] with the provided components.
+func NewOverflowMenuGroup(components ...MenuActionItemComponent) OverflowMenuGroup {
+	return OverflowMenuGroup{
+		Components: components,
+	}
+}
+
+// OverflowMenuGroup is a group of [MenuActionItemComponent]s shown inside an [OverflowMenuComponent].
+type OverflowMenuGroup struct {
+	Label      string                    `json:"label,omitempty"`
+	Components []MenuActionItemComponent `json:"components"`
+}
+
+// WithLabel returns a new OverflowMenuGroup with the provided label
+func (c OverflowMenuGroup) WithLabel(label string) OverflowMenuGroup {
+	c.Label = label
+	return c
+}
+
+// WithComponents returns a new OverflowMenuGroup with the provided components
+func (c OverflowMenuGroup) WithComponents(components ...MenuActionItemComponent) OverflowMenuGroup {
+	c.Components = components
+	return c
+}
+
+// UpdateComponent returns a new OverflowMenuGroup with the Component which has the id replaced with the provided Component.
+func (c OverflowMenuGroup) UpdateComponent(id int, component MenuActionItemComponent) OverflowMenuGroup {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components[i] = component
+			return c
+		}
+	}
+	return c
+}
+
+// AddComponents returns a new OverflowMenuGroup with the provided Component(s) added
+func (c OverflowMenuGroup) AddComponents(components ...MenuActionItemComponent) OverflowMenuGroup {
+	c.Components = append(c.Components, components...)
+	return c
+}
+
+// RemoveComponent returns a new OverflowMenuGroup with the provided Component which has the provided id removed.
+func (c OverflowMenuGroup) RemoveComponent(id int) OverflowMenuGroup {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components = append(c.Components[:i], c.Components[i+1:]...)
+			return c
+		}
+	}
+	return c
+}
+
+// NewOverflowMenu creates a new [OverflowMenuComponent] with the provided groups.
+func NewOverflowMenu(groups ...OverflowMenuGroup) OverflowMenuComponent {
+	return OverflowMenuComponent{
+		Groups: groups,
+	}
+}
+
+var (
+	_ Component                 = (*OverflowMenuComponent)(nil)
+	_ ActionRowSubComponent     = (*OverflowMenuComponent)(nil)
+	_ SectionAccessoryComponent = (*OverflowMenuComponent)(nil)
+	_ ComponentIter             = (*OverflowMenuComponent)(nil)
+)
+
+// OverflowMenuComponent is a component which shows a menu of grouped [MenuActionItemComponent]s when clicked.
+// It can only be used in an [ActionRowComponent] or as a [SectionComponent] accessory and requires [MessageFlagIsComponentsV2].
+type OverflowMenuComponent struct {
+	ID     int                 `json:"id,omitempty"`
+	Groups []OverflowMenuGroup `json:"groups"`
+}
+
+func (c OverflowMenuComponent) MarshalJSON() ([]byte, error) {
+	type overflowMenuComponent OverflowMenuComponent
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+		overflowMenuComponent
+	}{
+		Type:                  c.Type(),
+		overflowMenuComponent: overflowMenuComponent(c),
+	})
+}
+
+func (OverflowMenuComponent) Type() ComponentType {
+	return ComponentTypeOverflowMenu
+}
+
+func (c OverflowMenuComponent) GetID() int {
+	return c.ID
+}
+
+func (OverflowMenuComponent) component()                 {}
+func (OverflowMenuComponent) actionRowSubComponent()     {}
+func (OverflowMenuComponent) sectionAccessoryComponent() {}
+
+// SubComponents returns an [iter.Seq[Component]] over the [MenuActionItemComponent](s) of all groups of the OverflowMenuComponent.
+func (c OverflowMenuComponent) SubComponents() iter.Seq[Component] {
+	return func(yield func(Component) bool) {
+		for _, group := range c.Groups {
+			for _, cc := range group.Components {
+				if !yield(cc) {
+					return
+				}
+			}
+		}
+	}
+}
+
+// WithID returns a new OverflowMenuComponent with the provided id
+func (c OverflowMenuComponent) WithID(id int) OverflowMenuComponent {
+	c.ID = id
+	return c
+}
+
+// WithGroups returns a new OverflowMenuComponent with the provided groups
+func (c OverflowMenuComponent) WithGroups(groups ...OverflowMenuGroup) OverflowMenuComponent {
+	c.Groups = groups
+	return c
+}
+
+// AddGroups returns a new OverflowMenuComponent with the provided OverflowMenuGroup(s) added
+func (c OverflowMenuComponent) AddGroups(groups ...OverflowMenuGroup) OverflowMenuComponent {
+	c.Groups = append(c.Groups, groups...)
 	return c
 }
 
@@ -684,9 +1003,10 @@ func (c TextInputComponent) GetCustomID() string {
 	return c.CustomID
 }
 
-func (TextInputComponent) component()            {}
-func (TextInputComponent) interactiveComponent() {}
-func (TextInputComponent) labelSubComponent()    {}
+func (TextInputComponent) component()             {}
+func (TextInputComponent) interactiveComponent()  {}
+func (TextInputComponent) actionRowSubComponent() {}
+func (TextInputComponent) labelSubComponent()     {}
 
 // WithID returns a new TextInputComponent with the provided id
 func (c TextInputComponent) WithID(id int) TextInputComponent {
@@ -872,7 +1192,7 @@ func (SectionComponent) component()             {}
 func (SectionComponent) layoutComponent()       {}
 func (SectionComponent) containerSubComponent() {}
 
-// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) and Accessory of the SectionComponent.
+// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) and Accessory of the SectionComponent and their sub Component(s).
 func (c SectionComponent) SubComponents() iter.Seq[Component] {
 	return func(yield func(Component) bool) {
 		for _, cc := range c.Components {
@@ -884,6 +1204,13 @@ func (c SectionComponent) SubComponents() iter.Seq[Component] {
 		if c.Accessory != nil {
 			if !yield(c.Accessory) {
 				return
+			}
+			if ic, ok := c.Accessory.(ComponentIter); ok {
+				for cc := range ic.SubComponents() {
+					if !yield(cc) {
+						return
+					}
+				}
 			}
 		}
 	}
@@ -1967,6 +2294,7 @@ func (c UnknownComponent) GetCustomID() string {
 
 func (UnknownComponent) component()                 {}
 func (UnknownComponent) interactiveComponent()      {}
+func (UnknownComponent) actionRowSubComponent()     {}
 func (UnknownComponent) layoutComponent()           {}
 func (UnknownComponent) selectMenuComponent()       {}
 func (UnknownComponent) containerSubComponent()     {}

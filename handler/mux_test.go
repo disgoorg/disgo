@@ -129,6 +129,11 @@ func TestComponentMux(t *testing.T) {
 		t.Fatalf("failed to read select menu component data: %v", err)
 	}
 
+	menuActionItemData, err := os.ReadFile("testdata/component/menu_action_item_component.json")
+	if err != nil {
+		t.Fatalf("failed to read menu action item component data: %v", err)
+	}
+
 	data := []struct {
 		data     []byte
 		expected *discord.InteractionResponse
@@ -147,6 +152,13 @@ func TestComponentMux(t *testing.T) {
 				Data: discord.MessageCreate{Content: "bar2"},
 			},
 		},
+		{
+			data: menuActionItemData,
+			expected: &discord.InteractionResponse{
+				Type: discord.InteractionResponseTypeCreateMessage,
+				Data: discord.MessageCreate{Content: "bar3"},
+			},
+		},
 	}
 
 	mux := New()
@@ -155,6 +167,9 @@ func TestComponentMux(t *testing.T) {
 	})
 	mux.SelectMenuComponent("/foo", func(data discord.SelectMenuInteractionData, e *ComponentEvent) error {
 		return e.CreateMessage(discord.MessageCreate{Content: "bar2"})
+	})
+	mux.MenuActionItemComponent("/foo", func(data discord.MenuActionItemInteractionData, e *ComponentEvent) error {
+		return e.CreateMessage(discord.MessageCreate{Content: "bar3"})
 	})
 
 	for _, d := range data {

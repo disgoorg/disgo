@@ -1,4 +1,4 @@
-// Package handler provides a way to handle interactions like application commands, autocomplete, buttons, select menus & modals with a simple interface.
+// Package handler provides a way to handle interactions like application commands, autocomplete, buttons, menu action items, select menus & modals with a simple interface.
 //
 // The handler package is inspired by the go-chi/chi http router.
 // Each interaction has a path which is either the command name (starting with /) or the custom id. According to this path all interactions are routed to the correct handler.
@@ -118,7 +118,7 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 		}
 		e.Respond = wrapRespond(event.Respond, &e.Ctx)
 		return handler(e)
-	case ComponentHandler, ButtonComponentHandler, SelectMenuComponentHandler:
+	case ComponentHandler, ButtonComponentHandler, MenuActionItemComponentHandler, SelectMenuComponentHandler:
 		e := &ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
@@ -133,6 +133,8 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			return handler(e)
 		case ButtonComponentHandler:
 			return handler(e.ButtonInteractionData(), e)
+		case MenuActionItemComponentHandler:
+			return handler(e.MenuActionItemInteractionData(), e)
 		case SelectMenuComponentHandler:
 			return handler(e.SelectMenuInteractionData(), e)
 		}

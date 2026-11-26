@@ -27,6 +27,8 @@ type (
 	ComponentHandler func(e *ComponentEvent) error
 	// ButtonComponentHandler is a function that handles button component interactions.
 	ButtonComponentHandler func(data discord.ButtonInteractionData, e *ComponentEvent) error
+	// MenuActionItemComponentHandler is a function that handles menu action item component interactions.
+	MenuActionItemComponentHandler func(data discord.MenuActionItemInteractionData, e *ComponentEvent) error
 	// SelectMenuComponentHandler is a function that handles select menu component interactions.
 	SelectMenuComponentHandler func(data discord.SelectMenuInteractionData, e *ComponentEvent) error
 
@@ -104,6 +106,9 @@ type Router interface {
 
 	// ButtonComponent registers the given ButtonComponentHandler to the current Router.
 	ButtonComponent(pattern string, h ButtonComponentHandler)
+
+	// MenuActionItemComponent registers the given MenuActionItemComponentHandler to the current Router.
+	MenuActionItemComponent(pattern string, h MenuActionItemComponentHandler)
 
 	// SelectMenuComponent registers the given SelectMenuComponentHandler to the current Router.
 	SelectMenuComponent(pattern string, h SelectMenuComponentHandler)

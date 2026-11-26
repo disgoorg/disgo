@@ -158,8 +158,8 @@ func (m WebhookMessageUpdate) UpdateComponent(id int, component LayoutComponent)
 	return m
 }
 
-// AddActionRow returns a new WebhookMessageUpdate with a new ActionRowComponent containing the provided InteractiveComponent(s) added.
-func (m WebhookMessageUpdate) AddActionRow(components ...InteractiveComponent) WebhookMessageUpdate {
+// AddActionRow returns a new WebhookMessageUpdate with a new ActionRowComponent containing the provided ActionRowSubComponent(s) added.
+func (m WebhookMessageUpdate) AddActionRow(components ...ActionRowSubComponent) WebhookMessageUpdate {
 	if m.Components == nil {
 		m.Components = &[]LayoutComponent{}
 	}
