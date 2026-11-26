@@ -46,9 +46,7 @@
             "discriminator": "1337",
             "avatar": "a_d5efa99b3eeaa7dd43acca82f5692432"
         },
-        "roles": [
-            "290926798626357999"
-        ],
+        "roles": ["290926798626357999"],
         "premium_since": null,
         "permissions": "17179869183",
         "pending": false,

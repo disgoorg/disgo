@@ -2,12 +2,9 @@
     "application_id": "845027738276462632",
     "channel_id": "772908445358620702",
     "data": {
-        "component_type":3,
+        "component_type": 3,
         "custom_id": "/foo",
-        "values": [
-            "mage",
-            "rogue"
-        ]
+        "values": ["mage", "rogue"]
     },
     "guild_id": "772904309264089089",
     "id": "847587388497854464",
@@ -21,10 +18,8 @@
         "pending": false,
         "permissions": "17179869183",
         "premium_since": null,
-        "roles": [
-            "785609923542777878"
-        ],
-        "user":{
+        "roles": ["785609923542777878"],
+        "user": {
             "avatar": "a_d5efa99b3eeaa7dd43acca82f5692432",
             "discriminator": "1337",
             "id": "53908232506183680",
@@ -32,7 +27,7 @@
             "username": "Mason"
         }
     },
-    "message":{
+    "message": {
         "application_id": "845027738276462632",
         "attachments": [],
         "author": {
@@ -54,7 +49,7 @@
                         "options": [
                             {
                                 "description": "Sneak n stab",
-                                "emoji":{
+                                "emoji": {
                                     "id": "625891304148303894",
                                     "name": "rogue"
                                 },
@@ -63,7 +58,7 @@
                             },
                             {
                                 "description": "Turn 'em into a sheep",
-                                "emoji":{
+                                "emoji": {
                                     "id": "625891304081063986",
                                     "name": "mage"
                                 },
@@ -72,7 +67,7 @@
                             },
                             {
                                 "description": "You get heals when I'm done doing damage",
-                                "emoji":{
+                                "emoji": {
                                     "id": "625891303795982337",
                                     "name": "priest"
                                 },
@@ -105,8 +100,8 @@
             }
         },
         "mention_everyone": false,
-        "mention_roles":[],
-        "mentions":[],
+        "mention_roles": [],
+        "mentions": [],
         "pinned": false,
         "timestamp": "2021-05-27T21:29:27.956000+00:00",
         "tts": false,
