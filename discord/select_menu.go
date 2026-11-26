@@ -76,10 +76,11 @@ func (c StringSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
-func (StringSelectMenuComponent) component()            {}
-func (StringSelectMenuComponent) interactiveComponent() {}
-func (StringSelectMenuComponent) selectMenuComponent()  {}
-func (StringSelectMenuComponent) labelSubComponent()    {}
+func (StringSelectMenuComponent) component()             {}
+func (StringSelectMenuComponent) interactiveComponent()  {}
+func (StringSelectMenuComponent) actionRowSubComponent() {}
+func (StringSelectMenuComponent) selectMenuComponent()   {}
+func (StringSelectMenuComponent) labelSubComponent()     {}
 
 // WithCustomID returns a new StringSelectMenuComponent with the provided customID
 func (c StringSelectMenuComponent) WithCustomID(customID string) StringSelectMenuComponent {
@@ -267,10 +268,11 @@ func (c UserSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
-func (UserSelectMenuComponent) component()            {}
-func (UserSelectMenuComponent) interactiveComponent() {}
-func (UserSelectMenuComponent) selectMenuComponent()  {}
-func (UserSelectMenuComponent) labelSubComponent()    {}
+func (UserSelectMenuComponent) component()             {}
+func (UserSelectMenuComponent) interactiveComponent()  {}
+func (UserSelectMenuComponent) actionRowSubComponent() {}
+func (UserSelectMenuComponent) selectMenuComponent()   {}
+func (UserSelectMenuComponent) labelSubComponent()     {}
 
 // WithCustomID returns a new UserSelectMenuComponent with the provided customID
 func (c UserSelectMenuComponent) WithCustomID(customID string) UserSelectMenuComponent {
@@ -403,10 +405,11 @@ func (c RoleSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
-func (RoleSelectMenuComponent) component()            {}
-func (RoleSelectMenuComponent) interactiveComponent() {}
-func (RoleSelectMenuComponent) selectMenuComponent()  {}
-func (RoleSelectMenuComponent) labelSubComponent()    {}
+func (RoleSelectMenuComponent) component()             {}
+func (RoleSelectMenuComponent) interactiveComponent()  {}
+func (RoleSelectMenuComponent) actionRowSubComponent() {}
+func (RoleSelectMenuComponent) selectMenuComponent()   {}
+func (RoleSelectMenuComponent) labelSubComponent()     {}
 
 // WithCustomID returns a new RoleSelectMenuComponent with the provided customID
 func (c RoleSelectMenuComponent) WithCustomID(customID string) RoleSelectMenuComponent {
@@ -539,10 +542,11 @@ func (c MentionableSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
-func (MentionableSelectMenuComponent) component()            {}
-func (MentionableSelectMenuComponent) interactiveComponent() {}
-func (MentionableSelectMenuComponent) selectMenuComponent()  {}
-func (MentionableSelectMenuComponent) labelSubComponent()    {}
+func (MentionableSelectMenuComponent) component()             {}
+func (MentionableSelectMenuComponent) interactiveComponent()  {}
+func (MentionableSelectMenuComponent) actionRowSubComponent() {}
+func (MentionableSelectMenuComponent) selectMenuComponent()   {}
+func (MentionableSelectMenuComponent) labelSubComponent()     {}
 
 // WithCustomID returns a new MentionableSelectMenuComponent with the provided customID
 func (c MentionableSelectMenuComponent) WithCustomID(customID string) MentionableSelectMenuComponent {
@@ -673,10 +677,11 @@ func (c ChannelSelectMenuComponent) GetCustomID() string {
 	return c.CustomID
 }
 
-func (ChannelSelectMenuComponent) component()            {}
-func (ChannelSelectMenuComponent) interactiveComponent() {}
-func (ChannelSelectMenuComponent) selectMenuComponent()  {}
-func (ChannelSelectMenuComponent) labelSubComponent()    {}
+func (ChannelSelectMenuComponent) component()             {}
+func (ChannelSelectMenuComponent) interactiveComponent()  {}
+func (ChannelSelectMenuComponent) actionRowSubComponent() {}
+func (ChannelSelectMenuComponent) selectMenuComponent()   {}
+func (ChannelSelectMenuComponent) labelSubComponent()     {}
 
 // WithCustomID returns a new ChannelSelectMenuComponent with the provided customID
 func (c ChannelSelectMenuComponent) WithCustomID(customID string) ChannelSelectMenuComponent {

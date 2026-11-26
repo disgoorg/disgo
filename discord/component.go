@@ -94,7 +94,7 @@ type ComponentIter interface {
 // [RadioGroupComponent] (only supported in modals)
 // [CheckboxGroupComponent] (only supported in modals)
 // [CheckboxComponent] (only supported in modals)
-// [OverflowMenuComponent]
+// [MenuActionItemComponent]
 // [UnknownComponent]
 type InteractiveComponent interface {
 	Component
@@ -102,6 +102,22 @@ type InteractiveComponent interface {
 	GetCustomID() string
 	// interactiveComponent is a marker to simulate unions.
 	interactiveComponent()
+}
+
+// ActionRowSubComponent is an interface for all components that can be present in an [ActionRowComponent].
+// [ButtonComponent]
+// [StringSelectMenuComponent]
+// [TextInputComponent] (only supported in modals)
+// [UserSelectMenuComponent]
+// [RoleSelectMenuComponent]
+// [MentionableSelectMenuComponent]
+// [ChannelSelectMenuComponent]
+// [OverflowMenuComponent]
+// [UnknownComponent]
+type ActionRowSubComponent interface {
+	Component
+	// actionRowSubComponent is a marker to simulate unions.
+	actionRowSubComponent()
 }
 
 // LayoutComponent is an interface for all components that can be present as a top level component in a [Message].
@@ -338,7 +354,7 @@ func (c ComponentEmoji) WithAnimated(animated bool) ComponentEmoji {
 	return c
 }
 
-func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
+func NewActionRow(components ...ActionRowSubComponent) ActionRowComponent {
 	return ActionRowComponent{
 		Components: components,
 	}
@@ -352,8 +368,8 @@ var (
 )
 
 type ActionRowComponent struct {
-	ID         int                    `json:"id,omitempty"`
-	Components []InteractiveComponent `json:"components"`
+	ID         int                     `json:"id,omitempty"`
+	Components []ActionRowSubComponent `json:"components"`
 }
 
 func (c ActionRowComponent) MarshalJSON() ([]byte, error) {
@@ -377,10 +393,10 @@ func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	}
 
 	c.ID = actionRowComponent.ID
-	components := make([]InteractiveComponent, 0, len(actionRowComponent.Components))
+	components := make([]ActionRowSubComponent, 0, len(actionRowComponent.Components))
 	for _, component := range actionRowComponent.Components {
-		if interactive, ok := component.Component.(InteractiveComponent); ok {
-			components = append(components, interactive)
+		if sub, ok := component.Component.(ActionRowSubComponent); ok {
+			components = append(components, sub)
 		}
 	}
 	c.Components = components
@@ -399,12 +415,19 @@ func (ActionRowComponent) component()             {}
 func (ActionRowComponent) layoutComponent()       {}
 func (ActionRowComponent) containerSubComponent() {}
 
-// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) of the ActionRowComponent.
+// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) of the ActionRowComponent and their sub Component(s).
 func (c ActionRowComponent) SubComponents() iter.Seq[Component] {
 	return func(yield func(Component) bool) {
 		for _, cc := range c.Components {
 			if !yield(cc) {
 				return
+			}
+			if ic, ok := cc.(ComponentIter); ok {
+				for ccc := range ic.SubComponents() {
+					if !yield(ccc) {
+						return
+					}
+				}
 			}
 		}
 	}
@@ -417,13 +440,13 @@ func (c ActionRowComponent) WithID(id int) ActionRowComponent {
 }
 
 // WithComponents returns a new ActionRowComponent with the provided Component(s)
-func (c ActionRowComponent) WithComponents(components ...InteractiveComponent) ActionRowComponent {
+func (c ActionRowComponent) WithComponents(components ...ActionRowSubComponent) ActionRowComponent {
 	c.Components = components
 	return c
 }
 
 // UpdateComponent returns a new ActionRowComponent with the Component which has the id replaced with the provided Component.
-func (c ActionRowComponent) UpdateComponent(id int, component InteractiveComponent) ActionRowComponent {
+func (c ActionRowComponent) UpdateComponent(id int, component ActionRowSubComponent) ActionRowComponent {
 	for i, cc := range c.Components {
 		if cc.GetID() == id {
 			c.Components[i] = component
@@ -434,7 +457,7 @@ func (c ActionRowComponent) UpdateComponent(id int, component InteractiveCompone
 }
 
 // AddComponents returns a new ActionRowComponent with the provided Component(s) added
-func (c ActionRowComponent) AddComponents(components ...InteractiveComponent) ActionRowComponent {
+func (c ActionRowComponent) AddComponents(components ...ActionRowSubComponent) ActionRowComponent {
 	c.Components = append(c.Components, components...)
 	return c
 }
@@ -571,6 +594,7 @@ func (c ButtonComponent) GetCustomID() string {
 
 func (ButtonComponent) component()                 {}
 func (ButtonComponent) interactiveComponent()      {}
+func (ButtonComponent) actionRowSubComponent()     {}
 func (ButtonComponent) sectionAccessoryComponent() {}
 
 // WithID returns a new ButtonComponent with the provided id
@@ -680,7 +704,10 @@ func NewLinkMenuActionItem(label string, url string) MenuActionItemComponent {
 	}
 }
 
-var _ Component = (*MenuActionItemComponent)(nil)
+var (
+	_ Component            = (*MenuActionItemComponent)(nil)
+	_ InteractiveComponent = (*MenuActionItemComponent)(nil)
+)
 
 // MenuActionItemComponent is an item inside an [OverflowMenuGroup] which is shown when the [OverflowMenuComponent] is opened.
 type MenuActionItemComponent struct {
@@ -713,7 +740,12 @@ func (c MenuActionItemComponent) GetID() int {
 	return c.ID
 }
 
-func (MenuActionItemComponent) component() {}
+func (c MenuActionItemComponent) GetCustomID() string {
+	return c.CustomID
+}
+
+func (MenuActionItemComponent) component()            {}
+func (MenuActionItemComponent) interactiveComponent() {}
 
 // WithID returns a new MenuActionItemComponent with the provided id
 func (c MenuActionItemComponent) WithID(id int) MenuActionItemComponent {
@@ -800,9 +832,31 @@ func (c OverflowMenuGroup) WithComponents(components ...MenuActionItemComponent)
 	return c
 }
 
-// AddComponents returns a new OverflowMenuGroup with the provided MenuActionItemComponent(s) added
+// UpdateComponent returns a new OverflowMenuGroup with the Component which has the id replaced with the provided Component.
+func (c OverflowMenuGroup) UpdateComponent(id int, component MenuActionItemComponent) OverflowMenuGroup {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components[i] = component
+			return c
+		}
+	}
+	return c
+}
+
+// AddComponents returns a new OverflowMenuGroup with the provided Component(s) added
 func (c OverflowMenuGroup) AddComponents(components ...MenuActionItemComponent) OverflowMenuGroup {
 	c.Components = append(c.Components, components...)
+	return c
+}
+
+// RemoveComponent returns a new OverflowMenuGroup with the provided Component which has the provided id removed.
+func (c OverflowMenuGroup) RemoveComponent(id int) OverflowMenuGroup {
+	for i, cc := range c.Components {
+		if cc.GetID() == id {
+			c.Components = append(c.Components[:i], c.Components[i+1:]...)
+			return c
+		}
+	}
 	return c
 }
 
@@ -815,8 +869,9 @@ func NewOverflowMenu(groups ...OverflowMenuGroup) OverflowMenuComponent {
 
 var (
 	_ Component                 = (*OverflowMenuComponent)(nil)
-	_ InteractiveComponent      = (*OverflowMenuComponent)(nil)
+	_ ActionRowSubComponent     = (*OverflowMenuComponent)(nil)
 	_ SectionAccessoryComponent = (*OverflowMenuComponent)(nil)
+	_ ComponentIter             = (*OverflowMenuComponent)(nil)
 )
 
 // OverflowMenuComponent is a component which shows a menu of grouped [MenuActionItemComponent]s when clicked.
@@ -845,14 +900,22 @@ func (c OverflowMenuComponent) GetID() int {
 	return c.ID
 }
 
-// GetCustomID returns an empty string as an OverflowMenuComponent has no customID.
-func (c OverflowMenuComponent) GetCustomID() string {
-	return ""
-}
-
 func (OverflowMenuComponent) component()                 {}
-func (OverflowMenuComponent) interactiveComponent()      {}
+func (OverflowMenuComponent) actionRowSubComponent()     {}
 func (OverflowMenuComponent) sectionAccessoryComponent() {}
+
+// SubComponents returns an [iter.Seq[Component]] over the [MenuActionItemComponent](s) of all groups of the OverflowMenuComponent.
+func (c OverflowMenuComponent) SubComponents() iter.Seq[Component] {
+	return func(yield func(Component) bool) {
+		for _, group := range c.Groups {
+			for _, cc := range group.Components {
+				if !yield(cc) {
+					return
+				}
+			}
+		}
+	}
+}
 
 // WithID returns a new OverflowMenuComponent with the provided id
 func (c OverflowMenuComponent) WithID(id int) OverflowMenuComponent {
@@ -866,7 +929,7 @@ func (c OverflowMenuComponent) WithGroups(groups ...OverflowMenuGroup) OverflowM
 	return c
 }
 
-// AddGroups returns a new OverflowMenuComponent with the provided group(s) added
+// AddGroups returns a new OverflowMenuComponent with the provided OverflowMenuGroup(s) added
 func (c OverflowMenuComponent) AddGroups(groups ...OverflowMenuGroup) OverflowMenuComponent {
 	c.Groups = append(c.Groups, groups...)
 	return c
@@ -940,9 +1003,10 @@ func (c TextInputComponent) GetCustomID() string {
 	return c.CustomID
 }
 
-func (TextInputComponent) component()            {}
-func (TextInputComponent) interactiveComponent() {}
-func (TextInputComponent) labelSubComponent()    {}
+func (TextInputComponent) component()             {}
+func (TextInputComponent) interactiveComponent()  {}
+func (TextInputComponent) actionRowSubComponent() {}
+func (TextInputComponent) labelSubComponent()     {}
 
 // WithID returns a new TextInputComponent with the provided id
 func (c TextInputComponent) WithID(id int) TextInputComponent {
@@ -1128,7 +1192,7 @@ func (SectionComponent) component()             {}
 func (SectionComponent) layoutComponent()       {}
 func (SectionComponent) containerSubComponent() {}
 
-// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) and Accessory of the SectionComponent.
+// SubComponents returns an [iter.Seq[Component]] over the sub Component(s) and Accessory of the SectionComponent and their sub Component(s).
 func (c SectionComponent) SubComponents() iter.Seq[Component] {
 	return func(yield func(Component) bool) {
 		for _, cc := range c.Components {
@@ -1140,6 +1204,13 @@ func (c SectionComponent) SubComponents() iter.Seq[Component] {
 		if c.Accessory != nil {
 			if !yield(c.Accessory) {
 				return
+			}
+			if ic, ok := c.Accessory.(ComponentIter); ok {
+				for cc := range ic.SubComponents() {
+					if !yield(cc) {
+						return
+					}
+				}
 			}
 		}
 	}
@@ -2223,6 +2294,7 @@ func (c UnknownComponent) GetCustomID() string {
 
 func (UnknownComponent) component()                 {}
 func (UnknownComponent) interactiveComponent()      {}
+func (UnknownComponent) actionRowSubComponent()     {}
 func (UnknownComponent) layoutComponent()           {}
 func (UnknownComponent) selectMenuComponent()       {}
 func (UnknownComponent) containerSubComponent()     {}

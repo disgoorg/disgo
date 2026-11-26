@@ -156,8 +156,8 @@ func (m WebhookMessageCreate) AddComponents(containers ...LayoutComponent) Webho
 	return m
 }
 
-// AddActionRow returns a new WebhookMessageCreate with a new ActionRowComponent containing the provided InteractiveComponent(s) added.
-func (m WebhookMessageCreate) AddActionRow(components ...InteractiveComponent) WebhookMessageCreate {
+// AddActionRow returns a new WebhookMessageCreate with a new ActionRowComponent containing the provided ActionRowSubComponent(s) added.
+func (m WebhookMessageCreate) AddActionRow(components ...ActionRowSubComponent) WebhookMessageCreate {
 	m.Components = append(m.Components, NewActionRow(components...))
 	return m
 }

@@ -178,8 +178,8 @@ func (m MessageCreate) RemoveComponent(id int) MessageCreate {
 	return m
 }
 
-// AddActionRow returns a new MessageCreate with a new ActionRowComponent containing the provided InteractiveComponent(s) added.
-func (m MessageCreate) AddActionRow(components ...InteractiveComponent) MessageCreate {
+// AddActionRow returns a new MessageCreate with a new ActionRowComponent containing the provided ActionRowSubComponent(s) added.
+func (m MessageCreate) AddActionRow(components ...ActionRowSubComponent) MessageCreate {
 	m.Components = append(m.Components, NewActionRow(components...))
 	return m
 }
